@@ -19,13 +19,7 @@ USER INTERFACE MAIN
 #include "../cgame/animtable.h" //we want this to be compiled into the module because we access it in the shared module.
 #include "../game/bg_saga.h"
 
-//[Mac]
-#if MAC_PORT
-#include "../cgame/holocronicons.h"
-#else
 #include "..\cgame\holocronicons.h"
-#endif
-//[/Mac]
 
 extern void UI_SaberAttachToChar( itemDef_t *item );
 
@@ -289,11 +283,7 @@ void UI_SetSiegeTeams(void);
 extern qboolean UI_SaberModelForSaber( const char *saberName, char *saberModel );
 void UI_SiegeSetCvarsForClass(siegeClass_t *scl);
 int UI_SiegeClassNum(siegeClass_t *scl);
-//[VS2005]
-//VS2005's C doesn't assume int type anymore.
-void UI_UpdateCvarsForClass(const int team,const int baseClass,const int index);
-//void UI_UpdateCvarsForClass(const int team,const baseClass,const int index);
-//[/VS2005]
+void UI_UpdateCvarsForClass(const int team,const baseClass,const int index);
 void	UI_UpdateSiegeStatusIcons(void);
 void UI_ClampMaxPlayers(void);
 static void UI_CheckServerName( void );
@@ -9648,11 +9638,7 @@ void UI_SiegeSetCvarsForClass(siegeClass_t *scl)
 
 int g_siegedFeederForcedSet = 0;
 
-//[VS2005]
-//VS2005's C doesn't assume int type anymore.
-void UI_UpdateCvarsForClass(const int team,const int baseClass,const int index)
-//void UI_UpdateCvarsForClass(const int team,const baseClass,const int index)
-//[/VS2005]
+void UI_UpdateCvarsForClass(const int team,const baseClass,const int index)
 {
 	siegeClass_t *holdClass=0;
 	char *holdBuf;

@@ -357,11 +357,7 @@ static float LittleFloat (const float *l) { return FloatSwap(l); }
 
 typedef unsigned char 		byte;
 typedef unsigned short		word;
-//[Linux]
-#ifndef __linux__
 typedef unsigned long		ulong;
-#endif
-//[/Linux]
 
 typedef enum {qfalse, qtrue}	qboolean;
 
@@ -588,13 +584,7 @@ typedef enum {
 } saberBlockedType_t;
 
 
-//[Linux]
-#ifndef __linux__
 typedef enum
-#else
-enum
-#endif
-//[/Linux]
 {
 	SABER_RED,
 	SABER_ORANGE,
@@ -614,13 +604,7 @@ enum
 };
 typedef int saber_colors_t;
 
-//[Linux]
-#ifndef __linux__
 typedef enum
-#else
-enum
-#endif
-//[/Linux]
 {
 	FP_FIRST = 0,//marker
 	FP_HEAL = 0,//instant
@@ -908,13 +892,7 @@ typedef struct
 } saberInfo_t;
 #define MAX_SABERS 2
 
-//[Linux]
-#ifndef __linux__
 typedef enum
-#else
-enum
-#endif
-//[/Linux]
 {
 	FORCE_LEVEL_0,
 	FORCE_LEVEL_1,
@@ -1038,13 +1016,7 @@ enum sharedEIKMoveState
 };
 
 //material stuff needs to be shared
-//[Linux]
-#ifndef __linux__
 typedef enum //# material_e
-#else
-enum
-#endif
-//[/Linux]
 {
 	MAT_METAL = 0,	// scorched blue-grey metal
 	MAT_GLASS,		// not a real chunk type, just plays an effect with glass sprites
@@ -1302,17 +1274,7 @@ float Q_rsqrt( float f );		// reciprocal square root
 signed char ClampChar( int i );
 signed short ClampShort( int i );
 
-//[Linux]
-//[VS2005]
-#if defined(_WIN32) && !defined(VS2005) && !defined(__GNUC__)
-//#ifdef _WIN32
-//[/VS2005]
-//[Test]
-//#if !MAC_PORT //This should also work for the MAC port, so I'm commenting this out for now.
-//[/Test]
 float powf ( float x, int y );
-#endif
-//[/Linux]
 
 // this isn't a real cheap function to call!
 int DirToByte( vec3_t dir );
@@ -1368,10 +1330,7 @@ typedef struct {
 #define VectorSet5(v,x,y,z,a,b)	((v)[0]=(x), (v)[1]=(y), (v)[2]=(z), (v)[3]=(a), (v)[4]=(b)) //rwwRMG - added
 #define Vector4Copy(a,b)		((b)[0]=(a)[0],(b)[1]=(a)[1],(b)[2]=(a)[2],(b)[3]=(a)[3])
 
-//[Mac]
-#if MAC_PORT || defined(__linux__)
-//#ifdef __linux__
-//[/Mac]
+#ifdef __linux__
 #define	SnapVector(v) {v[0]=((int)(v[0]));v[1]=((int)(v[1]));v[2]=((int)(v[2]));}
 #else 
 #ifndef __LCC__
@@ -1876,13 +1835,7 @@ typedef struct {
 // sound channels
 // channel 0 never willingly overrides
 // other channels will allways override a playing sound on that channel
-//[Linux]
-#ifndef __linux__
 typedef enum {
-#else
-enum {
-#endif
-//[/Linux]
 	CHAN_AUTO,	//## %s !!"W:\game\base\!!sound\*.wav;*.mp3" # Auto-picks an empty channel to play sound on
 	CHAN_LOCAL,	//## %s !!"W:\game\base\!!sound\*.wav;*.mp3" # menu sounds, etc
 	CHAN_WEAPON,//## %s !!"W:\game\base\!!sound\*.wav;*.mp3" 
@@ -2960,13 +2913,7 @@ typedef struct qtime_s {
 #define AS_MPLAYER			3 // (Obsolete)
 
 // cinematic states
-//[Linux]
-#ifndef __linux__
 typedef enum {
-#else
-enum {
-#endif
-//[/Linux]
 	FMV_IDLE,
 	FMV_PLAY,		// play
 	FMV_EOF,		// all other conditions, i.e. stop/EOF/abort
@@ -2977,13 +2924,7 @@ enum {
 };
 typedef int e_status;
 
-//[Linux]
-#ifndef __linux__
 typedef enum _flag_status {
-#else
-enum _flag_status {
-#endif
-//[/Linux]
 	FLAG_ATBASE = 0,
 	FLAG_TAKEN,			// CTF
 	FLAG_TAKEN_RED,		// One Flag CTF
@@ -3024,13 +2965,7 @@ typedef struct {
 
 // For ghoul2 axis use
 
-//[Linux]
-#ifndef __linux__
 typedef enum Eorientations
-#else
-enum Eorientations
-#endif
-//[/Linux]
 {
 	ORIGIN = 0, 
 	POSITIVE_X,
@@ -3048,13 +2983,7 @@ Ghoul2 Insert End
 // define the new memory tags for the zone, used by all modules now
 //
 #define TAGDEF(blah) TAG_ ## blah
-//[Linux]
-#ifndef __linux__
 typedef enum {
-#else
-enum {
-#endif
-//[/Linux]
 	#include "../qcommon/tags.h"
 };
 typedef char memtag_t;

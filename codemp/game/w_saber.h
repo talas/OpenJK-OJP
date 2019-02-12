@@ -33,13 +33,7 @@
 #define FORCE_LIGHTNING_RADIUS 300
 #define MAX_DRAIN_DISTANCE 512
 
-//[Linux]
-#ifndef __linux__
 typedef enum
-#else
-enum
-#endif
-//[/Linux]
 {
 	FJ_FORWARD,
 	FJ_BACKWARD,

@@ -2630,10 +2630,7 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	if( isBot ) {
 		ent->r.svFlags |= SVF_BOT;
 		ent->inuse = qtrue;
-		//[Linux]
-		//if( !G_BotConnect( clientNum, !firstTime ) ) {
-		if( !G_BotConnect( clientNum, (qboolean) (!firstTime) ) ) {
-		//[/Linux]
+		if( !G_BotConnect( clientNum, !firstTime ) ) {
 			return "BotConnectfailed";
 		}
 	}

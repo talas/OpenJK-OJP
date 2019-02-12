@@ -451,13 +451,7 @@ extern int	numVehicles;
 #define	VEH_MOUNT_THROW_RIGHT		-6
 
 
-//[Linux]
-#ifndef __linux__
 typedef enum
-#else
-enum
-#endif
-//[/Linux]
 {
 	VEH_EJECT_LEFT, 
 	VEH_EJECT_RIGHT, 
@@ -529,13 +523,7 @@ typedef struct
 // This is the implementation of the vehicle interface and any of the other variables needed. This
 // is what actually represents a vehicle. -AReis.
 
-//[Linux]
-#ifndef __linux__
 typedef struct Vehicle_s
-#else
-struct Vehicle_s
-#endif
-//[/Linux]
 {
 	// The entity who pilots/drives this vehicle.
 	// NOTE: This is redundant (since m_pParentEntity->owner _should_ be the pilot). This makes things clearer though.
@@ -696,14 +684,7 @@ struct Vehicle_s
 	VehicleTurning_t eTurningOnSpot;
 	//ROP VEHICLE_IMP END
 
-
-//[Linux]//[Mac]
-#if MAC_PORT || defined(__linux__)// LBO - Vehicle_t is already defined at the top of the file to Vehicle_s
-};
-#else
 } Vehicle_t;
-#endif
-//[/Linux]//[/Mac]
 
 #include "../namespace_begin.h"
 extern int BG_VehicleGetIndex( const char *vehicleName );

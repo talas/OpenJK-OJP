@@ -1824,13 +1824,7 @@ void G_HeldByMonster( gentity_t *ent, usercmd_t **ucmd )
 	(*ucmd)->upmove = 0;
 }
 
-//[Linux]
-#ifndef __linux__
 typedef enum {
-#else
-enum {
-#endif
-//[/Linux]
 	TAUNT_TAUNT = 0,
 	TAUNT_BOW,
 	TAUNT_MEDITATE,

@@ -5,13 +5,7 @@
 #ifndef __WEAPONS_H__
 #define __WEAPONS_H__
 
-//[Linux]
-#ifndef __linux__
 typedef enum {
-#else
-enum {
-#endif
-//[/Linux]
 	WP_NONE,
 
 	WP_STUN_BATON,

@@ -849,13 +849,9 @@ This must be the very first function compiled into the .q3vm file
 ================
 */
 #include "../namespace_begin.h"
-//[Linux]
-/*
 #ifdef __linux__
 extern "C" {
 #endif
-*/
-//[/Linux]
 int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11  ) {
 	switch ( command ) {
 	case GAME_INIT:
@@ -1045,13 +1041,9 @@ int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int a
 
 	return -1;
 }
-//[Linux]
-/*
 #ifdef __linux__
 }
 #endif
-*/
-//[/Linux]
 #include "../namespace_end.h"
 
 

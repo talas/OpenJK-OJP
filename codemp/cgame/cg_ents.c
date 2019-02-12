@@ -6,15 +6,8 @@
 /*
 Ghoul2 Insert Start
 */
-//[Mac]
-#if MAC_PORT
-#include "../game/q_shared.h"
-#include "../ghoul2/g2.h"
-#else
 #include "..\game\q_shared.h"
 #include "..\ghoul2\g2.h"
-#endif
-//[/Mac]
 /*
 Ghoul2 Insert end
 */

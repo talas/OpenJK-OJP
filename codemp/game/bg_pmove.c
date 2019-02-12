@@ -844,14 +844,9 @@ void BG_VehicleTurnRateForSpeed( Vehicle_t *pVeh, float speed, float *mPitchOver
 
 // Following couple things don't belong in the DLL namespace!
 #ifdef QAGAME
-//[Linux]//[Mac]
-#if _WIN32 && !defined(__GNUC__)
 typedef struct gentity_s gentity_t;
-#endif
-//[/Linux]//[/Mac]
 gentity_t *G_PlayEffectID(const int fxID, vec3_t org, vec3_t ang);
 #endif
-
 
 #include "../namespace_begin.h"
 
@@ -13871,19 +13866,11 @@ void PmoveSingle (pmove_t *pmove) {
 		PM_HoverTrace();
 	}
 	PM_SetWaterLevel();
-	//[Linux]
-	//bytes aren't negative on the linux system?
-	if (/*pm->cmd.forcesel != -1 &&*/ (pm->ps->fd.forcePowersKnown & (1 << pm->cmd.forcesel)))
-	//if (pm->cmd.forcesel != -1 && (pm->ps->fd.forcePowersKnown & (1 << pm->cmd.forcesel)))
-	//[/Linux]
+	if (pm->cmd.forcesel != -1 && (pm->ps->fd.forcePowersKnown & (1 << pm->cmd.forcesel)))
 	{
 		pm->ps->fd.forcePowerSelected = pm->cmd.forcesel;
 	}
-	//[Linux]
-	//bytes aren't negative on the linux system?
-	if (/*pm->cmd.invensel != -1 &&*/ (pm->ps->stats[STAT_HOLDABLE_ITEMS] & (1 << pm->cmd.invensel)))
-	//if (pm->cmd.invensel != -1 && (pm->ps->stats[STAT_HOLDABLE_ITEMS] & (1 << pm->cmd.invensel)))
-	//[/Linux]
+	if (pm->cmd.invensel != -1 && (pm->ps->stats[STAT_HOLDABLE_ITEMS] & (1 << pm->cmd.invensel)))
 	{
 		pm->ps->stats[STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag(pm->cmd.invensel, IT_HOLDABLE);
 	}

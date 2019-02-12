@@ -1050,13 +1050,7 @@ extern gentity_t g_entities[];
 
 #elif defined CGAME
 
-//[Mac]
-#if MAC_PORT
-#include "../cgame/cg_local.h" //ahahahahhahahaha@$!$!
-#else
 #include "..\cgame\cg_local.h" //ahahahahhahahaha@$!$!
-#endif
-//[/Mac]
 
 #endif
 #include "../namespace_begin.h"

@@ -709,11 +709,7 @@ typedef struct
 
 #define MAX_FAILED_NODES 8
 
-//[Linux]//[Mac]
-#if _WIN32 && !defined(__GNUC__)
 typedef struct Vehicle_s Vehicle_t;
-#endif
-//[/Linux]//[/Mac]
 
 // the server looks at a sharedEntity, which is the start of the game's gentity_t structure
 //mod authors should not touch this struct

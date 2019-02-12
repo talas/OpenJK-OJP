@@ -220,8 +220,5 @@ protected:
 	static keywordArray_t	m_conditionalKeywords[];	//Conditional
 };
 
-//[Linux]
-#endif //__cplusplus
-//#endif __cplusplus
-//[/Linux]
+#endif __cplusplus
 #endif	//__INTERPRETER__

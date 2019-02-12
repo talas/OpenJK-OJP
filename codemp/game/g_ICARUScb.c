@@ -75,9 +75,6 @@ int numDeclaredVariables = 0;
 //unless we're using cpp. But we need it for the interpreter stuff.
 //In any case, DO NOT modify this enum.
 
-//[Linux]
-//#ifndef __linux__
-//[/Linux]
 enum
 {
 	TK_EOF = -1,
@@ -92,9 +89,6 @@ enum
 	TK_IDENTIFIER,
 	TK_USERDEF,
 };
-//[Linux]
-//#endif
-//[/Linux]
 
 #include "../icarus/interpreter.h"
 

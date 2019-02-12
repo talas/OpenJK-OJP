@@ -1,13 +1,6 @@
 #include "cg_local.h"
-//[Mac]
-#if MAC_PORT
-#include "../game/q_shared.h"
-#include "../ghoul2/g2.h"
-#else
 #include "..\game\q_shared.h"
 #include "..\ghoul2\g2.h"
-#endif
-//[/Mac]
 
 //rww - The turret is heavily dependant on bone angles. We can't happily set that on the server, so it is done client-only.
 

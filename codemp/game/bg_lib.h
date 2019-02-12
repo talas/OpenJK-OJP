@@ -39,12 +39,7 @@ char *strcpy( char *strDestination, const char *strSource );
 int strcmp( const char *string1, const char *string2 );
 char *strchr( const char *string, int c );
 char *strstr( const char *string, const char *strCharSet );
-//[Linux]
-#ifndef __linux__
 char *strncpy( char *strDest, const char *strSource, size_t count );
-#endif
-//[/Linux]
-
 int tolower( int c );
 int toupper( int c );
 
@@ -57,13 +52,9 @@ int vsprintf( char *buffer, const char *fmt, va_list argptr );
 int sscanf( const char *buffer, const char *fmt, ... );
 
 // Memory functions
-//[Linux]
-#ifndef __linux__
 void *memmove( void *dest, const void *src, size_t count );
 void *memset( void *dest, int c, size_t count );
 void *memcpy( void *dest, const void *src, size_t count );
-#endif
-//[/Linux]
 
 // Math functions
 double ceil( double x );

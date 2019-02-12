@@ -63,11 +63,6 @@ qboolean WP_SaberBladeDoTransitionDamage( saberInfo_t *saber, int bladeNum );
 void WP_SaberAddG2Model( gentity_t *saberent, const char *saberModel, qhandle_t saberSkin );
 void WP_SaberRemoveG2Model( gentity_t *saberent );
 
-//[BugFix4]
-#ifdef __linux__
-#define RAND_MAX 2147483647
-#endif
-//[/BugFix4]
 
 //[SaberSys]
 qboolean ButterFingers(gentity_t *saberent, gentity_t *saberOwner, gentity_t *other, trace_t *tr);
@@ -243,11 +238,9 @@ int BasicDodgeCosts[MOD_MAX] =
 
 
 float RandFloat(float min, float max) {
-//[BugFix4]
-//Fixes problem with linux compiles.
-	return ((rand() * (max - min)) / (float)RAND_MAX) + min;
-//	return ((rand() * (max - min)) / 32768.0F) + min; 
-//[/BugFix4]
+//	return ((rand() * (max - min)) / 32768.0F) + min;
+//for linux:
+	return ((rand() * (max - min)) / (float)RAND_MAX) + min; 
 }
 
 #ifdef DEBUG_SABER_BOX

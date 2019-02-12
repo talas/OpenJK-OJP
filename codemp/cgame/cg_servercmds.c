@@ -13,13 +13,7 @@
 #if !defined(CL_LIGHT_H_INC)
 	#include "cg_lights.h"
 #endif
-//[Mac]
-#if MAC_PORT
-#include "../ghoul2/g2.h"
-#else
 #include "..\ghoul2\g2.h"
-#endif
-//[/Mac]
 #include "../ui/ui_public.h"
 
 /*

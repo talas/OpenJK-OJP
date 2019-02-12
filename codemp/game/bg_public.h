@@ -302,13 +302,7 @@ typedef enum
 //for supplier class items
 #define TOSS_DEBOUNCE_TIME				5000
 
-//[Linux]
-#ifndef __linux__
 typedef enum {
-#else
-enum {
-#endif
-//[/Linux]
 	GT_FFA,				// free for all
 	GT_HOLOCRON,		// holocron ffa
 	GT_JEDIMASTER,		// jedi master
@@ -335,13 +329,7 @@ extern vec3_t WP_MuzzlePoint2[WP_NUM_WEAPONS];//[DualPistols]
 extern int forcePowerSorted[NUM_FORCE_POWERS];
 #include "../namespace_end.h"
 
-//[Linux]
-#ifndef __linux__
 typedef enum
-#else
-enum
-#endif
-//[/Linux]
 {
 	SABERLOCK_TOP,
 	SABERLOCK_SIDE,
@@ -352,13 +340,7 @@ enum
 	SABERLOCK_LOSE
 };
 
-//[Linux]
-#ifndef __linux__
 typedef enum
-#else
-enum
-#endif
-//[/Linux]
 {
 	DIR_RIGHT,
 	DIR_LEFT,
@@ -537,13 +519,7 @@ typedef enum {
 } weaponstate_t;
 
 
-//[Linux]
-#ifndef __linux__
 typedef enum {
-#else
-enum {
-#endif
-//[/Linux]
 	FORCE_MASTERY_UNINITIATED,
 	FORCE_MASTERY_INITIATE,
 	FORCE_MASTERY_PADAWAN,
@@ -598,13 +574,7 @@ extern int bgForcePowerCost[NUM_TOTAL_SKILLS][NUM_FORCE_POWER_LEVELS];
 
 #define	MAXTOUCH	32
 
-//[Linux]
-#ifndef __linux__
 typedef struct bgEntity_s
-#else
-struct bgEntity_s
-#endif
-//[/Linux]
 {
 	entityState_t	s;
 	playerState_t	*playerState;
@@ -614,13 +584,7 @@ struct bgEntity_s
 	vec3_t			modelScale; //needed for g2 collision
 
 	//Data type(s) must directly correspond to the head of the gentity and centity structures
-//[Linux]//[Mac]
-#if MAC_PORT || __linux__ // LBO - bgEntity_t already defined to bgEntity_s in bg_vehicles.h
-};
-#else
 } bgEntity_t;
-#endif
-//[Linux]//[Mac]
 
 typedef struct {
 	// state (in / out)
@@ -868,13 +832,7 @@ typedef enum {
 } effectTypes_t;
 
 // NOTE: may not have more than 16
-//[Linux]
-#ifndef __linux__
 typedef enum {
-#else
-enum {
-#endif
-//[/Linux]
 	PW_NONE,
 
 	PW_QUAD,
@@ -908,13 +866,7 @@ enum {
 };
 typedef int powerup_t;
 
-//[Linux]
-#ifndef __linux__
 typedef enum {
-#else
-enum {
-#endif
-//[/Linux]
 	HI_NONE,
 
 	HI_SEEKER,
@@ -1249,13 +1201,7 @@ typedef enum {
 } global_team_sound_t;
 
 
-//[Linux]
-#ifndef __linux__
 typedef enum {
-#else
-enum {
-#endif
-//[/Linux]
 	TEAM_FREE,
 	TEAM_RED,
 	TEAM_BLUE,
@@ -1356,13 +1302,7 @@ typedef enum {
 //---------------------------------------------------------
 
 // gitem_t->type
-//[Linux]
-#ifndef __linux__
 typedef enum {
-#else
-enum {
-#endif
-//[/Linux]
 	IT_BAD,
 	IT_WEAPON,				// EFX: rotate + upscale + minlight
 	IT_AMMO,				// EFX: rotate
@@ -1546,13 +1486,7 @@ typedef struct
 #undef LS_NONE
 #endif
 
-//[Linux]
-#ifndef __linux__
 typedef enum {
-#else
-enum {
-#endif
-//[/Linux]
 	//totally invalid
 	LS_INVALID	= -1,
 	// Invalid, or saber not armed

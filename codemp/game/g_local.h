@@ -106,13 +106,7 @@ typedef enum {
 
 #define SP_PODIUM_MODEL		"models/mapobjects/podium/podium4.md3"
 
-//[Linux]
-#ifndef __linux__
 typedef enum {
-#else
-enum {
-#endif
-//[/Linux]
 	HL_NONE = 0,
 	HL_FOOT_RT,
 	HL_FOOT_LT,
@@ -148,13 +142,7 @@ enum {
 #define		MAX_OBJECTIVEDEPENDANCY	6
 
 //TAB bot orders/tactical options
-//[Linux]
-#ifndef __linux__
 typedef enum {
-#else
-enum {
-#endif
-//[/Linux]
 	BOTORDER_NONE,  //no order
 	BOTORDER_KNEELBEFOREZOD,  //Kneel before the ordered person
 	BOTORDER_SEARCHANDDESTROY,	//Attack mode.  If given an entity the bot will search for
@@ -179,13 +167,7 @@ enum {
 
 
 //Seige Objective types
-//[Linux]
-#ifndef __linux__
 typedef enum {
-#else
-enum {
-#endif
-//[/Linux]
 	OT_NONE,	//no OT selected or bad OT
 	OT_ATTACK,	//Attack this objective, for destroyable stationary objectives
 	OT_DEFEND,  //Defend this objective, for destroyable stationary objectives 
@@ -492,13 +474,7 @@ struct gentity_s {
 #define DAMAGEREDIRECT_RLEG		2
 #define DAMAGEREDIRECT_LLEG		3
 
-//[Linux]
-#ifndef __linux__
 typedef enum {
-#else
-enum {
-#endif
-//[/Linux]
 	CON_DISCONNECTED,
 	CON_CONNECTING,
 	CON_CONNECTED
@@ -1798,13 +1774,7 @@ void B_CleanupAlloc(void);
 
 
 //[TABBot]
-//[Linux]
-#ifndef __linux__
 typedef enum {
-#else
-enum {
-#endif
-//[/Linux]
 	//Use the JKA Default bot system.
 	BOT_DEFAULT,
 	//Use TAB bot system

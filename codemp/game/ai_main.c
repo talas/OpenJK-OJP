@@ -661,16 +661,9 @@ void BotInputToUserCommand(bot_input_t *bi, usercmd_t *ucmd, int delta_angles[3]
 	//bot input speed is in the range [0, 400]
 	bi->speed = bi->speed * 127 / 400;
 	//set the view independent movement
-	//[Linux] type cast fixes for g++
-	ucmd->forwardmove = (signed char) (DotProduct(forward, bi->dir) * bi->speed);
-	ucmd->rightmove = (signed char) (DotProduct(right, bi->dir) * bi->speed);
-	ucmd->upmove = (signed char) (abs((int)(forward[2])) * bi->dir[2] * bi->speed);
-	/*
 	ucmd->forwardmove = DotProduct(forward, bi->dir) * bi->speed;
 	ucmd->rightmove = DotProduct(right, bi->dir) * bi->speed;
 	ucmd->upmove = abs((int)(forward[2])) * bi->dir[2] * bi->speed;
-	*/
-	//[/Linux]
 	//normal keyboard movement
 	if (bi->actionflags & ACTION_MOVEFORWARD) ucmd->forwardmove += 127;
 	if (bi->actionflags & ACTION_MOVEBACK) ucmd->forwardmove -= 127;
@@ -4209,18 +4202,12 @@ int GetBestIdleGoal(bot_state_t *bs)
 			gWPArray[i]->weight > highestweight &&
 			!BotHasAssociated(bs, gWPArray[i]))
 		{
-			//[Linux] type cast fixes for g++		
-			traildist = (int) TotalTrailDistance(bs->wpCurrent->index, i, bs);
-			//traildist = TotalTrailDistance(bs->wpCurrent->index, i, bs);
-			//[/Linux]
+			traildist = TotalTrailDistance(bs->wpCurrent->index, i, bs);
 
 			if (traildist != -1)
 			{
 				dist_to_weight = (int)traildist/10000;
-				//[Linux] type cast fixes for g++
-				dist_to_weight = (int) ((gWPArray[i]->weight)-dist_to_weight);
-				//dist_to_weight = (gWPArray[i]->weight)-dist_to_weight;
-				//[/Linux]
+				dist_to_weight = (gWPArray[i]->weight)-dist_to_weight;
 
 				if (dist_to_weight > highestweight)
 				{
@@ -5483,10 +5470,7 @@ int ShouldSecondaryFire(bot_state_t *bs)
 
 		if (rTime > 0)
 		{
-			//[Linux] type cast g++ fix
-			dif = (int) (( level.time - rTime ) / ( 1200.0f / 16.0f ));
-			//dif = ( level.time - rTime ) / ( 1200.0f / 16.0f );
-			//[/Linux]
+			dif = ( level.time - rTime ) / ( 1200.0f / 16.0f );
 			
 			if (dif >= 10)
 			{
@@ -8611,10 +8595,7 @@ int BotAIShutdown( int restart ) {
 		//shutdown all the bots in the botlib
 		for (i = 0; i < MAX_CLIENTS; i++) {
 			if (botstates[i] && botstates[i]->inuse) {
-				//[Linux] g++ type cast fix.
-				BotAIShutdownClient(botstates[i]->client, (qboolean) restart);
-				//BotAIShutdownClient(botstates[i]->client, restart);
-				//[/Linux]
+				BotAIShutdownClient(botstates[i]->client, restart);
 			}
 		}
 		//don't shutdown the bot library

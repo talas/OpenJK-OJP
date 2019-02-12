@@ -351,16 +351,14 @@ void G_LoadIPBans( void )
 	p = banIPBuffer;
 	COM_BeginParseSession(banIPFile);
 
-	//had to change this to compile linux
-	token = COM_ParseExt( (const char **) &p, qtrue );
+	token = COM_ParseExt( &p, qtrue );
 	if ( token )
 	{
 		numIPFilters = atoi(token);
 
 		for ( i = 0 ; i < numIPFilters ; i++ ) 
 		{
-			//had to change this to compile linux
-			token = COM_ParseExt( (const char **) &p, qtrue );
+			token = COM_ParseExt( &p, qtrue );
 			if ( token )
 			{//have an ip
 				if ( !Q_stricmp("unused",token) )

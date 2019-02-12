@@ -8,23 +8,15 @@
 static int (QDECL *syscall)( int arg, ... ) = (int (QDECL *)( int, ...))-1;
 
 #include "../namespace_begin.h"
-//[Linux]
-/*
 #ifdef __linux__
 extern "C" {
 #endif
-*/
-//[Linux]
 void dllEntry( int (QDECL *syscallptr)( int arg,... ) ) {
 	syscall = syscallptr;
 }
-//[Linux]
-/*
 #ifdef __linux__
 }
 #endif
-*/
-//[Linux]
 
 int PASSFLOAT( float x ) {
 	float	floatTemp;
