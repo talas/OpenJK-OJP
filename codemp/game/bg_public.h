@@ -407,9 +407,7 @@ typedef enum
 	NUM_FOOTSTEP_TYPES
 } footstepType_t;
 
-//[ANIMEVENTS]
-//moved all this to cg_players.c to make it cgame only (since it already was)
-/*
+
 extern stringID_table_t animEventTypeTable[MAX_ANIM_EVENTS+1];
 extern stringID_table_t footstepTypeTable[NUM_FOOTSTEP_TYPES+1];
 
@@ -446,6 +444,9 @@ extern stringID_table_t footstepTypeTable[NUM_FOOTSTEP_TYPES+1];
 #define	AED_SABER_SPIN_SABERNUM		0
 #define	AED_SABER_SPIN_TYPE			1	//0 = saberspinoff, 1 = saberspin, 2-4 = saberspin1-saberspin3
 #define	AED_SABER_SPIN_PROBABILITY	2	
+//Handling dynamic pointered sounds
+//AED_SOUNDINDEX_START must = 0 (This is the dynamic pointered sound toggle)
+#define AED_CSOUND_RANDSTART		1
 
 typedef enum
 {//NOTENOTE:  Be sure to update animEventTypeTable and ParseAnimationEvtBlock(...) if you change this enum list!
@@ -458,6 +459,9 @@ typedef enum
 	AEV_SOUNDCHAN,  //# animID AEV_SOUNDCHAN framenum CHANNEL soundpath randomlow randomhi chancetoplay 
 	AEV_SABER_SWING,  //# animID AEV_SABER_SWING framenum CHANNEL randomlow randomhi chancetoplay 
 	AEV_SABER_SPIN,  //# animID AEV_SABER_SPIN framenum CHANNEL chancetoplay 
+	//[AMBIENTEV]
+	AEV_AMBIENT,
+	//[AMBIENTEV]
 	AEV_NUM_AEV
 } animEventType_t;
 
@@ -467,9 +471,14 @@ typedef struct animevent_s
 	unsigned short	keyFrame;			//Frame to play event on
 	signed short	eventData[AED_ARRAY_SIZE];	//Unique IDs, can be soundIndex of sound file to play OR effect index or footstep type, etc.
 	char			*stringData;		//we allow storage of one string, temporarily (in case we have to look up an index later, then make sure to set stringData to NULL so we only do the look-up once)
+	//[AMBIENTEV]
+	//I wanted to make sure the new ambient timers were big enough so I made them seperate
+	//ints
+	//Ambient Interval Time
+	int				ambtime;
+	//Ambient Random Factor
+	int				ambrandom;
 } animevent_t;
-*/
-//[/ANIMEVENTS]
 
 typedef struct
 {
@@ -480,9 +489,6 @@ typedef struct
 //	qboolean		soundsCached;
 } bgLoadedAnim_t;
 
-//[ANIMEVENTS]
-//moved all this to cg_players.c to make it cgame only (since it already was)
-/*
 typedef struct
 {
 	char			filename[MAX_QPATH];
@@ -490,8 +496,6 @@ typedef struct
 	animevent_t		legsAnimEvents[MAX_ANIM_EVENTS];
 	qboolean		eventsParsed;
 } bgLoadedEvents_t;
-*/
-//[/ANIMEVENTS]
 
 #include "../namespace_begin.h"
 
@@ -504,11 +508,8 @@ extern bgLoadedAnim_t bgAllAnims[MAX_ANIM_FILES];
 //On the bright side this also means we're cutting a rather large size out of
 //required game-side memory.
 #ifndef QAGAME
-//[ANIMEVENTS]
-//All this was moved cgame only.  We don't need it anymore.
-//extern bgLoadedEvents_t bgAllEvents[MAX_ANIM_FILES];
-//extern int bgNumAnimEvents;
-//[/ANIMEVENTS]
+extern bgLoadedEvents_t bgAllEvents[MAX_ANIM_FILES];
+extern int bgNumAnimEvents;
 #endif
 
 #include "../namespace_end.h"
@@ -1913,12 +1914,9 @@ qboolean	BG_PlayerTouchesItem( playerState_t *ps, entityState_t *item, int atTim
 void	BG_InitAnimsets(void);
 void	BG_ClearAnimsets(void);
 int		BG_ParseAnimationFile(const char *filename, animation_t *animSet, qboolean isHumanoid);
-//[ANIMEVENTS]
-//Moved to cgame (cg_players.c)
-//#ifndef QAGAME
-//int		BG_ParseAnimationEvtFile( const char *as_filename, int animFileIndex, int eventFileIndex );
-//#endif
-//[/ANIMEVENTS]
+#ifndef QAGAME
+int		BG_ParseAnimationEvtFile( const char *as_filename, int animFileIndex, int eventFileIndex );
+#endif
 
 qboolean BG_HasAnimation(int animIndex, int animation);
 int		BG_PickAnim( int animIndex, int minAnim, int maxAnim );

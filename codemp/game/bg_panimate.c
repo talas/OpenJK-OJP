@@ -2197,10 +2197,6 @@ void BG_AnimsetFree(animation_t *animset)
 	*/
 }
 
-//[ANIMEVENTS]
-//Move all this crap to cgame since it's only used there.
-
-/*
 #ifndef QAGAME //none of this is actually needed serverside. Could just be moved to cgame code but it's here since it
 			   //used to tie in a lot with the anim loading stuff.
 stringID_table_t animEventTypeTable[MAX_ANIM_EVENTS+1] = 
@@ -2213,6 +2209,8 @@ stringID_table_t animEventTypeTable[MAX_ANIM_EVENTS+1] =
 	ENUM2STRING(AEV_SOUNDCHAN),		//# animID AEV_SOUNDCHAN framenum CHANNEL soundpath randomlow randomhi chancetoplay 
 	ENUM2STRING(AEV_SABER_SWING),	//# animID AEV_SABER_SWING framenum CHANNEL randomlow randomhi chancetoplay 
 	ENUM2STRING(AEV_SABER_SPIN),	//# animID AEV_SABER_SPIN framenum CHANNEL chancetoplay 
+	//[AMBIENTEV]
+	ENUM2STRING(AEV_AMBIENT),
 	//must be terminated
 	NULL,-1
 };
@@ -2233,7 +2231,15 @@ int CheckAnimFrameForEventType( animevent_t *animEvents, int keyFrame, animEvent
 
 	for ( i = 0; i < MAX_ANIM_EVENTS; i++ )
 	{
-		if ( animEvents[i].keyFrame == keyFrame )
+		//[AMBIENTEV]
+		if( eventType == AEV_AMBIENT )
+		{//find the ambient animevent
+			if ( animEvents[i].eventType == AEV_AMBIENT )
+				return i;
+		}
+		else if ( animEvents[i].keyFrame == keyFrame )
+		//if ( animEvents[i].keyFrame == keyFrame )
+		//[AMBIENTEV]
 		{//there is an animevent on this frame already
 			if ( animEvents[i].eventType == eventType )
 			{//and it is of the same type
@@ -2286,6 +2292,156 @@ void ParseAnimationEvtBlock(const char *aeb_filename, animevent_t *animEvents, a
 			break;
 		}
 
+		//[AMBIENTEV]
+		//Parse ambient sound
+		if ( !Q_stricmp( token, "AEV_AMBIENT" ) )
+		{//It's an ambient sound, do your thing.
+			//AEV_AMBIENT intervals randomfactor soundpath randomlow randomhi chancetoplay
+			//see if this frame already has an event of this type on it, if so, overwrite it
+			curAnimEvent = CheckAnimFrameForEventType( animEvents, 0, AEV_AMBIENT);
+			if ( curAnimEvent == -1 )
+			{//this anim frame doesn't already have an event of this type on it
+				curAnimEvent = lastAnimEvent;
+			}
+			animEvents[curAnimEvent].eventType = AEV_AMBIENT;
+
+			//Lets grab the time intervals
+			token = COM_Parse( text_p );
+			if ( !token[0] ) //[TicketFix143] 
+			{
+				break;
+			}
+			animEvents[curAnimEvent].ambtime = atoi( token );
+
+			//Lets grab the random factor
+			token = COM_Parse( text_p );
+			if ( !token[0] ) //[TicketFix143] 
+			{
+				break;
+			}
+			animEvents[curAnimEvent].ambrandom = atoi( token );
+
+			//set sound channel
+			token = COM_Parse( text_p );
+			if ( !token[0] ) //[TicketFix143] 
+			{
+				break;
+			}
+			if ( stricmp( token, "CHAN_VOICE_ATTEN" ) == 0 )
+			{
+				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = CHAN_VOICE_ATTEN;
+			}
+			else if ( stricmp( token, "CHAN_VOICE_GLOBAL" ) == 0 )
+			{
+				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = CHAN_VOICE_GLOBAL;
+			}
+			else if ( stricmp( token, "CHAN_ANNOUNCER" ) == 0 )
+			{
+				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = CHAN_ANNOUNCER;
+			}
+			else if ( stricmp( token, "CHAN_BODY" ) == 0 )
+			{
+				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = CHAN_BODY;
+			}
+			else if ( stricmp( token, "CHAN_WEAPON" ) == 0 )
+			{
+				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = CHAN_WEAPON;
+			}
+			else if ( stricmp( token, "CHAN_VOICE" ) == 0 )
+			{
+				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = CHAN_VOICE;
+			} 
+			else
+			{
+				animEvents[curAnimEvent].eventData[AED_SOUNDCHANNEL] = CHAN_AUTO;
+			}
+
+			//get soundstring
+			token = COM_Parse( text_p );
+			if ( !token[0] ) //[TicketFix143] 
+			{
+				break;
+			}		
+			strcpy(stringData, token);
+			//get lowest value
+			token = COM_Parse( text_p );
+			if ( !token[0] ) //[TicketFix143] 
+			{//WARNING!  BAD TABLE!
+				break;
+			}
+			lowestVal = atoi( token );
+			//get highest value
+			token = COM_Parse( text_p );
+			if ( !token[0] ) //[TicketFix143] 
+			{//WARNING!  BAD TABLE!
+				break;
+			}
+			highestVal = atoi( token );
+			//Now precache all the sounds
+			if(lowestVal && highestVal)
+			{
+				//assert(highestVal - lowestVal < MAX_RANDOM_ANIM_SOUNDS);
+				if ((highestVal-lowestVal) >= MAX_RANDOM_ANIM_SOUNDS)
+				{
+					highestVal = lowestVal + (MAX_RANDOM_ANIM_SOUNDS-1);
+				}
+				for ( n = lowestVal, num = AED_SOUNDINDEX_START; n <= highestVal && num <= AED_SOUNDINDEX_END; n++, num++ )
+				{
+					if (stringData[0] == '*' && n == lowestVal)
+					{//You only need to do this once
+						animEvents[curAnimEvent].eventData[AED_SOUNDINDEX_START] = 0;
+						animEvents[curAnimEvent].eventData[AED_CSOUND_RANDSTART] = lowestVal;
+						if (!animEvents[curAnimEvent].stringData)
+						{
+							animEvents[curAnimEvent].stringData = (char *) BG_Alloc(MAX_QPATH);
+						}
+						strcpy( animEvents[curAnimEvent].stringData, stringData );
+					}
+					else if ( stringData[0] != '*' )
+					//else
+					{
+						animEvents[curAnimEvent].eventData[num] = trap_S_RegisterSound( va( stringData, n ) );
+					}
+				}
+				animEvents[curAnimEvent].eventData[AED_SOUND_NUMRANDOMSNDS] = num - 1;
+			}
+			else
+			{
+				if (stringData[0] == '*')
+				{
+					animEvents[curAnimEvent].eventData[AED_SOUNDINDEX_START] = 0;
+					animEvents[curAnimEvent].eventData[AED_CSOUND_RANDSTART] = 0;
+					if (!animEvents[curAnimEvent].stringData)
+					{
+						animEvents[curAnimEvent].stringData = (char *) BG_Alloc(MAX_QPATH);
+					}
+					strcpy( animEvents[curAnimEvent].stringData, stringData );
+				}
+				else
+				{
+					animEvents[curAnimEvent].eventData[AED_SOUNDINDEX_START] = trap_S_RegisterSound( stringData );
+				}
+			}
+
+			//get probability
+			token = COM_Parse( text_p );
+			if ( !token[0] ) //[TicketFix143] 
+			{//WARNING!  BAD TABLE!
+				break;
+			}
+			animEvents[curAnimEvent].eventData[AED_SOUND_PROBABILITY] = atoi( token );
+
+			//CG_Printf( "AEV_AMBIENT %i %i %i\n", animEvents[curAnimEvent].ambtime, animEvents[curAnimEvent].ambrandom, animEvents[curAnimEvent].eventData[AED_SOUND_NUMRANDOMSNDS]);
+
+			//bump the AnimEvent counter if this took the last number.
+			if ( curAnimEvent == lastAnimEvent )
+			{
+				lastAnimEvent++;
+			}	
+			continue;
+		}
+
+
 		//Compare to same table as animations used 
 		//	so we don't have to use actual numbers for animation first frames,
 		//	just need offsets.
@@ -2322,7 +2478,7 @@ void ParseAnimationEvtBlock(const char *aeb_filename, animevent_t *animEvents, a
 		keyFrame = animations[animNum].firstFrame;
 		// Get offset to frame within sequence
 		token = COM_Parse( text_p );
-		if ( !token ) 
+		if ( !token[0] ) //[TicketFix143] 
 		{
 			break;
 		}
@@ -2344,7 +2500,7 @@ void ParseAnimationEvtBlock(const char *aeb_filename, animevent_t *animEvents, a
 		{
 		case AEV_SOUNDCHAN:		//# animID AEV_SOUNDCHAN framenum CHANNEL soundpath randomlow randomhi chancetoplay
 			token = COM_Parse( text_p );
-			if ( !token ) 
+			if ( !token[0] ) //[TicketFix143] 
 			{
 				break;
 			}
@@ -2380,21 +2536,21 @@ void ParseAnimationEvtBlock(const char *aeb_filename, animevent_t *animEvents, a
 		case AEV_SOUND:			//# animID AEV_SOUND framenum soundpath randomlow randomhi chancetoplay
 			//get soundstring
 			token = COM_Parse( text_p );
-			if ( !token ) 
+			if ( !token[0] ) //[TicketFix143] 
 			{
 				break;
 			}		
 			strcpy(stringData, token);
 			//get lowest value
 			token = COM_Parse( text_p );
-			if ( !token ) 
+			if ( !token[0] ) //[TicketFix143] 
 			{//WARNING!  BAD TABLE!
 				break;
 			}
 			lowestVal = atoi( token );
 			//get highest value
 			token = COM_Parse( text_p );
-			if ( !token ) 
+			if ( !token[0] ) //[TicketFix143] 
 			{//WARNING!  BAD TABLE!
 				break;
 			}
@@ -2444,7 +2600,7 @@ void ParseAnimationEvtBlock(const char *aeb_filename, animevent_t *animEvents, a
 			}
 			//get probability
 			token = COM_Parse( text_p );
-			if ( !token ) 
+			if ( !token[0] ) //[TicketFix143] 
 			{//WARNING!  BAD TABLE!
 				break;
 			}
@@ -2503,14 +2659,14 @@ void ParseAnimationEvtBlock(const char *aeb_filename, animevent_t *animEvents, a
 		case AEV_FOOTSTEP:		//# animID AEV_FOOTSTEP framenum footstepType
 			//get footstep type
 			token = COM_Parse( text_p );
-			if ( !token ) 
+			if ( !token[0] ) //[TicketFix143] 
 			{
 				break;
 			}		
 			animEvents[curAnimEvent].eventData[AED_FOOTSTEP_TYPE] = GetIDForString(footstepTypeTable, token);
 			//get probability
 			token = COM_Parse( text_p );
-			if ( !token ) 
+			if ( !token[0] ) //[TicketFix143] 
 			{//WARNING!  BAD TABLE!
 				break;
 			}
@@ -2519,14 +2675,14 @@ void ParseAnimationEvtBlock(const char *aeb_filename, animevent_t *animEvents, a
 		case AEV_EFFECT:		//# animID AEV_EFFECT framenum effectpath boltName
 			//get effect index
 			token = COM_Parse( text_p );
-			if ( !token ) 
+			if ( !token[0] ) //[TicketFix143] 
 			{
 				break;
 			}
 			animEvents[curAnimEvent].eventData[AED_EFFECTINDEX] = trap_FX_RegisterEffect( token );
 			//get bolt index
 			token = COM_Parse( text_p );
-			if ( !token ) 
+			if ( !token[0] ) //[TicketFix143] 
 			{
 				break;
 			}		
@@ -2542,7 +2698,7 @@ void ParseAnimationEvtBlock(const char *aeb_filename, animevent_t *animEvents, a
 			//animEvent->eventData[AED_BOLTINDEX] = gi.G2API_AddBolt( &cent->gent->ghoul2[cent->gent->playerModel], animEvent->stringData );
 			//get probability
 			token = COM_Parse( text_p );
-			if ( !token ) 
+			if ( !token[0] ) //[TicketFix143] 
 			{//WARNING!  BAD TABLE!
 				break;
 			}
@@ -2551,14 +2707,14 @@ void ParseAnimationEvtBlock(const char *aeb_filename, animevent_t *animEvents, a
 		case AEV_FIRE:			//# animID AEV_FIRE framenum altfire chancetofire
 			//get altfire
 			token = COM_Parse( text_p );
-			if ( !token ) 
+			if ( !token[0]) //[TicketFix143] 
 			{//WARNING!  BAD TABLE!
 				break;
 			}
 			animEvents[curAnimEvent].eventData[AED_FIRE_ALT] = atoi( token );
 			//get probability
 			token = COM_Parse( text_p );
-			if ( !token ) 
+			if ( !token[0] ) //[TicketFix143] 
 			{//WARNING!  BAD TABLE!
 				break;
 			}
@@ -2567,21 +2723,21 @@ void ParseAnimationEvtBlock(const char *aeb_filename, animevent_t *animEvents, a
 		case AEV_MOVE:			//# animID AEV_MOVE framenum forwardpush rightpush uppush
 			//get forward push
 			token = COM_Parse( text_p );
-			if ( !token ) 
+			if ( !token[0] ) //[TicketFix143] 
 			{//WARNING!  BAD TABLE!
 				break;
 			}
 			animEvents[curAnimEvent].eventData[AED_MOVE_FWD] = atoi( token );
 			//get right push
 			token = COM_Parse( text_p );
-			if ( !token ) 
+			if ( !token[0] ) //[TicketFix143] 
 			{//WARNING!  BAD TABLE!
 				break;
 			}
 			animEvents[curAnimEvent].eventData[AED_MOVE_RT] = atoi( token );
 			//get upwards push
 			token = COM_Parse( text_p );
-			if ( !token ) 
+			if ( !token[0] ) //[TicketFix143] 
 			{//WARNING!  BAD TABLE!
 				break;
 			}
@@ -2600,7 +2756,7 @@ void ParseAnimationEvtBlock(const char *aeb_filename, animevent_t *animEvents, a
 	}	
 }
 
-*//*
+/*
 ======================
 BG_ParseAnimationEvtFile
 
@@ -2611,7 +2767,6 @@ This file's presence is not required
 
 ======================
 */
-/*
 bgLoadedEvents_t bgAllEvents[MAX_ANIM_FILES];
 int bgNumAnimEvents = 1;
 static int bg_animParseIncluding = 0;
@@ -2629,9 +2784,15 @@ int BG_ParseAnimationEvtFile( const char *as_filename, int animFileIndex, int ev
 	animevent_t	*torsoAnimEvents;
 	animation_t		*animations;
 	int				forcedIndex;
+	qboolean		triedbaseskelevents = qfalse;
 	
 	assert(animFileIndex < MAX_ANIM_FILES);
 	assert(eventFileIndex < MAX_ANIM_FILES);
+
+	if ( animFileIndex < 0 || animFileIndex >= MAX_ANIM_FILES || eventFileIndex >= MAX_ANIM_FILES)
+	{
+		return 0;
+	}
 
 	if (eventFileIndex == -1)
 	{
@@ -2649,6 +2810,8 @@ int BG_ParseAnimationEvtFile( const char *as_filename, int animFileIndex, int ev
 			return forcedIndex;
 		}
 	}
+
+trybaseskel:
 
 	legsAnimEvents = bgAllEvents[forcedIndex].legsAnimEvents;
 	torsoAnimEvents = bgAllEvents[forcedIndex].torsoAnimEvents;
@@ -2691,6 +2854,14 @@ int BG_ParseAnimationEvtFile( const char *as_filename, int animFileIndex, int ev
 				torsoAnimEvents[i].eventData[j] = -1;
 				legsAnimEvents[i].eventData[j] = -1;
 			}
+			//[AMBIENTEV]
+			torsoAnimEvents[i].ambtime= 0;
+			legsAnimEvents[i].ambtime = 0;
+
+
+			torsoAnimEvents[i].ambrandom = 0;
+			legsAnimEvents[i].ambrandom = 0;
+			//[/AMBIENTEV]
 		}
 	}
 
@@ -2698,7 +2869,28 @@ int BG_ParseAnimationEvtFile( const char *as_filename, int animFileIndex, int ev
 	len = trap_FS_FOpenFile( sfilename, &f, FS_READ );
 	if ( len <= 0 ) 
 	{//no file
-		goto fin;
+		if( !triedbaseskelevents )
+		{//ok let's try using the base animevents for this model's skeleton.
+			char	SkelName[MAX_QPATH];
+			char	*slash = NULL;
+
+			Q_strncpyz( SkelName, bgAllAnims[animFileIndex].filename, sizeof( SkelName ) );
+			//Remove the animation.cfg section of the filename
+			slash = strrchr( SkelName, '/' );
+			if ( slash )
+			{//move forward one character and then cut off the char string
+				slash++;
+				*slash = 0;
+			}
+			strcpy(as_filename, SkelName );
+			
+			triedbaseskelevents = qtrue;
+			goto trybaseskel;
+		}
+		else
+		{//ok, that didn't work either
+			goto fin;
+		}
 	}
 	if ( len >= sizeof( text ) - 1 ) 
 	{
@@ -2770,8 +2962,6 @@ fin:
 	return usedIndex;
 }
 #endif
-*/
-//[/ANIMEVENTS]
 
 
 /*
