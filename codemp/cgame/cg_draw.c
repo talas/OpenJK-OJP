@@ -40,12 +40,11 @@ char teamChat2[256];
 int cg_siegeDeathTime = 0;
 
 //[NewHud]
-#define MAX_OJPHUD_TICS 8
+#define MAX_HUD_TICS 8
 //#define MAX_HUD_TICS 4
-
-const char *armorTicName[MAX_OJPHUD_TICS] = 
-//const char *armorTicName[MAX_HUD_TICS] = 
 //[/NewHud]
+const char *armorTicName[MAX_HUD_TICS] = 
+
 {
 "armor_tic1", 
 "armor_tic2", 
@@ -71,10 +70,7 @@ const char *healthTicName[MAX_HUD_TICS] =
 */
 //[/NewHud]
 
-//[NewHud]
-const char *forceTicName[MAX_OJPHUD_TICS] = 
-//const char *forceTicName[MAX_HUD_TICS] = 
-//[/NewHud]
+const char *forceTicName[MAX_HUD_TICS] = 
 {
 "force_tic1", 
 "force_tic2", 
@@ -90,7 +86,7 @@ const char *forceTicName[MAX_OJPHUD_TICS] =
 
 
 //[DodgeSys]
-const char *dodgeTicName[MAX_OJPHUD_TICS] = 
+const char *dodgeTicName[MAX_HUD_TICS] = 
 {
 "dodge_tic1", 
 "dodge_tic2", 
@@ -104,8 +100,7 @@ const char *dodgeTicName[MAX_OJPHUD_TICS] =
 //[/DodgeSys]
 
 //[NewHud]
-const char *ammoTicName[MAX_OJPHUD_TICS] = 
-//const char *ammoTicName[MAX_HUD_TICS] = 
+const char *ammoTicName[MAX_HUD_TICS] = 
 {
 "ammo_tic1", 
 "ammo_tic2", 
@@ -846,16 +841,10 @@ void CG_DrawArmor( menuDef_t *menuHUD )
 	}
 
 	currValue = armor;
-	//[NewHud]
-	inc = (float) maxArmor / MAX_OJPHUD_TICS;
-	//inc = (float) maxArmor / MAX_HUD_TICS;
-	//[/NewHud]
+	inc = (float) maxArmor / MAX_HUD_TICS;
 
 	memcpy(calcColor, hudTintColor, sizeof(vec4_t));
-	//[NewHud]
-	for (i=(MAX_OJPHUD_TICS-1);i>=0;i--)
-	//for (i=(MAX_HUD_TICS-1);i>=0;i--)
-	//[/NewHud]
+	for (i=(MAX_HUD_TICS-1);i>=0;i--)
 	{
 		focusItem = Menu_FindItemByName(menuHUD, armorTicName[i]);
 
@@ -878,10 +867,7 @@ void CG_DrawArmor( menuDef_t *menuHUD )
 
 		trap_R_SetColor( calcColor);
 
-		//[NewHud]
-		if ((i==(MAX_OJPHUD_TICS-1)) && (currValue < inc))
-		//if ((i==(MAX_HUD_TICS-1)) && (currValue < inc))
-		//[/NewHud]
+		if ((i==(MAX_HUD_TICS-1)) && (currValue < inc))
 		{
 			if (cg.HUDArmorFlag)
 			{
@@ -1232,10 +1218,7 @@ static void CG_DrawAmmo( centity_t	*cent,menuDef_t *menuHUD)
 	if (weaponData[cent->currentState.weapon].energyPerShot == 0 &&
 		weaponData[cent->currentState.weapon].altEnergyPerShot == 0)
 	{ //just draw "infinite"
-		//[NewHud]
-		inc = 8 / MAX_OJPHUD_TICS;
-		//inc = 8 / MAX_HUD_TICS;
-		//[/NewHud]
+		inc = 8 / MAX_HUD_TICS;
 		value = 8;
 
 		focusItem = Menu_FindItemByName(menuHUD, "ammoinfinite");
@@ -1254,17 +1237,11 @@ static void CG_DrawAmmo( centity_t	*cent,menuDef_t *menuHUD)
 
 			if ( (cent->currentState.eFlags & EF_DOUBLE_AMMO) )
 			{
-				//[NewHud]
-				inc = (float) (ammoData[weaponData[cent->currentState.weapon].ammoIndex].max*2.0f) / MAX_OJPHUD_TICS;
-				//inc = (float) (ammoData[weaponData[cent->currentState.weapon].ammoIndex].max*2.0f) / MAX_HUD_TICS;
-				//[NewHud]
+				inc = (float) (ammoData[weaponData[cent->currentState.weapon].ammoIndex].max*2.0f) / MAX_HUD_TICS;
 			}
 			else
 			{
-				//[NewHud]
-				inc = (float) ammoData[weaponData[cent->currentState.weapon].ammoIndex].max / MAX_OJPHUD_TICS;
-				//inc = (float) ammoData[weaponData[cent->currentState.weapon].ammoIndex].max / MAX_HUD_TICS;
-				//[/NewHud]
+				inc = (float) ammoData[weaponData[cent->currentState.weapon].ammoIndex].max / MAX_HUD_TICS;
 			}
 			value =ps->ammo[weaponData[cent->currentState.weapon].ammoIndex];
 
@@ -1282,10 +1259,7 @@ static void CG_DrawAmmo( centity_t	*cent,menuDef_t *menuHUD)
 	}
 
 	// Draw tics
-	//[NewHud]
-	for (i=MAX_OJPHUD_TICS-1;i>=0;i--)
-	//for (i=MAX_HUD_TICS-1;i>=0;i--)
-	//[/NewHud]
+	for (i=MAX_HUD_TICS-1;i>=0;i--)
 	{
 		focusItem = Menu_FindItemByName(menuHUD, ammoTicName[i]);
 
@@ -1425,16 +1399,10 @@ void CG_DrawDodge( menuDef_t *menuHUD )
 		return;
 	}
 
-	//[NewHud]
-	inc = (float)  DODGE_MAX / MAX_OJPHUD_TICS;
-	//inc = (float)  DODGE_MAX / MAX_HUD_TICS;
-	//[/NewHud]
+	inc = (float)  DODGE_MAX / MAX_HUD_TICS;
 	value = cg.snap->ps.stats[STAT_DODGE];
 
-	//[NewHud]
-	for (i=MAX_OJPHUD_TICS-1;i>=0;i--)
-	//for (i=MAX_HUD_TICS-1;i>=0;i--)
-	//[/NewHud]
+	for (i=MAX_HUD_TICS-1;i>=0;i--)
 	{
 		focusItem = Menu_FindItemByName(menuHUD, dodgeTicName[i]);
 
@@ -1618,16 +1586,10 @@ void CG_DrawForcePower( menuDef_t *menuHUD )
 		return;
 	}
 
-	//[NewHud]
-	inc = (float)  maxForcePower / MAX_OJPHUD_TICS;
-	//inc = (float)  maxForcePower / MAX_HUD_TICS;
-	//[/NewHud]
+	inc = (float)  maxForcePower / MAX_HUD_TICS;
 	value = cg.snap->ps.fd.forcePower;
 
-	//[NewHud]
-	for (i=MAX_OJPHUD_TICS-1;i>=0;i--)
-	//for (i=MAX_HUD_TICS-1;i>=0;i--)
-	//[/NewHud]
+	for (i=MAX_HUD_TICS-1;i>=0;i--)
 	{
 		focusItem = Menu_FindItemByName(menuHUD, forceTicName[i]);
 
