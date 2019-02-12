@@ -14,6 +14,7 @@ extern stringID_table_t SaberMoveTable[];
 //[/SaberLockSys]
 
 #include "../namespace_begin.h"
+qboolean PM_SaberInDeflect( int move );
 extern qboolean BG_SabersOff( playerState_t *ps );
 saberInfo_t *BG_MySaber( int clientNum, int saberNum );
 
@@ -1913,16 +1914,6 @@ saberMoveName_t PM_SaberFlipOverAttackMove(void)
 
 
 //[FatigueSys]
-//Moved from bg_panimate.c
-qboolean PM_SaberInDeflect( int move )
-{
-	if ( move >= LS_D1_BR && move <= LS_D1_B_ )
-	{
-		return qtrue;
-	}
-	return qfalse;
-}
-
 //BG version of SaberAttacking
 qboolean BG_SaberAttacking( playerState_t *ps )
 {

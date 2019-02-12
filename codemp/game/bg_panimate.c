@@ -1356,11 +1356,6 @@ int PM_SaberDeflectionForQuad( int quad )
 	return LS_NONE;
 }
 
-
-//[FatigueSys]
-//moved to bg_saber.c
-
-/*
 qboolean PM_SaberInDeflect( int move )
 {
 	if ( move >= LS_D1_BR && move <= LS_D1_B_ )
@@ -1369,8 +1364,6 @@ qboolean PM_SaberInDeflect( int move )
 	}
 	return qfalse;
 }
-*/
-//[/FatigueSys]
 
 qboolean PM_SaberInParry( int move )
 {
