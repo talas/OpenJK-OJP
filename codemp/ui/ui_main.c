@@ -310,15 +310,11 @@ char *BG_GetUIPortraitFile(const int team, const short classIndex, const short c
 siegeClass_t *BG_GetClassOnBaseClass(const int team, const short classIndex, const short cntIndex);
 
 int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11  ) {
-  char buffer[MAX_QPATH]="";//[AutoUpdate]
-	switch ( command ) {
+  switch ( command ) {
 	  case UI_GETAPIVERSION:
 		  return UI_API_VERSION;
 
 	  case UI_INIT:
-		   
-		  trap_Cvar_VariableStringBuffer("fs_basepath",buffer,sizeof(buffer));
-		  //system(va("%s\\ojpenhanced\\update.exe",buffer));//[AutoUpdate]
 		  _UI_Init(arg0);
 		  return 0;
 
