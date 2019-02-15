@@ -45,7 +45,7 @@
 static char sccsid[] = "@(#)qsort.c	8.1 (Berkeley) 6/4/93";
 #endif
 static const char rcsid[] =
-	"$Id: bg_lib.c,v 1.1 2003/12/01 20:10:24 razorace Exp $";
+	"$Id: bg_lib.c,v 1.4 2003/03/15 23:44:00 osman Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 // bk001127 - needed for DLL's

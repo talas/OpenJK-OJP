@@ -5,10 +5,10 @@
  * desc:		AAS file loading/writing
  *
  * $Archive: /MissionPack/code/botlib/be_aas_file.c $
- * $Author: razorace $ 
- * $Revision: 1.1 $
+ * $Author: Zaphod $ 
+ * $Revision: 5 $
  * $Modtime: 5/16/01 2:36p $
- * $Date: 2003/12/01 20:10:22 $
+ * $Date: 5/16/01 2:41p $
  *
  *****************************************************************************/
 

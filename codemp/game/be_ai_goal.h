@@ -4,6 +4,13 @@
  * name:		be_ai_goal.h
  *
  * desc:		goal AI
+ *
+ * $Archive: /source/code/botlib/be_ai_goal.h $
+ * $Author: osman $ 
+ * $Revision: 1.4 $
+ * $Modtime: 10/05/99 3:32p $
+ * $Date: 2003/03/15 23:44:00 $
+ *
  *****************************************************************************/
 
 #define MAX_AVOIDGOALS			256

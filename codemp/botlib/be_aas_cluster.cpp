@@ -5,10 +5,10 @@
  * desc:		area clustering
  *
  * $Archive: /MissionPack/code/botlib/be_aas_cluster.c $
- * $Author: razorace $ 
- * $Revision: 1.1 $
+ * $Author: Ttimo $ 
+ * $Revision: 10 $
  * $Modtime: 4/21/01 9:15a $
- * $Date: 2003/12/01 20:10:22 $
+ * $Date: 4/21/01 9:15a $
  *
  *****************************************************************************/
 

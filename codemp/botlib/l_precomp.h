@@ -5,10 +5,10 @@
  * desc:		pre compiler
  *
  * $Archive: /source/code/botlib/l_precomp.h $
- * $Author: razorace $ 
- * $Revision: 1.1 $
+ * $Author: Mrelusive $ 
+ * $Revision: 2 $
  * $Modtime: 10/05/99 3:32p $
- * $Date: 2003/12/01 20:10:23 $
+ * $Date: 10/05/99 3:42p $
  *
  *****************************************************************************/
 

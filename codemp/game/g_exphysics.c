@@ -4,6 +4,10 @@
  * name:		g_exphysics.c
  *
  * desc:		Custom physics system (Expensive Physics)
+ *
+ * $Author: osman $ 
+ * $Revision: 1.4 $
+ *
  *****************************************************************************/
 
 #include "g_local.h"

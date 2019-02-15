@@ -5,6 +5,13 @@
  * name:		ai_main.c
  *
  * desc:		Quake3 bot AI
+ *
+ * $Archive: /MissionPack/code/game/ai_main.c $
+ * $Author: osman $ 
+ * $Revision: 1.5 $
+ * $Modtime: 6/06/01 1:11p $
+ * $Date: 2003/03/15 23:43:59 $
+ *
  *****************************************************************************/
 
 

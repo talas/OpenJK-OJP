@@ -5,6 +5,13 @@
  * name:		be_ai_char.h
  *
  * desc:		bot characters
+ *
+ * $Archive: /source/code/botlib/be_ai_char.h $
+ * $Author: osman $ 
+ * $Revision: 1.4 $
+ * $Modtime: 10/05/99 3:32p $
+ * $Date: 2003/03/15 23:43:59 $
+ *
  *****************************************************************************/
 
 //loads a bot character from a file

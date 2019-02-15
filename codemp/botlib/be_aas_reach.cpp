@@ -5,10 +5,10 @@
  * desc:		reachability calculations
  *
  * $Archive: /MissionPack/code/botlib/be_aas_reach.c $
- * $Author: razorace $ 
- * $Revision: 1.1 $
+ * $Author: Ttimo $ 
+ * $Revision: 12 $
  * $Modtime: 4/21/01 9:15a $
- * $Date: 2003/12/01 20:10:23 $
+ * $Date: 4/21/01 9:15a $
  *
  *****************************************************************************/
 

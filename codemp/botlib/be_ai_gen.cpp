@@ -5,10 +5,10 @@
  * desc:		genetic selection
  *
  * $Archive: /MissionPack/code/botlib/be_ai_gen.c $
- * $Author: razorace $ 
- * $Revision: 1.1 $
+ * $Author: Zaphod $ 
+ * $Revision: 3 $
  * $Modtime: 11/22/00 8:50a $
- * $Date: 2003/12/01 20:10:23 $
+ * $Date: 11/22/00 8:55a $
  *
  *****************************************************************************/
 

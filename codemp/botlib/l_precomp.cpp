@@ -7,10 +7,10 @@
  * desc:		pre compiler
  *
  * $Archive: /MissionPack/code/botlib/l_precomp.c $
- * $Author: razorace $ 
- * $Revision: 1.1 $
+ * $Author: Ttimo $ 
+ * $Revision: 20 $
  * $Modtime: 5/15/01 4:10a $
- * $Date: 2003/12/01 20:10:23 $
+ * $Date: 5/15/01 4:10a $
  *
  *****************************************************************************/
 

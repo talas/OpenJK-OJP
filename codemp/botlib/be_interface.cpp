@@ -5,10 +5,10 @@
  * desc:		bot library interface
  *
  * $Archive: /MissionPack/code/botlib/be_interface.c $
- * $Author: razorace $ 
- * $Revision: 1.1 $
+ * $Author: Zaphod $ 
+ * $Revision: 16 $
  * $Modtime: 5/16/01 2:36p $
- * $Date: 2003/12/01 20:10:23 $
+ * $Date: 5/16/01 2:41p $
  *
  *****************************************************************************/
 

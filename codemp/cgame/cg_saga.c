@@ -5,6 +5,8 @@
  *
  * desc:		Clientgame-side module for Siege gametype.
  *
+ * $Author: osman $ 
+ * $Revision: 1.5 $
  *
  *****************************************************************************/
 #include "cg_local.h"

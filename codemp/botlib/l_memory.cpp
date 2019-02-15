@@ -5,10 +5,10 @@
  * desc:		memory allocation
  *
  * $Archive: /MissionPack/code/botlib/l_memory.c $
- * $Author: razorace $ 
- * $Revision: 1.1 $
+ * $Author: Ttimo $ 
+ * $Revision: 6 $
  * $Modtime: 4/22/01 8:52a $
- * $Date: 2003/12/01 20:10:23 $
+ * $Date: 4/22/01 8:52a $
  *
  *****************************************************************************/
 

@@ -4,6 +4,10 @@
  * name:		bg_saga.c
  *
  * desc:		Siege module, shared for game, cgame, and ui.
+ *
+ * $Author: osman $ 
+ * $Revision: 1.9 $
+ *
  *****************************************************************************/
 #include "q_shared.h"
 #include "bg_saga.h"

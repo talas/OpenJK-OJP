@@ -5,10 +5,10 @@
  * desc:		AAS entities
  *
  * $Archive: /MissionPack/code/botlib/be_aas_entity.c $
- * $Author: razorace $ 
- * $Revision: 1.1 $
+ * $Author: Zaphod $ 
+ * $Revision: 11 $
  * $Modtime: 11/22/00 8:50a $
- * $Date: 2003/12/01 20:10:22 $
+ * $Date: 11/22/00 8:55a $
  *
  *****************************************************************************/
 

@@ -5,10 +5,10 @@
  * desc:		AAS
  *
  * $Archive: /MissionPack/code/botlib/be_aas_route.c $
- * $Author: razorace $ 
- * $Revision: 1.1 $
+ * $Author: Mrelusive $ 
+ * $Revision: 18 $
  * $Modtime: 12/01/00 1:11p $
- * $Date: 2003/12/01 20:10:23 $
+ * $Date: 12/01/00 1:11p $
  *
  *****************************************************************************/
 

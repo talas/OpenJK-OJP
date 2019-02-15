@@ -5,10 +5,10 @@
  * desc:		goal AI
  *
  * $Archive: /MissionPack/code/botlib/be_ai_goal.c $
- * $Author: razorace $ 
- * $Revision: 1.1 $
+ * $Author: Ttimo $ 
+ * $Revision: 14 $
  * $Modtime: 4/13/01 4:45p $
- * $Date: 2003/12/01 20:10:23 $
+ * $Date: 4/13/01 4:45p $
  *
  *****************************************************************************/
 

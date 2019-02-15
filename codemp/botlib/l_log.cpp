@@ -5,10 +5,10 @@
  * desc:		log file
  *
  * $Archive: /MissionPack/CODE/botlib/l_log.c $
- * $Author: razorace $ 
- * $Revision: 1.1 $
+ * $Author: Raduffy $ 
+ * $Revision: 1 $
  * $Modtime: 12/20/99 8:43p $
- * $Date: 2003/12/01 20:10:23 $
+ * $Date: 3/08/00 11:28a $
  *
  *****************************************************************************/
 

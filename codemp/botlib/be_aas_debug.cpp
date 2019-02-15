@@ -5,10 +5,10 @@
  * desc:		AAS debug code
  *
  * $Archive: /MissionPack/code/botlib/be_aas_debug.c $
- * $Author: razorace $ 
- * $Revision: 1.1 $
+ * $Author: Ttimo $ 
+ * $Revision: 8 $
  * $Modtime: 4/22/01 8:52a $
- * $Date: 2003/12/01 20:10:22 $
+ * $Date: 4/22/01 8:52a $
  *
  *****************************************************************************/
 
