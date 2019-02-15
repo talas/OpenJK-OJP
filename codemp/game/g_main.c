@@ -1234,11 +1234,6 @@ extern void G_LoadIPBans(void);
 extern void InitSpawnScriptValues(void);
 //[/CoOp]
 
-//[OLDGAMETYPES]
-extern gentity_t *SelectRandomDeathmatchSpawnPoint( void );
-extern void SP_info_jedimaster_start(gentity_t *ent);
-//[/OLDGAMETYPES]
-
 //[CoOpEditor]
 extern void Load_Autosaves(void);
 //[/CoOpEditor]
@@ -1505,39 +1500,6 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 		Load_Autosaves();
 	}
 	//[/CoOpEditor]
-
-	//[OLDGAMETYPES]
-	if (g_gametype.integer == GT_JEDIMASTER)
-	{//make sure that there's a jedimaster saber spawn point.
-		gentity_t *jmsaber = NULL;
-		int i = 0;
-		for(i = 0; i < level.num_entities; i++)
-		{//scan for jmsaber
-			if(g_entities[i].isSaberEntity)
-			{
-				jmsaber = &g_entities[i];
-				break;
-			}
-		}
-
-		if(!jmsaber)
-		{//no JM saber found.  Drop one at one of the player spawnpoints
-			gentity_t *spawnpoint = SelectRandomDeathmatchSpawnPoint();
-
-			if(!spawnpoint)
-			{//this is bad.
-				G_Error("Couldn't find an FFA spawnpoint to drop the jedimaster saber at!\n");
-				return;
-			}
-
-			//create spawnpoint
-			jmsaber = G_Spawn();
-
-			G_SetOrigin(jmsaber, spawnpoint->s.origin); 
-			SP_info_jedimaster_start(jmsaber);
-		}
-	}
-	//[/OLDGAMETYPES]
 
 	//[Experimental]
 #ifdef SUN

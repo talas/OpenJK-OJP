@@ -133,13 +133,6 @@ int G_GetMapTypeBits(char *type)
 	if( *type ) {
 		if( strstr( type, "ffa" ) ) {
 			typeBits |= (1 << GT_FFA);
-
-			//[OLDGAMETYPES]
-			//all ffa maps support JediMaster mode with the new code that
-			//adds a info_jedimaster_start to maps that don't have them.
-			typeBits |= (1 << GT_JEDIMASTER);
-			//[/OLDGAMETYPES]
-
 		//[Asteroids]
 			//typeBits |= (1 << GT_TEAM);
 		//[/Asteroids]
@@ -174,9 +167,6 @@ int G_GetMapTypeBits(char *type)
 		}
 		if( strstr( type, "ctf" ) ) {
 			typeBits |= (1 << GT_CTF);
-//[OLDGAMETYPES]
-			typeBits |= (1 << GT_CTY);
-//[/OLDGAMETYPES]
 		}
 		if( strstr( type, "cty" ) ) {
 			typeBits |= (1 << GT_CTY);
@@ -206,11 +196,6 @@ int G_GetMapTypeBits(char *type)
 		}
 	} else {
 		typeBits |= (1 << GT_FFA);
-		//[OLDGAMETYPES]
-		//all ffa maps support JediMaster mode with the new code that
-		//adds a info_jedimaster_start to maps that don't have them.
-		typeBits |= (1 << GT_JEDIMASTER);
-		//[/OLDGAMETYPES]
 	}
 
 	return typeBits;

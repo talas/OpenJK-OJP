@@ -235,11 +235,7 @@ void CG_DrawInformation( void ) {
 //		s = "Holocron FFA";
 		break;
 	case GT_JEDIMASTER:
-			//[OLDGAMETYPES]
-			//s = CG_GetStringEdString("MENUS", "SAGA");//"Jedi Master";??
-			s = CG_GetStringEdString("OJP_MENUS", "JEDIMASTER");//"Jedi Master";??
-			//[/OLDGAMETYPES]
-
+			s = CG_GetStringEdString("MENUS", "SAGA");//"Jedi Master";??
 //		s = "Jedi Master";
 		break;
 	case GT_SINGLE_PLAYER:

@@ -1793,10 +1793,7 @@ static const char* UI_GetGameTypeName(int gtEnum)
 	case GT_HOLOCRON:
 		return UI_GetStringEdString("MENUS", "HOLOCRON_FFA");//"Holocron FFA";
 	case GT_JEDIMASTER:
-		//[OLDGAMETYPES]
-		//return UI_GetStringEdString("MENUS", "SAGA");//"Jedi Master";??
-		return UI_GetStringEdString("OJP_MENUS", "JEDIMASTER");//"Jedi Master";??
-		//[/OLDGAMETYPES]
+		return UI_GetStringEdString("MENUS", "SAGA");//"Jedi Master";??
 	case GT_SINGLE_PLAYER:
 		//[CoOp]
 		return UI_GetStringEdString("OJP_MENUS", "COOP");
@@ -6207,10 +6204,7 @@ static void UI_RunMenuScript(char **args)
 			{
 				trap_Cvar_SetValue( "dedicated", Com_Clamp( 0, 2, ui_dedicated.integer ) );
 			}
-			//[OLDGAMETYPES]
-			trap_Cvar_SetValue( "g_gametype", Com_Clamp( GT_FFA, GT_CTY, uiInfo.gameTypes[ui_netGameType.integer].gtEnum ) );
-			//trap_Cvar_SetValue( "g_gametype", Com_Clamp( 0, 8, uiInfo.gameTypes[ui_netGameType.integer].gtEnum ) );
-			//[/OLDGAMETYPES]
+			trap_Cvar_SetValue( "g_gametype", Com_Clamp( 0, 8, uiInfo.gameTypes[ui_netGameType.integer].gtEnum ) );
 			//trap_Cvar_Set("g_redTeam", UI_Cvar_VariableString("ui_teamName"));
 			//trap_Cvar_Set("g_blueTeam", UI_Cvar_VariableString("ui_opponentName"));
 			trap_Cmd_ExecuteText( EXEC_APPEND, va( "wait ; wait ; map %s\n", uiInfo.mapList[ui_currentNetMap.integer].mapLoadName ) );
@@ -7633,19 +7627,8 @@ static int UI_MapCountByGameType(qboolean singlePlayer) {
 	*/
 	//[/Asteroids]
 
-	//[OLDGAMETYPES]
-	//Since GT_CTY uses the same entities as CTF, use the same map sets
-	if (game == GT_CTY)
-	{
-		game = GT_CTF;
-	}
-
-	//This isn't true for GT_HOLOCRON and GT_JEDIMASTER.  Require each gametype to be listed in the arena file for them to work.
-	/*
 	if (game == GT_HOLOCRON || game == GT_JEDIMASTER) {
 		game = GT_FFA;
-	*/
-	//[/OLDGAMETYPES]
 
 	for (i = 0; i < uiInfo.mapCount; i++) {
 		uiInfo.mapList[i].active = qfalse;

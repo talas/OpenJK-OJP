@@ -163,11 +163,6 @@ void UI_LoadArenas( void ) {
 		if( *type ) {
 			if( strstr( type, "ffa" ) ) {
 				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_FFA);
-				//[OLDGAMETYPES]
-				//all ffa maps support JediMaster mode with the new code that
-				//adds a info_jedimaster_start to maps that don't have them.
-				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_JEDIMASTER);
-				//[/OLDGAMETYPES]
 			}
 			//[Asteroids]
 			if( strstr( type, "team" ) ) {
@@ -198,20 +193,12 @@ void UI_LoadArenas( void ) {
 			}
 			if( strstr( type, "ctf" ) ) {
 				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_CTF);
-//[OLDGAMETYPES]
-				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_CTY);
-//[/OLDGAMETYPES]
 			}
 			if( strstr( type, "cty" ) ) {
 				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_CTY);
 			}
 		} else {
 			uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_FFA);
-			//[OLDGAMETYPES]
-			//all ffa maps support JediMaster mode with the new code that
-			//adds a info_jedimaster_start to maps that don't have them.
-			uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_JEDIMASTER);
-			//[/OLDGAMETYPES]
 		}
 
 		uiInfo.mapCount++;

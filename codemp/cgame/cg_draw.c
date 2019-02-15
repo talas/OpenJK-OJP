@@ -7680,10 +7680,7 @@ static void CG_DrawWarmup( void ) {
 		} else if ( cgs.gametype == GT_HOLOCRON ) {
 			s = CG_GetStringEdString("MENUS", "HOLOCRON_FFA");//"Holocron FFA";
 		} else if ( cgs.gametype == GT_JEDIMASTER ) {
-			//[OLDGAMETYPES]
-			//s = CG_GetStringEdString("MENUS", "POWERDUEL");//"Jedi Master";??
-			s = CG_GetStringEdString("OJP_MENUS", "JEDIMASTER");//"Jedi Master";??
-			//[/OLDGAMETYPES]
+			s = CG_GetStringEdString("MENUS", "POWERDUEL");//"Jedi Master";??
 		} else if ( cgs.gametype == GT_TEAM ) {
 			s = CG_GetStringEdString("MENUS", "TEAM_FFA");//"Team FFA";
 		} else if ( cgs.gametype == GT_SIEGE ) {

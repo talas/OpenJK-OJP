@@ -1311,9 +1311,6 @@ void StopFollowing( gentity_t *ent ) {
 	ent->client->ps.duelInProgress = qfalse; // MJN - added to clean it up a bit.
 	//[/DuelSys]
 	//[BugFix38]
-	//[OLDGAMETYPES]
-	ent->client->ps.isJediMaster = qfalse; // major exploit if you are spectating somebody and they are JM and you reconnect
-	//[/OLDGAMETYPES]
 	ent->client->ps.cloakFuel = 100; // so that fuel goes away after stop following them
 	ent->client->ps.jetpackFuel = 100; // so that fuel goes away after stop following them
 	ent->health = ent->client->ps.stats[STAT_HEALTH] = 100; // so that you don't keep dead angles if you were spectating a dead person
