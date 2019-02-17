@@ -95,7 +95,7 @@
 				LIBRARY_SEARCH_PATHS = "";
 				OTHER_LDFLAGS = "";
 				OTHER_REZFLAGS = "";
-				PREFIX_HEADER = MacPrefix_UI.h;
+				PREFIX_HEADER = "";
 				PRODUCT_NAME = ui;
 				SECTORDER_FLAGS = "";
 				WARNING_CFLAGS = "-Wmost -Wno-four-char-constants -Wno-unknown-pragmas";
