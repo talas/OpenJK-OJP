@@ -250,13 +250,10 @@ vmCvar_t	g_siegeTeamSwitch;
 
 vmCvar_t	bg_fighterAltControl;
 vmCvar_t	g_vehAutoAimLead;
-
-//[AdminCommands]
 vmCvar_t	g_autoKickKillSpammers;
 vmCvar_t	g_autoBanKillSpammers;
 vmCvar_t	g_autoKickTKSpammers;
 vmCvar_t	g_autoBanTKSpammers;
-//[/AdminCommands]
 
 #ifdef DEBUG_SABER_BOX
 vmCvar_t	g_saberDebugBox;
@@ -670,13 +667,10 @@ static cvarTable_t		gameCvarTable[] = {
 
 	{ &bg_fighterAltControl, "bg_fighterAltControl", "0", CVAR_SERVERINFO, 0, qtrue },
 	{ &g_vehAutoAimLead, "g_vehAutoAimLead", "0", CVAR_ARCHIVE },
-
-	//[AdminCommands]
 	{ &g_autoKickKillSpammers, "g_autoKickKillSpammers", "0", CVAR_ARCHIVE, 0, qtrue  },
 	{ &g_autoBanKillSpammers, "g_autoBanKillSpammers", "0", CVAR_ARCHIVE, 0, qtrue  },
 	{ &g_autoKickTKSpammers, "g_autoKickTKSpammers", "0", CVAR_ARCHIVE, 0, qtrue  },
 	{ &g_autoBanTKSpammers, "g_autoBanTKSpammers", "0", CVAR_ARCHIVE, 0, qtrue  },
-	//[/AdminCommands]
 
 #ifdef DEBUG_SABER_BOX
 	{ &g_saberDebugBox, "g_saberDebugBox", "0", CVAR_CHEAT, 0, qfalse },
@@ -1220,10 +1214,7 @@ G_InitGame
 */
 extern void RemoveAllWP(void);
 extern void BG_ClearVehicleParseParms(void);
-
-//[AdminCommands]
 extern void G_LoadIPBans(void);
-//[/AdminCommands]
 
 //[CoOp]
 extern void InitSpawnScriptValues(void);
@@ -1272,10 +1263,8 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 
 	G_RegisterCvars();
 
-	//[AdminCommands]
 	//G_ProcessIPBans();
 	G_LoadIPBans();
-	//[/AdminCommands]
 
 	G_InitMemory();
 
@@ -1532,9 +1521,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 G_ShutdownGame
 =================
 */
-//[AdminCommands]
 extern void G_SaveBanIP( void );
-//[/AdminCommands]
 
 //[DynamicMemory_Vehicles]
 void BG_VehicleUnloadParms( void );
@@ -1546,10 +1533,7 @@ void G_ShutdownGame( int restart ) {
 
 //	G_Printf ("==== ShutdownGame ====\n");
 
-	//[AdminCommands]
 	G_SaveBanIP();
-	//[/AdminCommands]
-
 	G_CleanAllFakeClients(); //get rid of dynamically allocated fake client structs.
 
 	BG_ClearAnimsets(); //free all dynamic allocations made through the engine

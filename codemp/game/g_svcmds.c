@@ -166,9 +166,7 @@ qboolean G_FilterPacket (char *from)
 AddIP
 =================
 */
-//[AdminCommands]
 void AddIP( char *str )
-//[/AdminCommands]
 {
 	int		i;
 
@@ -272,7 +270,6 @@ void Svcmd_RemoveIP_f (void)
 }
 
 
-//[AdminCommands]
 void Svcmd_ListIPs_f( void )
 {
 	int		i;
@@ -377,8 +374,6 @@ void G_LoadIPBans( void )
 		}
 	}
 }
-//[/AdminCommands]
-
 
 /*
 ===================
@@ -561,10 +556,8 @@ qboolean	ConsoleCommand( void ) {
 	}
 
 	if (Q_stricmp (cmd, "listip") == 0) {
-		//[AdminCommands]
 		Svcmd_ListIPs_f();
 		//trap_SendConsoleCommand( EXEC_NOW, "g_banIPs\n" );
-		//[/AdminCommands]
 		return qtrue;
 	}
 
