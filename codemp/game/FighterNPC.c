@@ -88,11 +88,9 @@ extern qboolean BG_UnrestrainedPitchRoll( playerState_t *ps, Vehicle_t *pVeh );
 
 extern void BG_SetAnim(playerState_t *ps, animation_t *animations, int setAnimParts,int anim,int setAnimFlags, int blendTime);
 extern int BG_GetTime(void);
-//[Asteroids]
 #ifdef QAGAME //including game headers on cgame is FORBIDDEN ^_^
 extern void G_DamageFromKiller( gentity_t *pEnt, gentity_t *pVehEnt, gentity_t *attacker, vec3_t org, int damage, int dflags, int mod );
 #endif
-//[/Asteroids]
 #endif
 
 extern void BG_ExternThisSoICanRecompileInDebug( Vehicle_t *pVeh, playerState_t *riderPS );
@@ -732,9 +730,7 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 #endif
 		&& !pVeh->m_iRemovedSurfaces
 		&& parentPS->electrifyTime < curTime
-		//[Asteroids]
 		&& parentPS->vehTurnaroundTime < curTime
-		//[/Asteroids]
 		&& (pVeh->m_LandTrace.fraction >= 1.0f//no grounf
 			||pVeh->m_LandTrace.plane.normal[2] < MIN_LANDING_SLOPE//can't land here
 			||parentPS->speed>MIN_LANDING_SPEED)//going too fast to land
@@ -997,10 +993,7 @@ static void FighterDamageRoutine( Vehicle_t *pVeh, bgEntity_t *parent, playerSta
 		{
 			//pVeh->m_ucmd.forwardmove = 0;
 			//FIXME: don't bias towards pitching down when in space...
-			//[Asteroids]
-			//if ( !(pVeh->m_pParentEntity->s.number%2) )
 			if ( !(pVeh->m_pParentEntity->s.number%3) )
-			//[/Asteroids]
 			{//NOT everyone should do this
 				pVeh->m_vOrientation[PITCH] += pVeh->m_fTimeModifier; 
 				if ( !BG_UnrestrainedPitchRoll( riderPS, pVeh ) )
@@ -1011,10 +1004,7 @@ static void FighterDamageRoutine( Vehicle_t *pVeh, bgEntity_t *parent, playerSta
 					}
 				}
 			}
-			//[Asteroids]
-			//else if ( !(pVeh->m_pParentEntity->s.number%3) )
 			else if ( !(pVeh->m_pParentEntity->s.number%4) )
-			//[/Asteroids]
 			{
 				pVeh->m_vOrientation[PITCH] -= pVeh->m_fTimeModifier; 
 				if ( !BG_UnrestrainedPitchRoll( riderPS, pVeh ) )
@@ -1032,30 +1022,12 @@ static void FighterDamageRoutine( Vehicle_t *pVeh, bgEntity_t *parent, playerSta
 	if ( pVeh->m_LandTrace.fraction < 1.0f )
 	{ //if you land at all when pieces of your ship are missing, then die
 		gentity_t *parent = (gentity_t *)pVeh->m_pParentEntity;
-//[Asteroids]	
 #ifdef _JK2MP//only have this info in MP...
 		G_DamageFromKiller( parent, parent, NULL, parent->client->ps.origin, 999999, DAMAGE_NO_ARMOR, MOD_SUICIDE );
 #else
 		gentity_t *killer = parent;
-
-/*
-		gentity_t *killer = parent;
-#ifdef _JK2MP//only have this info in MP...
-		if (parent->client->ps.otherKiller < ENTITYNUM_WORLD &&
-			parent->client->ps.otherKillerTime > level.time)
-		{
-			gentity_t *potentialKiller = &g_entities[parent->client->ps.otherKiller];
-
-			if (potentialKiller->inuse && potentialKiller->client)
-			{ //he's valid I guess
-				killer = potentialKiller;
-			}
-		}
-#endif
-*/
 		G_Damage(parent, killer, killer, vec3_origin, parent->client->ps.origin, 99999, DAMAGE_NO_ARMOR, MOD_SUICIDE);
 #endif
-//[/Asteroids]
 	}
 #endif
 
@@ -1073,10 +1045,7 @@ static void FighterDamageRoutine( Vehicle_t *pVeh, bgEntity_t *parent, playerSta
 			factor *= 2.0f;
 		}
 
-		//[Asteroids]
 		if ( !(pVeh->m_pParentEntity->s.number%2)||!(pVeh->m_pParentEntity->s.number%6) )
-		//if ( !(pVeh->m_pParentEntity->s.number%4)||!(pVeh->m_pParentEntity->s.number%5) )
-		//[Asteroids]
 		{//won't yaw, so increase roll factor
 			factor *= 4.0f;
 		}
@@ -1093,10 +1062,7 @@ static void FighterDamageRoutine( Vehicle_t *pVeh, bgEntity_t *parent, playerSta
 			factor *= 2.0f;
 		}
 
-		//[Asteroids]
 		if ( !(pVeh->m_pParentEntity->s.number%2)||!(pVeh->m_pParentEntity->s.number%6) )
-		//if ( !(pVeh->m_pParentEntity->s.number%4)||!(pVeh->m_pParentEntity->s.number%5) )
-		//[/Asteroids]
 		{//won't yaw, so increase roll factor
 			factor *= 4.0f;
 		}
@@ -1113,10 +1079,7 @@ static void FighterDamageRoutine( Vehicle_t *pVeh, bgEntity_t *parent, playerSta
 			factor *= 2.0f;
 		}
 
-		//[Asteroids]
 		if ( !(pVeh->m_pParentEntity->s.number%2)||!(pVeh->m_pParentEntity->s.number%6) )
-		//if ( !(pVeh->m_pParentEntity->s.number%4)||!(pVeh->m_pParentEntity->s.number%5) )
-		//[/Asteroids]
 		{//won't yaw, so increase roll factor
 			factor *= 4.0f;
 		}
@@ -1619,10 +1582,7 @@ static void ProcessOrientCommands( Vehicle_t *pVeh )
 #endif// VEH_CONTROL_SCHEME_4
 	}
 	else if ( (pVeh->m_iRemovedSurfaces||parentPS->electrifyTime>=curTime)//spiralling out of control
-		//[Asteroids]
 		&& (!(pVeh->m_pParentEntity->s.number%2)||!(pVeh->m_pParentEntity->s.number%6)) )
-		//&& (!(pVeh->m_pParentEntity->s.number%4)||!(pVeh->m_pParentEntity->s.number%5)) )
-		//[/Asteroids]
 	{//no yaw control
 	}
 	else if ( pVeh->m_pPilot && pVeh->m_pPilot->s.number < MAX_CLIENTS && parentPS->speed > 0.0f )//&& !( pVeh->m_ucmd.forwardmove > 0 && pVeh->m_LandTrace.fraction != 1.0f ) )   
@@ -1822,10 +1782,7 @@ static void ProcessOrientCommands( Vehicle_t *pVeh )
 		if ( pVeh->m_vOrientation[ROLL] )
 		{ //continually adjust the yaw based on the roll..
 			if ( (pVeh->m_iRemovedSurfaces||parentPS->electrifyTime>=curTime)//spiralling out of control
-				//[Asteroids]
 				&& (!(pVeh->m_pParentEntity->s.number%2)||!(pVeh->m_pParentEntity->s.number%6)) )
-				//&& (!(pVeh->m_pParentEntity->s.number%4)||!(pVeh->m_pParentEntity->s.number%5)) )
-				//[/Asteroids]
 			{//leave YAW alone
 			}
 			else

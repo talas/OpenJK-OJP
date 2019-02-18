@@ -164,11 +164,9 @@ void UI_LoadArenas( void ) {
 			if( strstr( type, "ffa" ) ) {
 				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_FFA);
 			}
-			//[Asteroids]
 			if( strstr( type, "team" ) ) {
 				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_TEAM);
 			}
-			//[/Asteroids]
 			//[CoOp]
 			if( strstr( type, "coop" ) ) {
 				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_SINGLE_PLAYER);

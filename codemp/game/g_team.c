@@ -187,9 +187,7 @@ void AddTeamScore(vec3_t origin, int team, int score) {
 OnSameTeam
 ==============
 */
-//[Asteroids]
 extern qboolean G_CheckVehicleNPCTeamDamage( gentity_t *ent );
-//[/Asteroids]
 qboolean OnSameTeam( gentity_t *ent1, gentity_t *ent2 ) {
 	if ( !ent1->client || !ent2->client ) {
 		return qfalse;
@@ -270,7 +268,6 @@ qboolean OnSameTeam( gentity_t *ent1, gentity_t *ent2 ) {
 	/* basejka code.
 	if (ent1->s.eType == ET_NPC && ent2->s.eType == ET_PLAYER)
 	{
-		//[Asteroids]
 		if ( G_CheckVehicleNPCTeamDamage( ent1 ) )
 		{//hit an NPC that is in a vehicle - a droid?
 			if ( ent1->client->sess.sessionTeam == ent2->client->sess.sessionTeam 
@@ -279,7 +276,6 @@ qboolean OnSameTeam( gentity_t *ent1, gentity_t *ent2 ) {
 				return qtrue;
 			}
 		}
-		//[/Asteroids]
 		return qfalse;
 	}
 	else if (ent1->s.eType == ET_PLAYER && ent2->s.eType == ET_NPC)

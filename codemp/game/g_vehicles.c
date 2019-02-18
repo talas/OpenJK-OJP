@@ -44,9 +44,7 @@
 #ifdef _JK2MP
 extern gentity_t *NPC_Spawn_Do( gentity_t *ent );
 extern void NPC_SetAnim(gentity_t	*ent,int setAnimParts,int anim,int setAnimFlags);
-//[Asteroids]
 extern void G_DamageFromKiller( gentity_t *pEnt, gentity_t *pVehEnt, gentity_t *attacker, vec3_t org, int damage, int dflags, int mod );
-//[/Asteroids]	
 
 #else
 
@@ -1595,10 +1593,7 @@ static void DeathUpdate( Vehicle_t *pVeh )
 				bottom[2] += parent->mins[2] - 32;
 				G_VehicleTrace( &trace, parent->currentOrigin, lMins, lMaxs, bottom, parent->s.number, CONTENTS_SOLID );
 #ifdef _JK2MP
-				//[Asteroids]
 				G_RadiusDamage( trace.endpos, parent, pVeh->m_pVehicleInfo->explosionDamage, pVeh->m_pVehicleInfo->explosionRadius, NULL, NULL, MOD_VEH_EXPLOSION );//FIXME: extern damage and radius or base on fuel
-				//G_RadiusDamage( trace.endpos, NULL, pVeh->m_pVehicleInfo->explosionDamage, pVeh->m_pVehicleInfo->explosionRadius, NULL, NULL, MOD_EXPLOSIVE );//FIXME: extern damage and radius or base on fuel
-				//[/Asteroids]
 #else
 				G_RadiusDamage( trace.endpos, NULL, pVeh->m_pVehicleInfo->explosionDamage, pVeh->m_pVehicleInfo->explosionRadius, NULL, MOD_EXPLOSIVE );//FIXME: extern damage and radius or base on fuel
 #endif
@@ -2333,31 +2328,15 @@ maintainSelfDuringBoarding:
 	{
 		if (pVeh->m_iRemovedSurfaces)
 		{
-			//[Asteroids]
-			//gentity_t *killer = parent;
 			float	   dmg;
 			G_VehicleDamageBoxSizing(pVeh);
 
 			//damage him constantly if any chunks are currently taken off
-			/*
-			if (parent->client->ps.otherKiller < ENTITYNUM_WORLD &&
-				parent->client->ps.otherKillerTime > level.time)
-			{
-				gentity_t *potentialKiller = &g_entities[parent->client->ps.otherKiller];
-
-				if (potentialKiller->inuse && potentialKiller->client)
-				{ //he's valid I guess
-					killer = potentialKiller;
-				}
-			}
-			//FIXME: aside from bypassing shields, maybe set m_iShields to 0, too... ?
-			*/
 			
 			// 3 seconds max on death.
 			dmg = (float)parent->client->ps.stats[STAT_MAX_HEALTH] * pVeh->m_fTimeModifier / 180.0f;			
 			//FIXME: aside from bypassing shields, maybe set m_iShields to 0, too... ?
 			G_DamageFromKiller( parent, parent, parent, parent->client->ps.origin, dmg, DAMAGE_NO_SELF_PROTECTION|DAMAGE_NO_HIT_LOC|DAMAGE_NO_PROTECTION|DAMAGE_NO_ARMOR, MOD_SUICIDE );
-			//[/Asteroids]
 		}
 		
 		//make sure playerstate value stays in sync
@@ -3235,10 +3214,7 @@ qboolean G_FlyVehicleDestroySurface( gentity_t *veh, int surface )
 	veh->m_pVehicle->m_iRemovedSurfaces |= smashedBits;
 
 	//do some explosive damage, but don't damage this ship with it
-	//[Asteroids]
 	G_RadiusDamage(veh->client->ps.origin, veh, 100, 500, veh, NULL, MOD_VEH_EXPLOSION);
-	//G_RadiusDamage(veh->client->ps.origin, veh, 100, 500, veh, NULL, MOD_SUICIDE);
-	//[/Asteroids]
 
 	//when spiraling to your death, do the electical shader
 	veh->client->ps.electrifyTime = level.time + 10000;

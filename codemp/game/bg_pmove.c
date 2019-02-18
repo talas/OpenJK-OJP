@@ -12311,7 +12311,6 @@ void PM_VehicleViewAngles(playerState_t *ps, bgEntity_t *veh, usercmd_t *ucmd)
 		{
 			if ( veh->m_pVehicle->m_pVehicleInfo->turret[i].passengerNum == ps->generic1 )
 			{//this turret is my station
-				//[Asteroids]
 				//nevermind, don't clamp
 				return;
 				/*
@@ -12323,7 +12322,6 @@ void PM_VehicleViewAngles(playerState_t *ps, bgEntity_t *veh, usercmd_t *ucmd)
 				clampMin[ROLL] = clampMax[ROLL] = 0;
 				break;
 				*/
-				//[/Asteroids]
 			}
 		}
 	}

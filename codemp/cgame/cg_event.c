@@ -183,19 +183,13 @@ static void CG_Obituary( entityState_t *ent ) {
 	const char	*targetInfo;
 	const char	*attackerInfo;
 	char		targetName[32];
-	//[Asteroids]
 	char		targetVehName[32] = {0};
-	//[/Asteroids]
 	char		attackerName[32];
-	//[Asteroids]
 	char		attackerVehName[32] = {0};
 	char		attackerVehWeapName[32] = {0};
-	//[/Asteroids]
 	gender_t	gender;
 	clientInfo_t	*ci;
-	//[Asteroids]
 	qboolean	vehMessage = qfalse;
-	//[/Asteroids]
 
 	target = ent->otherEntityNum;
 	attacker = ent->otherEntityNum2;
@@ -207,9 +201,7 @@ static void CG_Obituary( entityState_t *ent ) {
 	ci = &cgs.clientinfo[target];
 
 	if ( attacker < 0 || attacker >= MAX_CLIENTS ) {
-		//[Asteroids]
 		//attacker = ENTITYNUM_WORLD;
-		//[/Asteroids]
 		attackerInfo = NULL;
 	} else {
 		attackerInfo = CG_ConfigString( CS_PLAYERS + attacker );
@@ -222,7 +214,6 @@ static void CG_Obituary( entityState_t *ent ) {
 	Q_strncpyz( targetName, Info_ValueForKey( targetInfo, "n" ), sizeof(targetName) - 2);
 	strcat( targetName, S_COLOR_WHITE );
 
-	//[Asteroids]
 	// check for target in a vehicle
 	if ( ent->lookTarget > VEHICLE_BASE && ent->lookTarget < MAX_VEHICLES && g_vehicleInfo[ent->lookTarget].name )
 	{
@@ -250,11 +241,9 @@ static void CG_Obituary( entityState_t *ent ) {
 			Q_strncpyz( attackerVehWeapName, g_vehWeaponInfo[ent->weapon-1].name, sizeof(attackerVehWeapName) - 2 );
 		}
 	}
-	//[/Asteroids]
 
 	// check for single client messages
 
-	//[Asteroids]
 	if ( ent->saberInFlight )
 	{//asteroid->vehicle collision
 		switch ( Q_irand( 0, 2 ) )
@@ -295,15 +284,12 @@ static void CG_Obituary( entityState_t *ent ) {
 			message = NULL;
 			break;
 		}
-	//[/Asteroids]
 	}
 
 	// Attacker killed themselves.  Ridicule them for it.
 	if (attacker == target) 
 	{
-		//[Asteroids]
 		vehMessage = qfalse;
-		//[/Asteroids]
 		gender = ci->gender;
 		switch (mod) 
 		{
@@ -384,9 +370,7 @@ static void CG_Obituary( entityState_t *ent ) {
 
 		if (!message[0])
 		{
-			//[Asteroids]
 			vehMessage = qfalse;
-			//[/Asteroids]
 			if ( gender == GENDER_FEMALE )
 				message = "SUICIDE_GENERICDEATH_FEMALE";
 			else if ( gender == GENDER_NEUTER )
@@ -394,7 +378,6 @@ static void CG_Obituary( entityState_t *ent ) {
 			else
 				message = "SUICIDE_GENERICDEATH_MALE";
 		}
-		//[Asteroids]
 		if ( vehMessage )
 		{
 			message = (char *)CG_GetStringEdString("OJP_INGAMEVEH", message);
@@ -403,7 +386,6 @@ static void CG_Obituary( entityState_t *ent ) {
 		{
 			message = (char *)CG_GetStringEdString("MP_INGAME", message);
 		}
-		//[/Asteroids]
 
 		CG_Printf( "%s %s\n", targetName, message);
 		return;
@@ -472,9 +454,7 @@ clientkilled:
 
 	// check for double client messages
 	if ( !attackerInfo ) {
-		//[Asteroids]
 		//attacker = ENTITYNUM_WORLD;
-		//[/Asteroids]
 
 		//[ImprovedObituary]
 		strcpy(attackerName, GetStringForID( NPCClasses, cg_entities[attacker].currentState.NPC_class ));
@@ -559,7 +539,6 @@ clientkilled:
 			message = "KILLED_DETPACK";
 			break;
 		case MOD_VEHICLE:
-			//[Asteroids]
 			vehMessage = qtrue;
 			switch ( ent->generic1 )
 			{
@@ -602,7 +581,6 @@ clientkilled:
 				break;
 			}
 			break;
-			//[/Asteroids]
 		case MOD_CONC:
 		case MOD_CONC_ALT:
 			message = "KILLED_GENERIC";
@@ -622,7 +600,6 @@ clientkilled:
 		case MOD_FALLING:
 			message = "KILLED_FORCETOSS";
 			break;
-		//[Asteroids]
 		case MOD_COLLISION:
 		case MOD_VEH_EXPLOSION:
 			switch ( Q_irand( 0, 2 ) )
@@ -640,11 +617,9 @@ clientkilled:
 			}
 			vehMessage = qtrue;
 			break;
-		//[/Asteroids]
 		case MOD_TRIGGER_HURT:
 			message = "KILLED_GENERIC";//"KILLED_FORCETOSS";
 			break;
-		//[Asteroids]
 		case MOD_TARGET_LASER:
 			if ( Q_irand(0,1) )
 			{
@@ -656,7 +631,6 @@ clientkilled:
 			}
 			vehMessage = qtrue;
 			break;
-		//[/Asteroids]
 		//[SeekerItemNPC]
 		case MOD_SEEKER:
 			message = "KILLED_SEEKER";
@@ -668,7 +642,6 @@ clientkilled:
 			break;
 		}
 
-		//[Asteroids]	
 		if (message) 
 		{
 			if ( vehMessage )
@@ -711,7 +684,6 @@ clientkilled:
 				}
 			}
 			CG_Printf( "\n" );
-		//[/Asteroids]
 			return;
 		}
 	}

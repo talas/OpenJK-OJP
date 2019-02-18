@@ -1370,11 +1370,9 @@ void hurt_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 		{ //we're as good as dead, so if someone pushed us into this then remember them
 			other->client->ps.otherKillerTime = level.time + 20000;
 			other->client->ps.otherKillerDebounceTime = level.time + 10000;
-			//[Asteroids]
 			other->client->otherKillerMOD = MOD_FALLING;
 			other->client->otherKillerVehWeapon = 0;
 			other->client->otherKillerWeaponType = WP_NONE;
-			//[/Asteroids]
 		}
 		other->client->ps.fallingToDeath = level.time;
 
@@ -1652,14 +1650,9 @@ void hyperspace_touch( gentity_t *self, gentity_t *other, trace_t *trace )
 				VectorCopy( ent->s.origin, newOrg );
 				//finally, add the offset into the new origin
 				AngleVectors( ent->s.angles, fwd, right, up );
-				//[Asteroids]
 				VectorMA( newOrg, fDiff*self->radius, fwd, newOrg );
 				VectorMA( newOrg, rDiff*self->radius, right, newOrg );
 				VectorMA( newOrg, uDiff*self->radius, up, newOrg );
-				//VectorMA( newOrg, fDiff, fwd, newOrg );
-				//VectorMA( newOrg, rDiff, right, newOrg );
-				//VectorMA( newOrg, uDiff, up, newOrg );
-				//[/Asteroids]
 				//G_Printf("hyperspace from %s to %s\n", vtos(other->client->ps.origin), vtos(newOrg) );
 				//now put them in the offset position, facing the angles that position wants them to be facing
 				TeleportPlayer( other, newOrg, ent->s.angles );
@@ -1722,15 +1715,11 @@ Ship will turn to face the angles of the first target_position then fly forward,
 
 "target"		whatever position the ship teleports from in relation to the target_position specified here, that's the relative position the ship will spawn at around the target2 target_position
 "target2"		name of target_position to teleport the ship to (will be relative to it's origin)
-//[Asteroids]
 "exitscale"		Can use this to make the vehicle appear farther from the exit position than they were from the entry position at the time of teleporting (scales the relative position - default is "1" - normal, no scale)
-//[/Asteroids]
 */
 void SP_trigger_hyperspace(gentity_t *self)
 {
-	//[Asteroids]
 	G_SpawnFloat( "exitscale", "1", &self->radius);
-	//[/Asteroids]
 
 	//register the hyperspace end sound (start sounds are customized)
 	G_SoundIndex( "sound/vehicles/common/hyperend.wav" );
@@ -1837,10 +1826,7 @@ gentity_t *asteroid_pick_random_asteroid( gentity_t *self )
 
 	if(t_count == 1)
 	{
-		//[Asteroids]
-		return t;	
-		//return (G_Find (NULL, FOFS(targetname), self->target));
-		//[/Asteroids]
+		return (G_Find (NULL, FOFS(targetname), self->target));
 	}
 
 	//FIXME: need a seed
@@ -1885,7 +1871,6 @@ int asteroid_count_num_asteroids( gentity_t *self )
 
 extern void SP_func_rotating (gentity_t *ent);
 extern void Q3_Lerp2Origin( int taskID, int entID, vec3_t origin, float duration );
-//[Asteroids]
 void asteroid_move_to_start(gentity_t *self);
 void asteroid_move_to_start2(gentity_t *self, gentity_t *ownerTrigger)
 {//move asteroid to a new start position
@@ -1949,8 +1934,6 @@ void asteroid_move_to_start(gentity_t *self)
 {//move asteroid to a new start position
 	asteroid_move_to_start2( self, &g_entities[self->r.ownerNum] );
 }
-//[/Asteroids]
-
 
 void asteroid_field_think(gentity_t *self)
 {
@@ -1964,11 +1947,6 @@ void asteroid_field_think(gentity_t *self)
 		gentity_t *newAsteroid = G_Spawn();
 		if ( newAsteroid )
 		{
-			//[Asteroids]
-			//vec3_t startSpot, endSpot, startAngles;
-			//float dist, speed = flrand( self->speed * 0.25f, self->speed * 2.0f );
-			//int	capAxis, axis, time = 0;
-			//[/Asteroids]
 			gentity_t *copyAsteroid = asteroid_pick_random_asteroid( self );
 			if ( copyAsteroid )
 			{
@@ -1997,56 +1975,8 @@ void asteroid_field_think(gentity_t *self)
 				//keep track of it
 				newAsteroid->r.ownerNum = self->s.number;
 				
-				//[Asteroids]
 				//position it
 				asteroid_move_to_start2( newAsteroid, self );
-				/*
-				//move it
-				capAxis = Q_irand( 0, 2 );
-				for ( axis = 0; axis < 3; axis++ )
-				{
-					if ( axis == capAxis )
-					{
-						if ( Q_irand( 0, 1 ) )
-						{
-							startSpot[axis] = self->r.mins[axis];
-							endSpot[axis] = self->r.maxs[axis];
-						}
-						else
-						{
-							startSpot[axis] = self->r.maxs[axis];
-							endSpot[axis] = self->r.mins[axis];
-						}
-					}
-					else
-					{
-						startSpot[axis] = self->r.mins[axis]+(flrand(0,1.0f)*(self->r.maxs[axis]-self->r.mins[axis]));
-						endSpot[axis] = self->r.mins[axis]+(flrand(0,1.0f)*(self->r.maxs[axis]-self->r.mins[axis]));
-					}
-				}
-				//FIXME: maybe trace from start to end to make sure nothing is in the way?  How big of a trace?
-
-				G_SetOrigin( newAsteroid, startSpot );
-				dist = Distance( endSpot, startSpot );
-				time = ceil(dist/speed)*1000;
-				Q3_Lerp2Origin( -1, newAsteroid->s.number, endSpot, time );
-
-				//spin it
-				startAngles[0] = flrand( -360, 360 );
-				startAngles[1] = flrand( -360, 360 );
-				startAngles[2] = flrand( -360, 360 );
-				G_SetAngles( newAsteroid, startAngles );
-				newAsteroid->s.apos.trDelta[0] = flrand( -100, 100 );
-				newAsteroid->s.apos.trDelta[1] = flrand( -100, 100 );
-				newAsteroid->s.apos.trDelta[2] = flrand( -100, 100 );
-				newAsteroid->s.apos.trTime = level.time;
-				newAsteroid->s.apos.trType = TR_LINEAR;
-
-				//remove itself when done
-				newAsteroid->think = G_FreeEntity;
-				newAsteroid->nextthink = level.time+time;
-				*/
-				//[/Asteroids]
 
 				//think again sooner if need even more
 				if ( numAsteroids+1 < self->count )
@@ -2067,10 +1997,9 @@ target - target this at func_rotating asteroids
 void SP_trigger_asteroid_field(gentity_t *self)
 {
 	trap_SetBrushModel( self, self->model );
+//	self->r.contents = CONTENTS_TRIGGER;		// replaces the -1 from trap_SetBrushModel
 	self->r.contents = 0;
-	//[Asteroids]
 	self->r.svFlags = SVF_NOCLIENT;
-	//[/Asteroids]
 
 	if ( !self->count )
 	{

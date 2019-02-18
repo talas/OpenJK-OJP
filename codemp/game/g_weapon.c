@@ -222,9 +222,7 @@ void touch_NULL( gentity_t *ent, gentity_t *other, trace_t *trace )
 void laserTrapExplode( gentity_t *self );
 void RocketDie(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod);
 
-//[Asteroids]
 extern vmCvar_t		g_vehAutoAimLead;
-//[/Asteroids]
 
 //We should really organize weapon data into tables or parse from the ext data so we have accurate info for this,
 float WP_SpeedOfMissileForWeapon( int wp, qboolean alt_fire )
@@ -554,10 +552,8 @@ void WP_FireTurboLaserMissile( gentity_t *ent, vec3_t start, vec3_t dir )
 	missile->splashDamage = ent->splashDamage;	//FIXME: externalize
 	missile->splashRadius = ent->splashRadius;	//FIXME: externalize
 	missile->dflags = DAMAGE_DEATH_KNOCKBACK;
-	//[Asteroids]
 	missile->methodOfDeath = MOD_TARGET_LASER;//MOD_TURBLAST; //count as a heavy weap
 	missile->splashMethodOfDeath = MOD_TARGET_LASER;//MOD_TURBLAST;// ?SPLASH;
-	//[/Asteroids]
 	missile->clipmask = MASK_SHOT;
 
 	// we don't want it to bounce forever
@@ -3470,11 +3466,9 @@ static void WP_FireConcussionAlt( gentity_t *ent )
 								traceEnt->client->ps.otherKiller = ent->s.number;
 								traceEnt->client->ps.otherKillerTime = level.time + 5000;
 								traceEnt->client->ps.otherKillerDebounceTime = level.time + 100;
-								//[Asteroids]
 								traceEnt->client->otherKillerMOD = MOD_UNKNOWN;
 								traceEnt->client->otherKillerVehWeapon = 0;
 								traceEnt->client->otherKillerWeaponType = WP_NONE;
-								//[/Asteroids]
 
 								traceEnt->client->ps.velocity[0] += pushDir[0]*pStr;
 								traceEnt->client->ps.velocity[1] += pushDir[1]*pStr;
@@ -4062,7 +4056,6 @@ gentity_t *WP_FireVehicleWeapon( gentity_t *ent, vec3_t start, vec3_t dir, vehWe
 
 		if ( vehWeapon->iHealth )
 		{//the missile can take damage
-			//[Asteroids]
 			/*
 			//don't do this - ships hit them first and have no trace.plane.normal to bounce off it at and end up in the middle of the asteroid...
 			missile->health = vehWeapon->iHealth;
@@ -4070,7 +4063,6 @@ gentity_t *WP_FireVehicleWeapon( gentity_t *ent, vec3_t start, vec3_t dir, vehWe
 			missile->r.contents = MASK_SHOT;
 			missile->die = RocketDie;
 			*/
-			//[/Asteroids]
 		}
 
 		//pilot should own this projectile on server if we have a pilot
@@ -4170,7 +4162,6 @@ gentity_t *WP_FireVehicleWeapon( gentity_t *ent, vec3_t start, vec3_t dir, vehWe
 		}
 		if ( !vehWeapon->fSpeed )
 		{//a mine or something?
-			//[Asteroids]
 			if ( vehWeapon->iHealth )
 			{//the missile can take damage
 				missile->health = vehWeapon->iHealth;
@@ -4178,7 +4169,6 @@ gentity_t *WP_FireVehicleWeapon( gentity_t *ent, vec3_t start, vec3_t dir, vehWe
 				missile->r.contents = MASK_SHOT;
 				missile->die = RocketDie;
 			}
-			//[/Asteroids]
 			//only do damage when someone touches us
 			missile->s.weapon = WP_THERMAL;//does this really matter?
 			G_SetOrigin( missile, start );
@@ -4377,7 +4367,6 @@ void WP_GetVehicleCamPos( gentity_t *ent, gentity_t *pilot, vec3_t camPos )
 
 void WP_VehLeadCrosshairVeh( gentity_t *camTraceEnt, vec3_t newEnd, const vec3_t dir, const vec3_t shotStart, vec3_t shotDir )
 {
-	//[Asteroids]
 	if ( g_vehAutoAimLead.integer )
 	{
 		if ( camTraceEnt 
@@ -4398,7 +4387,6 @@ void WP_VehLeadCrosshairVeh( gentity_t *camTraceEnt, vec3_t newEnd, const vec3_t
 				}
 			}
 		}
-	//[/Asteroids]
 	}
 	VectorSubtract( newEnd, shotStart, shotDir );
 	VectorNormalize( shotDir );

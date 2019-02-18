@@ -440,9 +440,9 @@ struct gentity_s {
 
 	gitem_t		*item;			// for bonus items
 
-	//[Asteroids]
+	//ROP VEHICLE_IMP START
 	int			nDamageFromVehicleTimer;
-	//[/Asteroids]
+	//ROP VEHICLE_IMP END
 
 	//[CoOp]
 	//[SuperDindon]
@@ -536,11 +536,9 @@ typedef struct {
 	char		saber2Type[64];
 	int			duelTeam;
 	int			siegeDesiredTeam;
-	//[Asteroids]
 	int			killCount;
 	int			TKCount;
 	char		IPstring[32];		// yeah, I know, could be 16, but, just in case...
-	//[Asteroids]
 	//[ExpSys]
 	float		skillPoints;		//number of skill points this player currently has.
 	//[/ExpSys]
@@ -913,12 +911,10 @@ struct gclient_s {
 	int			MishapDebounce;
 	//[/SaberSys]
 
-	//[Asteroids]
 	//can't put these in playerstate, crashes game (need to change exe?)
 	int			otherKillerMOD;
 	int			otherKillerVehWeapon;
 	int			otherKillerWeaponType;
-	//[/Asteroids]
 
 	//[DuelSys]
 	int			savedHP; // MJN - for duel HP

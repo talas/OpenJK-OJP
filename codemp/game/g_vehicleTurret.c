@@ -348,14 +348,11 @@ void VEH_TurretThink( Vehicle_t *pVeh, gentity_t *parent, int turretNum )
 	{//this turret does not think on its own.
 		return;
 	}
-
-	//[Asteroids]
 	//okay, so it has AI, but still don't think if there's no pilot!
 	if ( !pVeh->m_pPilot )
 	{
 		return;
 	}
-	//[/Asteroids]
 
 	vehWeapon = &g_vehWeaponInfo[turretStats->iWeapon];
 	rangeSq = (turretStats->fAIRange*turretStats->fAIRange);
@@ -385,14 +382,12 @@ void VEH_TurretThink( Vehicle_t *pVeh, gentity_t *parent, int turretNum )
 		}
 		else if ( parent->enemy && parent->enemy->s.number < ENTITYNUM_WORLD )
 		{
-			//[Asteroids]
 			if ( g_gametype.integer < GT_TEAM
 				|| !OnSameTeam( parent->enemy, parent ) )
 			{//either not in a team game or the enemy isn't on the same team
 				turretEnemy = parent->enemy;
 				doAim = qtrue;
 			}
-			//[/Asteroids]
 		}
 		if ( turretEnemy )
 		{//found one

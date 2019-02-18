@@ -4569,11 +4569,9 @@ void ForceThrow( gentity_t *self, qboolean pull )
 					push_list[x]->client->ps.otherKiller = self->s.number;
 					push_list[x]->client->ps.otherKillerTime = level.time + 5000;
 					push_list[x]->client->ps.otherKillerDebounceTime = level.time + 100;
-					//[Asteroids]
 					push_list[x]->client->otherKillerMOD = MOD_UNKNOWN;
 					push_list[x]->client->otherKillerVehWeapon = 0;
 					push_list[x]->client->otherKillerWeaponType = WP_NONE;
-					//[/Asteroids]
 
 					pushPowerMod -= (dirLen*0.7);
 					if (pushPowerMod < 16)
@@ -5105,11 +5103,9 @@ void DoGripAction(gentity_t *self, forcePowers_t forcePower)
 			gripEnt->client->ps.otherKiller = self->s.number;
 			gripEnt->client->ps.otherKillerTime = level.time + 5000;
 			gripEnt->client->ps.otherKillerDebounceTime = level.time + 100;
-			//[Asteroids]
 			gripEnt->client->otherKillerMOD = MOD_UNKNOWN;
 			gripEnt->client->otherKillerVehWeapon = 0;
 			gripEnt->client->otherKillerWeaponType = WP_NONE;
-		//[/Asteroids]
 
 			gripEnt->client->ps.forceGripChangeMovetype = PM_FLOAT;
 		}
@@ -5148,11 +5144,9 @@ void DoGripAction(gentity_t *self, forcePowers_t forcePower)
 			gripEnt->client->ps.otherKiller = self->s.number;
 			gripEnt->client->ps.otherKillerTime = level.time + 5000;
 			gripEnt->client->ps.otherKillerDebounceTime = level.time + 100;
-			//[Asteroids]
 			gripEnt->client->otherKillerMOD = MOD_UNKNOWN;
 			gripEnt->client->otherKillerVehWeapon = 0;
 			gripEnt->client->otherKillerWeaponType = WP_NONE;
-			//[/Asteroids]
 
 			gripEnt->client->ps.forceGripChangeMovetype = PM_FLOAT;
 		}

@@ -40,9 +40,7 @@ extern void trap_FX_PlayEffectID( int id, vec3_t org, vec3_t fwd, int vol, int r
 
 #ifdef QAGAME
 extern qboolean FighterIsLanded( Vehicle_t *pVeh, playerState_t *parentPS );
-//[Asteroids]
 extern void G_DamageFromKiller( gentity_t *pEnt, gentity_t *pVehEnt, gentity_t *attacker, vec3_t org, int damage, int dflags, int mod );
-//[/Asteroids]
 #endif
 
 extern void PM_SetPMViewAngle(playerState_t *ps, vec3_t angle, usercmd_t *ucmd);
@@ -72,25 +70,7 @@ void PM_VehicleImpact(bgEntity_t *pEnt, trace_t *trace)
 		if ( hitEnt->s.NPC_class == CLASS_VEHICLE )
 		{//hit another vehicle, explode!
 			//Give credit to whoever got me into this death spiral state
-			//[Asteroids]
 			G_DamageFromKiller( (gentity_t *)pEnt, (gentity_t *)pSelfVeh->m_pParentEntity, (gentity_t *)hitEnt, pm->ps->origin, 999999, DAMAGE_NO_ARMOR, MOD_COLLISION );
-			/*
-			gentity_t *parent = (gentity_t *)pSelfVeh->m_pParentEntity;
-			gentity_t *killer = NULL;
-			if (parent->client->ps.otherKiller < ENTITYNUM_WORLD &&
-				parent->client->ps.otherKillerTime > level.time)
-			{
-				gentity_t *potentialKiller = &g_entities[parent->client->ps.otherKiller];
-
-				if (potentialKiller->inuse && potentialKiller->client)
-				{ //he's valid I guess
-					killer = potentialKiller;
-				}
-			}
-			//FIXME: damage hitEnt, some, too?  Our explosion should hurt them some, but...
-			G_Damage( (gentity_t *)pEnt, killer, killer, NULL, pm->ps->origin, 999999, DAMAGE_NO_ARMOR, MOD_FALLING );//FIXME: MOD_IMPACT
-			*/
-			//[/Asteroids]
 			return;
 		}
 		else if ( !VectorCompare( trace->plane.normal, vec3_origin )
@@ -104,23 +84,7 @@ void PM_VehicleImpact(bgEntity_t *pEnt, trace_t *trace)
 			if ( impactDot <= -0.7f )//hit rather head-on and hard
 			{// Just DIE now
 				//Give credit to whoever got me into this death spiral state
-				//[Asteroids]
 				G_DamageFromKiller( (gentity_t *)pEnt, (gentity_t *)pSelfVeh->m_pParentEntity, (gentity_t *)hitEnt, pm->ps->origin, 999999, DAMAGE_NO_ARMOR, MOD_FALLING );
-				/*
-				gentity_t *killer = NULL;
-				if (parent->client->ps.otherKiller < ENTITYNUM_WORLD &&
-					parent->client->ps.otherKillerTime > level.time)
-				{
-					gentity_t *potentialKiller = &g_entities[parent->client->ps.otherKiller];
-
-					if (potentialKiller->inuse && potentialKiller->client)
-					{ //he's valid I guess
-						killer = potentialKiller;
-					}
-				}
-				G_Damage( (gentity_t *)pEnt, killer, killer, NULL, pm->ps->origin, 999999, DAMAGE_NO_ARMOR, MOD_FALLING );//FIXME: MOD_IMPACT
-				*/
-				//[/Asteroids]
 				return;
 			}
 		}
@@ -181,12 +145,9 @@ void PM_VehicleImpact(bgEntity_t *pEnt, trace_t *trace)
 			//FIXME: impact sound and effect should be gotten from g_vehicleInfo...?
 			//FIXME: should pass in trace.endpos and trace.plane.normal
 			vec3_t	vehUp;
-//[Asteroids]
 #ifdef QAGAME
 			qboolean noDamage = qfalse;
 #else
-//#ifndef QAGAME
-//[/Asteroids]
 			bgEntity_t *hitEnt;
 #endif
 
@@ -457,9 +418,7 @@ void PM_VehicleImpact(bgEntity_t *pEnt, trace_t *trace)
 			if (hitEnt 
 				&& (hitEnt->s.eType != ET_TERRAIN || !(hitEnt->spawnflags & 1) || pSelfVeh->m_pVehicleInfo->type == VH_FIGHTER))
 			{ //don't damage the vehicle from terrain that doesn't want to damage vehicles
-				//[Asteroids]
 				gentity_t *killer = NULL;
-				//[/Asteroids]
 				if (pSelfVeh->m_pVehicleInfo->type == VH_FIGHTER)
 				{ //increase the damage...
 					float mult = (pSelfVeh->m_vOrientation[PITCH]*0.1f);
@@ -507,8 +466,6 @@ void PM_VehicleImpact(bgEntity_t *pEnt, trace_t *trace)
 				{
 					G_Damage( (gentity_t *)pEnt, ((gentity_t*)hitEnt), killer!=NULL?killer:((gentity_t *)hitEnt), NULL, pm->ps->origin, magnitude*5, DAMAGE_NO_ARMOR, (hitEnt->s.NPC_class==CLASS_VEHICLE?MOD_COLLISION:MOD_FALLING) );//FIXME: MOD_IMPACT
 				}
-				//G_Damage( (gentity_t *)pEnt, NULL, NULL, NULL, pm->ps->origin, magnitude*5, DAMAGE_NO_ARMOR, MOD_FALLING );//FIXME: MOD_IMPACT
-				//[/Asteroids]
 
 				if (pSelfVeh->m_pVehicleInfo->surfDestruction)
 				{
@@ -552,11 +509,9 @@ void PM_VehicleImpact(bgEntity_t *pEnt, trace_t *trace)
 						hitEnt->client->ps.otherKiller = pEnt->s.number;
 						hitEnt->client->ps.otherKillerTime = pm->cmd.serverTime + 5000;
 						hitEnt->client->ps.otherKillerDebounceTime = pm->cmd.serverTime + 100;
-						//[Asteroids]
 						hitEnt->client->otherKillerMOD = MOD_COLLISION;
 						hitEnt->client->otherKillerVehWeapon = 0;
 						hitEnt->client->otherKillerWeaponType = WP_NONE;
-						//[/Asteroids]
 
 						//add my velocity into his to force him along in the correct direction from impact
 						VectorAdd(hitEnt->client->ps.velocity, pm->ps->velocity, hitEnt->client->ps.velocity);
@@ -579,12 +534,10 @@ void PM_VehicleImpact(bgEntity_t *pEnt, trace_t *trace)
 				{
 					finalD = 1;
 				}
-				//[/Asteroids]
 				if ( !noDamage )
 				{
 					G_Damage( hitEnt, attackEnt, attackEnt, NULL, pm->ps->origin, finalD, 0, (hitEnt->s.NPC_class==CLASS_VEHICLE?MOD_COLLISION:MOD_FALLING/*MOD_MELEE*/) );//FIXME: MOD_IMPACT
 				}
-				//[Asteroids]
 			}
 #else	//this is gonna result in "double effects" for the client doing the prediction.
 		//it doesn't look bad though. could just use predicted events, but I'm too lazy.

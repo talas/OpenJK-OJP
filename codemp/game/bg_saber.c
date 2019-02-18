@@ -1378,12 +1378,10 @@ void PM_SaberLockBreak( playerState_t *genemy, qboolean victory, int strength )
 				genemy->otherKillerTime = pm->cmd.serverTime + 5000;
 				genemy->otherKillerDebounceTime = pm->cmd.serverTime + 100;
 
-				//[Asteroids]
-				enemy->client->otherKillerMOD = MOD_UNKNOWN;
-				enemy->client->otherKillerVehWeapon = 0;
-				enemy->client->otherKillerWeaponType = WP_NONE;
+				//genemy->otherKillerMOD = MOD_UNKNOWN;
+				//genemy->otherKillerVehWeapon = 0;
+				//genemy->otherKillerWeaponType = WP_NONE;
 #endif
-				//[/Asteroids]
 				//[/KnockdownSys]
 
 				genemy->velocity[0] = oppDir[0]*(strength*40);

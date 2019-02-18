@@ -1515,7 +1515,6 @@ qboolean CG_CheckPassengerTurretView( void )
 				{// valid turret
 					if ( vehCent->m_pVehicle->m_pVehicleInfo->turret[turretNum].passengerNum == cg.predictedPlayerState.generic1 )
 					{//I control this turret
-						//[Asteroids]	
 						//Ah, crap, just look around freely... below method is way too wiggy
 						VectorCopy( cg.predictedPlayerState.origin, cg.refdef.vieworg );
 						VectorCopy( cg.predictedPlayerState.viewangles, cg.refdef.viewangles );
@@ -1571,7 +1570,6 @@ qboolean CG_CheckPassengerTurretView( void )
 							return qtrue;
 						}
 						*/
-						//[Asteroids]
 					}
 				}
 			}
@@ -1704,11 +1702,9 @@ static int CG_CalcViewValues( void ) {
 		CG_EmplacedView(cg_entities[cg.snap->ps.emplacedIndex].currentState.angles);
 	}
 
-	//[Asteroids]
 	//FIX: okay, if manning a turret, let view turn freely, 
 	//	   and use the vehicle chase camera info to place vieworg
 	//if ( !manningTurret )
-	//[Asteroids]
 	{
 		if ( cg.predictedPlayerState.m_iVehicleNum //in a vehicle
 			&& BG_UnrestrainedPitchRoll( &cg.predictedPlayerState, cg_entities[cg.predictedPlayerState.m_iVehicleNum].m_pVehicle ) )//can roll/pitch without restriction

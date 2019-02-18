@@ -2032,11 +2032,9 @@ void SP_func_static( gentity_t *ent )
 
 	if (ent->s.iModelScale < 0)
 	{
-		//[Asteroids]
 		//NOTE: -1 scale is x -100% (so -3 is 300%)
 		ent->s.legsFlip = qtrue;//treat it as a scalar
 		ent->s.iModelScale = -ent->s.iModelScale;
-		//[/Asteroids]
 	}
 	else if (ent->s.iModelScale > 1023)
 	{
@@ -2194,11 +2192,9 @@ void SP_func_rotating (gentity_t *ent) {
 	G_SpawnInt("model2scale", "0", &ent->s.iModelScale);
 	if (ent->s.iModelScale < 0)
 	{
-		//[Asteroids]
 		//NOTE: -1 scale is x -100% (so -3 is 300%)
 		ent->s.legsFlip = qtrue;//treat it as a scalar
 		ent->s.iModelScale = -ent->s.iModelScale;
-		//[/Asteroids]
 	}
 	else if (ent->s.iModelScale > 1023)
 	{

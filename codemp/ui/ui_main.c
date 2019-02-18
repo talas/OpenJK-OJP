@@ -6507,12 +6507,10 @@ static void UI_RunMenuScript(char **args)
 			if (uiInfo.teamIndex >= 0 && uiInfo.teamIndex < uiInfo.myTeamCount) {
 				trap_Cmd_ExecuteText( EXEC_APPEND, va("callteamvote leader \"%s\"\n",uiInfo.teamNames[uiInfo.teamIndex]) );
 			}
-		//[Asteroids]
 		} else if (Q_stricmp(name, "voteTeamKick") == 0) {
 			if (uiInfo.teamIndex >= 0 && uiInfo.teamIndex < uiInfo.myTeamCount) {
 				trap_Cmd_ExecuteText( EXEC_APPEND, va("callteamvote kick \"%s\"\n",uiInfo.teamNames[uiInfo.teamIndex]) );
 			}
-		//[/Asteroids]
 		} else if (Q_stricmp(name, "addBot") == 0) {
 			//[TABBot]
 			int bottype = trap_Cvar_VariableValue("ui_bottype");
@@ -7618,14 +7616,9 @@ static int UI_MapCountByGameType(qboolean singlePlayer) {
 	*/
 	//[/CoOp]
 
-	//[Asteroids]
-	//RACC - Asteroids makes this no longer always true so require seperate tags from now on.
-	/*
 	if (game == GT_TEAM) {
 		game = GT_FFA;
 	}
-	*/
-	//[/Asteroids]
 
 	if (game == GT_HOLOCRON || game == GT_JEDIMASTER) {
 		game = GT_FFA;

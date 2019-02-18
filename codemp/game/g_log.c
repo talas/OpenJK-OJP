@@ -70,9 +70,7 @@ int weaponFromMOD[MOD_MAX] =
 	WP_NONE,				//MOD_CRUSH,
 	WP_NONE,				//MOD_TELEFRAG,
 	WP_NONE,				//MOD_FALLING,
-	//[Asteroids]
 	WP_NONE,				//MOD_COLLISION,
-	//[/Asteroids]
 	WP_NONE,				//MOD_SUICIDE,
 	WP_NONE,				//MOD_TARGET_LASER,
 	WP_NONE,				//MOD_TRIGGER_HURT,

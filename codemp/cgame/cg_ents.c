@@ -1470,7 +1470,6 @@ Ghoul2 Insert End
 
 	if (cent->currentState.iModelScale)
 	{ //if the server says we have a custom scale then set it now.
-		//[Asteroids]
 		if ( cent->currentState.legsFlip  )
 		{//scalar
 			cent->modelScale[0] = cent->modelScale[1] = cent->modelScale[2] = cent->currentState.iModelScale;
@@ -1479,7 +1478,6 @@ Ghoul2 Insert End
 		{//percentage
 			cent->modelScale[0] = cent->modelScale[1] = cent->modelScale[2] = cent->currentState.iModelScale/100.0f;
 		}
-		//[/Asteroids]
 		VectorCopy(cent->modelScale, ent.modelScale);
 		ScaleModelAxis(&ent);
 	}
@@ -3079,7 +3077,6 @@ Ghoul2 Insert End
 		ent.hModel = cgs.gameModels[s1->modelindex2];
 		if (s1->iModelScale)
 		{ //custom model2 scale
-			//[Asteroids]
 			if ( s1->legsFlip )
 			{//scalar
 				ent.modelScale[0] = ent.modelScale[1] = ent.modelScale[2] = s1->iModelScale;
@@ -3088,7 +3085,6 @@ Ghoul2 Insert End
 			{//percentage
 				ent.modelScale[0] = ent.modelScale[1] = ent.modelScale[2] = s1->iModelScale/100.0f;
 			}
-			//[/Asteroids]
 			ScaleModelAxis(&ent);
 		}
 		trap_R_AddRefEntityToScene(&ent);

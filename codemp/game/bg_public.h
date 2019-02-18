@@ -375,9 +375,7 @@ extern qboolean			BGPAFtextLoaded;
 extern animation_t		bgHumanoidAnimations[MAX_TOTALANIMATIONS];
 #include "../namespace_end.h"
 
-//[Asteroids]
 #define MAX_ANIM_FILES	64
-//[/Asteroids]
 #define MAX_ANIM_EVENTS 300
 
 typedef enum
@@ -1282,10 +1280,8 @@ typedef enum {
 	MOD_TARGET_LASER,
 	MOD_TRIGGER_HURT,
 	MOD_TEAM_CHANGE,
-	//[Asteroids]
 	MOD_COLLISION,
 	MOD_VEH_EXPLOSION,
-	//[/Asteroids]
 	//[SeekerItemNPC]
 	MOD_SEEKER,	//death by player's seeker droid.
 	//[/SeekerItemNPC]

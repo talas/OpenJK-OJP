@@ -133,9 +133,7 @@ int G_GetMapTypeBits(char *type)
 	if( *type ) {
 		if( strstr( type, "ffa" ) ) {
 			typeBits |= (1 << GT_FFA);
-		//[Asteroids]
-			//typeBits |= (1 << GT_TEAM);
-		//[/Asteroids]
+			typeBits |= (1 << GT_TEAM);
 		}
 
 		//[CoOp]
@@ -146,8 +144,7 @@ int G_GetMapTypeBits(char *type)
 
 		if( strstr( type, "team" ) ) {
 			typeBits |= (1 << GT_TEAM);
-		}	
-		//[/Asteroids]
+		}
 		if( strstr( type, "holocron" ) ) {
 			typeBits |= (1 << GT_HOLOCRON);
 		}

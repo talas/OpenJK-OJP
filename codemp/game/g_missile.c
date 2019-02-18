@@ -237,7 +237,6 @@ void G_ExplodeMissile( gentity_t *ent ) {
 	ent->takedamage = qfalse;
 	// splash damage
 	if ( ent->splashDamage ) {
-		//[Asteroids]
 		//NOTE: vehicle missiles don't have an ent->parent set, so check that here and set it
 		if ( ent->s.eType == ET_MISSILE//missile
 			&& (ent->s.eFlags&EF_JETPACK_ACTIVE)//vehicle missile
@@ -245,7 +244,6 @@ void G_ExplodeMissile( gentity_t *ent ) {
 		{//set my parent to my owner for purposes of damage credit...
 			ent->parent = &g_entities[ent->r.ownerNum];
 		}
-		//[/Asteroids]
 		if( G_RadiusDamage( ent->r.currentOrigin, ent->parent, ent->splashDamage, ent->splashRadius, ent, 
 				ent, ent->splashMethodOfDeath ) ) 
 		{
@@ -479,10 +477,9 @@ qboolean G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 			ent->methodOfDeath != MOD_CONC &&
 			ent->methodOfDeath != MOD_CONC_ALT &&
 			ent->methodOfDeath != MOD_SABER &&
-			//[Asteroids]
 			ent->methodOfDeath != MOD_TURBLAST &&
-			ent->methodOfDeath != MOD_TARGET_LASER)
-			//[/Asteroids]
+			ent->methodOfDeath != MOD_TARGET_LASER)// &&
+			//ent->methodOfDeath != MOD_COLLISION)
 		{
 			vec3_t fwd;
 

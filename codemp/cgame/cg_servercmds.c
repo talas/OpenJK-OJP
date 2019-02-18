@@ -1647,9 +1647,7 @@ static void CG_ServerCommand( void ) {
 			x++;
 		}
 		trap_SP_GetStringTextString(x, strEd, MAX_STRINGED_SV_STRING);
-		//[Asteroids]
 		CG_CenterPrint( strEd, SCREEN_HEIGHT * 0.20, BIGCHAR_WIDTH );
-		//[/Asteroids]
 		return;
 	}
 

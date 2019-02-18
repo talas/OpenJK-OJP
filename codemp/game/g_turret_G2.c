@@ -246,7 +246,6 @@ void turretG2_die ( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, 
 	self->s.shouldtarget = qfalse;
 	//self->s.owner = MAX_CLIENTS; //not owned by any client
 
-	//[Asteroids]
 	if ( attacker 
 		&& attacker->s.number < MAX_CLIENTS
 		&& !OnSameTeam( attacker, self ) )
@@ -254,7 +253,6 @@ void turretG2_die ( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, 
 		AddScore( attacker, self->r.currentOrigin, 1 );
 		//should we send an obit?  nah...
 	}
-	//[/Asteroids]
 
 	// hack the effect angle so that explode death can orient the effect properly
 	if ( self->spawnflags & 2 )

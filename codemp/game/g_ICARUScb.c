@@ -4374,7 +4374,6 @@ static void Q3_SetScale(int entID, float float_data)
 	
 	if (self->client)
 	{
-		//[Asteroids]
 		if ( float_data < 0 )
 		{
 			self->client->ps.iModelScale = float_data;
@@ -4383,11 +4382,9 @@ static void Q3_SetScale(int entID, float float_data)
 		{
 			self->client->ps.iModelScale = float_data*100.0f;
 		}
-		//[/Asteroids]
 	}
 	else
 	{
-		//[Asteroids]
 		if ( float_data < 0 )
 		{
 			self->s.iModelScale = float_data;
@@ -4396,7 +4393,6 @@ static void Q3_SetScale(int entID, float float_data)
 		{
 			self->s.iModelScale = float_data*100.0f;
 		}
-		//[/Asteroids]
 	}
 }
 

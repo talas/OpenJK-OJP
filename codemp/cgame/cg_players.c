@@ -11437,18 +11437,15 @@ void CG_G2AnimEntModelLoad(centity_t *cent)
 static void CG_CreateSurfaceDebris(centity_t *cent, int surfNum, int fxID, qboolean throwPart)
 {
 	int lostPartFX = 0;
-	//[Asteroids]
 	int b = -1;
-	//int b;
 	vec3_t v, d;
 	mdxaBone_t boltMatrix;
 	const char *surfName = NULL;	
-	//const char *surfName = bgToggleableSurfaces[surfNum];
+	
 	if ( surfNum > 0 )
 	{
 		surfName = bgToggleableSurfaces[surfNum];
 	}
-	//[/Asteroids]
 
 	if (!cent->ghoul2)
 	{ //oh no
@@ -11505,18 +11502,11 @@ static void CG_CreateSurfaceDebris(centity_t *cent, int surfNum, int fxID, qbool
 			lostPartFX = cent->m_pVehicle->m_pVehicleInfo->iNoseFX;
 		}
 	}
-	//[Asteroids]
 	else if ( surfName )
-	//else
 	{
 		b = trap_G2API_AddBolt(cent->ghoul2, 0, surfName);
 	}
 
-	/*
-	if (b == -1)
-	{ //couldn't find this surface apparently
-		return;
-	*/
 	if (b == -1 || surfNum == -1)
 	{ //couldn't find this surface apparently, so play on origin?
 		VectorCopy( cent->lerpOrigin, v );
@@ -11531,15 +11521,6 @@ static void CG_CreateSurfaceDebris(centity_t *cent, int surfNum, int fxID, qbool
 		BG_GiveMeVectorFromMatrix(&boltMatrix, ORIGIN, v);
 		BG_GiveMeVectorFromMatrix(&boltMatrix, POSITIVE_Z, d);
 	}
-
-	/*
-	//now let's get the position and direction of this surface and make a big explosion
-	trap_G2API_GetBoltMatrix(cent->ghoul2, 0, b, &boltMatrix, cent->lerpAngles, cent->lerpOrigin, cg.time,
-		cgs.gameModels, cent->modelScale);
-	BG_GiveMeVectorFromMatrix(&boltMatrix, ORIGIN, v);
-	BG_GiveMeVectorFromMatrix(&boltMatrix, POSITIVE_Z, d);
-	*/
-	//[/Asteroids]
 
 	trap_FX_PlayEffectID(fxID, v, d, -1, -1);
 	if ( throwPart && lostPartFX )
@@ -12319,9 +12300,7 @@ static CGAME_INLINE void CG_VehicleEffects(centity_t *cent)
 	// Animals don't exude any effects...
 	if ( pVehNPC->m_pVehicleInfo->type != VH_ANIMAL )
 	{
-		//[Asteroids]
 		qboolean didFireTrail = qfalse;
-		//[/Asteroids]
 		if (pVehNPC->m_pVehicleInfo->surfDestruction && cent->ghoul2)
 		{ //see if anything has been blown off
 			int i = 0;
@@ -12340,9 +12319,7 @@ static CGAME_INLINE void CG_VehicleEffects(centity_t *cent)
 
 						//create some flames
                         CG_CreateSurfaceDebris(cent, i, cgs.effects.mShipDestBurning, qfalse);
-						//[Asteroids]
 						didFireTrail = qtrue;
-						//[/Asteroids]
 					}
 				}
 
@@ -12354,12 +12331,10 @@ static CGAME_INLINE void CG_VehicleEffects(centity_t *cent)
 				return;
 			}
 		}
-		//[Asteroids]
 		if ( !didFireTrail && (cent->currentState.eFlags&EF_DEAD) )
 		{//spiralling out of control anyway
             CG_CreateSurfaceDebris(cent, -1, cgs.effects.mShipDestBurning, qfalse);
 		}
-		//[/Asteroids]
 
 		if ( pVehNPC->m_iLastFXTime <= cg.time )
 		{//until we attach it, we need to debounce this

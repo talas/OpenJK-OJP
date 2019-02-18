@@ -222,10 +222,8 @@ int BasicDodgeCosts[MOD_MAX] =
 	-1,		//MOD_TARGET_LASER,
 	-1,		//MOD_TRIGGER_HURT,
 	-1,		//MOD_TEAM_CHANGE,
-	//[Asteroids]
 	-1,		//MOD_COLLISION,
 	-1,		//MOD_VEH_EXPLOSION,
-	//[/Asteroids]
 	//[SeekerItemNPC]
 	20,		//MOD_SEEKER,	//death by player's seeker droid.
 	//[/SeekerItemNPC]
@@ -9996,11 +9994,9 @@ static gentity_t *G_KickTrace( gentity_t *ent, vec3_t kickDir, float kickDist, v
 					hitEnt->client->ps.otherKiller = ent->s.number;
 					hitEnt->client->ps.otherKillerDebounceTime = level.time + 10000;
 					hitEnt->client->ps.otherKillerTime = level.time + 10000;
-					//[Asteroids]
 					hitEnt->client->otherKillerMOD = MOD_MELEE;
 					hitEnt->client->otherKillerVehWeapon = 0;
 					hitEnt->client->otherKillerWeaponType = WP_NONE;
-					//[Asteroids]
 				}
 
 				G_Throw( hitEnt, kickDir, kickPush );
@@ -10016,11 +10012,9 @@ static gentity_t *G_KickTrace( gentity_t *ent, vec3_t kickDir, float kickDist, v
 					hitEnt->client->ps.otherKiller = ent->s.number;
 					hitEnt->client->ps.otherKillerDebounceTime = level.time + 10000;
 					hitEnt->client->ps.otherKillerTime = level.time + 10000;
-					//[Asteroids]
 					hitEnt->client->otherKillerMOD = MOD_MELEE;
 					hitEnt->client->otherKillerVehWeapon = 0;
 					hitEnt->client->otherKillerWeaponType = WP_NONE;
-					//[Asteroids]
 
 					//[FatigueSys]
 					if(PM_SaberInBrokenParry(hitEnt->client->ps.saberMove))
@@ -10193,11 +10187,9 @@ static void G_PunchSomeMofos(gentity_t *ent)
 				tr_ent->client->ps.otherKiller = ent->s.number;
 				tr_ent->client->ps.otherKillerDebounceTime = level.time + 10000;
 				tr_ent->client->ps.otherKillerTime = level.time + 10000;
-				//[Asteroids]
 				tr_ent->client->otherKillerMOD = MOD_MELEE;
 				tr_ent->client->otherKillerVehWeapon = 0;
 				tr_ent->client->otherKillerWeaponType = WP_NONE;
-				//[Asteroids]
 			}
 
 			if ( tr_ent->takedamage )

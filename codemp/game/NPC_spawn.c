@@ -1587,14 +1587,12 @@ void NPC_Begin (gentity_t *ent)
 						//SP way:
 						//droidEnt->s.m_iVehicleNum = ent->s.number;
 						//droidEnt->owner = ent;
-						//[Asteroids]
 						//set team
 						droidEnt->alliedTeam = ent->alliedTeam;
 						droidEnt->teamnodmg = ent->teamnodmg;
 						droidEnt->client->sess.sessionTeam = ent->client->sess.sessionTeam;
 						droidEnt->client->ps.persistant[PERS_TEAM] = ent->client->ps.persistant[PERS_TEAM];
 						//position
-						//[/Asteroids]
 						VectorCopy( ent->r.currentOrigin, droidEnt->s.origin );
 						VectorCopy( ent->r.currentOrigin, droidEnt->client->ps.origin );
 						G_SetOrigin( droidEnt, droidEnt->s.origin );

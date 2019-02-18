@@ -249,9 +249,7 @@ vmCvar_t	g_saberDebugPrint;
 vmCvar_t	g_siegeTeamSwitch;
 
 vmCvar_t	bg_fighterAltControl;
-//[Asteroids]
 vmCvar_t	g_vehAutoAimLead;
-//[/Asteroids]
 
 //[AdminCommands]
 vmCvar_t	g_autoKickKillSpammers;
@@ -671,10 +669,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_siegeTeamSwitch, "g_siegeTeamSwitch", "1", CVAR_SERVERINFO|CVAR_ARCHIVE, qfalse },
 
 	{ &bg_fighterAltControl, "bg_fighterAltControl", "0", CVAR_SERVERINFO, 0, qtrue },
-	
-	//[Asteroids]
 	{ &g_vehAutoAimLead, "g_vehAutoAimLead", "0", CVAR_ARCHIVE },
-	//[/Asteroids]
 
 	//[AdminCommands]
 	{ &g_autoKickKillSpammers, "g_autoKickKillSpammers", "0", CVAR_ARCHIVE, 0, qtrue  },

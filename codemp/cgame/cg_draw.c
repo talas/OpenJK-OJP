@@ -4848,10 +4848,7 @@ void CG_DrawSiegeMessageNonMenu( const char *str )
 		trap_SP_GetStringTextString(str+1, text, sizeof(text));
 		str = text;
 	}
-	//[Asteroids]	
 	CG_CenterPrint(str, SCREEN_HEIGHT * 0.20, BIGCHAR_WIDTH);
-	//	CG_CenterPrint(str, SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH);
-	//[/Asteroids]
 }
 
 /*
@@ -6456,12 +6453,10 @@ static void CG_DrawRocketLocking( int lockEntNum, int lockTime )
 
 		sz = (1.0f - sz) * (1.0f - sz) * 32 + 6;
 
-		//[Asteroids]
 		if ( cg.snap->ps.m_iVehicleNum )
 		{
 			sz *= 2.0f;
 		}
-		//[/Asteroids]
 
 		cy += sz * 0.5f;
 		

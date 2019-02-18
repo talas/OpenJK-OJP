@@ -3635,11 +3635,9 @@ void ClientThink_real( gentity_t *ent ) {
 					ent->client->ps.otherKiller = thrower->s.number;
 					ent->client->ps.otherKillerTime = level.time + 8000;
 					ent->client->ps.otherKillerDebounceTime = level.time + 100;
-					//[Asteroids]
 					ent->client->otherKillerMOD = MOD_FALLING;
 					ent->client->otherKillerVehWeapon = 0;
 					ent->client->otherKillerWeaponType = WP_NONE;
-					//[/Asteroids]
 				}
 				else
 				{ //see if we can move to be next to the hand.. if it's not clear, break the throw.
@@ -4198,7 +4196,6 @@ void ClientThink_real( gentity_t *ent ) {
 		pm.checkDuelLoss = 0;
 	}
 
-	//[Asteroids]
 	if ( ent->client->ps.groundEntityNum < ENTITYNUM_WORLD )
 	{//standing on an ent
 		gentity_t *groundEnt = &g_entities[ent->client->ps.groundEntityNum];
@@ -4219,7 +4216,6 @@ void ClientThink_real( gentity_t *ent ) {
 			}
 		}
 	}
-	//[/Asteroids]
 
 	if (pm.cmd.generic_cmd &&
 		(pm.cmd.generic_cmd != ent->client->lastGenCmd || ent->client->lastGenCmdTime < level.time))
@@ -4571,11 +4567,9 @@ void ClientThink_real( gentity_t *ent ) {
 						faceKicked->client->ps.otherKiller = ent->s.number;
 						faceKicked->client->ps.otherKillerTime = level.time + 5000;
 						faceKicked->client->ps.otherKillerDebounceTime = level.time + 100;
-						//[Asteroids]
 						faceKicked->client->otherKillerMOD = MOD_MELEE;
 						faceKicked->client->otherKillerVehWeapon = 0;
 						faceKicked->client->otherKillerWeaponType = WP_NONE;
-						//[/Asteroids]
 
 						faceKicked->client->ps.velocity[0] = oppDir[0]*(strength*40);
 						faceKicked->client->ps.velocity[1] = oppDir[1]*(strength*40);
