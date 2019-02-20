@@ -705,11 +705,6 @@ void BotInputToUserCommand(bot_input_t *bi, usercmd_t *ucmd, int delta_angles[3]
 	}
 	//[/TABBot]
 
-	//[BugFix20]
-	//fixed problem with a bot's force power select not being treating properly by the pm code.
-	ucmd->forcesel = bi->forcesel;
-	//[/BugFix20]
-
 	//
 	//Com_Printf("forward = %d right = %d up = %d\n", ucmd.forwardmove, ucmd.rightmove, ucmd.upmove);
 	//Com_Printf("ucmd->serverTime = %d\n", ucmd->serverTime);
@@ -816,11 +811,6 @@ void BotUpdateInput(bot_state_t *bs, int time, int elapsed_time) {
 		bi.actionflags |= ACTION_WALK;
 	}
 	//[/TABBot]
-
-	//[BugFix20]
-	//set up forcesel.  Doesn't use cur_ps, since cur_ps is just a copy of the real ps.
-	bi.forcesel = level.clients[bs->client].ps.fd.forcePowerSelected;
-	//[/BugFix20]
 
 	//convert the bot input to a usercmd
 	BotInputToUserCommand(&bi, &bs->lastucmd, bs->cur_ps.delta_angles, time, bs->noUseTime);

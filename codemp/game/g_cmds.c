@@ -691,10 +691,7 @@ extern vmCvar_t	g_autoKickKillSpammers;
 extern vmCvar_t	g_autoBanKillSpammers;
 //[/AdminSys]
 void Cmd_Kill_f( gentity_t *ent ) {
-	//[BugFix41]
-	//if ( ent->client->sess.sessionTeam == TEAM_SPECTATOR ) {
-	if ( ent->client->sess.sessionTeam == TEAM_SPECTATOR || ent->client->tempSpectate >= level.time ) {
-	//[/BugFix41]
+	if ( ent->client->sess.sessionTeam == TEAM_SPECTATOR ) {
 		return;
 	}
 	if (ent->health <= 0)
@@ -1112,10 +1109,6 @@ void SetTeam( gentity_t *ent, char *s ) {
 		// force them to spectators if there aren't any spots free
 		team = TEAM_FREE;
 	}
-	
-	//[BugFix41]
-	oldTeam = client->sess.sessionTeam;
-	//[/BugFix41]
 
 	if (g_gametype.integer == GT_SIEGE)
 	{
@@ -1124,12 +1117,6 @@ void SetTeam( gentity_t *ent, char *s ) {
 		{ //sorry, can't do that.
 			return;
 		}
-		
-		//[BugFix41]
-		if ( team == oldTeam && team != TEAM_SPECTATOR ) {
-			return;
-		}
-		//[/BugFix41]
 
 		client->sess.siegeDesiredTeam = team;
 		//oh well, just let them go.
@@ -1197,10 +1184,7 @@ void SetTeam( gentity_t *ent, char *s ) {
 	//
 	// decide if we will allow the change
 	//
-	//[BugFix41]
-	// moved this up above the siege check
-	//oldTeam = client->sess.sessionTeam;
-	//[/BugFix41]
+	oldTeam = client->sess.sessionTeam;
 	if ( team == oldTeam && team != TEAM_SPECTATOR ) {
 		return;
 	}
@@ -1282,9 +1266,6 @@ If the client being followed leaves the game, or you just want to drop
 to free floating spectator mode
 =================
 */
-//[BugFix38]
-extern void G_LeaveVehicle( gentity_t *ent, qboolean ConCheck );
-//[/BugFix38]
 void StopFollowing( gentity_t *ent ) {
 	ent->client->ps.persistant[ PERS_TEAM ] = TEAM_SPECTATOR;	
 	ent->client->sess.sessionTeam = TEAM_SPECTATOR;	
@@ -1293,10 +1274,7 @@ void StopFollowing( gentity_t *ent ) {
 	ent->r.svFlags &= ~SVF_BOT;
 	ent->client->ps.clientNum = ent - g_entities;
 	ent->client->ps.weapon = WP_NONE;
-	//[BugFix38]
-	G_LeaveVehicle( ent, qfalse ); // clears m_iVehicleNum as well
-	//ent->client->ps.m_iVehicleNum = 0;
-	//[/BugFix38]
+	ent->client->ps.m_iVehicleNum = 0;
 	ent->client->ps.viewangles[ROLL] = 0.0f;
 	ent->client->ps.forceHandExtend = HANDEXTEND_NONE;
 	ent->client->ps.forceHandExtendTime = 0;
@@ -1310,11 +1288,6 @@ void StopFollowing( gentity_t *ent ) {
 	//[DuelSys]
 	ent->client->ps.duelInProgress = qfalse; // MJN - added to clean it up a bit.
 	//[/DuelSys]
-	//[BugFix38]
-	ent->client->ps.cloakFuel = 100; // so that fuel goes away after stop following them
-	ent->client->ps.jetpackFuel = 100; // so that fuel goes away after stop following them
-	ent->health = ent->client->ps.stats[STAT_HEALTH] = 100; // so that you don't keep dead angles if you were spectating a dead person
-	//[/BugFix38]
 }
 
 /*
@@ -1812,13 +1785,6 @@ void Cmd_Follow_f( gentity_t *ent ) {
 	if ( level.clients[ i ].sess.sessionTeam == TEAM_SPECTATOR ) {
 		return;
 	}
-	
-	//[BugFix38]
-	// can't follow another spectator
-	if ( level.clients[ i ].tempSpectate >= level.time ) {
-		return;
-	}
-	//[/BugFix38]
 
 	// if they are playing a tournement game, count as a loss
 	if ( (g_gametype.integer == GT_DUEL || g_gametype.integer == GT_POWERDUEL)
@@ -1880,13 +1846,6 @@ void Cmd_FollowCycle_f( gentity_t *ent, int dir ) {
 		if ( level.clients[ clientnum ].sess.sessionTeam == TEAM_SPECTATOR ) {
 			continue;
 		}
-
-		//[BugFix38]
-		// can't follow another spectator
-		if ( level.clients[ clientnum ].tempSpectate >= level.time ) {
-			return;
-		}
-		//[/BugFix38]
 
 		// this is good, we can use it
 		ent->client->sess.spectatorClient = clientnum;
@@ -2355,18 +2314,7 @@ Cmd_Where_f
 ==================
 */
 void Cmd_Where_f( gentity_t *ent ) {
-	//[BugFix31]
-	//This wasn't working for non-spectators since s.origin doesn't update for active players.
-	if(ent->client && ent->client->sess.sessionTeam != TEAM_SPECTATOR )
-	{//active players use currentOrigin
-		trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", vtos( ent->r.currentOrigin ) ) );
-	}
-	else
-	{
-		trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", vtos( ent->s.origin ) ) );
-	}
-	//trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", vtos( ent->s.origin ) ) );
-	//[/BugFix31]
+	trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", vtos( ent->s.origin ) ) );
 }
 
 static const char *gameNames[] = {
@@ -3103,30 +3051,6 @@ void Cmd_Stats_f( gentity_t *ent ) {
 */
 }
 
-//[BugFix38]
-void G_LeaveVehicle( gentity_t* ent, qboolean ConCheck ) {
-
-	if (ent->client->ps.m_iVehicleNum)
-	{ //tell it I'm getting off
-		gentity_t *veh = &g_entities[ent->client->ps.m_iVehicleNum];
-
-		if (veh->inuse && veh->client && veh->m_pVehicle)
-		{
-			if ( ConCheck ) { // check connection
-				int pCon = ent->client->pers.connected;
-				ent->client->pers.connected = 0;
-				veh->m_pVehicle->m_pVehicleInfo->Eject(veh->m_pVehicle, (bgEntity_t *)ent, qtrue);
-				ent->client->pers.connected = pCon;
-			} else { // or not.
-				veh->m_pVehicle->m_pVehicleInfo->Eject(veh->m_pVehicle, (bgEntity_t *)ent, qtrue);
-			}
-		}
-	}
-
-	ent->client->ps.m_iVehicleNum = 0;
-}
-//[/BugFix38]
-
 int G_ItemUsable(playerState_t *ps, int forcedUse)
 {
 	vec3_t fwd, fwdorg, dest, pos;
@@ -3416,26 +3340,16 @@ void Cmd_SaberAttackCycle_f(gentity_t *ent)
 	int selectLevel = 0;
 	qboolean usingSiegeStyle = qfalse;
 	
-	//[BugFix15]
-	// MJN - Saber Cycle Fix - Thanks Wudan!!
-	if ( ent->client->ps.weapon != WP_SABER )
-	{
-        return;
-	}
-
-	/*
 	if ( !ent || !ent->client )
 	{
 		return;
 	}
-	*/
 	/*
 	if (ent->client->ps.weaponTime > 0)
 	{ //no switching attack level when busy
 		return;
 	}
-	*/	
-	//[/BugFix15]
+	*/
 
 	//[TAUNTFIX]
 	if (ent->client->sess.sessionTeam == TEAM_SPECTATOR)
@@ -4093,10 +4007,6 @@ qboolean TryGrapple(gentity_t *ent)
 			ent->client->ps.legsTimer = ent->client->ps.torsoTimer;
 		}
 		ent->client->ps.weaponTime = ent->client->ps.torsoTimer;
-
-		//[BugFix35]
-		ent->client->dangerTime = level.time;
-		//[/BugFix35]
 		return qtrue;
 	}
 

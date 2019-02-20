@@ -104,9 +104,6 @@ typedef struct bot_input_s
 	vec3_t viewangles;		//the view angles
 	int actionflags;		//one of the ACTION_? flags
 	int weapon;				//weapon to use
-	//[BugFix20]
-	int forcesel;			//the force power the the bot is currently trying to select/use
-	//[/BugFix20]
 } bot_input_t;
 
 #ifndef BSPTRACE

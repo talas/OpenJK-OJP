@@ -5400,12 +5400,6 @@ static void WP_UpdateMindtrickEnts(gentity_t *self)
 }
 
 
-//[BugFix27]
-//Debouncer information for the lightning
-static int LightningDebounceTime = 0;
-//sets the time between lightning hit shots on the server so that we can alter the sv_fps without issues.  
-#define LIGHTNINGDEBOUNCE		50 
-//[/BugFix27]
 static int SpeedDebounceTime = 0;
 //sets the time between force speed FP drains.  
 static int ProtectDebounceTime=0;
@@ -5517,7 +5511,7 @@ static void WP_ForcePowerRun( gentity_t *self, forcePowers_t forcePower, usercmd
 				WP_ForcePowerStop( self, forcePower );
 			}
 		}
-
+		
 		if ( (ucmd.buttons & BUTTON_FORCEPOWER) && self->client->ps.fd.forcePowerSelected == FP_SPEED )
 		{//holding it keeps it going
 			self->client->ps.fd.forcePowerDuration[FP_SPEED] = level.time + 500;
@@ -5625,12 +5619,7 @@ static void WP_ForcePowerRun( gentity_t *self, forcePowers_t forcePower, usercmd
 		//[ForceSys]
 		//replaced drain with force lightning for the moment because drain is WAY over powered when 
 		//used in the new saber system.
-		//[BugFix27]
-		//added server debouncer to make the lightning damage consistant even with different sv_fps settings.
-		else if( LightningDebounceTime == level.time //someone already advanced the timer this frame
-			|| (level.time - LightningDebounceTime >= LIGHTNINGDEBOUNCE) )
-		//else
-		//[/BugFix27]
+		else
 		{
 			ForceShootLightning( self );
 			//[ForceSys]
@@ -5640,11 +5629,6 @@ static void WP_ForcePowerRun( gentity_t *self, forcePowers_t forcePower, usercmd
 
 			//show the drain lightning effect
 			self->client->ps.activeForcePass = self->client->ps.fd.forcePowerLevel[FP_DRAIN] + FORCE_LEVEL_3;
-
-			//[BugFix27]
-			//update the lightning shot debouncer
-			LightningDebounceTime = level.time;
-			//[/BugFix27]
 		}
 		/* basejka code
 		else
@@ -5679,23 +5663,13 @@ static void WP_ForcePowerRun( gentity_t *self, forcePowers_t forcePower, usercmd
 		{
 			WP_ForcePowerStop( self, forcePower );
 		}
-		//[BugFix27]
-		//added server debouncer to make the lightning damage consistant even with different sv_fps settings.
-		else if( LightningDebounceTime == level.time //someone already advanced the timer this frame
-			|| (level.time - LightningDebounceTime >= LIGHTNINGDEBOUNCE) )
-		//else
-		//[/BugFix27]
+		else
 		{
 			ForceShootLightning( self );
 			//[ForceSys]
 			BG_ForcePowerDrain( &self->client->ps, forcePower, 1 ); //holding FP cost
 			//BG_ForcePowerDrain( &self->client->ps, forcePower, 0 );
 			//[/ForceSys]
-
-			//[BugFix27]
-			//update the lightning shot debouncer
-			LightningDebounceTime = level.time;
-			//[/BugFix27]
 		}
 		break;
 	case FP_TELEPATHY:
@@ -6170,24 +6144,6 @@ void HolocronUpdate(gentity_t *self)
 				{
 					self->client->ps.fd.forcePowerLevel[i] = FORCE_LEVEL_1;
 				}
-
-				//[BugFix46]
-				//make sure that the player's saber stance is reset so they can't continue to use that stance 
-				//when they don't have the skill for it anymore.
-				if (self->client->saber[0].model[0] &&
-					self->client->saber[1].model[0])
-				{ //dual
-					self->client->ps.fd.saberAnimLevelBase = self->client->ps.fd.saberAnimLevel = self->client->ps.fd.saberDrawAnimLevel = SS_DUAL;
-				}
-				else if ((self->client->saber[0].saberFlags&SFL_TWO_HANDED))
-				{ //staff
-					self->client->ps.fd.saberAnimLevel = self->client->ps.fd.saberDrawAnimLevel = SS_STAFF;
-				}
-				else
-				{
-					self->client->ps.fd.saberAnimLevelBase = self->client->ps.fd.saberAnimLevel = self->client->ps.fd.saberDrawAnimLevel = SS_MEDIUM;
-				}
-				//[/BugFix46]
 			}
 			else
 			{

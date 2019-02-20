@@ -243,12 +243,6 @@ qboolean	G_TryPushingEntity( gentity_t *check, gentity_t *pusher, vec3_t move, v
 		{
 			G_Damage(check, pusher, pusher, vec3_origin, check->r.currentOrigin, 999, 0, MOD_UNKNOWN);
 		}
-		//[BugFix13]
-		//certain owned objects, like det packs, shouldn't be making movers reverse course.
-		//I think is was the root of the Hoth siege bridge exploit where players could use 
-		//detpacks to make the bridge get stuck closed.
-		//return qfalse;
-		//[/BugFix13]
 	}
 	// if it is ok to leave in the old position, do it
 	// this is only relevent for riding entities, not pushed
@@ -281,9 +275,6 @@ otherwise riders would continue to slide.
 If qfalse is returned, *obstacle will be the blocking entity
 ============
 */
-//[BugFix10]
-void NPC_RemoveBody( gentity_t *self );
-//[/BugFix10]
 qboolean G_MoverPush( gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **obstacle ) 
 {//RACC - move mover entity and push/crush/etc all the stuff in its way.
 	int			i, e;
@@ -381,28 +372,6 @@ qboolean G_MoverPush( gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **
 			G_Damage( check, pusher, pusher, NULL, NULL, 999, 0, MOD_CRUSH );
 			continue;
 		}
-
-		//[BugFix10]	
-		if ( (check->r.contents & CONTENTS_TRIGGER) && check->s.weapon == G2_MODEL_PART)
-		{//keep limbs from blocking elevators.  Kill the limb and keep moving.
-			G_FreeEntity(check);
-			continue;
-		}
-
-		if( check->s.eFlags & EF_DROPPEDWEAPON )
-		{//keep dropped weapons from blocking elevators.  Kill the weapon and keep moving.
-			G_FreeEntity(check);
-			continue;
-		}
-
-		if ( check->s.eType == ET_NPC //an NPC
-			&& check->health <= 0 //NPC is dead
-			&& !(check->flags & FL_NOTARGET) )  //NPC isn't still spawned or in no target mode.
-		{//dead npcs should be removed now!
-			NPC_RemoveBody( check );
-			continue;
-		}
-		//[/BugFix10]
 
 		// the move was blocked an entity
 
@@ -1048,11 +1017,6 @@ Blocked_Door
 */
 void Blocked_Door( gentity_t *ent, gentity_t *other )
 {
-	//[BugFix25]
-	//determines if we need to relock after moving or not.
-	qboolean relock = (ent->spawnflags & MOVER_LOCKED) ? qtrue : qfalse;
-	//[/BugFix25]
-
 	if ( ent->damage ) {
 		G_Damage( other, ent, ent, NULL, NULL, ent->damage, 0, MOD_CRUSH );
 	}
@@ -1062,13 +1026,6 @@ void Blocked_Door( gentity_t *ent, gentity_t *other )
 
 	// reverse direction
 	Use_BinaryMover( ent, ent, other );
-
-	//[BugFix25]
-	if(relock)
-	{//door was locked before reverse move, relock door.
-		LockDoors(ent);
-	}
-	//[/BugFix25]
 }
 
 

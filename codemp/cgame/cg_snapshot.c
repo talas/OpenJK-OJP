@@ -303,14 +303,6 @@ static snapshot_t *CG_ReadNextSnapshot( void ) {
 
 		// FIXME: why would trap_GetSnapshot return a snapshot with the same server time
 		if ( cg.snap && r && dest->serverTime == cg.snap->serverTime ) {
-			//[BugFix30]
-			//According to dumbledore, this situation occurs when you're playing back a demo that was record when
-			//the game was running in local mode.  As such, we need to skip those snaps or the demo looks laggy.
-			if ( cg.demoPlayback ) 
-			{
-				continue;
-			}
-			//[/BugFix30]
 			//continue;
 		}
 

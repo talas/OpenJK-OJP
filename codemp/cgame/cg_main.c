@@ -1326,19 +1326,13 @@ void CG_UpdateCvars( void ) {
 	if ( drawTeamOverlayModificationCount != cg_drawTeamOverlay.modificationCount ) {
 		drawTeamOverlayModificationCount = cg_drawTeamOverlay.modificationCount;
 
-		//[BugFix34]
-		if ( cg_drawTeamOverlay.integer > 0 && cgs.gametype >= GT_SINGLE_PLAYER) {
-		//if ( cg_drawTeamOverlay.integer > 0 ) {
-		//[/BugFix34]
+		if ( cg_drawTeamOverlay.integer > 0 ) {
 			trap_Cvar_Set( "teamoverlay", "1" );
 		} else {
 			trap_Cvar_Set( "teamoverlay", "0" );
 		}
-		//[BugFix34]
-		//racc - we dont want the team overlay data ALL the time.
 		// FIXME E3 HACK
-		//trap_Cvar_Set( "teamoverlay", "1" );
-		//[/BugFix34]
+		trap_Cvar_Set( "teamoverlay", "1" );
 	}
 
 	// if force model changed
@@ -1998,10 +1992,7 @@ static void CG_RegisterSounds( void ) {
 	}
 
 	// only register the items that the server says we need
-	//[BugFix37]
-	Q_strncpyz(items, CG_ConfigString(CS_ITEMS), sizeof(items));
-	//strcpy( items, CG_ConfigString( CS_ITEMS ) );
-	//[/BugFix37]
+	strcpy( items, CG_ConfigString( CS_ITEMS ) );
 
 	for ( i = 1 ; i < bg_numItems ; i++ ) {
 		if ( items[ i ] == '1' || cg_buildScript.integer ) {
@@ -2454,10 +2445,7 @@ Ghoul2 Insert End
 	memset( cg_weapons, 0, sizeof( cg_weapons ) );
 
 	// only register the items that the server says we need
-	//[BugFix37]
-	Q_strncpyz(items, CG_ConfigString(CS_ITEMS), sizeof(items));
-	//strcpy( items, CG_ConfigString( CS_ITEMS ) );
-	//[/BugFix37]
+	strcpy( items, CG_ConfigString( CS_ITEMS ) );
 
 	for ( i = 1 ; i < bg_numItems ; i++ ) {
 		if ( items[ i ] == '1' || cg_buildScript.integer ) {
@@ -3621,18 +3609,6 @@ char *CG_NewString( const char *string )
 
 	// turn \n into a real linefeed
 	for ( i=0 ; i< l ; i++ ) {
-		//[BugFix47]
-		if (string[i] == '\\' && i < l-1) {
-			if (string[i+1] == 'n') {
-				*new_p++ = '\n';
-				i++;
-			} else {
-				*new_p++ = '\\';
-			}
-		} else {
-			*new_p++ = string[i];
-		}
-		/*old code
 		if (string[i] == '\\' && i < l-1) {
 			i++;
 			if (string[i] == 'n') {
@@ -3643,8 +3619,6 @@ char *CG_NewString( const char *string )
 		} else {
 			*new_p++ = string[i];
 		}
-		*/
-		//[/BugFix47]
 	}
 	
 	return newb;

@@ -1224,10 +1224,6 @@ extern void InitSpawnScriptValues(void);
 extern void Load_Autosaves(void);
 //[/CoOpEditor]
 
-//[BugFix44]
-extern void G_LoadArenas(void);
-//[/BugFix44]
-
 void SP_light( gentity_t *self );//[Experimental]
 
 void G_InitGame( int levelTime, int randomSeed, int restart ) {
@@ -1417,15 +1413,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 		BotAISetup( restart );
 		BotAILoadMap( restart );
 		G_InitBots( restart );
-	//[BugFix44]
-	//}
-	} else {
-		// We still want to load arenas even if bot_enable is off so that 
-		// g_autoMapCycle can work let alone any other code that relies on 
-		// using arena information that normally wouldn't be loaded :Nervous
-		G_LoadArenas();
 	}
-	//[/BugFix44]
 
 	G_RemapTeamShaders();
 
@@ -2174,15 +2162,9 @@ void CalculateRanks( void ) {
 	level.numNonSpectatorClients = 0;
 	level.numPlayingClients = 0;
 	level.numVotingClients = 0;		// don't count bots
-	//[BUGFIX8]
-	//fixed a data overflow problem here.  Thanks to orion2486 for the heads up.
-	for ( i = 0; i < 2; i++ ) {
-	//for ( i = 0; i < TEAM_NUM_TEAMS; i++ ) {
-	//[/BUGFIX8]
-
+	for ( i = 0; i < TEAM_NUM_TEAMS; i++ ) {
 		level.numteamVotingClients[i] = 0;
 	}
-	
 	for ( i = 0 ; i < level.maxclients ; i++ ) {
 		if ( level.clients[i].pers.connected != CON_DISCONNECTED ) {
 			level.sortedClients[level.numConnectedClients] = i;
@@ -2358,9 +2340,6 @@ When the intermission starts, this will be called for all players.
 If a new client connects, this will be called after the spawn function.
 ========================
 */
-//[BugFix38]
-extern void G_LeaveVehicle( gentity_t *ent, qboolean ConCheck );
-//[/BugFix38]
 void MoveClientToIntermission( gentity_t *ent ) {
 	// take out of follow mode if needed
 	if ( ent->client->sess.spectatorState == SPECTATOR_FOLLOW ) {
@@ -2376,22 +2355,9 @@ void MoveClientToIntermission( gentity_t *ent ) {
 
 	// clean up powerup info
 	memset( ent->client->ps.powerups, 0, sizeof(ent->client->ps.powerups) );
-	
-	//[BugFix38]
-	G_LeaveVehicle( ent, qfalse );
-	
-	ent->client->ps.rocketLockIndex = ENTITYNUM_NONE;
-	ent->client->ps.rocketLockTime = 0;
-	//[/BugFix38]
 
 	ent->client->ps.eFlags = 0;
-	//[BugFix38]
-	ent->client->ps.eFlags2 = 0;
-	//[/BugFix38]
 	ent->s.eFlags = 0;
-	//[BugFix38]
-	ent->s.eFlags2 = 0;
-	//[/BugFix38]
 	ent->s.eType = ET_GENERAL;
 	ent->s.modelindex = 0;
 	ent->s.loopSound = 0;

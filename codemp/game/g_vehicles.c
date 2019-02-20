@@ -1243,11 +1243,7 @@ getItOutOfMe:
 	}
 
 #ifdef _JK2MP //I hate adding these!
-	//[BugFix24]
-	//always run the unghost function since otherwise reconnecting players can end up
-	//being invisible...cheating bastards.
-	//if (!taintedRider)
-	//[/BugFix24]
+	if (!taintedRider)
 	{
 #endif
 		if ( pVeh->m_pVehicleInfo->hideRider )

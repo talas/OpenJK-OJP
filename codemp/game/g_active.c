@@ -367,17 +367,9 @@ void DoImpact( gentity_t *self, gentity_t *other, qboolean damageSelf )
 				}
 			}
 			//if(self.classname!="monster_mezzoman"&&self.netname!="spider")//Cats always land on their feet
-			//[BugFix3]
-			//I'm pretty sure that this is something left over from SP.  ClientNum shouldn't have any relevence here.
-				if( ( magnitude >= 100 + self->health && self->s.weapon != WP_SABER ) || ( magnitude >= 700 ) )//&& self.safe_time < level.time ))//health here is used to simulate structural integrity
-				{
-					if ( (self->s.weapon == WP_SABER) && self->client && self->client->ps.groundEntityNum < ENTITYNUM_NONE && magnitude < 1000 )
-				/*
 				if( ( magnitude >= 100 + self->health && self->s.number != 0 && self->s.weapon != WP_SABER ) || ( magnitude >= 700 ) )//&& self.safe_time < level.time ))//health here is used to simulate structural integrity
 				{
 					if ( (self->s.weapon == WP_SABER || self->s.number == 0) && self->client && self->client->ps.groundEntityNum < ENTITYNUM_NONE && magnitude < 1000 )
-				*/
-			//[/BugFix3]
 					{//players and jedi take less impact damage
 						//allow for some lenience on high falls
 						magnitude /= 2;
@@ -879,10 +871,6 @@ void G_VehicleAttachDroidUnit( gentity_t *vehEnt )
 	}
 }
 
-//[BugFix42]
-extern qboolean BG_SabersOff( playerState_t *ps );
-//[/BugFix42]
-
 //called gameside only from pmove code (convenience)
 void G_CheapWeaponFire(int entNum, int ev)
 {
@@ -903,10 +891,7 @@ void G_CheapWeaponFire(int entNum, int ev)
 				if (rider->inuse && rider->client)
 				{ //pilot is valid...
                     if (rider->client->ps.weapon != WP_MELEE &&
-						//[BugFix42]
-						(rider->client->ps.weapon != WP_SABER || !BG_SabersOff(&rider->client->ps)))
-						//(rider->client->ps.weapon != WP_SABER || !rider->client->ps.saberHolstered))
-						//[/BugFix42]
+						(rider->client->ps.weapon != WP_SABER || !rider->client->ps.saberHolstered))
 					{ //can only attack on speeder when using melee or when saber is holstered
 						break;
 					}

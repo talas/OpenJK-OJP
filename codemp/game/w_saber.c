@@ -8070,10 +8070,6 @@ void DeadSaberThink(gentity_t *saberent)
 void MakeDeadSaber(gentity_t *ent)
 {	//spawn a "dead" saber entity here so it looks like the saber fell out of the air.
 	//This entity will remove itself after a very short time period.
-	//[BugFix23]
-	//trace stuct used for determining if it's safe to spawn at current location
-	trace_t		tr;  
-	//[/BugFix23]
 	vec3_t startorg;
 	vec3_t startang;
 	gentity_t *saberent;
@@ -8105,31 +8101,6 @@ void MakeDeadSaber(gentity_t *ent)
 
 	saberent->think = DeadSaberThink;
 	saberent->nextthink = level.time;
-
-	//[BugFix23]
-	//perform a trace before attempting to spawn at currently location.
-	//unfortunately, it's a fairly regular occurance that current saber location
-	//(normally at the player's right hand) could result in the saber being stuck 
-	//in the the map and then freaking out.
-	trap_Trace(&tr, startorg, saberent->r.mins, saberent->r.maxs,
-		startorg, saberent->s.number, saberent->clipmask);
-	if(tr.startsolid || tr.fraction != 1)
-	{//bad position, try popping our origin up a bit
-		startorg[2] += 20;
-		trap_Trace(&tr, startorg, saberent->r.mins, saberent->r.maxs,
-			startorg, saberent->s.number, saberent->clipmask);
-		if(tr.startsolid || tr.fraction != 1)
-		{//still no luck, try using our owner's origin
-			owner = &g_entities[ent->r.ownerNum];
-			if( owner->inuse && owner->client )
-			{
-				G_SetOrigin(saberent, owner->client->ps.origin); 
-			}
-			
-			//since this is our last chance, we don't care if this works or not.
-		}
-	}
-	//[/BugFix23]
 
 	VectorCopy(startorg, saberent->s.pos.trBase);
 	VectorCopy(startang, saberent->s.apos.trBase);
@@ -8477,42 +8448,16 @@ void saberReactivate(gentity_t *saberent, gentity_t *saberOwner)
 //[RACC] - create a loose saber for this saber entity.
 void saberKnockDown(gentity_t *saberent, gentity_t *saberOwner, gentity_t *other)
 {
-	//[BugFix23]
-	//trace stuct used for determining if it's safe to spawn at current location
-	trace_t		tr;  
-	//[/BugFix23]
 	saberOwner->client->ps.saberEntityNum = 0; //still stored in client->saberStoredIndex
 	saberOwner->client->saberKnockedTime = level.time + SABER_RETRIEVE_DELAY;
 
 	saberent->clipmask = MASK_SOLID;
 
-	if(saberOwner->client->ps.fd.saberAnimLevel != SS_DUAL)
+	if(saberOwner->client->ps.fd.saberAnimLevel != SS_DUAL) //[ForgottenBugFix]
 		saberent->r.contents = CONTENTS_TRIGGER;//0;
 
 	VectorSet( saberent->r.mins, -3.0f, -3.0f, -1.5f );
 	VectorSet( saberent->r.maxs, 3.0f, 3.0f, 1.5f );
-
-	//[BugFix23]
-	//perform a trace before attempting to spawn at currently location.
-	//unfortunately, it's a fairly regular occurance that current saber location
-	//(normally at the player's right hand) could result in the saber being stuck 
-	//in the the map and then freaking out.
-	trap_Trace(&tr, saberent->r.currentOrigin, saberent->r.mins, saberent->r.maxs,
-		saberent->r.currentOrigin, saberent->s.number, saberent->clipmask);
-	if(tr.startsolid || tr.fraction != 1)
-	{//bad position, try popping our origin up a bit
-		saberent->r.currentOrigin[2] += 20;
-		G_SetOrigin(saberent, saberent->r.currentOrigin);
-		trap_Trace(&tr, saberent->r.currentOrigin, saberent->r.mins, saberent->r.maxs,
-			saberent->r.currentOrigin, saberent->s.number, saberent->clipmask);
-		if(tr.startsolid || tr.fraction != 1)
-		{//still no luck, try using our owner's origin
-			G_SetOrigin(saberent, saberOwner->client->ps.origin); 
-			
-			//since this is our last chance, we don't care if this works or not.
-		}
-	}
-	//[/BugFix23]
 
 	saberent->s.apos.trType = TR_GRAVITY;
 	saberent->s.apos.trDelta[0] = Q_irand(200, 800);

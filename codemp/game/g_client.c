@@ -1763,24 +1763,7 @@ void SetupGameGhoul2Model(gentity_t *ent, char *modelname, char *skinName)
 
 					if ( g_gametype.integer >= GT_TEAM && g_gametype.integer != GT_SIEGE && !g_trueJedi.integer )
 					{
-						//[BugFix32]
-						//Also adjust customRGBA for team colors.
-						float colorOverride[3];
-
-						colorOverride[0] = colorOverride[1] = colorOverride[2] = 0.0f;
-
-						BG_ValidateSkinForTeam( truncModelName, skin, ent->client->sess.sessionTeam, colorOverride);
-						if (colorOverride[0] != 0.0f ||
-							colorOverride[1] != 0.0f ||
-							colorOverride[2] != 0.0f)
-						{
-							ent->client->ps.customRGBA[0] = colorOverride[0]*255.0f;
-							ent->client->ps.customRGBA[1] = colorOverride[1]*255.0f;
-							ent->client->ps.customRGBA[2] = colorOverride[2]*255.0f;
-						}
-
-						//BG_ValidateSkinForTeam( truncModelName, skin, ent->client->sess.sessionTeam, NULL );
-						//[/BugFix32]
+						BG_ValidateSkinForTeam( truncModelName, skin, ent->client->sess.sessionTeam, NULL );
 					}
 					else if (g_gametype.integer == GT_SIEGE)
 					{ //force skin for class if appropriate
@@ -2208,36 +2191,11 @@ void ClientUserinfoChanged( int clientNum ) {
 
 	client->ps.customRGBA[3]=255;
 
-	//[BugFix32]
-	//update our customRGBA for team colors. 
-	if ( g_gametype.integer >= GT_TEAM && g_gametype.integer != GT_SIEGE && !g_trueJedi.integer )
-	{
-		char skin[MAX_QPATH];
-		float colorOverride[3];
-
-		colorOverride[0] = colorOverride[1] = colorOverride[2] = 0.0f;
-
-		BG_ValidateSkinForTeam( model, skin, client->sess.sessionTeam, colorOverride);
-		if (colorOverride[0] != 0.0f ||
-			colorOverride[1] != 0.0f ||
-			colorOverride[2] != 0.0f)
-		{
-			client->ps.customRGBA[0] = colorOverride[0]*255.0f;
-			client->ps.customRGBA[1] = colorOverride[1]*255.0f;
-			client->ps.customRGBA[2] = colorOverride[2]*255.0f;
-		}
-	}
-	//[/BugFix32]
-
 	//[GameTweaks]
 	//not used.
 	//Q_strncpyz( forcePowers, Info_ValueForKey (userinfo, "forcepowers"), sizeof( forcePowers ) );
 	//[/GameTweaks]
 
-	//[BugFix14]
-	//Testing to see if this fixes the problem with a bot's team getting set incorrectly.
-	team = client->sess.sessionTeam;
-	/* basejka code
 	// bots set their team a few frames later
 	if (g_gametype.integer >= GT_TEAM && g_entities[clientNum].r.svFlags & SVF_BOT) {
 		s = Info_ValueForKey( userinfo, "team" );
@@ -2253,8 +2211,6 @@ void ClientUserinfoChanged( int clientNum ) {
 	else {
 		team = client->sess.sessionTeam;
 	}
-	*/
-	//[/BugFix14]
 
 	//Set the siege class
 	if (g_gametype.integer == GT_SIEGE)
@@ -2545,12 +2501,7 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 		return "Banned.";
 	}
 
-	//[BugFix11]
-	//thanks to ensiform.  SVF_BOT isn't set until later in this function.
-	if ( !isBot && g_needpass.integer ) 
-	{
-	//if ( !( ent->r.svFlags & SVF_BOT ) && !isBot && g_needpass.integer ) {
-	//[/BugFix11]
+	if ( !( ent->r.svFlags & SVF_BOT ) && !isBot && g_needpass.integer ) {
 		// check for a password
 		value = Info_ValueForKey (userinfo, "password");
 		//[PrivatePasswordFix]
@@ -2699,9 +2650,6 @@ void ClientBegin( int clientNum, qboolean allowTeamReset ) {
 	gclient_t	*client;
 	gentity_t	*tent;
 	int			flags, i;
-	//[BugFix48]
-	int			spawnCount;
-	//[/BugFix48]
 	char		userinfo[MAX_INFO_VALUE], *modelname;
 
 	//[ExpandedMOTD]
@@ -2777,9 +2725,6 @@ void ClientBegin( int clientNum, qboolean allowTeamReset ) {
 	// so the viewpoint doesn't interpolate through the
 	// world to the new position
 	flags = client->ps.eFlags;
-	//[BugFix48]
-	spawnCount = client->ps.persistant[PERS_SPAWN_COUNT];
-	//[/BugFix48]
 
 	i = 0;
 
@@ -2806,10 +2751,6 @@ void ClientBegin( int clientNum, qboolean allowTeamReset ) {
 
 	memset( &client->ps, 0, sizeof( client->ps ) );
 	client->ps.eFlags = flags;
-
-	//[BugFix48]
-	client->ps.persistant[PERS_SPAWN_COUNT] = spawnCount;
-	//[/BugFix48]
 
 	client->ps.hasDetPackPlanted = qfalse;
 
@@ -3833,29 +3774,6 @@ void ClientSpawn(gentity_t *ent) {
 
 	client->ps.customRGBA[3]=255;
 
-	//[BugFix32]
-	//update our customRGBA for team colors. 
-	if ( g_gametype.integer >= GT_TEAM && g_gametype.integer != GT_SIEGE && !g_trueJedi.integer )
-	{
-		char skin[MAX_QPATH];
-		char model[MAX_QPATH];
-		float colorOverride[3];
-
-		colorOverride[0] = colorOverride[1] = colorOverride[2] = 0.0f;
-		Q_strncpyz( model, Info_ValueForKey (userinfo, "model"), sizeof( model ) );
-
-		BG_ValidateSkinForTeam( model, skin, savedSess.sessionTeam, colorOverride);
-		if (colorOverride[0] != 0.0f ||
-			colorOverride[1] != 0.0f ||
-			colorOverride[2] != 0.0f)
-		{
-			client->ps.customRGBA[0] = colorOverride[0]*255.0f;
-			client->ps.customRGBA[1] = colorOverride[1]*255.0f;
-			client->ps.customRGBA[2] = colorOverride[2]*255.0f;
-		}
-	}
-	//[/BugFix32]
-
 	client->siegeClass = savedSiegeIndex;
 
 	//[ExpSys]
@@ -4819,9 +4737,6 @@ call trap_DropClient(), which will call this and do
 server system housekeeping.
 ============
 */
-//[BugFix38]
-extern void G_LeaveVehicle( gentity_t* ent, qboolean ConCheck );
-//[/BugFix38]
 void ClientDisconnect( int clientNum ) {
 	gentity_t	*ent;
 	gentity_t	*tent;
@@ -4858,11 +4773,8 @@ void ClientDisconnect( int clientNum ) {
 		i++;
 	}
 	i = 0;
-	
-	//[BugFix38]
-	G_LeaveVehicle( ent, qtrue );
 
-	/*if (ent->client->ps.m_iVehicleNum)
+	if (ent->client->ps.m_iVehicleNum)
 	{ //tell it I'm getting off
 		gentity_t *veh = &g_entities[ent->client->ps.m_iVehicleNum];
 
@@ -4874,8 +4786,7 @@ void ClientDisconnect( int clientNum ) {
 			veh->m_pVehicle->m_pVehicleInfo->Eject(veh->m_pVehicle, (bgEntity_t *)ent, qtrue);
 			ent->client->pers.connected = pCon;
 		}
-	}*/
-	//[/BugFix38]
+	}
 
 	// stop any following clients
 	for ( i = 0 ; i < level.maxclients ; i++ ) {
@@ -4942,21 +4853,6 @@ void ClientDisconnect( int clientNum ) {
 	ent->client->ps.persistant[PERS_TEAM] = TEAM_FREE;
 	ent->client->sess.sessionTeam = TEAM_FREE;
 	ent->r.contents = 0;
-	
-	//[BugFix39]
-	// we call this after all the clearing because the objectiveItem's
-	// think checks if the client entity is still inuse
-	// (which it is not anymore.) << ent->inuse >>
-	if (ent->client->holdingObjectiveItem > 0)
-	{ //carrying a siege objective item - make sure it updates and removes itself from us now in case this is a reconnecting client to make the ent remove
-		gentity_t *objectiveItem = &g_entities[ent->client->holdingObjectiveItem];
-
-		if (objectiveItem->inuse && objectiveItem->think)
-		{
-            objectiveItem->think(objectiveItem);
-		}
-	}
-	//[/BugFix39]
 
 	trap_SetConfigstring( CS_PLAYERS + clientNum, "");
 

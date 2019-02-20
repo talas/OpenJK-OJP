@@ -329,10 +329,7 @@ const char *G_RefreshNextMap(int gametype, qboolean forced)
 G_LoadArenas
 ===============
 */
-//[BugFix44]
-void G_LoadArenas( void ) {
-//static void G_LoadArenas( void ) {
-//[//BugFix44]
+static void G_LoadArenas( void ) {
 	int			numdirs;
 	char		filename[128];
 	char		dirlist[1024];
@@ -740,15 +737,6 @@ int G_RemoveRandomBot( int team ) {
 		//[/ClientNumFix]
 			continue;
 		}
-		//[BugFix9]
-		if ( cl->sess.sessionTeam == TEAM_SPECTATOR 
-			&& cl->sess.spectatorState == SPECTATOR_FOLLOW )
-		{//this entity is actually following another entity so the ps data is for a
-			//different entity.  Bots never spectate like this so, skip this player.
-			continue;
-		}
-		//[/BugFix9]
-
 		if (g_gametype.integer == GT_SIEGE)
 		{
 			if ( team >= 0 && cl->sess.siegeDesiredTeam != team ) {
@@ -800,11 +788,7 @@ int G_CountHumanPlayers( int ignoreClientNum, int team ) {
 		if ( cl->pers.connected != CON_CONNECTED ) {
 			continue;
 		}
-		//[BugFix17]
-		//can't use cl->ps.clientNum since the ps.clientNum might be for the clientNum of the player that this client is specing.
-		if ( g_entities[i].r.svFlags & SVF_BOT ) {
-		//if ( g_entities[cl->ps.clientNum].r.svFlags & SVF_BOT ) {
-		//[/BugFix17]
+		if ( g_entities[cl->ps.clientNum].r.svFlags & SVF_BOT ) {
 			continue;
 		}
 		if ( team >= 0 && cl->sess.sessionTeam != team ) {
@@ -844,15 +828,9 @@ int G_CountBotPlayers( int team ) {
 		if ( cl->pers.connected != CON_CONNECTED ) {
 			continue;
 		}
-
-		//[BugFix17]
-		//can't use cl->ps.clientNum since the ps.clientNum might be for the clientNum of the player that this client is specing.
-		if ( !(g_entities[i].r.svFlags & SVF_BOT) ) {
-		//if ( !(g_entities[cl->ps.clientNum].r.svFlags & SVF_BOT) ) {
+		if ( !(g_entities[cl->ps.clientNum].r.svFlags & SVF_BOT) ) {
 			continue;
 		}
-		//[/BugFix17]
-
 		if (g_gametype.integer == GT_SIEGE)
 		{
 			if ( team >= 0 && cl->sess.siegeDesiredTeam != team ) {

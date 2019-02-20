@@ -6703,55 +6703,6 @@ static void PM_Footsteps( void ) {
 			}
 			else if ( pm->ps->pm_flags & PMF_BACKWARDS_RUN )
 			{
-				//[BugFix21]
-				//fixed a problem with players moving funny if they switched directly from a lit saber to another weapon
-				//in some stances.
-				if(pm->ps->weapon != WP_SABER)
-				{
-					desiredAnim = BOTH_RUNBACK1;
-				}
-				else
-				{
-					switch (pm->ps->fd.saberAnimLevel)
-					{
-					case SS_STAFF:
-						if ( pm->ps->saberHolstered > 1 ) 
-						{//saber off
-							desiredAnim = BOTH_RUNBACK1;
-						}
-						else
-						{
-							//desiredAnim = BOTH_RUNBACK_STAFF;
-							//hmm.. stuff runback anim is pretty messed up for some reason.
-							desiredAnim = BOTH_RUNBACK2;
-						}
-						break;
-					case SS_DUAL:
-						if ( pm->ps->saberHolstered > 1 ) 
-						{//sabers off
-							desiredAnim = BOTH_RUNBACK1;
-						}
-						else
-						{
-							//desiredAnim = BOTH_RUNBACK_DUAL;
-							//and so is the dual
-							desiredAnim = BOTH_RUNBACK2;
-						}
-						break;
-					default:
-						if ( pm->ps->saberHolstered ) 
-						{//saber off
-							desiredAnim = BOTH_RUNBACK1;
-						}
-						else
-						{
-							desiredAnim = BOTH_RUNBACK2;
-						}
-						break;
-					}
-				}
-
-				/* basejka code
 				switch (pm->ps->fd.saberAnimLevel)
 				{
 				case SS_STAFF:
@@ -6789,70 +6740,9 @@ static void PM_Footsteps( void ) {
 					}
 					break;
 				}
-				*/
-				//[/BugFix21]
 			}
 			else
 			{
-				//[BugFix21]
-				//fixed a problem with players moving funny if they switched directly from a lit saber to another weapon
-				//in some stances.
-				if(pm->ps->weapon != WP_SABER)
-				{
-					desiredAnim = BOTH_RUN1;
-				}
-				else
-				{
-					switch (pm->ps->fd.saberAnimLevel)
-					{
-					case SS_STAFF:
-						if ( pm->ps->saberHolstered > 1 )
-						{//blades off
-							desiredAnim = BOTH_RUN1;
-						}
-						else if ( pm->ps->saberHolstered == 1 )
-						{//1 blade on
-							desiredAnim = BOTH_RUN2;
-						}
-						else
-						{
-							if (pm->ps->fd.forcePowersActive & (1<<FP_SPEED))
-							{
-								desiredAnim = BOTH_RUN1;
-							}
-							else
-							{
-								desiredAnim = BOTH_RUN_STAFF;
-							}
-						}
-						break;
-					case SS_DUAL:
-						if ( pm->ps->saberHolstered > 1 )
-						{//blades off
-							desiredAnim = BOTH_RUN1;
-						}
-						else if ( pm->ps->saberHolstered == 1 )
-						{//1 saber on
-							desiredAnim = BOTH_RUN2;
-						}
-						else
-						{
-							desiredAnim = BOTH_RUN_DUAL;
-						}
-						break;
-					default:
-						if ( pm->ps->saberHolstered )
-						{//saber off
-							desiredAnim = BOTH_RUN1;
-						}
-						else
-						{
-							desiredAnim = BOTH_RUN2;
-						}
-						break;
-					}
-				}
-				/* basejka code
 				switch (pm->ps->fd.saberAnimLevel)
 				{
 				case SS_STAFF:
@@ -6901,8 +6791,6 @@ static void PM_Footsteps( void ) {
 					}
 					break;
 				}
-				*/
-				//[/BugFix21]
 			}
 			footstep = qtrue;
 		}
@@ -6911,62 +6799,6 @@ static void PM_Footsteps( void ) {
 			bobmove = 0.2f;	// walking bobs slow
 			if ( pm->ps->pm_flags & PMF_BACKWARDS_RUN )
 			{
-				//[BugFix21]
-				//fixed a problem with players moving funny if they switched directly from a lit saber to another weapon
-				//in some stances.
-				if(pm->ps->weapon != WP_SABER)
-				{
-					desiredAnim = BOTH_WALKBACK1;
-				}
-				else
-				{
-					switch (pm->ps->fd.saberAnimLevel)
-					{
-					case SS_STAFF:
-						if ( pm->ps->saberHolstered > 1 )
-						{
-							desiredAnim = BOTH_WALKBACK1;
-						}
-						else if ( pm->ps->saberHolstered )
-						{
-							desiredAnim = BOTH_WALKBACK2;
-						}
-						else
-						{
-							desiredAnim = BOTH_WALKBACK_STAFF;
-						}
-						break;
-					case SS_DUAL:
-						if ( pm->ps->saberHolstered > 1 )
-						{
-							desiredAnim = BOTH_WALKBACK1;
-						}
-						//[SaberThrowSys]
-						//adding special case for dropped sabers during while using dual sabers. 
-						else if ( pm->ps->saberHolstered && (!pm->ps->saberInFlight || pm->ps->saberEntityNum) )
-						//else if ( pm->ps->saberHolstered )
-						//[/SaberThrowSys]
-						{
-							desiredAnim = BOTH_WALKBACK2;
-						}
-						else
-						{
-							desiredAnim = BOTH_WALKBACK_DUAL;
-						}
-						break;
-					default:
-						if ( pm->ps->saberHolstered )
-						{
-							desiredAnim = BOTH_WALKBACK1;
-						}
-						else
-						{
-							desiredAnim = BOTH_WALKBACK2;
-						}
-						break;
-					}
-				}
-				/*
 				switch (pm->ps->fd.saberAnimLevel)
 				{
 				case SS_STAFF:
@@ -7012,8 +6844,6 @@ static void PM_Footsteps( void ) {
 					}
 					break;
 				}
-				*/
-				//[/BugFix21]
 			}
 			else
 			{
@@ -7027,62 +6857,6 @@ static void PM_Footsteps( void ) {
 				}
 				else
 				{
-					//[BugFix21]
-					//fixed a problem with players moving funny if they switched directly from a lit saber to another weapon
-					//in some stances.
-					if(pm->ps->weapon != WP_SABER)
-					{
-						desiredAnim = BOTH_WALK1;
-					}
-					else
-					{
-						switch (pm->ps->fd.saberAnimLevel)
-						{
-						case SS_STAFF:
-							if ( pm->ps->saberHolstered > 1 )
-							{
-								desiredAnim = BOTH_WALK1;
-							}
-							else if ( pm->ps->saberHolstered )
-							{
-								desiredAnim = BOTH_WALK2;
-							}
-							else
-							{
-								desiredAnim = BOTH_WALK_STAFF;
-							}
-							break;
-						case SS_DUAL:
-							if ( pm->ps->saberHolstered > 1 )
-							{
-								desiredAnim = BOTH_WALK1;
-							}
-							//[SaberThrowSys]
-							//adding special case for dropped sabers during while using dual sabers. 
-							else if ( pm->ps->saberHolstered && (!pm->ps->saberInFlight || pm->ps->saberEntityNum) )
-							//else if ( pm->ps->saberHolstered )
-							//[/SaberThrowSys]
-							{
-								desiredAnim = BOTH_WALK2;
-							}
-							else
-							{
-								desiredAnim = BOTH_WALK_DUAL;
-							}
-							break;
-						default:
-							if ( pm->ps->saberHolstered )
-							{
-								desiredAnim = BOTH_WALK1;
-							}
-							else
-							{
-								desiredAnim = BOTH_WALK2;
-							}
-							break;
-						}
-					}
-					/* basejka code
 					switch (pm->ps->fd.saberAnimLevel)
 					{
 					case SS_STAFF:
@@ -7128,8 +6902,6 @@ static void PM_Footsteps( void ) {
 						}
 						break;
 					}
-					*/
-					//[/BugFix21]
 				}
 			}
 			//[CoOp]
@@ -11646,10 +11418,6 @@ void BG_G2PlayerAngles(void *ghoul2, int motionBolt, entityState_t *cent, int ti
 		forcedAngles[ROLL] = cent_lerpAngles[ROLL];
 		AnglesToAxis( forcedAngles, legs );
 		VectorCopy(forcedAngles, legsAngles);
-		//[BugFix18]
-		//turAngles should be updated as well.
-		VectorCopy(legsAngles, turAngles);
-		//[/BugFix18]
 
 		if (cent->number < MAX_CLIENTS)
 		{
@@ -12876,19 +12644,6 @@ void PmoveSingle (pmove_t *pmove) {
 	int savedGravity = 0;
 
 	pm = pmove;
-	
-	//[BugFix43]
-	if (pm->cmd.buttons & BUTTON_ATTACK && pm->cmd.buttons & BUTTON_USE_HOLDABLE)
-	{
-		pm->cmd.buttons &= ~BUTTON_ATTACK;
-		pm->cmd.buttons &= ~BUTTON_USE_HOLDABLE;
-	}
-	if (pm->cmd.buttons & BUTTON_ALT_ATTACK && pm->cmd.buttons & BUTTON_USE_HOLDABLE)
-	{
-		pm->cmd.buttons &= ~BUTTON_ALT_ATTACK;
-		pm->cmd.buttons &= ~BUTTON_USE_HOLDABLE;
-	}
-	//[/BugFix43]
 
 	if (pm->ps->emplacedIndex)
 	{
