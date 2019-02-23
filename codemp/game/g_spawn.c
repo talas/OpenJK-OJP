@@ -1466,7 +1466,7 @@ void SP_worldspawn( void )
 		trap_Cvar_Set( "g_restarted", "0" );
 		level.warmupTime = 0;
 	} 
-	//[FIXWARMUP]
+	/*
 	//[CoOp]
 	//Don't use warm up in CoOp
 	else if ( g_doWarmup.integer && g_gametype.integer != GT_DUEL 
@@ -1479,7 +1479,7 @@ void SP_worldspawn( void )
 		trap_SetConfigstring( CS_WARMUP, va("%i", level.warmupTime) );
 		G_LogPrintf( "Warmup:\n" );
 	}
-	//[/FIXWARMUP]
+	*/
 
 	trap_SetConfigstring(CS_LIGHT_STYLES+(LS_STYLES_START*3)+0, defaultStyles[0][0]);
 	trap_SetConfigstring(CS_LIGHT_STYLES+(LS_STYLES_START*3)+1, defaultStyles[0][1]);
