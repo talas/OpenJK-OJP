@@ -2368,18 +2368,6 @@ void ClientUserinfoChanged( int clientNum ) {
 //	strcpy(redTeam, Info_ValueForKey( userinfo, "g_redteam" ));
 //	strcpy(blueTeam, Info_ValueForKey( userinfo, "g_blueteam" ));
 
-	//[ClientPlugInDetect]
-	s = Info_ValueForKey( userinfo, "ojp_clientplugin" );
-	if ( !*s  ) 
-	{
-		client->pers.ojpClientPlugIn = qfalse;
-	}
-	else if(!strcmp(CURRENT_OJPENHANCED_CLIENTVERSION, s))
-	{
-		client->pers.ojpClientPlugIn = qtrue;
-	}
-	//[/ClientPlugInDetect]
-
 	//[RGBSabers]
 	Q_strncpyz(rgb1,Info_ValueForKey(userinfo, "rgb_saber1"), sizeof(rgb1));
 	Q_strncpyz(rgb2,Info_ValueForKey(userinfo, "rgb_saber2"), sizeof(rgb2));
@@ -2864,14 +2852,7 @@ void ClientBegin( int clientNum, qboolean allowTeamReset ) {
 
 	//[ExpandedMOTD]
 	//prepare and send MOTD message to new client.
-	if(client->pers.ojpClientPlugIn)
-	{//send this client the MOTD for clients using the right version of OJP.
-		TextWrapCenterPrint(ojp_clientMOTD.string, motd);
-	}
-	else
-	{//send this client the MOTD for clients aren't running OJP or just not the right version.
-		TextWrapCenterPrint(ojp_MOTD.string, motd);
-	}
+	TextWrapCenterPrint(ojp_clientMOTD.string, motd);
 
 	trap_SendServerCommand( clientNum, va("cp \"%s\n\"", motd ) );
 	//[/ExpandedMOTD]
@@ -3331,10 +3312,6 @@ extern void UpdatePlayerScriptTarget(void);
 extern qboolean UseSpawnWeapons;
 extern int SpawnWeapons;
 //[/CoOp]
-//[VisualWeapons]
-//prototype
-qboolean OJP_AllPlayersHaveClientPlugin(void);
-//[/VisualWeapons]
 //[TABBots]
 extern int FindBotType(int clientNum);
 //[/TABBots]
@@ -4429,11 +4406,7 @@ void ClientSpawn(gentity_t *ent) {
 
 	//[VisualWeapons]
 	//update the weapon stats for this player since they have changed.
-	if(OJP_AllPlayersHaveClientPlugin())
-	{//don't send the weapon updates if someone isn't able to process this new event type (IE anyone without
-		//the OJP client plugin)
-		G_AddEvent(ent, EV_WEAPINVCHANGE, client->ps.stats[STAT_WEAPONS]);
-	}
+	G_AddEvent(ent, EV_WEAPINVCHANGE, client->ps.stats[STAT_WEAPONS]);
 	//[/VisualWeapons]
 
 	//[Reload]
@@ -5127,24 +5100,6 @@ qboolean G_StandardHumanoid( gentity_t *self )
 	return qfalse;
 }
 //[/CoOp]
-
-
-//[ClientPlugInDetect]
-qboolean OJP_AllPlayersHaveClientPlugin(void)
-{//this function checks to see if all players are running OJP on their local systems or not.
-	int i;
-	for(i = 0; i < level.maxclients; i++)
-	{
-		if(g_entities[i].inuse && !g_entities[i].client->pers.ojpClientPlugIn)
-		{//a live player that doesn't have the plugin
-			return qfalse;
-		}
-	}
-
-	return qtrue;
-}
-//[/ClientPlugInDetect]
-
 
 //[LastManStanding]
 qboolean LMS_EnoughPlayers()

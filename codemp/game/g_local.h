@@ -570,12 +570,6 @@ typedef struct {
 	int			voteCount;			// to prevent people from constantly calling votes
 	int			teamVoteCount;		// to prevent people from constantly calling votes
 	qboolean	teamInfo;			// send team overlay updates?
-
-	//[ClientPlugInDetect]
-	//this flag shows weither or not this client is running the right version of OJP on the client side.  
-	//This is used to determine if the visual weapon events can be sent or not.
-	qboolean ojpClientPlugIn;
-	//[/ClientPlugInDetect]
 } clientPersistant_t;
 
 typedef struct renderInfo_s

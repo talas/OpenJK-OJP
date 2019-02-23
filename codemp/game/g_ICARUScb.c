@@ -3938,9 +3938,6 @@ void SetSpawnWeapon( int weap )
 	UseSpawnWeapons = qtrue;
 }
 
-//[VisualWeapons]
-qboolean OJP_AllPlayersHaveClientPlugin(void);
-//[/VisualWeapons]
 void G_SetWeapon( gentity_t *self, int wp )
 {
 	gitem_t		*item;
@@ -4018,11 +4015,7 @@ void G_SetWeapon( gentity_t *self, int wp )
 	if(!hadWeapon)
 	{
 		//update the weapon stats for this player since they have changed.
-		if(OJP_AllPlayersHaveClientPlugin())
-		{//don't send the weapon updates if someone isn't able to process this new event type (IE anyone without
-			//the OJP client plugin)
-			G_AddEvent(self, EV_WEAPINVCHANGE, self->client->ps.stats[STAT_WEAPONS]);
-		}
+		G_AddEvent(self, EV_WEAPINVCHANGE, self->client->ps.stats[STAT_WEAPONS]);
 	}
 	//[/VisualWeapons]
 

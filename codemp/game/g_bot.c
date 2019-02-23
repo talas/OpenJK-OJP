@@ -1530,12 +1530,6 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 	Info_SetValueForKey( userinfo, key, s );
 	//[/RGBSabers]
 
-	//[ClientPlugInDetect]
-	//set it so that the bots are assumed to have the OJP client plugin
-	//this should be CURRENT_OJPENHANCED_CLIENTVERSION
-	Info_SetValueForKey( userinfo, "ojp_clientplugin", CURRENT_OJPENHANCED_CLIENTVERSION );
-	//[/ClientPlugInDetect]
-
 	// have the server allocate a client slot
 	clientNum = trap_BotAllocateClient();
 	if ( clientNum == -1 ) {

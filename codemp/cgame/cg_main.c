@@ -910,10 +910,6 @@ vmCvar_t        sfx_sabers;
 vmCvar_t		cg_MovieSaberType;
 //[/Movie Sabers]
 
-//[ClientPlugInDetect]
-vmCvar_t	ojp_clientplugin;
-//[/ClientPlugInDetect]
-
 //[VisualWeapons]
 vmCvar_t	ojp_holsteredweapons;
 vmCvar_t	ojp_holsterdebug;
@@ -1149,12 +1145,6 @@ Ghoul2 Insert End
 //[Movie Sabers]
 	{ &cg_MovieSaberType, "cg_MovieSaberType", "3", CVAR_ARCHIVE },
 //[/Movie Sabers]
-
-	//[ClientPlugInDetect]
-	//this cvar is a dummy cvar used to determine if the client has the OJP client plug in or not.
-	//This value needs to be the same as CURRENT_OJPENHANCED_CLIENTVERSION!!!!
-	{ &ojp_clientplugin, "ojp_clientplugin", CURRENT_OJPENHANCED_CLIENTVERSION, CVAR_USERINFO | CVAR_ROM },
-	//[/ClientPlugInDetect]
 
 	//[VisualWeapons]
 	//controls how holstered weapons are rendered

@@ -19,13 +19,6 @@
 
 #define	GAME_VERSION		"basejka-1"
 
-//[ClientPlugInDetect]
-//This is the current keyword used to denote the current OJP Basic and Enhanced client plugins.  
-//These values should be changed whenever something is changed that would make the new clients 
-//incompatiable with previous versions of OJP Basic or Enhanced (on individual basis).
-#define CURRENT_OJPENHANCED_CLIENTVERSION		"OJP Enhanced v1.2"
-//[/ClientPlugInDetect]
-
 #define	STEPSIZE		18
 
 #define	DEFAULT_GRAVITY		800

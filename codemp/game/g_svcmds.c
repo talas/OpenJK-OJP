@@ -507,9 +507,6 @@ ConsoleCommand
 
 =================
 */
-//[AdminSys]
-qboolean OJP_AllPlayersHaveClientPlugin(void);
-//[/AdminSys]
 qboolean	ConsoleCommand( void ) {
 	char	cmd[MAX_TOKEN_CHARS];
 
@@ -565,12 +562,7 @@ qboolean	ConsoleCommand( void ) {
 	//added bigsay command to be able to print things to the center of the screen as the server admin.
 	if (Q_stricmp (cmd, "centersay") == 0)
 	{
-		if(OJP_AllPlayersHaveClientPlugin())
-		{//just fire off the text without editting it for line breaks.
-			trap_SendServerCommand( -1, va("cp \"%s\n\"", ConcatArgs(1) ) );
-		}
-		else
-		{//since someone is running basejka, we need to add line breaks to make up for the 
+		{//we need to add line breaks to make up for the 
 			//50 chars per line limit of basejka's cp code.
 			char temp[1024];  //MAX_STRINGED_SV_STRING
 			char output[1024];

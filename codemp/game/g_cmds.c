@@ -257,9 +257,6 @@ Cmd_Give_f
 Give items to a client
 ==================
 */
-//[VisualWeapons]
-extern qboolean OJP_AllPlayersHaveClientPlugin(void);
-//[/VisualWeapons]
 void Cmd_Give_f (gentity_t *cmdent, int baseArg)
 {
 	char		name[MAX_TOKEN_CHARS];
@@ -375,11 +372,7 @@ void Cmd_Give_f (gentity_t *cmdent, int baseArg)
 		ent->client->ps.stats[STAT_WEAPONS] = (1 << (LAST_USEABLE_WEAPON+1))  - ( 1 << WP_NONE );
 		//[VisualWeapons]
 		//update the weapon stats for this player since they have changed.
-		if(OJP_AllPlayersHaveClientPlugin())
-		{//don't send the weapon updates if someone isn't able to process this new event type (IE anyone without
-			//the OJP client plugin)
-			G_AddEvent(ent, EV_WEAPINVCHANGE, ent->client->ps.stats[STAT_WEAPONS]);
-		}
+		G_AddEvent(ent, EV_WEAPINVCHANGE, ent->client->ps.stats[STAT_WEAPONS]);
 		//[/VisualWeapons]
 		if (!give_all)
 			return;
@@ -392,11 +385,7 @@ void Cmd_Give_f (gentity_t *cmdent, int baseArg)
 
 		//[VisualWeapons]
 		//update the weapon stats for this player since they have changed.
-		if(OJP_AllPlayersHaveClientPlugin())
-		{//don't send the weapon updates if someone isn't able to process this new event type (IE anyone without
-			//the OJP client plugin)
-			G_AddEvent(ent, EV_WEAPINVCHANGE, ent->client->ps.stats[STAT_WEAPONS]);
-		}
+		G_AddEvent(ent, EV_WEAPINVCHANGE, ent->client->ps.stats[STAT_WEAPONS]);
 		//[/VisualWeapons]
 		return;
 	}

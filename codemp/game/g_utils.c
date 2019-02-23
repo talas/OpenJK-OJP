@@ -1387,14 +1387,12 @@ gentity_t *G_PlayEffectID(const int fxID, vec3_t org, vec3_t ang)
 G_PlayBoltedEffect
 =============
 */
-extern qboolean OJP_AllPlayersHaveClientPlugin(void);
 gentity_t *G_PlayBoltedEffect( int fxID, gentity_t *owner, const char *bolt )
 {	//send request to client to play an effect bolted to a bolt on a ghoul2 entity
 	//trap_FX_PlayBoltedEffectID doesn't take inputs for angle or lifetime however :(
 	gentity_t	*te = NULL;
 
-	if(OJP_AllPlayersHaveClientPlugin())
-	{//only transmit this effect if all players are running the OJP client.  If we send this and they don't have the client,
+	{//If we send this and they don't have the client,
 		//they will drop due to a "unknown event" error.
 		te = G_TempEntity( owner->r.currentOrigin, EV_PLAY_EFFECT_BOLTED );
 
