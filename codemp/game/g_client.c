@@ -2049,10 +2049,7 @@ void ClientUserinfoChanged( int clientNum ) {
 	char	*s;
 	char	model[MAX_QPATH];
 	//char	headModel[MAX_QPATH];
-	//[GameTweaks]
-	//not used.
-	//char	forcePowers[MAX_QPATH];
-	//[/GameTweaks]
+	char	forcePowers[MAX_QPATH];
 	char	oldname[MAX_STRING_CHARS];
 	gclient_t	*client;
 	char	c1[MAX_INFO_STRING];
@@ -2191,10 +2188,7 @@ void ClientUserinfoChanged( int clientNum ) {
 
 	client->ps.customRGBA[3]=255;
 
-	//[GameTweaks]
-	//not used.
-	//Q_strncpyz( forcePowers, Info_ValueForKey (userinfo, "forcepowers"), sizeof( forcePowers ) );
-	//[/GameTweaks]
+	Q_strncpyz( forcePowers, Info_ValueForKey (userinfo, "forcepowers"), sizeof( forcePowers ) );
 
 	// bots set their team a few frames later
 	if (g_gametype.integer >= GT_TEAM && g_entities[clientNum].r.svFlags & SVF_BOT) {
