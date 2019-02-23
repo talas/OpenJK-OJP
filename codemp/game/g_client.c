@@ -2451,9 +2451,7 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 //	char		*areabits;
 	gclient_t	*client;
 	char		userinfo[MAX_INFO_STRING];
-	//[AdminSys]
 	char		IPstring[32]={0};
-	//[/AdminSys]
 	gentity_t	*ent;
 	gentity_t	*te;
 
@@ -2475,9 +2473,8 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 
 	// check to see if they are on the banned IP list
 	value = Info_ValueForKey (userinfo, "ip");
-	//[AdminSys]
 	Q_strncpyz(IPstring, value, sizeof(IPstring) );
-	//[/AdminSys]
+	
 
 	if ( G_FilterPacket( value ) ) {
 		return "Banned.";
@@ -2526,10 +2523,8 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	}
 	G_ReadSessionData( client );
 
-	//[AdminSys]
 	client->sess.IPstring[0] = 0;
 	Q_strncpyz(client->sess.IPstring, IPstring, sizeof(client->sess.IPstring) );
-	//[/AdminSys]
 
 	if (g_gametype.integer == GT_SIEGE &&
 		(firstTime || level.newSession))
@@ -2571,15 +2566,7 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	// get and distribute relevent paramters
 	G_LogPrintf( "ClientConnect: %i\n", clientNum );
 	ClientUserinfoChanged( clientNum );
-	//[AdminSys]
-	if( !isBot ){// MJN - bots don't have IP's ;)
-		G_LogPrintf( "%s" S_COLOR_WHITE " connected with IP: %s\n", client->pers.netname, client->sess.IPstring );
-	}
-	else{// MJN - We'll say this instead.
-		G_LogPrintf( "*****Spawning Bot %s" S_COLOR_WHITE "***** \n", client->pers.netname );
-	}
-	//G_LogPrintf(  "%s" S_COLOR_WHITE " connected with IP: %s\n", client->pers.netname, client->sess.IPstring );
-	//[/AdminSys]
+	G_LogPrintf( "%s connected with IP: %s\n", client->pers.netname, client->sess.IPstring );
 
 	// don't do the "xxx connected" messages if they were caried over from previous level
 	if ( firstTime ) {
@@ -2594,7 +2581,6 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	// count current clients and rank for scoreboard
 	CalculateRanks();
 
-
 	te = G_TempEntity( vec3_origin, EV_CLIENTJOIN );
 	te->r.svFlags |= SVF_BROADCAST;
 	te->s.eventParm = clientNum;
@@ -2603,8 +2589,6 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 //	client->areabits = areabits;
 //	if ( !client->areabits )
 //		client->areabits = G_Alloc( (trap_AAS_PointReachabilityAreaIndex( NULL ) + 7) / 8 );
-
-
 
 	return NULL;
 }
@@ -4776,17 +4760,13 @@ void ClientDisconnect( int clientNum ) {
 	}
 
 	G_LogPrintf( "ClientDisconnect: %i\n", clientNum );
-	//[AdminSys]
-	G_LogPrintf( "%s" S_COLOR_WHITE " disconnected with IP: %s\n", ent->client->pers.netname, ent->client->sess.IPstring );
-	//[/AdminSys]
+	G_LogPrintf( "%s disconnected with IP: %s\n", ent->client->pers.netname, ent->client->sess.IPstring );
 
 	// if we are playing in tourney mode, give a win to the other player and clear his frags for this round
 	if ( (g_gametype.integer == GT_DUEL )
 		&& !level.intermissiontime
-		&& !level.warmupTime ) 
-	{
-		if ( level.sortedClients[1] == clientNum ) 
-		{
+		&& !level.warmupTime ) {
+		if ( level.sortedClients[1] == clientNum ) {
 			level.clients[ level.sortedClients[0] ].ps.persistant[PERS_SCORE] = 0;
 			level.clients[ level.sortedClients[0] ].sess.wins++;
 			ClientUserinfoChanged( level.sortedClients[0] );

@@ -608,7 +608,7 @@ void Cmd_TeamTask_f( gentity_t *ent ) {
 	ClientUserinfoChanged(client);
 }
 
-//[AdminSys]
+
 extern void AddIP( char *str );
 extern vmCvar_t	g_autoKickTKSpammers;
 extern vmCvar_t	g_autoBanTKSpammers;
@@ -659,7 +659,6 @@ void G_CheckTKAutoKickBan( gentity_t *ent )
 		}
 	}
 }
-//[/AdminSys]
 
 
 /*
@@ -667,10 +666,8 @@ void G_CheckTKAutoKickBan( gentity_t *ent )
 Cmd_Kill_f
 =================
 */
-//[AdminSys]
 extern vmCvar_t	g_autoKickKillSpammers;
 extern vmCvar_t	g_autoBanKillSpammers;
-//[/AdminSys]
 void Cmd_Kill_f( gentity_t *ent ) {
 	if ( ent->client->sess.sessionTeam == TEAM_SPECTATOR ) {
 		return;
@@ -692,7 +689,6 @@ void Cmd_Kill_f( gentity_t *ent ) {
 		}
 	}
 
-//[AdminSys]
 	if ( g_autoKickKillSpammers.integer > 0
 		|| g_autoBanKillSpammers.integer > 0 )
 	{
@@ -732,7 +728,6 @@ void Cmd_Kill_f( gentity_t *ent ) {
 			trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME_ADMIN", "WARNINGSUICIDEKICK")) );
 		}
 	}
-//[/AdminSys]
 	ent->flags &= ~FL_GODMODE;
 	ent->client->ps.stats[STAT_HEALTH] = ent->health = -999;
 	player_die (ent, ent, ent, 100000, MOD_SUICIDE);
@@ -2466,14 +2461,6 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	// special case for g_gametype, check for bad values
 	if ( !Q_stricmp( arg1, "g_gametype" ) )
 	{
-		//[AdminSys]
-		if(!g_allowGametypeVote.integer)
-		{
-			trap_SendServerCommand( ent-g_entities, "print \"Gametype voting is disabled.\n\"" );
-			return;
-		}
-		//[/AdminSys]
-
 		i = atoi( arg2 );
 		if( i == GT_SINGLE_PLAYER || i < GT_FFA || i >= GT_MAX_GAME_TYPE) {
 			trap_SendServerCommand( ent-g_entities, "print \"Invalid gametype.\n\"" );
@@ -2491,21 +2478,6 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 		// special case for map changes, we want to reset the nextmap setting
 		// this allows a player to change maps, but not upset the map rotation
 		char	s[MAX_STRING_CHARS];
-
-		//[AdminSys]
-		if(g_AllowMapVote.integer != 2)
-		{
-			if(g_AllowMapVote.integer == 1)
-			{
-				trap_SendServerCommand( ent-g_entities, "print \"You can only do map restart and nextmap votes while in restricting mode voting mode.\n\"" );
-			}
-			else
-			{
-				trap_SendServerCommand( ent-g_entities, "print \"Map voting is disabled.\n\"" );
-			}
-			return;
-		}
-		//[/AdminSys]
 
 		if (!G_DoesMapSupportGametype(arg2, trap_Cvar_VariableIntegerValue("g_gametype")))
 		{
@@ -2538,14 +2510,6 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	{
 		int n = atoi ( arg2 );
 
-		//[AdminSys]
-		if(!g_AllowKickVote.integer)
-		{
-			trap_SendServerCommand( ent-g_entities, "print \"Kick voting is disabled.\n\"" );
-			return;
-		}
-		//[/AdminSys]
-
 		if ( n < 0 || n >= MAX_CLIENTS )
 		{
 			trap_SendServerCommand( ent-g_entities, va("print \"invalid client number %d.\n\"", n ) );
@@ -2565,14 +2529,6 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	{
 		int clientid = G_ClientNumberFromName ( arg2 );
 
-		//[AdminSys]
-		if(!g_AllowKickVote.integer)
-		{
-			trap_SendServerCommand( ent-g_entities, "print \"Kick voting is disabled.\n\"" );
-			return;
-		}
-		//[/AdminSys]
-
 		if ( clientid == -1 )
 		{
 			clientid = G_ClientNumberFromStrippedName(arg2);
@@ -2591,14 +2547,6 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	{
 		char	s[MAX_STRING_CHARS];
 
-		//[AdminSys]
-		if(!g_AllowMapVote.integer)
-		{
-			trap_SendServerCommand( ent-g_entities, "print \"Map voting is disabled.\n\"" );
-			return;
-		}
-		//[/AdminSys]
-
 		trap_Cvar_VariableStringBuffer( "nextmap", s, sizeof(s) );
 		if (!*s) {
 			trap_SendServerCommand( ent-g_entities, "print \"nextmap not set.\n\"" );
@@ -2610,14 +2558,6 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	} 
 	else
 	{
-		//[AdminSys]
-		if(!g_AllowMapVote.integer && !Q_stricmp( arg1, "map_restart" ))
-		{
-			trap_SendServerCommand( ent-g_entities, "print \"Map voting is disabled.\n\"" );
-			return;
-		}
-		//[/AdminSys]
-
 		Com_sprintf( level.voteString, sizeof( level.voteString ), "%s \"%s\"", arg1, arg2 );
 		Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ), "%s", level.voteString );
 	}
@@ -2717,36 +2657,27 @@ Cmd_CallTeamVote_f
 ==================
 */
 void Cmd_CallTeamVote_f( gentity_t *ent ) {
-	//[AdminSys]
-	//int		i, team, cs_offset;	
 	int		i, targetClientNum=ENTITYNUM_NONE, team, cs_offset;
-	//[/AdminSys]
 	char	arg1[MAX_STRING_TOKENS];
 	char	arg2[MAX_STRING_TOKENS];
 
-	//[AdminSys]
 	if ( g_gametype.integer < GT_TEAM )
 	{
 		trap_SendServerCommand( ent-g_entities, "print \"Cannot call a team vote in a non-team gametype!\n\"" );
 		return;
 	}
-	//[/AdminSys]
 	team = ent->client->sess.sessionTeam;
 	if ( team == TEAM_RED )
 		cs_offset = 0;
 	else if ( team == TEAM_BLUE )
 		cs_offset = 1;
 	else
-	//[AdminSys]
 	{
 		trap_SendServerCommand( ent-g_entities, "print \"Cannot call a team vote if not on a team!\n\"" );
 		return;
 	}
-	
 
-	//if ( !g_allowVote.integer ) {
 	if ( !g_allowTeamVote.integer ) {
-	//[/AdminSys]
 		trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOVOTE")) );
 		return;
 	}
@@ -2778,15 +2709,11 @@ void Cmd_CallTeamVote_f( gentity_t *ent ) {
 		return;
 	}
 
-	//[AdminSys]
-	//if ( !Q_stricmp( arg1, "leader" ) ) {
-	//	char netname[MAX_NETNAME], leader[MAX_NETNAME];
 	if ( !Q_stricmp( arg1, "leader" )
 		|| !Q_stricmp( arg1, "kick" ) ) {
 		char netname[MAX_NETNAME], target[MAX_NETNAME];
 
 		if ( !arg2[0] ) {
-			//i = ent->client->ps.clientNum;
 			targetClientNum = ent->client->ps.clientNum;
 		}
 		else {
@@ -2796,17 +2723,12 @@ void Cmd_CallTeamVote_f( gentity_t *ent ) {
 					break;
 			}
 			if ( i >= 3 || !arg2[i]) {
-				//i = atoi( arg2 );
-				//if ( i < 0 || i >= level.maxclients ) {
-				//	trap_SendServerCommand( ent-g_entities, va("print \"Bad client slot: %i\n\"", i) );
 				targetClientNum = atoi( arg2 );
 				if ( targetClientNum < 0 || targetClientNum >= level.maxclients ) {
 					trap_SendServerCommand( ent-g_entities, va("print \"Bad client slot: %i\n\"", targetClientNum) );
 					return;
 				}
 
-				//if ( !g_entities[i].inuse ) {
-				//	trap_SendServerCommand( ent-g_entities, va("print \"Client %i is not active\n\"", i) );
 				if ( !g_entities[targetClientNum].inuse ) {
 					trap_SendServerCommand( ent-g_entities, va("print \"Client %i is not active\n\"", targetClientNum) );
 					return;
@@ -2815,8 +2737,6 @@ void Cmd_CallTeamVote_f( gentity_t *ent ) {
 			else {
 				Q_strncpyz(target, arg2, sizeof(target));
 				Q_CleanStr(target);
-				//Q_strncpyz(leader, arg2, sizeof(leader));
-				//Q_CleanStr(leader);
 				for ( i = 0 ; i < level.maxclients ; i++ ) {
 					if ( level.clients[i].pers.connected == CON_DISCONNECTED )
 						continue;
@@ -2824,7 +2744,6 @@ void Cmd_CallTeamVote_f( gentity_t *ent ) {
 						continue;
 					Q_strncpyz(netname, level.clients[i].pers.netname, sizeof(netname));
 					Q_CleanStr(netname);
-					//if ( !Q_stricmp(netname, leader) ) {
 					if ( !Q_stricmp(netname, target) ) 
 					{
 						targetClientNum = i;
@@ -2832,7 +2751,6 @@ void Cmd_CallTeamVote_f( gentity_t *ent ) {
 					}
 				}
 				if ( targetClientNum >= level.maxclients ) {
-				//if ( i >= level.maxclients ) {
 					trap_SendServerCommand( ent-g_entities, va("print \"%s is not a valid player on your team.\n\"", arg2) );
 					return;
 				}
@@ -2850,11 +2768,9 @@ void Cmd_CallTeamVote_f( gentity_t *ent ) {
 		}
 		//just use the client number
 		Com_sprintf(arg2, sizeof(arg2), "%d", targetClientNum);
-		//Com_sprintf(arg2, sizeof(arg2), "%d", i);
 	} else {
 		trap_SendServerCommand( ent-g_entities, "print \"Invalid vote string.\n\"" );
 		trap_SendServerCommand( ent-g_entities, "print \"Team vote commands are: leader <player on your team> OR kick <player on your team>.\n\"" );
-		//trap_SendServerCommand( ent-g_entities, "print \"Team vote commands are: leader <player>.\n\"" );
 		return;
 	}
 
@@ -2866,7 +2782,6 @@ void Cmd_CallTeamVote_f( gentity_t *ent ) {
 	{//just a number
 		Com_sprintf( level.teamVoteString[cs_offset], sizeof( level.teamVoteString[cs_offset] ), "%s %s", arg1, arg2 );
 	}
-	//[/AdminSys]
 
 	for ( i = 0 ; i < level.maxclients ; i++ ) {
 		if ( level.clients[i].pers.connected == CON_DISCONNECTED )

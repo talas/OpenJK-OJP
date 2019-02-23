@@ -1965,16 +1965,10 @@ extern	vmCvar_t	g_warmup;
 extern	vmCvar_t	g_doWarmup;
 extern	vmCvar_t	g_blood;
 extern	vmCvar_t	g_allowVote;
-//[AdminSys]
 extern	vmCvar_t	g_allowTeamVote;
-extern	vmCvar_t	g_allowGametypeVote;
-extern	vmCvar_t	g_AllowMapVote;
-extern	vmCvar_t	g_AllowKickVote;
-
-//[ChatSpamProtection]
+//[AdminSys][ChatSpamProtection]
 extern	vmCvar_t	ojp_chatProtectTime;
-//[/ChatSpamProtection]
-//[/AdminSys]
+//[/AdminSys][/ChatSpamProtection]
 extern	vmCvar_t	g_teamAutoJoin;
 extern	vmCvar_t	g_teamForceBalance;
 extern	vmCvar_t	g_banIPs;

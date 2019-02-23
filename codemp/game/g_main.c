@@ -207,16 +207,10 @@ vmCvar_t	g_blood;
 vmCvar_t	g_podiumDist;
 vmCvar_t	g_podiumDrop;
 vmCvar_t	g_allowVote;
-//[AdminSys]
 vmCvar_t	g_allowTeamVote;
-vmCvar_t	g_allowGametypeVote;
-vmCvar_t	g_AllowMapVote;
-vmCvar_t	g_AllowKickVote;
-
-//[ChatSpamProtection]
+//[AdminSys][ChatSpamProtection]
 vmCvar_t	ojp_chatProtectTime;
-//[/ChatSpamProtection]
-//[/AdminSys]
+//[/AdminSys][/ChatSpamProtection]
 vmCvar_t	g_teamAutoJoin;
 vmCvar_t	g_teamForceBalance;
 vmCvar_t	g_banIPs;
@@ -597,18 +591,10 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_podiumDrop, "g_podiumDrop", "70", 0, 0, qfalse },
 
 	{ &g_allowVote, "g_allowVote", "1", CVAR_ARCHIVE, 0, qfalse },
-
-	//[AdminSys]
 	{ &g_allowTeamVote, "g_allowTeamVote", "1", CVAR_ARCHIVE, 0, qfalse },
-	{ &g_allowGametypeVote, "g_allowGametypeVote", "1", CVAR_ARCHIVE, 0, qfalse },
-	{ &g_AllowMapVote, "g_AllowMapVote", "2", CVAR_ARCHIVE, 0, qfalse },
-	{ &g_AllowKickVote, "g_AllowKickVote", "1", CVAR_ARCHIVE, 0, qfalse },
-
-	//[ChatSpamProtection]
+	//[AdminSys][ChatSpamProtection]
 	{ &ojp_chatProtectTime, "ojp_chatProtectTime", "1000", CVAR_ARCHIVE, 0, qfalse },
-	//[/ChatSpamProtection]
-	//[/AdminSys]
-
+	//[/AdminSys][/ChatSpamProtection]
 	{ &g_listEntity, "g_listEntity", "0", 0, 0, qfalse },
 
 #if 0
