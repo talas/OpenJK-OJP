@@ -1054,59 +1054,6 @@ int BotAISetupClient(int client, struct bot_settings_s *settings, qboolean resta
 	bs->botWeaponWeights[WP_TRIP_MINE] = 0;
 	bs->botWeaponWeights[WP_DET_PACK] = 0;
 	bs->botWeaponWeights[WP_MELEE] = 1;
-	//[NewWeapons][EnhancedImpliment]
-	/*
-	bs->botWeaponWeights[WP_BRYAR_OLD] = 1;
-	bs->botWeaponWeights[WP_ZAM_BLASTER] = 2;
-	bs->botWeaponWeights[WP_NABOO_BLASTER] = 2;
-	bs->botWeaponWeights[WP_NONE2] = 0;
-	bs->botWeaponWeights[WP_FLAMETHROWER] = 17;
-	bs->botWeaponWeights[WP_FREE2] = 0;
-	bs->botWeaponWeights[WP_FREE3] = 0;
-	bs->botWeaponWeights[WP_FREE4] = 0;
-	bs->botWeaponWeights[WP_FREE5] = 0;
-	bs->botWeaponWeights[WP_FREE6] = 0;
-	bs->botWeaponWeights[WP_FREE7] = 0;
-	bs->botWeaponWeights[WP_FREE8] = 0;
-	bs->botWeaponWeights[WP_DKA_ARM] = 0;
-	bs->botWeaponWeights[WP_SBD_ARM] = 20;
-	bs->botWeaponWeights[WP_ADV_DISRUPTOR] = 14;
-	bs->botWeaponWeights[WP_ADV_ROCKET] = 19;
-	bs->botWeaponWeights[WP_GRAPPLE_HOOK] = 0;
-	bs->botWeaponWeights[WP_TRIP_MINE_2] = 5;
-	bs->botWeaponWeights[WP_NONE3] = 0;
-	bs->botWeaponWeights[WP_WESTAR] = 3;
-	bs->botWeaponWeights[WP_FETT_BLASTER] = 4;
-	bs->botWeaponWeights[WP_ZAM_RIFLE] = 7;
-	bs->botWeaponWeights[WP_TUSKEN_RIFLE] = 7;
-	bs->botWeaponWeights[WP_CLONE_LIGHT_RIFLE] = 7;
-	bs->botWeaponWeights[WP_SEP_ROCKET] = 19;
-	bs->botWeaponWeights[WP_MP_BLASTER] = 8;
-	bs->botWeaponWeights[WP_OFFICER_PISTOL] = 9;
-	bs->botWeaponWeights[WP_NABOO_S5] = 8;
-	bs->botWeaponWeights[WP_CLONE_BLASTER] = 8;
-	bs->botWeaponWeights[WP_DROID_BLASTER] = 8;
-	bs->botWeaponWeights[WP_TUSKEN_RIFLE2] = 8;
-	bs->botWeaponWeights[WP_NABOO_SEC_PISTOL] = 7;
-	bs->botWeaponWeights[WP_SITH_SCEPTER] = 20;
-	bs->botWeaponWeights[WP_NONE4] = 0;
-	bs->botWeaponWeights[WP_VIBROBLADE2] = 13; // For enhancing lightsaber... But if we need more weapons, these can be used! - uq1
-	bs->botWeaponWeights[WP_FORCE_PIKE] = 11; // For enhancing lightsaber...
-	bs->botWeaponWeights[WP_AMPHI_STAFF] = 12; // For enhancing lightsaber...
-	bs->botWeaponWeights[WP_VIBROAXE2] = 11; // For enhancing lightsaber...
-	bs->botWeaponWeights[WP_SABER6] = 0; // For enhancing lightsaber...
-	bs->botWeaponWeights[WP_VIBROAXE] = 10;
-	bs->botWeaponWeights[WP_VIBRODAGGER] = 9;
-	bs->botWeaponWeights[WP_VIBROBLADE] = 10;
-	bs->botWeaponWeights[WP_SITH_SWORD] = 14;
-	bs->botWeaponWeights[WP_STAFF1] = 15;
-	bs->botWeaponWeights[WP_TUSKEN_STAFF] = 11;
-	bs->botWeaponWeights[WP_NOGHRI_STICK] = 10;
-
-//	WP_EMPLACED_GUN, // Always at the end...
-//	WP_TURRET, // Always at the end...
-	*/
-	//[/NewWeapons]
 
 	BotUtilizePersonality(bs);
 
@@ -2286,9 +2233,6 @@ int BotCanHear(bot_state_t *bs, gentity_t *en, float endist)
 		minlen = 256;
 		break;
 	case EV_FIRE_WEAPON:
-	//[NewWeapons][EnhancedImpliment]
-	//case EV_FIRE_WEAPON2:
-	//[/NewWeapons]
 	case EV_ALT_FIRE:
 	case EV_SABER_ATTACK:
 		minlen = 512;
@@ -2499,9 +2443,6 @@ int ScanForEnemies(bot_state_t *bs)
 	{
 		if (i != bs->client && g_entities[i].client && !OnSameTeam(&g_entities[bs->client], &g_entities[i]) && PassStandardEnemyChecks(bs, &g_entities[i]) && BotPVSCheck(g_entities[i].client->ps.origin, bs->eye) && PassLovedOneCheck(bs, &g_entities[i]))
 		{
-			//[NewWeapons][EnhancedImpliment]
-			//qboolean holstered = qfalse;
-			//[/NewWeapons][EnhancedImpliment]
 			VectorSubtract(g_entities[i].client->ps.origin, bs->eye, a);
 			distcheck = VectorLength(a);
 			vectoangles(a, a);
@@ -2511,23 +2452,7 @@ int ScanForEnemies(bot_state_t *bs)
 				distcheck = 1;
 			}
 
-			//[NewWeapons][EnhancedImpliment]
-			/*
-			if ( (g_entities[i].client->ps.saberHolstered >= 2 && g_entities[i].client->saber[0].numBlades >= 2)
-				|| (g_entities[i].client->ps.saberHolstered >= 2 && g_entities[i].client->saber[1].type)
-				|| (g_entities[i].client->ps.saberHolstered && !g_entities[i].client->saber[1].type && g_entities[i].client->saber[0].numBlades <= 1) )
-			{// Is(Are) the saber(s) holstered?
-				holstered = qtrue;
-			}
-			
-			if (distcheck < closest 
-				&& ((InFieldOfVision(bs->viewangles, 90, a) && !BotMindTricked(bs->client, i)) || BotCanHear(bs, &g_entities[i], distcheck)) 
-				&& OrgVisible(bs->eye, g_entities[i].client->ps.origin, -1)
-				&& !(g_entities[i].s.weapon == WP_SABER && holstered )) //<-- AIMod.
-			*/
-
 			if (distcheck < closest && ((InFieldOfVision(bs->viewangles, 90, a) && !BotMindTricked(bs->client, i)) || BotCanHear(bs, &g_entities[i], distcheck)) && OrgVisible(bs->eye, g_entities[i].client->ps.origin, -1))
-			//[/NewWeapons][EnhancedImpliment]
 			{
 				if (BotMindTricked(bs->client, i))
 				{
@@ -2612,31 +2537,12 @@ int BotGetWeaponRange(bot_state_t *bs)
 	case WP_MELEE:
 		return BWEAPONRANGE_MELEE;
 	case WP_SABER:
-	//[NewWeapons][EnhancedImpliment]
-	/*
-	case WP_SITH_SCEPTER:
-	case WP_TUSKEN_STAFF:
-	case WP_NOGHRI_STICK:
-	case WP_VIBROBLADE2:
-	case WP_FORCE_PIKE:
-	case WP_AMPHI_STAFF:
-	case WP_VIBROAXE2:
-	case WP_SABER6:
-	case WP_VIBROAXE:
-	case WP_VIBRODAGGER:
-	case WP_VIBROBLADE:
-	case WP_SITH_SWORD:
-	case WP_STAFF1:
-	*/
-	//[/NewWeapons][/EnhancedImpliment]
 		return BWEAPONRANGE_SABER;
 	case WP_BRYAR_PISTOL:
 		return BWEAPONRANGE_MID;
 	case WP_BLASTER:
 		return BWEAPONRANGE_MID;
 	case WP_DISRUPTOR:
-	//[NewWeapons][EnhancedImpliment]
-	//case WP_ADV_DISRUPTOR:
 		return BWEAPONRANGE_MID;
 	case WP_BOWCASTER:
 	//[AotCAI]
@@ -2703,10 +2609,6 @@ int BotGetWeaponRange(bot_state_t *bs)
 	//return BWEAPONRANGE_MID;
 	//[/AotCAI]
 
-	//[NewWeapons][EnhancedImpliment]
-	//case WP_TRIP_MINE_2:
-	//	return BWEAPONRANGE_MID;
-	//[/NewWeapons][/EnhancedImpliment]
 	case WP_DET_PACK:
 	//[AotCAI]
 	if(bs->settings.botType == BOT_AOTC || bs->settings.botType == BOT_HYBRID)
@@ -2854,10 +2756,7 @@ gentity_t *GetNearestBadThing(bot_state_t *bs)
 			glen = VectorLength(hold);
 
 			if (ent->s.weapon != WP_THERMAL && ent->s.weapon != WP_FLECHETTE &&
-				//[NewWeapons][EnhancedImpliment]
-				//ent->s.weapon != WP_DET_PACK && ent->s.weapon != WP_TRIP_MINE && ent->s.weapon != WP_TRIP_MINE_2)
 				ent->s.weapon != WP_DET_PACK && ent->s.weapon != WP_TRIP_MINE)
-				//[/NewWeapons][EnhancedImpliment]
 			{
 				factor = 0.5;
 
@@ -5191,18 +5090,6 @@ float BotWeaponCanLead(bot_state_t *bs)
 	{
 		return 0.7;
 	}
-	//[NewWeapons][EnhanceImpliment]
-	/*
-	if (weap == WP_SBD_ARM)
-	{
-		return 0.35;
-	}
-	if (weap == WP_DKA_ARM)
-	{
-		return 0.35;
-	}
-	*/
-	//[/NewWeapons]
 	
 	return 0;
 }
@@ -5686,20 +5573,13 @@ int BotFallbackNavigation(bot_state_t *bs)
 int BotTryAnotherWeapon(bot_state_t *bs)
 { //out of ammo, resort to the first weapon we come across that has ammo
 	int i;
-	i = 1;
 
-	//[NewWeapons][EnhancedImpliment]
-	/*
-	while (i < MAX_PLAYER_WEAPONS)
-	{
-		if (BotWeaponSelectable(bs, i))
-	*/
+	i = 1;
 
 	while (i < WP_NUM_WEAPONS)
 	{
 		if (bs->cur_ps.ammo[weaponData[i].ammoIndex] >= weaponData[i].energyPerShot &&
 			(bs->cur_ps.stats[STAT_WEAPONS] & (1 << i)))
-	//[NewWeapons][EnhancedImpliment]
 		{
 			bs->virtualWeapon = i;
 			BotSelectWeapon(bs->client, i);
@@ -5731,24 +5611,11 @@ qboolean BotWeaponSelectable(bot_state_t *bs, int weapon)
 		return qfalse;
 	}
 
-	//[NewWeapons][EnhancedImpliment]
-	/*
-	if (G_HasWeapon(bs->cur_ps.clientNum, weapon))
-	{
-		if (bs->cur_ps.ammo[weaponData[weapon].ammoIndex] >= weaponData[weapon].energyPerShot)
-		{
-			return qtrue;
-		}
-	}
-	*/
-
-
 	if (bs->cur_ps.ammo[weaponData[weapon].ammoIndex] >= weaponData[weapon].energyPerShot &&
 		(bs->cur_ps.stats[STAT_WEAPONS] & (1 << weapon)))
 	{
 		return qtrue;
 	}
-	//[/NewWeapons][EnhancedImpliment]
 	
 	return qfalse;
 }
@@ -5761,30 +5628,6 @@ int BotSelectIdealWeapon(bot_state_t *bs)
 	int bestweapon = 0;
 
 	i = 0;
-
-	//[NewWeapons][EnhancedImpliment]
-	/*
-	while (i < MAX_PLAYER_WEAPONS)
-	{
-		if (G_HasWeapon(bs->cur_ps.clientNum, i))
-		{
-			if (bs->cur_ps.ammo[weaponData[i].ammoIndex] >= weaponData[i].energyPerShot && bs->botWeaponWeights[i] > bestweight)			
-			{
-				if (i == WP_THERMAL)
-				{ //special case..
-					if (bs->currentEnemy && bs->frame_Enemy_Len < 700)
-					{
-						bestweight = bs->botWeaponWeights[i];
-						bestweapon = i;
-					}
-				}
-				else
-				{
-					bestweight = bs->botWeaponWeights[i];
-					bestweapon = i;
-				}
-			}
-	*/
 
 	while (i < WP_NUM_WEAPONS)
 	{
@@ -5805,7 +5648,6 @@ int BotSelectIdealWeapon(bot_state_t *bs)
 				bestweight = bs->botWeaponWeights[i];
 				bestweapon = i;
 			}
-	//[/NewWeapons][EnhancedImpliment]
 		}
 
 		i++;
@@ -5818,31 +5660,10 @@ int BotSelectIdealWeapon(bot_state_t *bs)
 		bestweapon = WP_SABER;
 		bestweight = 1;
 	}
-	//[NewWeapons][EnhancedImpliment]
-	/*
-	else if ( bs->currentEnemy && bs->frame_Enemy_Len < 300 &&
-		(bestweapon == WP_BRYAR_PISTOL || bestweapon == WP_BLASTER || bestweapon == WP_BOWCASTER) &&
-		(bs->cur_ps.stats[STAT_WEAPONS4] & (1 << WP_SITH_SWORD)) )
-	{
-		bestweapon = WP_SITH_SWORD;
-		bestweight = 1;
-	}
-	else if ( bs->currentEnemy && bs->frame_Enemy_Len < 300 &&
-		(bestweapon == WP_BRYAR_PISTOL || bestweapon == WP_BLASTER || bestweapon == WP_BOWCASTER) &&
-		(bs->cur_ps.stats[STAT_WEAPONS4] & (1 << WP_VIBROBLADE)) )
-	{
-		bestweapon = WP_VIBROBLADE;
-		bestweight = 1;
-	}
-	*/
-	//[/NewWeapons][EnhancedImpliment]
-	
+
 	if ( bs->currentEnemy && bs->frame_Enemy_Len > 300 &&
 		bs->currentEnemy->client && bs->currentEnemy->client->ps.weapon != WP_SABER &&
-		//[NewWeapons][EnhancedImpliment]
-		//(bestweapon == WP_SABER || bestweapon == WP_SITH_SWORD || bestweapon == WP_VIBROBLADE) )
 		(bestweapon == WP_SABER) )
-		//[/NewWeapons][EnhancedImpliment]
 	{ //if the enemy is far away, and we have our saber selected, see if we have any good distance weapons instead
 		if (BotWeaponSelectable(bs, WP_DISRUPTOR))
 		{
@@ -5874,25 +5695,6 @@ int BotSelectIdealWeapon(bot_state_t *bs)
 			bestweapon = WP_DEMP2;
 			bestweight = 1;
 		}
-		//[NewWeapons][EnhancedImpliment]
-		/*
-		else if (BotWeaponSelectable(bs, WP_NABOO_S5))
-		{
-			bestweapon = WP_NABOO_S5;
-			bestweight = 1;
-		}
-		else if (BotWeaponSelectable(bs, WP_CLONE_BLASTER))
-		{
-			bestweapon = WP_CLONE_BLASTER;
-			bestweight = 1;
-		}
-		else if (BotWeaponSelectable(bs, WP_DROID_BLASTER))
-		{
-			bestweapon = WP_DROID_BLASTER;
-			bestweight = 1;
-		}
-		*/
-		//[/NewWeapons][EnhancedImpliment]
 	}
 
 	//assert(bs->cur_ps.weapon > 0 && bestweapon > 0);
@@ -5919,22 +5721,6 @@ int BotSelectChoiceWeapon(bot_state_t *bs, int weapon, int doselection)
 
 	i = 0;
 
-	//[NewWeapons][EnhancedImpliment]
-	/*
-	while (i < MAX_PLAYER_WEAPONS)
-	{
-		if (G_HasWeapon(bs->cur_ps.clientNum, i))
-		{
-			if (BG_Is_Staff_Weapon(bs->cur_ps.weapon) 
-				|| (bs->cur_ps.ammo[weaponData[i].ammoIndex] > weaponData[i].energyPerShot && i == weapon) )			
-			{
-				hasit = 1;
-				break;
-			}
-		}
-	}
-	*/
-	
 	while (i < WP_NUM_WEAPONS)
 	{
 		//[TABBot]
@@ -5947,7 +5733,6 @@ int BotSelectChoiceWeapon(bot_state_t *bs, int weapon, int doselection)
 		{
 			hasit = 1;
 			break;
-	//[/NewWeapons]
 		}
 
 		i++;
@@ -6621,9 +6406,6 @@ int BotWeaponBlockable(int weapon)
 	case WP_STUN_BATON:
 	case WP_MELEE:
 		return 0;
-	//[NewWeapons][EnhancedImpliment]
-	//case WP_ADV_DISRUPTOR:
-	//[/NewWeapons][EnhancedImpliment]
 	case WP_DISRUPTOR:
 		return 0;
 	case WP_DEMP2:
@@ -6634,10 +6416,6 @@ int BotWeaponBlockable(int weapon)
 		return 0;
 	case WP_TRIP_MINE:
 		return 0;
-	//[NewWeapons][EnhancedImpliment]
-	//case WP_TRIP_MINE_2:
-	//	return 0;
-	//[/NewWeapons][EnhancedImpliment]
 	case WP_DET_PACK:
 		return 0;
 	default:

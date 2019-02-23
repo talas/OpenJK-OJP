@@ -1862,11 +1862,7 @@ void CalculateSiegeGoals(void)
 	}
 }
 
-
-//[NewWeapons][EnhancedImpliment]
-//float botGlobalNavWeaponWeights[MAX_PLAYER_WEAPONS/*WP_NUM_WEAPONS*/] =
 float botGlobalNavWeaponWeights[WP_NUM_WEAPONS] =
-//[/NewWeapons][EnhancedImpliment]
 {
 	0,//WP_NONE,
 
@@ -1883,43 +1879,6 @@ float botGlobalNavWeaponWeights[WP_NUM_WEAPONS] =
 	9,//WP_ROCKET_LAUNCHER,
 	3,//WP_THERMAL,
 	3,//WP_TRIP_MINE,
-	//[NewWeapons][EnhancedImpliment]
-	/*
-	3,//WP_DET_PACK,
-	3,//WP_DET_PACK,
-	3,//WP_DET_PACK,
-	3,//WP_DET_PACK,
-	3,//WP_DET_PACK,
-	3,//WP_DET_PACK,
-	3,//WP_DET_PACK,
-	3,//WP_DET_PACK,
-	3,//WP_DET_PACK,
-	3,//WP_DET_PACK,
-	3,//WP_DET_PACK,
-	3,//WP_DET_PACK,
-	3,//WP_DET_PACK,
-	3,//WP_DET_PACK,
-	3,//WP_DET_PACK,
-	3,//WP_DET_PACK,
-	3,//WP_DET_PACK,
-	3,//WP_DET_PACK,
-	3,//WP_DET_PACK,
-	3,//WP_DET_PACK,
-	3,//WP_DET_PACK,
-	3,//WP_DET_PACK,
-	3,//WP_DET_PACK,
-	3,//WP_DET_PACK,
-	3,//WP_DET_PACK,
-	3,//WP_DET_PACK,
-	3,//WP_DET_PACK,
-	3,//WP_DET_PACK,
-	3,//WP_DET_PACK,
-	3,//WP_DET_PACK,
-	3,//WP_DET_PACK,
-	3,//WP_DET_PACK,
-	*/
-	//[/NewWeapons][EnhancedImpliment]
-
 	3,//WP_DET_PACK,
 	0//WP_EMPLACED_GUN,
 };

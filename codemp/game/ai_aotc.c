@@ -4711,10 +4711,7 @@ void AOTC_StandardBotAI(bot_state_t *bs, float thinktime)
 					}
 				}
 			}*/
-			//[NewWeapons][EnhancedImpliment]
-			//if ( (bs->cur_ps.weapon == WP_SABER || BG_Is_Staff_Weapon(bs->cur_ps.weapon))
 			if ( bs->cur_ps.weapon == WP_SABER
-			//[/NewWeapons][EnhancedImpliment]
 				&& Q_irand(0,30000) < 2 ) 
 			{// Switch stance every so often...
 				Cmd_SaberAttackCycle_f(&g_entities[bs->client]);
@@ -5154,10 +5151,7 @@ void AOTC_StandardBotAI(bot_state_t *bs, float thinktime)
 	if ( bs->dangerousObject && bs->dangerousObject->inuse && bs->dangerousObject->health > 0 &&
 		bs->dangerousObject->takedamage && (!bs->frame_Enemy_Vis || !bs->currentEnemy) &&
 		(BotGetWeaponRange(bs) == BWEAPONRANGE_MID || BotGetWeaponRange(bs) == BWEAPONRANGE_LONG) &&
-		//[NewWeapons][EnhancedImpliment]
-		//bs->cur_ps.weapon != WP_DET_PACK && bs->cur_ps.weapon != WP_TRIP_MINE && bs->cur_ps.weapon != WP_TRIP_MINE_2 &&
 		bs->cur_ps.weapon != WP_DET_PACK && bs->cur_ps.weapon != WP_TRIP_MINE &&
-		//[/NewWeapons][EnhancedImpliment]
 		!bs->shootGoal )
 	{
 		float danLen;
