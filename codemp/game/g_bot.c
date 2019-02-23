@@ -167,29 +167,6 @@ int G_GetMapTypeBits(char *type)
 		}
 		if( strstr( type, "cty" ) ) {
 			typeBits |= (1 << GT_CTY);
-		//[NewGametypes][EnhancedImpliment]
-		/*
-		} // MJN - RPG
-		if( strstr( type, "rpg" ) ) {
-			typeBits |= (1 << GT_RPG);
-		}
-		if( strstr( type, "single" ) ) {
-			typeBits |= (1 << GT_COOP);
-		}
-		// MJN - ITG
-		if( strstr( type, "instagib" ) ) {
-			typeBits |= (1 << GT_ITG);
-		}
-		if( strstr( type, "attack" ) ) {
-			typeBits |= (1 << GT_ATTACK);
-		}
-		if( strstr( type, "defence" ) ) {
-			typeBits |= (1 << GT_DEFENCE);
-		}
-		if( strstr( type, "scenario" ) ) {
-			typeBits |= (1 << GT_SCENARIO);
-		*/
-		//[/NewGametypes][EnhancedImpliment]
 		}
 	} else {
 		typeBits |= (1 << GT_FFA);
@@ -877,15 +854,6 @@ void G_CheckMinimumPlayers( void ) {
 	}
 	*/
 	//[/TABBot]
-
-	//[NewGameTypes][EnhancedImpliment]
-	/*
-	if (g_gametype.integer == GT_RPG)// MJN - Not implementing this for RPG
-	{
-		return;
-	}
-	*/
-	//[/NewGameTypes]
 
 	//[TABBots]
 	if(level.time - level.startTime < 10000)
@@ -1579,10 +1547,7 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 	// register the userinfo
 	trap_SetUserinfo( clientNum, userinfo );
 
-	//[NewGameTypes][EnhancedImpliment]
-	//if (g_gametype.integer >= GT_TEAM && g_gametype.integer != GT_RPG)
 	if (g_gametype.integer >= GT_TEAM)
-	//[/NewGameTypes][EnhancedImpliment]
 	{
 		if (team && Q_stricmp(team, "red") == 0)
 		{

@@ -202,10 +202,7 @@ void BotReportStatus(bot_state_t *bs)
 	{
 		trap_EA_SayTeam(bs->client, siegeStateDescriptions[bs->siegeState]);
 	}
-	//[NewGameTypes][EnhancedImpliment]
-	//else if (g_gametype.integer == GT_CTF || g_gametype.integer == GT_CTY || g_gametype.integer == GT_ITG)
 	else if (g_gametype.integer == GT_CTF || g_gametype.integer == GT_CTY)
-	//[NewGameTypes]
 	{
 		trap_EA_SayTeam(bs->client, ctfStateDescriptions[bs->ctfState]);
 	}
@@ -233,21 +230,13 @@ void BotOrder(gentity_t *ent, int clientnum, int ordernum)
 		return;
 	}
 
-	//[NewGameTypes][EnhancedImpliment]	
-//	if (g_gametype.integer != GT_CTF && g_gametype.integer != GT_CTY && g_gametype.integer != GT_ITG 
-//			&& g_gametype.integer != GT_SIEGE && g_gametype.integer != GT_TEAM)
-
 	if (g_gametype.integer != GT_CTF && g_gametype.integer != GT_CTY && g_gametype.integer != GT_SIEGE &&
 		g_gametype.integer != GT_TEAM)
-	//[/NewGameTypes][/EnhancedImpliment]
 	{
 		return;
 	}
 
-	//[NewGameTypes][EnhancedImpliment]
-//	if (g_gametype.integer == GT_CTF || g_gametype.integer == GT_CTY || g_gametype.integer == GT_ITG)
 	if (g_gametype.integer == GT_CTF || g_gametype.integer == GT_CTY)
-	//[/NewGameTypes][EnhancedImpliment]
 	{
 		stateMin = CTFSTATE_NONE;
 		stateMax = CTFSTATE_MAXCTFSTATES;
@@ -374,10 +363,7 @@ qboolean WP_ForcePowerUsable( gentity_t *self, forcePowers_t forcePower );
 
 int IsTeamplay(void)
 {
-	//[NewGameTypes][EnhancedImpliment]
-	//if ( g_gametype.integer < GT_TEAM || g_gametype.integer == GT_RPG)
 	if ( g_gametype.integer < GT_TEAM )
-	//[/NewGameTypes][EnhancedImpliment]
 	{
 		return 0;
 	}
@@ -1378,11 +1364,6 @@ int PassWayCheck(bot_state_t *bs, int windex)
 		}
 	}
 
-	//[NewGametypes][EnhanceImpliment]
-	//if (g_gametype.integer == GT_SCENARIO)
-	//	return 1;
-	//[/NewGametypes]
-
 	if (bs->wpDirection && (gWPArray[windex]->flags & WPFLAG_ONEWAY_FWD))
 	{ //we're not travelling in a direction on the trail that will allow us to pass this point
 		return 0;
@@ -1745,10 +1726,7 @@ void WPTouchRoutine(bot_state_t *bs)
 				bs->destinationGrabTime = level.time + 3500;
 			}
 		}
-		//[NewGametypes][EnhanceImpliment]
-		//else if (g_gametype.integer != GT_SCENARIO)
 		else
-		//[/NewGametypes]
 		{
 			CheckForShorterRoutes(bs, bs->wpCurrent->index);
 		}
@@ -2015,9 +1993,6 @@ int PassStandardEnemyChecks(bot_state_t *bs, gentity_t *en)
 	//UNIQUEFIXME - What's with the weird saber checking?
 	if ( (bs->settings.botType == BOT_AOTC || bs->settings.botType == BOT_HYBRID)
 		&& en->s.weapon == WP_SABER
-		//[NewGameTypes][EnhancedImpliment]
-		/*&& g_gametype.integer != GT_SCENARIO &&*/
-		//[/NewGameTypes]
 		&& ((en->client->ps.saberHolstered >= 2 && en->client->saber[0].numBlades >= 2)
 		|| (en->client->ps.saberHolstered >= 2 && en->client->saber[1].type)
 		|| (en->client->ps.saberHolstered && !en->client->saber[1].type 
@@ -2403,11 +2378,6 @@ int ScanForEnemies(bot_state_t *bs)
 	int i;
 	float hasEnemyDist = 0;
 	qboolean noAttackNonJM = qfalse;
-
-	//[NewGametypes][EnhancedImpliment]
-	//if (g_gametype.integer == GT_SCENARIO)
-	//	return Scenario_ScanForEnemies(bs);
-	//[/NewGametypes][EnhancedImpliment]
 
 	closest = 999999;
 	i = 0;
@@ -3884,148 +3854,6 @@ int BotHasAssociated(bot_state_t *bs, wpobject_t *wp)
 	return 0;
 }
 
-//[NewGameTypes][EnhancedImpliment]
-/*
-extern int num_flags; // Current total number of scenario flags...
-int wplist[256];
-
-//get the index to the nearest visible waypoint in the global trail
-int GetNearestVisibleWPList(vec3_t org, int ignore)
-{
-	int i;
-	float bestdist;
-	float flLen;
-	int bestindex;
-	vec3_t a, mins, maxs;
-	int wplist_number = 0;
-
-	i = 0;
-	if (g_RMG.integer)
-	{
-		bestdist = 300;
-	}
-	else
-	{
-		bestdist = 300;//99999;
-				   //don't trace over 800 units away to avoid GIANT HORRIBLE SPEED HITS ^_^
-	}
-	bestindex = -1;
-
-	mins[0] = -15;
-	mins[1] = -15;
-	mins[2] = -1;
-	maxs[0] = 15;
-	maxs[1] = 15;
-	maxs[2] = 1;
-
-	while (i < gWPNum)
-	{
-		if (gWPArray[i] && gWPArray[i]->inuse && VectorDistance(org, gWPArray[i]->origin) < 300)
-		{
-			VectorSubtract(org, gWPArray[i]->origin, a);
-			flLen = VectorLength(a);
-
-			if (OrgVisibleBox(org, mins, maxs, gWPArray[i]->origin, ignore))
-			{
-				wplist[wplist_number] = i;
-				wplist_number++;
-				
-				if (wplist_number >= 256)
-					break;
-			}
-		}
-
-		//i++;
-		i+=Q_irand(0,4); // Search randmly for speed...
-	}
-
-	return wplist_number;
-}
-
-qboolean FlagWPsInitialized = qfalse;
-
-int Scenario_GetBestIdleGoal(bot_state_t *bs)
-{
-//	int i = 0;
-	int highestweight = 0;
-	int desiredindex = -1;
-	int dist_to_weight = 0;
-	int traildist;
-	int test_flag = 0;
-	int flagindex = -1;
-
-	if (!bs->wpCurrent)
-	{
-		return -1;
-	}
-
-	if (bs->wpDestination && bs->wpDestination->index 
-		&& VectorDistance(bs->cur_ps.origin, gWPArray[bs->wpDestination->index]->origin) > 64)
-		return bs->wpDestination->index; // Already have a place to go.. Don't think more...
-
-	if (!FlagWPsInitialized)
-	{
-		for (test_flag = 0; test_flag < num_flags; test_flag++)
-		{// Let's record waypoints close to the flag for faster access later...
-			if (flag_list[test_flag].flagentity)
-			{
-				int num_points = GetNearestVisibleWPList(flag_list[test_flag].flagentity->s.origin, flag_list[test_flag].flagentity->s.number);
-				int test = 0;
-
-				while (test < num_points)
-				{
-					flag_list[test_flag].closeWaypoints[test] = wplist[test];
-					test++;
-				}
-				flag_list[test_flag].num_waypoints = num_points;
-
-				//G_Printf("Flag %i has %i close waypoints.\n", test_flag, num_points);
-			}
-		}
-
-		FlagWPsInitialized = qtrue;
-	}
-
-	for (test_flag = 0; test_flag < num_flags; test_flag++)
-	{// Find the best route to follow to a flag not owned by us...
-		if (flag_list[test_flag].flagentity)
-		{
-			if (g_entities[bs->cur_ps.clientNum].client->sess.sessionTeam != flag_list[test_flag].flagentity->s.teamowner)
-			{// Let's find the best enemy/neutral flag to head to...
-				int test = 0;
-
-				while (test < flag_list[test_flag].num_waypoints)
-				{
-					traildist = TotalTrailDistance(bs->wpCurrent->index, flag_list[test_flag].closeWaypoints[test], bs);
-
-					if (traildist != -1 && traildist < dist_to_weight)
-					{
-						dist_to_weight = (int)traildist/10000;
-						dist_to_weight = (gWPArray[wplist[test]]->weight)-dist_to_weight;
-
-						highestweight = dist_to_weight;
-						desiredindex = flag_list[test_flag].closeWaypoints[test];
-						flagindex = test_flag;
-						//break;
-					}
-					test++;
-				}
-
-				//if (desiredindex >= 0)
-				//	break;
-			}
-		}
-	}
-
-	//set our traversal direction based on the index of the point
-	bs->wpDirection = 1;
-
-	return desiredindex;
-}
-*/
-//[/NewGameTypes][EnhancedImpliment]
-
-
 //we don't really have anything we want to do right now,
 //let's just find the best thing to do given the current
 //situation.
@@ -4036,13 +3864,6 @@ int GetBestIdleGoal(bot_state_t *bs)
 	int desiredindex = -1;
 	int dist_to_weight = 0;
 	int traildist;
-
-	//[NewGameTypes][EnhancedImpliment]
-	/*
-	if (g_gametype.integer == GT_SCENARIO)
-		return Scenario_GetBestIdleGoal(bs);
-	*/
-	//[/NewGameTypes][EnhancedImpliment]
 
 	if (!bs->wpCurrent)
 	{
@@ -4744,14 +4565,6 @@ void CommanderBotAI(bot_state_t *bs)
 	{
 		CommanderBotTeamplayAI(bs);
 	}
-	//[NewGameTypes][EnhanceImpliment]
-	/*
-	else if (g_gametype.integer == GT_SCENARIO)
-	{
-		CommanderBotTeamplayAI(bs);
-	}
-	*/
-	//[/NewGameTypes]
 }
 
 //close range combat routines
