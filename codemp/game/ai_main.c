@@ -1051,10 +1051,7 @@ int BotAISetupClient(int client, struct bot_settings_s *settings, qboolean resta
 	bs->botWeaponWeights[WP_FLECHETTE] = 17;
 	bs->botWeaponWeights[WP_ROCKET_LAUNCHER] = 18;
 	bs->botWeaponWeights[WP_THERMAL] = 14;
-	//[BotTweaks] UNIQUEFIXME - wha?
-//	bs->botWeaponWeights[WP_TRIP_MINE] = 3;
 	bs->botWeaponWeights[WP_TRIP_MINE] = 0;
-	//[/BotTweaks]UNIQUEFIXME - wha?
 	bs->botWeaponWeights[WP_DET_PACK] = 0;
 	bs->botWeaponWeights[WP_MELEE] = 1;
 	//[NewWeapons][EnhancedImpliment]
@@ -2098,10 +2095,7 @@ int PassStandardEnemyChecks(bot_state_t *bs, gentity_t *en)
 		return 0;
 	}
 
-	//[BotTweaks] UNIQUEFIXME - wha?
-	//if (!en->client->pers.connected && !en->NPC)
 	if (!en->client->pers.connected)
-	//[/BotTweaks] UNIQUEFIXME - wha?
 	{ //a "zombie" client?
 		return 0;
 	}
@@ -2120,11 +2114,6 @@ int PassStandardEnemyChecks(bot_state_t *bs, gentity_t *en)
 	{ //don't attack teammates
 		return 0;
 	}
-
-	//[BotTweaks] UNIQUEFIXME - wha?
-	//if (en->NPC)
-	//	return 1;
-	//[/BotTweaks] UNIQUEFIXME - wha?
 
 	if (BotMindTricked(bs->client, en->s.number))
 	{
@@ -4183,14 +4172,6 @@ int GetBestIdleGoal(bot_state_t *bs)
 		return -1;
 	}
 
-	//[BotTweaks] UNIQUEFIX - why are we doing this?
-	/*
-	if (bs->wpDestination && bs->wpDestination->index 
-		&& VectorDistance(bs->cur_ps.origin, gWPArray[bs->wpDestination->index]->origin) > 64)
-		return bs->wpDestination->index; // Already have a place to go.. Don't think more...
-	*/
-	//[/BotTweaks]	
-
 	while (i < gWPNum)
 	{
 		if (gWPArray[i] &&
@@ -4549,10 +4530,7 @@ void CommanderBotCTFAI(bot_state_t *bs)
 	{
 		ent = &g_entities[i];
 
-		//[BotTweaks] UNIQUEFIXME - any reason for this?
-		//if (ent && ent->client && ent->inuse)
 		if (ent && ent->client)
-		//[/BotTweaks] UNIQUEFIXME - any reason for this?
 		{
 			if (ent->client->ps.powerups[enemyFlag] && OnSameTeam(&g_entities[bs->client], ent))
 			{
@@ -6326,14 +6304,6 @@ gentity_t *CheckForFriendInLOF(bot_state_t *bs)
 	vec3_t mins, maxs;
 	gentity_t *trent;
 	trace_t tr;
-
-	//[BotTweaks] UNIQUEFIXME - this looks sloopy 
-	//and unnessicary?  need this?
-	/*
-	if (bs->cur_ps.clientNum > MAX_GENTITIES || bs->cur_ps.clientNum < 0 || !bs || !bs->client || bs->client > MAX_GENTITIES || bs->client < 0)
-		return NULL;
-	*/
-	//[/BotTweaks]
 
 	mins[0] = -3;
 	mins[1] = -3;
@@ -8267,9 +8237,6 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 				useTheForce = 0;
 			}
 
-			//[BotTweaks]
-			//not really useful here.
-			/*
 			if (!useTheForce && friendInLOF->client)
 			{ //we have a friend here and are not currently using force powers, see if we can help them out
 				if (friendInLOF->health <= 50 && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[FP_TEAM_HEAL]][FP_TEAM_HEAL])
@@ -8285,8 +8252,6 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 					forceHostile = 0;
 				}
 			}
-			*/
-			//[/BotTweaks]
 		}
 	}
 	//RACC - Team force useage code
@@ -8417,9 +8382,7 @@ int BotAIStartFrame(int time) {
 	int i;
 	int elapsed_time, thinktime;
 	static int local_time;
-	//[BotTweak] NUAM
-	//static int botlib_residual;
-	//[/BotTweak]
+	static int botlib_residual;
 	static int lastbotthink_time;
 
 	if (gUpdateVars < level.time)
@@ -8483,14 +8446,7 @@ int BotAIStartFrame(int time) {
 		if ( botstates[i]->botthink_residual >= thinktime ) {
 			botstates[i]->botthink_residual -= thinktime;
 
-			//[BotTweaks] UNIQUEFIXME - do we need these additional sanity checks?
-			/*
-			if (g_entities[i].client 
-				&& g_entities[i].inuse
-				&& g_entities[i].client->pers.connected == CON_CONNECTED) {
-			*/
 			if (g_entities[i].client->pers.connected == CON_CONNECTED) {
-			//[/BotTweaks]
 				BotAI(i, (float) thinktime / 1000);
 			}
 		}
@@ -8501,14 +8457,7 @@ int BotAIStartFrame(int time) {
 		if( !botstates[i] || !botstates[i]->inuse ) {
 			continue;
 		}
-		//[BotTweaks] UNIQUEFIXME - do we need these additional sanity checks?
-		/*
-		if( g_entities[i].client 
-			&& g_entities[i].inuse
-			&& g_entities[i].client->pers.connected != CON_CONNECTED ) {
-		*/
 		if( g_entities[i].client->pers.connected != CON_CONNECTED ) {
-		//[/BotTweaks]
 			continue;
 		}
 

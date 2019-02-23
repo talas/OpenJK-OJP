@@ -5442,11 +5442,7 @@ static void UI_SetBotButton ( void )
 	server = trap_Cvar_VariableValue( "sv_running" );
 
 	// If in siege or a client, don't show add bot button
-	//[BotTweaks]
-	//show the addbot button in all non-team gametypes
-	if ((gameType >= GT_TEAM) || (server==0))
-	//if ((gameType==GT_SIEGE) || (server==0))	// If it's not siege, don't worry about it
-	//[/BotTweaks]
+	if ((gameType==GT_SIEGE) || (server==0))	// If it's not siege, don't worry about it
 	{
 		menu = Menu_GetFocused();	// Get current menu (either video or ingame video, I would assume)
 

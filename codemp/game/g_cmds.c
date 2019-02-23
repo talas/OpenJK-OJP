@@ -67,11 +67,6 @@ void DeathmatchScoreboardMessage( gentity_t *ent ) {
 
 		if ( cl->pers.connected == CON_CONNECTING ) {
 			ping = -1;
-		//[BotTweaks]
-		} else if ( g_entities[cl->ps.clientNum]r.svFlags & SVF_BOT )
-		{//make fake pings for bots.
-			ping = Q_irand(50, 150);
-		//[/BotTweaks]
 		} else {
 			ping = cl->ps.ping < 999 ? cl->ps.ping : 999;
 		}
