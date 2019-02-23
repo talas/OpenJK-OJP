@@ -13,11 +13,6 @@
 #include "g_roff.h"
 //[/ROFF]
 
-//[Experimental]
-#define SUN 0
-#define DEADBODYSPHYSICS 0
-//[/Experimental]
-
 level_locals_t	level;
 
 int		eventClearTime = 0;
@@ -1207,8 +1202,6 @@ extern void InitSpawnScriptValues(void);
 extern void Load_Autosaves(void);
 //[/CoOpEditor]
 
-void SP_light( gentity_t *self );//[Experimental]
-
 void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	int					i;
 	vmCvar_t	mapname;
@@ -1216,7 +1209,6 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	//[RawMapName]
 	char		cs[MAX_INFO_STRING];
 	//[/RawMapName]
-	gentity_t*light=NULL;//[Experimental]
 
 	//Init RMG to 0, it will be autoset to 1 if there is terrain on the level.
 	trap_Cvar_Set("RMG", "0");
@@ -1455,34 +1447,6 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 		Load_Autosaves();
 	}
 	//[/CoOpEditor]
-
-	//[Experimental]
-#ifdef SUN
-	{
-		gentity_t*sun;
-		int i=0;
-		for(i=0;i<level.num_entities;i++)
-		{
-			light=&g_entities[i];
-			
-			if(light)
-			{
-				if(Q_stricmp(light->classname,"light")==0)
-				{
-					sun=&g_entities[i];
-					sun=light;
-					G_FreeEntity(light);
-				}
-			}
-		}
-		sun=G_Spawn();
-		//Q_strncpyz(sun->classname,"light",sizeof(sun->classname));
-		sun->classname="light";
-		sun->targetname="SUN";
-		SP_light(sun);
-	}
-#endif
-	//[/Experimental]
 }
 
 
