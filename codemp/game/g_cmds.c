@@ -67,11 +67,8 @@ void DeathmatchScoreboardMessage( gentity_t *ent ) {
 
 		if ( cl->pers.connected == CON_CONNECTING ) {
 			ping = -1;
-		//[BotTweaks] 
-		//[ClientNumFix]
-		} else if ( g_entities[level.sortedClients[i]].r.svFlags & SVF_BOT )
-		//} else if ( g_entities[cl->ps.clientNum]r.svFlags & SVF_BOT )
-		//[/ClientNumFix]
+		//[BotTweaks]
+		} else if ( g_entities[cl->ps.clientNum]r.svFlags & SVF_BOT )
 		{//make fake pings for bots.
 			ping = Q_irand(50, 150);
 		//[/BotTweaks]
@@ -757,24 +754,6 @@ void Cmd_Kill_f( gentity_t *ent ) {
 	player_die (ent, ent, ent, 100000, MOD_SUICIDE);
 }
 
-//[ClientNumFix]
-gentity_t *G_GetDuelWinner(gclient_t *client)
-{
-	int i;
-	gentity_t *wEnt;
-
-	for ( i = 0 ; i < level.maxclients ; i++ ) {
-		wEnt = &g_entities[i];
-		
-		if (wEnt->client && wEnt->client != client && wEnt->client->pers.connected == CON_CONNECTED && wEnt->client->sess.sessionTeam != TEAM_SPECTATOR)
-		{
-			return wEnt;
-		}
-	}
-
-	return NULL;
-}
-#if 0
 gentity_t *G_GetDuelWinner(gclient_t *client)
 {
 	gclient_t *wCl;
@@ -792,8 +771,6 @@ gentity_t *G_GetDuelWinner(gclient_t *client)
 
 	return NULL;
 }
-#endif
-//[/ClientNumFix]
 
 /*
 =================
@@ -972,12 +949,8 @@ void SetTeam( gentity_t *ent, char *s ) {
 		{//racc - override player's choice if the team balancer is in effect.
 			int		counts[TEAM_NUM_TEAMS];
 
-			//[ClientNumFix]
-			counts[TEAM_BLUE] = TeamCount( ent-g_entities, TEAM_BLUE );
-			counts[TEAM_RED] = TeamCount( ent-g_entities, TEAM_RED );
-			//counts[TEAM_BLUE] = TeamCount( ent->client->ps.clientNum, TEAM_BLUE );
-			//counts[TEAM_RED] = TeamCount( ent->client->ps.clientNUm, TEAM_RED );
-			//[/ClientNumFix]
+			counts[TEAM_BLUE] = TeamCount( ent->client->ps.clientNum, TEAM_BLUE );
+			counts[TEAM_RED] = TeamCount( ent->client->ps.clientNUm, TEAM_RED );
 
 			// We allow a spread of two
 			if ( team == TEAM_RED && counts[TEAM_RED] - counts[TEAM_BLUE] > 1 ) {
@@ -985,19 +958,13 @@ void SetTeam( gentity_t *ent, char *s ) {
 				/*
 				if (g_forceBasedTeams.integer && ent->client->ps.fd.forceSide == FORCE_DARKSIDE)
 				{
-					//[ClientNumFix]
-					trap_SendServerCommand( ent-g_entities, 
-					//trap_SendServerCommand( ent->client->ps.clientNum, 
-					//[/ClientNumFix]
+					trap_SendServerCommand( ent->client->ps.clientNum, 
 						va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "TOOMANYRED_SWITCH")) );
 				}
 				else
 				*/
 				{
-					//[ClientNumFix]
-					trap_SendServerCommand( ent-g_entities, 
-					//trap_SendServerCommand( ent->client->ps.clientNum, 
-					//[/ClientNumFix]
+					trap_SendServerCommand( ent->client->ps.clientNum, 
 						va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "TOOMANYRED")) );
 				}
 				return; // ignore the request
@@ -1007,19 +974,13 @@ void SetTeam( gentity_t *ent, char *s ) {
 				/*
 				if (g_forceBasedTeams.integer && ent->client->ps.fd.forceSide == FORCE_LIGHTSIDE)
 				{
-					//[ClientNumFix]
-					trap_SendServerCommand( ent-g_entities, 
-					//trap_SendServerCommand( ent->client->ps.clientNum, 
-					//[/ClientNumFix]
+					trap_SendServerCommand( ent->client->ps.clientNum, 
 						va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "TOOMANYBLUE_SWITCH")) );
 				}
 				else
 				*/
 				{
-					//[ClientNumFix]
-					trap_SendServerCommand( ent-g_entities, 
-					//trap_SendServerCommand( ent->client->ps.clientNum, 
-					//[/ClientNumFix]
+					trap_SendServerCommand( ent->client->ps.clientNum, 
 						va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "TOOMANYBLUE")) );
 				}
 				return; // ignore the request
