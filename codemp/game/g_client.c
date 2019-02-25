@@ -2483,15 +2483,22 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	if ( !( ent->r.svFlags & SVF_BOT ) && !isBot && g_needpass.integer ) {
 		// check for a password
 		value = Info_ValueForKey (userinfo, "password");
-		//[PrivatePasswordFix]
-		if ( g_password.string[0] && Q_stricmp( g_password.string, "none" ) && strcmp( g_password.string, value) != 0) {
+		if ( g_password.string[0] && Q_stricmp( g_password.string, "none" ) &&
+			strcmp( g_password.string, value) != 0) {
+			//[PrivatePasswordFix]
+			//Let people in if they have the privatepassword too
+			//So 2 levels of access:
+			//* You can have the g_password, allowing you to play at all.
+			//* Or you can have the sv_privatepassword, granting you play
+			//  - AND access to the privateclients slots
+			//Without this, you can't use both g_password and sv_privatepassword at the same time.
 			if( !sv_privatepassword.string[0] || strcmp( sv_privatepassword.string, value ) ) {
 				static char sTemp[1024];
 				Q_strncpyz(sTemp, G_GetStringEdString("MP_SVGAME","INVALID_ESCAPE_TO_MAIN"), sizeof (sTemp) );
 				return sTemp;// return "Invalid password";
 			}
+			//[PrivatePasswordFix]
 		}
-		//[PrivatePasswordFix]
 	}
 
 	// they can connect
