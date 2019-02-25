@@ -1206,9 +1206,6 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	int					i;
 	vmCvar_t	mapname;
 	vmCvar_t	ckSum;
-	//[RawMapName]
-	char		cs[MAX_INFO_STRING];
-	//[/RawMapName]
 
 	//Init RMG to 0, it will be autoset to 1 if there is terrain on the level.
 	trap_Cvar_Set("RMG", "0");
@@ -1251,11 +1248,6 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	level.snd_medSupplied = G_SoundIndex("sound/player/supp_supplied.wav");
 
 	//trap_SP_RegisterServer("mp_svgame");
-
-	//[RawMapName]
-	trap_GetServerinfo( cs, sizeof( cs ) );
-	Q_strncpyz( level.rawmapname, Info_ValueForKey( cs, "mapname" ), sizeof(level.rawmapname) );
-	//[/RawMapName]
 
 	if ( g_log.string[0] ) {
 		if ( g_logSync.integer ) {
@@ -1342,10 +1334,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	trap_Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
 	trap_Cvar_Register( &ckSum, "sv_mapChecksum", "", CVAR_ROM );
 
-	//[RawMapName]
-	navCalculatePaths	= ( trap_Nav_Load( level.rawmapname, ckSum.integer ) == qfalse );
-	//navCalculatePaths	= ( trap_Nav_Load( mapname.string, ckSum.integer ) == qfalse );
-	//[/RawMapName]
+	navCalculatePaths	= ( trap_Nav_Load( mapname.string, ckSum.integer ) == qfalse );
 
 	// parse the key/value pairs and spawn gentities
 	G_SpawnEntitiesFromString(qfalse);
@@ -4126,10 +4115,7 @@ void NAV_CheckCalcPaths( void )
 		trap_Nav_ClearAllFailedEdges();
 
 		//Calculate all paths
-		//[RawMapName]
-		NAV_CalculatePaths( level.rawmapname, ckSum.integer );
-		//NAV_CalculatePaths( mapname.string, ckSum.integer );
-		//[/RawMapName]
+		NAV_CalculatePaths( mapname.string, ckSum.integer );
 		
 		trap_Nav_CalculatePaths(qfalse);
 
@@ -4140,15 +4126,9 @@ void NAV_CheckCalcPaths( void )
 		}
 		else 
 #endif
-		//[RawMapName]
-		if ( trap_Nav_Save( level.rawmapname, ckSum.integer ) == qfalse )
-		//if ( trap_Nav_Save( mapname.string, ckSum.integer ) == qfalse )
-		//[/RawMapName]
+		if ( trap_Nav_Save( mapname.string, ckSum.integer ) == qfalse )
 		{
-			//[RawMapName]
-			Com_Printf("Unable to save navigations data for map \"%s\" (checksum:%d)\n", level.rawmapname, ckSum.integer );
-			//Com_Printf("Unable to save navigations data for map \"%s\" (checksum:%d)\n", mapname.string, ckSum.integer );
-			//[/RawMapName]
+			Com_Printf("Unable to save navigations data for map \"%s\" (checksum:%d)\n", mapname.string, ckSum.integer );
 		}
 		navCalcPathTime = 0;
 	}

@@ -178,7 +178,7 @@
 			G_LogPrintf("Version: %s Linux\n", GAMEVERSION);
 			G_LogPrintf("Build Date: %s", __DATE__);
 			G_LogPrintf("Build Time: %s", __TIME__);
-			G_LogPrintf("Map: %s\n", level.rawmapname);
+			//G_LogPrintf("Map: %s\n", level.rawmapname);
 			linux_siginfo(signal, siginfo);
 			linux_dsoinfo();
 			linux_backtrace(ctx);
@@ -359,7 +359,7 @@
 		G_LogPrintf("Version: %s Win32\n", GAMEVERSION);
 		G_LogPrintf("Build Date: %s", __DATE__);
 		G_LogPrintf("Build Time: %s", __TIME__);
-		G_LogPrintf("Map: %s\n",level.rawmapname);
+		//G_LogPrintf("Map: %s\n",level.rawmapname);
 		win32_exceptioninfo(e);
 		win32_dllinfo();
 		win32_backtrace(e);

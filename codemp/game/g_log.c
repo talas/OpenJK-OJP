@@ -241,11 +241,8 @@ void G_LogWeaponOutput(void)
 	int totalkills[WP_NUM_WEAPONS];
 	int totalshots[WP_NUM_WEAPONS];
 	int percharacter[WP_NUM_WEAPONS];
-	//[RawMapName]
-	//char info[1024];
-	
-	//char mapname[128];
-	//[/RawMapName]
+	char info[1024];
+	char mapname[128];
 	char *nameptr, *unknownname="<Unknown>";
 
 	if (!g_statLog.integer)
@@ -335,16 +332,12 @@ void G_LogWeaponOutput(void)
 	}
 
 	// Write out the level name
-	//[RawMapName]
-	/*trap_GetServerinfo(info, sizeof(info));
+	trap_GetServerinfo(info, sizeof(info));
 	strncpy(mapname, Info_ValueForKey( info, "mapname" ), sizeof(mapname)-1);
 	mapname[sizeof(mapname)-1] = '\0';
 
 	Com_sprintf(string, sizeof(string), "\n\n\nLevel:\t%s\n\n\n", mapname);
-	trap_FS_Write( string, strlen( string ), weaponfile);*/
-	Com_sprintf(string, sizeof(string), "\n\n\nLevel:\t%s\n\n\n", level.rawmapname);
 	trap_FS_Write( string, strlen( string ), weaponfile);
-	//[RawMapName]
 
 
 	// Combat data per character

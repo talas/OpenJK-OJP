@@ -1138,10 +1138,6 @@ typedef struct {
 	char		*mTargetAdjust;
 
 	char		mTeamFilter[MAX_QPATH];
-		
-	//[RawMapName]
-	char		rawmapname[MAX_QPATH];
-	//[/RawMapName]
 
 } level_locals_t;
 

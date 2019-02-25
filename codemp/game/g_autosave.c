@@ -133,19 +133,14 @@ void Load_Autosaves(void)
 	char			loadPath[MAX_QPATH];
 	vec3_t			positionData;
 	int				sizeData;
-	//[RawMapName]
-	//vmCvar_t		mapname;
-	//[/RawMapName]
+	vmCvar_t		mapname;
 	qboolean		teleportPlayers = qfalse;
 
 	G_Printf("^5Loading Autosave File Data...");
 
-	//[RawMapName]
-	//trap_Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
+	trap_Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
 
-	//Com_sprintf(loadPath, MAX_QPATH, "maps/%s.autosp", mapname.string);
-	Com_sprintf(loadPath, sizeof(loadPath), "maps/%s.autosp", level.rawmapname);
-	//[/RawMapName]
+	Com_sprintf(loadPath, sizeof(loadPath), "maps/%s.autosp", mapname.string);
 
 	len = trap_FS_FOpenFile( loadPath, &f, FS_READ );
 	if ( !f )
@@ -195,21 +190,16 @@ void Save_Autosaves(void)
 	char			fileBuf[MAX_AUTOSAVE_FILESIZE];
 	char			loadPath[MAX_QPATH];
 	int				len;
-	//[RawMapName]
-	//vmCvar_t		mapname;
-	//[/RawMapName]
+	vmCvar_t		mapname;
 	gentity_t*		autosavePoint;
 
 	fileBuf[0] = '\0';
 
 	G_Printf("^5Saving Autosave File Data...");
 
-	//[RawMapName]
-	//trap_Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
+	trap_Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
 
-	//Com_sprintf(loadPath, MAX_QPATH, "maps/%s.autosp", mapname.string);
-	Com_sprintf(loadPath, sizeof(loadPath), "maps/%s.autosp", level.rawmapname);
-	//[/RawMapName]
+	Com_sprintf(loadPath, sizeof(loadPath), "maps/%s.autosp", mapname.string);
 
 	len = trap_FS_FOpenFile( loadPath, &f, FS_WRITE );
 	if ( !f )
