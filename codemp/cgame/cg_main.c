@@ -1287,6 +1287,16 @@ static void CG_ForceModelChange( void ) {
 	}
 }
 
+static void CG_FovChange( void ) {
+	if(!cg.predictedPlayerState.zoomMode)
+	{
+		if(cg_fov.integer > 95)
+			trap_Cvar_Set( "cg_fov", "95" );
+		else if(cg_fov.integer < 65)
+			trap_Cvar_Set( "cg_fov", "65" );
+	}
+}
+
 /*
 =================
 CG_UpdateCvars
@@ -1296,20 +1306,12 @@ void CG_UpdateCvars( void ) {
 	int			i;
 	cvarTable_t	*cv;
 	static int drawTeamOverlayModificationCount = -1;
+
 	for ( i = 0, cv = cvarTable ; i < cvarTableSize ; i++, cv++ ) {
 		trap_Cvar_Update( cv->vmCvar );
 	}
 
 	// check for modications here
-
-	if(!cg.predictedPlayerState.zoomMode)
-	{
-		if(cg_fov.integer > 95)
-			trap_Cvar_Set( "cg_fov", "95" );
-		else if(cg_fov.integer < 65)
-			trap_Cvar_Set( "cg_fov", "65" );
-	}
-
 
 	// If team overlay is on, ask for updates from the server.  If its off,
 	// let the server know so we don't receive it
