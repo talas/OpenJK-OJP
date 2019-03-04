@@ -299,225 +299,6 @@ void SP_misc_model_static(gentity_t *ent)
 {
 	G_FreeEntity( ent );
 }
-//[/CoOp]
-
-
-//[CoOp]
-/* replaced all this fun stuff with real SP code
-extern void G_MiscModelExplosion( vec3_t mins, vec3_t maxs, int size, material_t chunkType );
-extern void G_Chunks( int owner, vec3_t origin, const vec3_t normal, const vec3_t mins, const vec3_t maxs, 
-						float speed, int numChunks, material_t chunkType, int customChunk, float baseScale );
-
-//kill a model_breakable
-void model_breakable_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod)
-{
-	vec3_t		org, dir, up;
-	int			i, numChunks, size = 0;
-	material_t	chunkType = self->material;
-	float		scale;
-
-	self->takedamage = qfalse;//stop chain reaction runaway loops
-
-	self->enemy = attacker;
-
-	// if a missile is stuck to us, blow it up so we don't look dumb
-	for ( i = 0; i < MAX_GENTITIES; i++ )
-	{
-		if ( g_entities[i].s.groundEntityNum == self->s.number && ( g_entities[i].s.eFlags & EF_MISSILE_STICK ))
-		{
-			G_Damage( &g_entities[i], self, self, NULL, NULL, 99999, 0, MOD_CRUSH ); //?? MOD?
-		}
-	}
-
-	//So chunks don't get stuck inside me
-	self->s.solid = 0;
-	self->r.contents = 0;
-	self->clipmask = 0;
-	trap_LinkEntity(self); 
-
-	VectorSet(up, 0, 0, 1);
-
-	if ( self->target && attacker != NULL )
-	{
-		G_UseTargets(self, attacker);
-	}
-
-	VectorSubtract( self->r.absmax, self->r.absmin, org );// size
-
-	numChunks = random() * 6 + 18;
-
-	// This formula really has no logical basis other than the fact that it seemed to be the closest to yielding the results that I wanted.
-	// Volume is length * width * height...then break that volume down based on how many chunks we have
-	scale = sqrt( sqrt( org[0] * org[1] * org[2] )) * 1.75f;
-
-	if ( scale > 48 )
-	{
-		size = 2;
-	}
-	else if ( scale > 24 )
-	{
-		size = 1;
-	}
-
-	scale = scale / numChunks;
-
-	VectorMA( self->r.absmin, 0.5, org, org );
-	VectorAdd( self->r.absmin,self->r.absmax, org );
-	VectorScale( org, 0.5f, org );
-
-	if ( attacker != NULL && attacker->client )
-	{
-		VectorSubtract( org, attacker->r.currentOrigin, dir );
-		VectorNormalize( dir );
-	}
-	else
-	{
-		VectorCopy(up, dir);
-	} 
-
-	if ( !(self->spawnflags & 2048) ) // NO_EXPLOSION
-	{
-		// we are allowed to explode
-		G_MiscModelExplosion( self->r.absmin, self->r.absmax, size, chunkType );
-	}
-
-	if ( self->splashDamage > 0 && self->splashRadius > 0 )
-	{
-		gentity_t *te;
-		//explode
-		G_RadiusDamage( org, self, self->splashDamage, self->splashRadius, self, NULL, MOD_UNKNOWN );
-
-		te = G_TempEntity( org, EV_GENERAL_SOUND );
-		te->s.eventParm = G_SoundIndex("sound/weapons/explosions/cargoexplode.wav");
-	}
-
-	G_Chunks( self->s.number, org, dir, self->r.absmin, self->r.absmax, 300, numChunks, chunkType, 0, (scale*self->mass) );
-
-	self->think = G_FreeEntity;
-	self->nextthink = level.time + 50;
-}
-
-
-//using a model_breakable kills it.
-void model_breakable_use (gentity_t *self, gentity_t *other, gentity_t *activator)
-{
-	G_ActivateBehavior( self, BSET_USE );
-	model_breakable_die(self, other, activator, self->health, MOD_UNKNOWN);
-}
-
-
-//creates a plain old model in the world
-void InitModel(gentity_t *ent)
-{
-	ent->s.modelindex = G_ModelIndex( ent->model );
-	
-	G_SetOrigin( ent, ent->s.origin );
-	VectorCopy( ent->s.angles, ent->s.apos.trBase );
-
-	trap_LinkEntity (ent);
-}
-
-
-//creats a model_breakable without setting solidness.
-void InitModelBreakable(gentity_t *ent)
-{
-	G_SoundIndex("sound/weapons/explosions/cargoexplode.wav");//precaching
-
-	if(ent->health)
-	{
-		ent->takedamage = qtrue;
-	}
-
-	ent->use = model_breakable_use;
-	ent->die = model_breakable_die;
-
-	InitModel(ent);	
-}
-
-
-//creates a model_breakable that's solid
-void InitModelBreakable_Solid(gentity_t *ent)
-{
-	ent->r.contents = CONTENTS_SOLID;
-	ent->s.solid = 2; //SOLID_BBOX
-	ent->clipmask = MASK_PLAYERSOLID;
-	InitModelBreakable(ent);
-}
-*/
-
-
-//moved breakable code to g_breakable.  Converted to SP version of code
-/*QUAKED misc_model_breakable (1 0 0) (-16 -16 -16) (16 16 16) SOLID AUTOANIMATE DEADSOLID 
-
-NO_EXPLOSION (2048) - don't explode when killed
-
-"model"		arbitrary .md3 file to display
-"health"	how much health to have - default is zero (not breakable)  If you don't set the SOLID flag, but give it health, it can be shot but will not block NPCs or players from moving
-"target" What to use when it dies
-"paintarget" target to fire when hit (but not destroyed)
-
-"material" - default is "0 - MAT_METAL" - choose from this list:
-0 = MAT_METAL		(basic blue-grey scorched-DEFAULT)
-1 = MAT_GLASS		
-2 = MAT_ELECTRICAL	(sparks only)
-3 = MAT_ELEC_METAL	(METAL2 chunks and sparks)
-4 =	MAT_DRK_STONE	(brown stone chunks)
-5 =	MAT_LT_STONE	(tan stone chunks)
-6 =	MAT_GLASS_METAL (glass and METAL2 chunks)
-7 = MAT_METAL2		(electronic type of metal)
-8 = MAT_NONE		(no chunks)
-9 = MAT_GREY_STONE	(grey colored stone)
-10 = MAT_METAL3		(METAL and METAL2 chunk combo)
-11 = MAT_CRATE1		(yellow multi-colored crate chunks)
-12 = MAT_GRATE1		(grate chunks--looks horrible right now)
-13 = MAT_ROPE		(for yavin_trial, no chunks, just wispy bits )
-14 = MAT_CRATE2		(red multi-colored crate chunks)
-15 = MAT_WHITE_METAL (white angular chunks for Stu, NS_hideout )
-16 = MAT_SNOWY_ROCK	 (mix of gray and brown rocks)
-*/
-/*
-void SP_misc_model_breakable(gentity_t *ent)
-{
-	//ent->s.modelindex = G_ModelIndex( ent->model );
-	
-	if(ent->spawnflags & 1)
-	{//make solid
-		ent->r.contents = CONTENTS_SOLID;
-		ent->s.solid = 2; //SOLID_BBOX
-		ent->clipmask = MASK_PLAYERSOLID;
-
-		G_SpawnVector("mins", "-16 -16 -16", ent->r.mins);
-		G_SpawnVector("maxs", "16 16 16", ent->r.maxs);
-	}
-
-	G_SpawnVector("modelscale_vec", "1 1 1", ent->modelScale);
-
-	if(!ent->material)
-	{//don't seem to have a given material, trying looking for one
-		G_SpawnInt( "material", "0", (int*)&ent->material );
-	}
-
-	G_SpawnInt( "splashDamage", "0", &ent->splashDamage );
-	G_SpawnInt( "splashRadius", "0", &ent->splashRadius );
-
-	//G_SoundIndex("sound/weapons/explosions/cargoexplode.wav");//precaching
-
-	//G_SetOrigin( ent, ent->s.origin );
-	//VectorCopy( ent->s.angles, ent->s.apos.trBase );
-
-	//ent->use = model_breakable_use;
-	//ent->die = model_breakable_die;
-
-	//if(ent->health)
-	//{
-	//	ent->takedamage = qtrue;
-	//}
-
-	//trap_LinkEntity (ent);
-	InitModelBreakable(ent);
-
-}
-*/
 
 extern void misc_model_breakable_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath );
 void misc_use( gentity_t *self, gentity_t *other, gentity_t *activator )
@@ -567,25 +348,6 @@ void SP_misc_exploding_crate( gentity_t *ent )
 	ent->material = MAT_CRATE1;
 	ent->die = misc_model_breakable_die;//ExplodeDeath;
 }
-
-/* replaced with SP version of same code
-void SP_misc_exploding_crate(gentity_t *ent)
-{
-	ent->model = "models/map_objects/nar_shaddar/crate_xplode.md3";
-
-	VectorSet(ent->r.mins, -24, -24, 0);
-	VectorSet(ent->r.maxs, 24, 24, 64);
-
-	ent->material = 11;
-
-	G_SpawnInt( "health", "40", &ent->health );
-
-	G_SpawnInt( "splashDamage", "128", &ent->splashDamage );
-	G_SpawnInt( "splashRadius", "50", &ent->splashRadius );
-	InitModelBreakable_Solid(ent);
-}
-*/
-
 
 //blast out small jet of frame when hurt.  This flame will hurt new by entities
 void GasBurst(gentity_t *self, gentity_t *attacker, int damage)
@@ -669,25 +431,6 @@ void SP_misc_gas_tank( gentity_t *ent )
 	ent->think = gas_random_jet;
 	ent->nextthink = level.time + random() * 12000 + 6000; // do this rarely
 }
-
-/* replaced with SP version of same code
-void SP_misc_gas_tank(gentity_t *ent)
-{
-	ent->model = "models/map_objects/imp_mine/tank.md3";
-	
-	VectorSet(ent->r.mins, -4, -4, 0);
-	VectorSet(ent->r.maxs, 4, 4, 40);
-
-	ent->material = 11;
-
-	G_SpawnInt( "health", "20", &ent->health );
-
-	G_SpawnInt( "splashDamage", "48", &ent->splashDamage );
-	G_SpawnInt( "splashRadius", "32", &ent->splashRadius );
-
-	InitModelBreakable_Solid(ent);
-}
-*/
 //[/CoOp]
 
 
@@ -812,7 +555,6 @@ void SP_misc_bsp(gentity_t *ent)
 		ent->s.angles[1] = newAngle;
 	}
 	// don't support rotation any other way
-
 	ent->s.angles[0] = 0.0;
 	ent->s.angles[2] = 0.0;
 	
@@ -1845,7 +1587,6 @@ void ammo_generic_power_converter_use( gentity_t *self, gentity_t *other, gentit
 	{
 		qboolean gaveSome = qfalse;
 		int i = AMMO_BLASTER;
-
 		if (!self->s.loopSound)
 		{
 			self->s.loopSound = G_SoundIndex("sound/interface/ammocon_run.wav");
@@ -4681,60 +4422,6 @@ void SP_misc_model_ammo_rack( gentity_t *ent )
 
 	trap_LinkEntity( ent );
 }
-
-#define DROP_MEDPACK	1
-#define DROP_SHIELDS	2
-#define DROP_BACTA		4
-#define DROP_BATTERIES	8
-
-/*QUAKED misc_model_gun_rack (1 0 0.25) (-14 -14 -4) (14 14 30) BLASTER REPEATER ROCKET
-model="models/map_objects/kejim/weaponsrack.md3"
-
-NOTE: can mix and match these spawnflags to get multi-weapon racks.  If only one type is checked the rack will be full of those weapons
-BLASTER - Puts one or more blaster guns on the rack.
-REPEATER - Puts one or more repeater guns on the rack.
-ROCKET - Puts one or more rocket launchers on the rack.
-*/
-/* RACC - my attempt at the rack entity code.  not used since I got my hands on the real stuff
-void SP_misc_model_gun_rack(gentity_t *ent)
-{
-	//RAFIXME - for now we're just going to create the model
-	ent->model="models/map_objects/kejim/weaponsrack.md3";
-
-	VectorSet (ent->r.mins, -14, -14, -4);
-	VectorSet (ent->r.maxs, 14, 14, 30);
-
-	InitModel(ent);
-}
-*/
-
-
-/*QUAKED misc_model_ammo_rack (1 0 0.25) (-14 -14 -4) (14 14 30) BLASTER METAL_BOLTS ROCKETS WEAPON HEALTH PWR_CELL NO_FILL
-model="models/map_objects/kejim/weaponsrung.md3"
-
-NOTE: can mix and match these spawnflags to get multi-ammo racks.  If only one type is checked the rack will be full of that ammo.  Only three ammo packs max can be displayed.
-
-
-BLASTER - Adds one or more ammo packs that are compatible with Blasters and the Bryar pistol.
-METAL_BOLTS - Adds one or more metal bolt ammo packs that are compatible with the heavy repeater and the flechette gun
-ROCKETS - Puts one or more rocket packs on a rack.
-WEAPON - adds a weapon matching a selected ammo type to the rack.
-HEALTH - adds a health pack to the top shelf of the ammo rack
-PWR_CELL - Adds one or more power cell packs that are compatible with the Disuptor, bowcaster, and demp2
-NO_FILL - Only puts selected ammo on the rack, it never fills up all three slots if only one or two items were checked
-*/
-/* RACC - my attempt at the rack entity code.  not used since I got my hands on the real stuff
-void misc_model_ammo_rack(gentity_t *ent)
-{
-	//RAFIXME - for now we're just going to create the model
-	ent->model="models/map_objects/kejim/weaponsrack.md3";
-
-	VectorSet (ent->r.mins, -14, -14, -4);
-	VectorSet (ent->r.maxs, 14, 14, 30);
-
-	InitModel(ent);
-}
-*/
 
 
 /*QUAKED misc_camera (0 0 1) (-8 -8 -12) (8 8 16) VULNERABLE
