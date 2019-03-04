@@ -1737,24 +1737,6 @@ void WPTouchRoutine(bot_state_t *bs)
 //just copying straight over.
 void MoveTowardIdealAngles(bot_state_t *bs)
 {
-	//[PlayerClasses][EnhanceImpliment]
-	/*
-	if (mod_classes.integer == 2 
-		&& classnumber[bs->entitynum] != GCLASS_FORCEMASTER
-		&& classnumber[bs->entitynum] != GCLASS_JEDI 
-		&& !bs->currentEnemy 
-		&& bs->wpCurrent )
-	{// Non-Jedi should never combat move unless attacking in scenario...
-		vec3_t a, ang;
-
-		VectorSubtract(gWPArray[bs->wpCurrent->index]->origin, g_entities[bs->entitynum].r.currentOrigin, a);
-		vectoangles(a, ang);
-
-		VectorCopy(ang, bs->goalAngles);
-	}
-	*/
-	//[/PlayerClasses]
-
 	VectorCopy(bs->goalAngles, bs->ideal_viewangles);
 }
 
@@ -5070,11 +5052,6 @@ void BotAimOffsetGoalAngles(bot_state_t *bs)
 			accVal += accVal*0.15; //make it somewhat harder to aim if we're moving also
 		}
 	}
-
-	//[PlayerClasses][EnhanceImpliment]
-	//if (mod_classes.integer == 2)
-	//	accVal *= 0.15; // Much more accurate(smart) in GCLASS games...
-	//[/PlayerClasses]
 
 	if (accVal > 90)
 	{

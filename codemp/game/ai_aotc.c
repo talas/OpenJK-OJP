@@ -3840,16 +3840,6 @@ void AOTC_StandardBotAI(bot_state_t *bs, float thinktime)
 	{
 		bs->enemySeenTime = level.time + ENEMY_FORGET_MS;
 	}
-	
-	//[PlayerClasses][EnhancedImpliment]
-	/*
-	if (mod_classes.integer <= 0 && next_taunt[bs->entitynum] < level.time && bs->currentEnemy && bs->entitynum < MAX_CLIENTS)
-	{// AIMod - BOT Taunting.
-		G_BotVoiceEvent( &g_entities[bs->entitynum] );
-		next_taunt[bs->entitynum] = level.time + 10000 + Q_irand(0, 95000); // Every 10->45 secs per bot.
-	}
-	*/
-	//[/PlayerClasses][EnhancedImpliment]
 
 	if (isCapturing)
 	{// Dont move while capturing a flag...
@@ -4022,17 +4012,6 @@ void AOTC_StandardBotAI(bot_state_t *bs, float thinktime)
 		{
 
 		}
-		//[PlayerClasses][EnhancedImpliment]
-		/*
-		else if ( mod_classes.integer == 2 
-		&& bs->settings.team == TEAM_RED
-		&& g_entities[bs->cur_ps.clientNum].client->ps.stats[STAT_CLASSNUMBER] != GCLASS_JEDI
-		&& g_entities[bs->cur_ps.clientNum].client->ps.stats[STAT_CLASSNUMBER] != GCLASS_FORCEMASTER )
-		{// No jumping for other red team players...
-
-		}
-		*/
-		//[/PlayerClasses][EnhancedImpliment]
 		else
 		{
 			vec3_t p1, p2, dir;
@@ -4161,17 +4140,6 @@ void AOTC_StandardBotAI(bot_state_t *bs, float thinktime)
 					//int wp = GetSharedVisibleWP(&g_entities[bs->cur_ps.clientNum], bs->currentEnemy);
 					//bs->wpCurrent = gWPArray[wp];
 				}
-				//[PlayerClasses][EnhancedImpliment]
-				/*
-				else if ( mod_classes.integer == 2 
-					&& bs->settings.team == TEAM_RED
-					&& g_entities[bs->cur_ps.clientNum].client->ps.stats[STAT_CLASSNUMBER] != GCLASS_JEDI
-					&& g_entities[bs->cur_ps.clientNum].client->ps.stats[STAT_CLASSNUMBER] != GCLASS_FORCEMASTER )
-				{// No jumping for other red team players...
-
-				}
-				*/
-				//[/PlayerClasses][EnhancedImpliment]
 				else if (bs->jumpTime > level.time) // In a jump.
 				{// We could be in jump.. Head to safepos if we have one.
 					if (safePos[bs->cur_ps.clientNum])
@@ -4477,19 +4445,7 @@ void AOTC_StandardBotAI(bot_state_t *bs, float thinktime)
 		VectorCopy(bs->origin, bs->goalPosition);
 	}
 
-	//[PlayerClasses][EnhancedImpliment]
-	/*
-	if ( mod_classes.integer == 2 
-		&& bs->settings.team == TEAM_RED
-		&& g_entities[bs->cur_ps.clientNum].client->ps.stats[STAT_CLASSNUMBER] != GCLASS_JEDI
-		&& g_entities[bs->cur_ps.clientNum].client->ps.stats[STAT_CLASSNUMBER] != GCLASS_FORCEMASTER )
-	{// No jumping for other red team players...
-
-	}
-	else if (bs->forceJumping > level.time)
-	*/
 	if (bs->forceJumping > level.time)
-	//[/PlayerClasses][EnhancedImpliment]
 	{
 		VectorCopy(bs->origin, noz_x);
 		VectorCopy(bs->goalPosition, noz_y);
@@ -4727,107 +4683,6 @@ void AOTC_StandardBotAI(bot_state_t *bs, float thinktime)
 	}
 	else if (bs->jumpTime > level.time && bs->jDelay < level.time)
 	{
-		//[PlayerClasses][EnhancedImpliment]
-		/*
-		gclient_t *client = g_entities[bs->cur_ps.clientNum].client;
-
-		if ( g_gametype.integer == GT_COOP && classnumber[client->ps.clientNum] == CLASS_SOLDIER )
-		{// Jumping for coop soldiers...
-			if (client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_JETPACK))
-			{
-				client->ps.eFlags |= EF_JETPACK;
-			}
-			else
-			{
-				client->ps.eFlags &= ~EF_JETPACK;
-			}
-
-			client->jetPackOn = qtrue;
-
-			client->ps.pm_type = PM_JETPACK;
-			client->ps.eFlags |= EF_JETPACK_ACTIVE;
-
-			if (bs->jumpHoldTime > level.time)
-			{
-				if (bs->client > MAX_CLIENTS)
-					g_entities[bs->client].client->ps.velocity[2] = 128;
-				else
-					trap_EA_Jump(bs->client);
-
-				if (bs->wpCurrent)
-				{
-					if ((bs->wpCurrent->origin[2] - bs->origin[2]) < 64)
-					{
-						trap_EA_MoveForward(bs->client);
-					}
-				}
-				else
-				{
-					trap_EA_MoveForward(bs->client);
-				}
-				if (g_entities[bs->client].client->ps.groundEntityNum == ENTITYNUM_NONE)
-				{
-					g_entities[bs->client].client->ps.pm_flags |= PMF_JUMP_HELD;
-				}
-			}
-			else if (!(bs->cur_ps.pm_flags & PMF_JUMP_HELD))
-			{
-				if (bs->client > MAX_CLIENTS)
-					g_entities[bs->client].client->ps.velocity[2] = 128;
-				else
-					trap_EA_Jump(bs->client);
-			}
-		}
-		else if ( mod_classes.integer == 2 && bs->settings.team == TEAM_BLUE && g_entities[bs->cur_ps.clientNum].client->ps.stats[STAT_CLASSNUMBER] == GCLASS_SOLDIER )
-		{
-			if (client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_JETPACK))
-			{
-				client->ps.eFlags |= EF_JETPACK;
-			}
-			else
-			{
-				client->ps.eFlags &= ~EF_JETPACK;
-			}
-
-			client->jetPackOn = qtrue;
-
-			client->ps.pm_type = PM_JETPACK;
-			client->ps.eFlags |= EF_JETPACK_ACTIVE;
-
-			if (bs->jumpHoldTime > level.time)
-			{
-				if (bs->client > MAX_CLIENTS)
-					g_entities[bs->client].client->ps.velocity[2] = 128;
-				else
-					trap_EA_Jump(bs->client);
-
-				if (bs->wpCurrent)
-				{
-					if ((bs->wpCurrent->origin[2] - bs->origin[2]) < 64)
-					{
-						trap_EA_MoveForward(bs->client);
-					}
-				}
-				else
-				{
-					trap_EA_MoveForward(bs->client);
-				}
-				if (g_entities[bs->client].client->ps.groundEntityNum == ENTITYNUM_NONE)
-				{
-					g_entities[bs->client].client->ps.pm_flags |= PMF_JUMP_HELD;
-				}
-			}
-			else if (!(bs->cur_ps.pm_flags & PMF_JUMP_HELD))
-			{
-				if (bs->client > MAX_CLIENTS)
-					g_entities[bs->client].client->ps.velocity[2] = 128;
-				else
-					trap_EA_Jump(bs->client);
-			}
-		}
-		else
-		*/
-		//[/PlayerClasses][EnhancedImpliment]
 		{
 			if (bs->jumpHoldTime > level.time)
 			{

@@ -228,17 +228,6 @@ void HYBRID_StandardBotAI(bot_state_t *bs, float thinktime)
 		{
 
 		}
-		//[PlayerClasses][EnhancedImpliment]
-		/*
-		else if ( mod_classes.integer == 2 
-		&& bs->settings.team == TEAM_RED
-		&& g_entities[bs->cur_ps.clientNum].client->ps.stats[STAT_CLASSNUMBER] != GCLASS_JEDI
-		&& g_entities[bs->cur_ps.clientNum].client->ps.stats[STAT_CLASSNUMBER] != GCLASS_FORCEMASTER )
-		{// No jumping for other red team players...
-
-		}
-		*/
-		//[/PlayerClasses][EnhancedImpliment]
 		else
 		{
 			vec3_t p1, p2, dir;
@@ -365,17 +354,6 @@ void HYBRID_StandardBotAI(bot_state_t *bs, float thinktime)
 					//int wp = GetSharedVisibleWP(&g_entities[bs->cur_ps.clientNum], bs->currentEnemy);
 					//bs->wpCurrent = gWPArray[wp];
 				}
-				//[PlayerClasses][EnhancedImpliment]
-				/*
-				else if ( mod_classes.integer == 2 
-					&& bs->settings.team == TEAM_RED
-					&& g_entities[bs->cur_ps.clientNum].client->ps.stats[STAT_CLASSNUMBER] != GCLASS_JEDI
-					&& g_entities[bs->cur_ps.clientNum].client->ps.stats[STAT_CLASSNUMBER] != GCLASS_FORCEMASTER )
-				{// No jumping for other red team players...
-
-				}
-				*/
-				//[/PlayerClasses][EnhancedImpliment]
 				else if (bs->jumpTime > level.time) // In a jump.
 				{// We could be in jump.. Head to safepos if we have one.
 					if (safePos[bs->cur_ps.clientNum])
