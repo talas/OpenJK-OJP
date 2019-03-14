@@ -420,7 +420,7 @@ int PM_ReturnforQuad( int quad );
 //[/SaberSys]
 
 int PM_SaberAnimTransitionAnim( int curmove, int newmove )
-{//racc - find the transition move from the current move to the new move.
+{
 	int retmove = newmove;
 	if ( curmove == LS_READY )
 	{//just standing there
@@ -912,8 +912,7 @@ void PM_SetAnimFrame( playerState_t *gent, int frame, qboolean torso, qboolean l
 }
 
 int PM_SaberLockWinAnim( qboolean victory, qboolean superBreak )
-{//racc - determines which saberlock animation to use a player won/lost a saberlock.  
-	//This function only applies to single on single saberlocks.
+{
 	int winAnim = -1;
 	switch ( pm->ps->torsoAnim )
 	{
@@ -1280,7 +1279,7 @@ extern void G_Knockdown( gentity_t *self, gentity_t *attacker, const vec3_t push
 #endif
 //[/KnockdownSys]
 void PM_SaberLockBreak( playerState_t *genemy, qboolean victory, int strength )
-{//racc - breaks a saber lock.  PM is the current player, who is always the winner of the duel if victory is true.
+{
 	int	winAnim = BOTH_STAND1, loseAnim = BOTH_STAND1;
 	//qboolean punishLoser = qfalse;
 	//[SaberLockSys]
@@ -1450,7 +1449,7 @@ void PM_SaberLockBreak( playerState_t *genemy, qboolean victory, int strength )
 }
 
 qboolean BG_CheckIncrementLockAnim( int anim, int winOrLose )
-{//racc - This function indications that a saberlock animation needs to increment before going to the win or lose position.
+{
 	qboolean increment = qfalse;//???
 	//RULE: if you are the first style in the lock anim, you advance from LOSING position to WINNING position
 	//		if you are the second style in the lock anim, you advance from WINNING position to LOSING position
@@ -1670,7 +1669,7 @@ void PM_SaberLocked( void )
 					(genemy->torsoAnim) == BOTH_BF1LOCK )
 				{
 					if ( !PM_irand_timesync( 0, 2 ) )
-					{//racc - throw in some grunts of pain!
+					{
 						BG_AddPredictableEventToPlayerstate(EV_PAIN, floor((float)80/100*100.0f), genemy);
 					}
 					PM_SetAnimFrame( genemy, anim->firstFrame+remaining, qtrue, qtrue );
@@ -2420,12 +2419,10 @@ static qboolean PM_CheckEnemyPresence( int dir, float radius )
 //for now, I've dramatically reduced the cost of the saber special moves to
 //keep them from screwing up the fatigue system balance.
 
-//racc - force cost of doing cartwheels.
 #define SABER_ALT_ATTACK_POWER_LR	FATIGUE_CARTWHEEL
 #define SABER_ALT_ATTACK_POWER_LRA	FATIGUE_CARTWHEEL_ATARU
 //#define SABER_ALT_ATTACK_POWER_LR	10//30?
 
-//racc - force cost of doing all the special saber attacks (other than the katas and cartwheels)
 //#define SABER_ALT_ATTACK_POWER_FB	3 NUAM
 //#define SABER_ALT_ATTACK_POWER_FB	25//30/50?
 //[/SaberSys]
@@ -2901,7 +2898,7 @@ saberMoveName_t PM_SaberAttackForMovement(saberMoveName_t curmove)
 					&& BG_EnoughForcePowerForMove(FATIGUE_GROUNDATTACK) )
 					//&& BG_EnoughForcePowerForMove(SABER_ALT_ATTACK_POWER_FB) )
 					//[/SaberSys]
-				{//racc - stab down at someone on the ground.
+				{
 					newmove = stabDownMove;
 					//[SaberSys]
 					BG_ForcePowerDrain(pm->ps, FP_GRIP, FATIGUE_GROUNDATTACK);
@@ -3269,7 +3266,6 @@ qboolean PM_SaberMoveOkayForKata( void )
 	}
 }
 
-//[RACC] - check to see if you can do this kata or not.
 qboolean PM_CanDoKata( void )
 {
 	if ( PM_InSecondaryStyle() )
@@ -3396,7 +3392,6 @@ int bg_parryDebounce[NUM_FORCE_POWER_LEVELS] =
 	50
 };
 
-//[RACC] - PM check to make sure you have force power to do a saber throw.
 qboolean PM_SaberPowerCheck(void)
 {
 	if (pm->ps->saberInFlight)
@@ -3887,8 +3882,6 @@ void PM_WeaponLightsaber(void)
 			PM_SetSaberMove( LS_READY );
 		}
 
-		//[RACC] - if your saber is off, set the torso animation to the legs animation unless
-		//you are on a slope.
 		if ((pm->ps->legsAnim) != (pm->ps->torsoAnim) && !BG_InSlopeAnim(pm->ps->legsAnim) &&
 			pm->ps->torsoTimer <= 0)
 		{
@@ -3899,8 +3892,6 @@ void PM_WeaponLightsaber(void)
 			PM_SetAnim(SETANIM_TORSO,PM_GetSaberStance(),SETANIM_FLAG_OVERRIDE, 100);
 		}
 
-		//[RACC]
-		//The unholster saber by attacking code.
 		//[SaberThrowSys]
 		//changed so that we can't activate saber while it's in flight/not in our hand
 		if (pm->ps->weaponTime < 1 
@@ -4172,7 +4163,6 @@ void PM_WeaponLightsaber(void)
 	// Now we react to a block action by the player's lightsaber.
 	if ( pm->ps->saberBlocked )
 	{
-		//[RACC] - Hold saber blocks for a bit.
 		if ( pm->ps->saberBlocked >= BLOCKED_UPPER_RIGHT 
 			&& pm->ps->saberBlocked < BLOCKED_UPPER_RIGHT_PROJ)
 		{//hold the parry for a bit
@@ -4242,9 +4232,7 @@ void PM_WeaponLightsaber(void)
 						/* This stuff can cause instant attacks/multi hits.
 						if ( pm->cmd.buttons & BUTTON_ATTACK )
 						{//transition to a new attack
-							//racc - this doesn't seem to happen very often since BLOCKED_ATK_BOUNCE
-							//terminates after the bounce animation is started. 
-							int newQuad = PM_SaberMoveQuadrantForMovement( &pm->cmd );		
+							int newQuad = PM_SaberMoveQuadrantForMovement( &pm->cmd );
 							while ( newQuad == saberMoveData[pm->ps->saberMove].startQuad )
 							{//player is still in same attack quad, don't repeat that attack because it looks bad, 
 								//FIXME: try to pick one that might look cool?
@@ -4943,7 +4931,6 @@ weapChecks:
 						newmove = saberMoveData[curmove].chain_idle;
 					}
 					else */
-					//racc - determine where we want to go next.
 					newmove = PM_SaberAttackForMovement( curmove );
 
 					//[SaberLockSys]
@@ -5001,7 +4988,7 @@ weapChecks:
 				}
 				*/
 				if ( newmove != LS_NONE )
-				{//racc - find the transition move for this attack/move
+				{
 					//Now get the proper transition move
 					newmove = PM_SaberAnimTransitionAnim( curmove, newmove );
 					anim = saberMoveData[newmove].animToUse;

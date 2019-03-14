@@ -47,7 +47,7 @@ enum
 };
 
 void Grenadier_ClearTimers( gentity_t *ent )
-{//racc - clear all of the NPC timers for this class.
+{
 	TIMER_Set( ent, "chatter", 0 );
 	TIMER_Set( ent, "duck", 0 );
 	TIMER_Set( ent, "stand", 0 );
@@ -88,7 +88,7 @@ NPC_ST_Pain
 */
 
 void NPC_Grenadier_Pain(gentity_t *self, gentity_t *attacker, int damage) 
-{//racc - pain function
+{
 	self->NPC->localState = LSTATE_UNDERFIRE;
 
 	TIMER_Set( self, "duck", -1 );
@@ -109,7 +109,7 @@ ST_HoldPosition
 */
 
 static void Grenadier_HoldPosition( void )
-{//racc - hold current position
+{
 	NPC_FreeCombatPoint( NPCInfo->combatPoint, qtrue );
 	NPCInfo->goalEntity = NULL;
 	
@@ -127,7 +127,7 @@ ST_Move
 */
 
 static qboolean Grenadier_Move( void )
-{//racc - move!
+{
 	qboolean	moved;
 	navInfo_t	info;
 
@@ -195,7 +195,7 @@ NPC_BSGrenadier_Patrol
 void NPC_BSGrenadier_Patrol( void )
 {//FIXME: pick up on bodies of dead buddies?
 	if ( NPCInfo->confusionTime < level.time )
-	{//racc - we're not confused.
+	{
 		//Look for any enemies
 		if ( NPCInfo->scriptFlags&SCF_LOOK_FOR_ENEMIES )
 		{
@@ -209,7 +209,7 @@ void NPC_BSGrenadier_Patrol( void )
 		}
 
 		if ( !(NPCInfo->scriptFlags&SCF_IGNORE_ALERTS) )
-		{//racc - listen for alerts.
+		{
 			//Is there danger nearby
 			//[CoOp]
 			int alertEvent = NPC_CheckAlertEvents( qtrue, qtrue, -1, qfalse, AEL_SUSPICIOUS, qfalse );
@@ -236,7 +236,6 @@ void NPC_BSGrenadier_Patrol( void )
 							level.alertEvents[alertEvent].owner->health >= 0 &&
 							level.alertEvents[alertEvent].owner->client->playerTeam == NPC->client->enemyTeam )
 						{//an enemy
-							//racc - an enemy was discovered.
 							G_SetEnemy( NPC, level.alertEvents[alertEvent].owner );
 							//NPCInfo->enemyLastSeenTime = level.time;
 							TIMER_Set( NPC, "attackDelay", Q_irand( 500, 2500 ) );
@@ -317,10 +316,10 @@ ST_CheckMoveState
 */
 
 static void Grenadier_CheckMoveState( void )
-{//racc - check for special movement states while engaging an enemy.
+{
 	//See if we're a scout
 	if ( !(NPCInfo->scriptFlags & SCF_CHASE_ENEMIES) )//behaviorState == BS_STAND_AND_SHOOT )
-	{//racc - don't chase after enemies.
+	{
 		if ( NPCInfo->goalEntity == NPC->enemy )
 		{
 			move3 = qfalse;
@@ -331,7 +330,7 @@ static void Grenadier_CheckMoveState( void )
 	else if ( NPCInfo->squadState == SQUAD_RETREAT )
 	{
 		if ( TIMER_Done( NPC, "flee" ) )
-		{//racc - done running away.
+		{
 			NPCInfo->squadState = SQUAD_IDLE;
 		}
 		else
@@ -353,7 +352,7 @@ static void Grenadier_CheckMoveState( void )
 
 	//See if we're moving towards a goal, not the enemy
 	if ( ( NPCInfo->goalEntity != NPC->enemy ) && ( NPCInfo->goalEntity != NULL ) )
-	{//racc - We're moving and it's not towards our enemy.
+	{
 		//Did we make it?
 		if ( NAV_HitNavGoal( NPC->r.currentOrigin, NPC->r.mins, NPC->r.maxs, NPCInfo->goalEntity->r.currentOrigin, 16, FlyingCreature( NPC ) ) || 
 			( NPCInfo->squadState == SQUAD_SCOUT && enemyLOS3 && enemyDist3 <= 10000 ) )
@@ -394,7 +393,7 @@ static void Grenadier_CheckMoveState( void )
 	}
 
 	if ( !NPCInfo->goalEntity )
-	{//racc - no goal entity at the moment, move towards our enemy if we can chase enemies.
+	{
 		if ( NPCInfo->scriptFlags & SCF_CHASE_ENEMIES )
 		{
 			NPCInfo->goalEntity = NPC->enemy;
@@ -412,8 +411,7 @@ ST_CheckFireState
 */
 
 static void Grenadier_CheckFireState( void )
-{//racc - old code that was set up to make grenadiers attack the last know position of
-	//their enemy.  I don't think it does anything anymore.
+{
 	if ( enemyCS3 )
 	{//if have a clear shot, always try
 		return;
@@ -475,7 +473,7 @@ NPC_BSGrenadier_Attack
 */
 
 void NPC_BSGrenadier_Attack( void )
-{//racc - behavior for attacking.
+{
 	//Don't do anything if we're hurt
 	if ( NPC->painDebounceTime > level.time )
 	{
@@ -516,8 +514,6 @@ void NPC_BSGrenadier_Attack( void )
 	shoot3 = qfalse;
 	enemyDist3 = DistanceSquared( NPC->enemy->r.currentOrigin, NPC->r.currentOrigin );
 
-	//racc - code for switching between thermals and fists for close range enemies.
-
 	//See if we should switch to melee attack
 	if ( enemyDist3 < 16384 //128
 		&& (!NPC->enemy->client
@@ -540,7 +536,6 @@ void NPC_BSGrenadier_Attack( void )
 				//[/CoOp]
 				if ( !(NPCInfo->scriptFlags&SCF_CHASE_ENEMIES) )//NPCInfo->behaviorState == BS_STAND_AND_SHOOT )
 				{//FIXME: should we be overriding scriptFlags?
-					//racc - override chase flag so we can get to close range to attack.
 					NPCInfo->scriptFlags |= SCF_CHASE_ENEMIES;//NPCInfo->behaviorState = BS_HUNT_AND_KILL;
 				}
 			}
@@ -568,7 +563,7 @@ void NPC_BSGrenadier_Attack( void )
 		if ( NPC->client->ps.weapon == WP_MELEE )
 		//if ( NPC->client->ps.weapon == WP_STUN_BATON )
 		//[CoOp]
-		{//racc - if we're in melee mode, we have more specific visual checks.
+		{
 			if ( enemyDist3 <= 4096 && InFOV3( NPC->enemy->r.currentOrigin, NPC->r.currentOrigin, NPC->client->ps.viewangles, 90, 45 ) )//within 64 & infront
 			{
 				VectorCopy( NPC->enemy->r.currentOrigin, NPCInfo->enemyLastSeenLocation );
@@ -583,7 +578,7 @@ void NPC_BSGrenadier_Attack( void )
 			gentity_t *hitEnt = &g_entities[hit];
 			if ( hit == NPC->enemy->s.number 
 				|| ( hitEnt && hitEnt->client && hitEnt->client->playerTeam == NPC->client->enemyTeam ) )
-			{//racc - have someone in our sights.
+			{
 				float enemyHorzDist;
 
 				VectorCopy( NPC->enemy->r.currentOrigin, NPCInfo->enemyLastSeenLocation );
@@ -594,7 +589,7 @@ void NPC_BSGrenadier_Attack( void )
 					NPC_AimAdjust( 2 );//adjust aim better longer we have clear shot at enemy
 				}
 				else
-				{//racc - enemy is too far away.
+				{
 					NPC_AimAdjust( 1 );//adjust aim better longer we can see enemy
 				}
 			}
@@ -618,7 +613,7 @@ void NPC_BSGrenadier_Attack( void )
 	}
 
 	if ( enemyCS3 )
-	{//racc - we have someone to shoot at.  fire and hold still if we're in position.
+	{
 		shoot3 = qtrue;
 		if ( NPC->client->ps.weapon == WP_THERMAL )
 		{//don't chase and throw
@@ -652,7 +647,7 @@ void NPC_BSGrenadier_Attack( void )
 	}
 
 	if ( !move3 )
-	{//racc - duck when not moving.
+	{
 		if ( !TIMER_Done( NPC, "duck" ) )
 		{
 			ucmd.upmove = -127;
@@ -680,7 +675,7 @@ void NPC_BSGrenadier_Attack( void )
 	}
 
 	if ( NPCInfo->scriptFlags&SCF_DONT_FIRE )
-	{//racc - don't fire when we're not supposed to.
+	{
 		shoot3 = qfalse;
 	}
 
@@ -700,7 +695,7 @@ void NPC_BSGrenadier_Attack( void )
 }
 
 void NPC_BSGrenadier_Default( void )
-{//racc - main behavior loop for grenadiers.
+{
 	if( NPCInfo->scriptFlags & SCF_FIRE_WEAPON )
 	{
 		WeaponThink( qtrue );

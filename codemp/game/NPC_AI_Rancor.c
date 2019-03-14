@@ -951,7 +951,7 @@ void NPC_BSRancor_Default( void )
 			TIMER_Set( NPC, "angrynoise", Q_irand( 5000, 10000 ) );
 		}
 		else
-		{//RACC - Make NPC know that hell is coming their way.
+		{
 			//[CoOp]
 			//Added sight/sound event based on SP code.
 			AddSoundEvent( NPC, NPC->r.currentOrigin, 512, AEL_DANGER_GREAT, qfalse, qfalse );

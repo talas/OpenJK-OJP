@@ -217,7 +217,6 @@ typedef struct bot_state_s
 	gentity_t			*touchGoal;
 	gentity_t			*shootGoal;
 
-	//RACC - closest nasty object that can take damage probably an explosive or something.
 	gentity_t			*dangerousObject;
 
 	vec3_t				staticFlagSpot;
@@ -234,8 +233,6 @@ typedef struct bot_state_s
 
 	wpobject_t			*wpCurrent;
 	wpobject_t			*wpDestination;
-
-	//RACC - storage location for your next way point while you're evading a bad thing.
 	wpobject_t			*wpStoreDest;
 	vec3_t				goalAngles;
 	vec3_t				goalMovedir;
@@ -253,47 +250,31 @@ typedef struct bot_state_s
 											//The saber duel challenge behavior uses it to
 											//debounce the saber challenges.
 	//[/TABBot]
-
-	//RACC - location of current enemy
 	vec3_t				lastEnemySpotted;
-	//RACC - Where bot was standing when lastEnemySpotted was done
 	vec3_t				hereWhenSpotted;
-	//RACC - This is the EntityNum of the last enemy you did a successful visual check on
-	//This is normally the same as current enemy.
 	int					lastVisibleEnemyIndex;
-	//RACC - Not used anymore.
 	int					hitSpotted;
 
 	int					wpDirection;
 
 	float				destinationGrabTime;
-	//RACC - Clock time at which point we will give up on trying to get to the next waypoint.
-	//This is normally constantly refreshed unless you loss sight of the waypoint.
 	float				wpSeenTime;
-	//RACC - Clock time of the maximum time we're willing to spend traveling to this wp.
 	float				wpTravelTime;
 	float				wpDestSwitchTime;
 	float				wpSwitchTime;
 	float				wpDestIgnoreTime;
 
-	//RACC - Time to react to a newly found enemy.
 	float				timeToReact;
 
 	float				enemySeenTime;
 
 	float				chickenWussCalculationTime;
 
-	//RACC - Stand still until this time
 	float				beStill;
-	//RACC - Duck until this clock time.
 	float				duckTime;
-	//RACC - Jumping Clock!  = jumpHoldTime if it's valid.
 	float				jumpTime;
-	//RACC - Move forward while jumping.  Don't move forward if the wpcurrent is still too
-	//high.
 	float				jumpHoldTime;
 	float				jumpPrep;
-	//RACC - Force Jumping to waypoint
 	float				forceJumping;
 	float				jDelay;
 
@@ -301,18 +282,13 @@ typedef struct bot_state_s
 	float				aimOffsetAmtYaw;
 	float				aimOffsetAmtPitch;
 
-	//RACC - Distance to the waypoint you're currently travelling to.
 	float				frame_Waypoint_Len;
-	//RACC - We can visually see the next waypoint.  Note, players and such don't count.
 	int					frame_Waypoint_Vis;
-	//RACC - Distance to your current enemy.
 	float				frame_Enemy_Len;
 	int					frame_Enemy_Vis;
 
 	int					isCamper;
 	float				isCamping;
-
-	//RACC - the wp you're currently trying to camp.
 	wpobject_t			*wpCamping;
 	wpobject_t			*wpCampingTo;
 	qboolean			campStanding;
@@ -334,36 +310,23 @@ typedef struct bot_state_s
 
 	float				meleeStrafeTime;
 	int					meleeStrafeDir;
-	//RACC - Clock debounce for the disabling of the combat strafing.
 	float				meleeStrafeDisable;
 
 	int					altChargeTime;
 
 	float				escapeDirTime;
 
-	//RACC - timer (clock time) to prevent you from charging back into a dangerous area 
-	//after you evaded a bad thing.
 	float				dontGoBack;
 
 	int					doAttack;
 	int					doAltAttack;
 
 	int					forceWeaponSelect;
-	//RACC - in the process of switching to this weapon.
 	int					virtualWeapon;
 
-	//RACC - Clock debounce for planting explosives
 	int					plantTime;
-	//RACC - Try to plant explosives for this amount of clock time.  This is cleared when the 
-	//explosive is set.
 	int					plantDecided;
-	//RACC - Time that the last explosive was set (plus 500 ms).  
-	//Also used as a debounce for holding down the 
-	//attack button to make sure the explosive is planted AND
-	//cancelling out forceweaponselect.
 	int					plantContinue;
-	//RACC - Clock timer to try to blow your detpack.  Orders bot to switch to detpack weapon and hold
-	//alt fire.  Lasts until the clock timer is over.
 	int					plantKillEmAll;
 
 	int					runningLikeASissy;
@@ -394,14 +357,8 @@ typedef struct bot_state_s
 
 	int					state_Forced; //set by player ordering menu
 
-	//RACC - Defence mode toggle (toggles on/off randomly).  All it really does is 
-	//have the bot randomly not attack when close to an enemy and who is using a blockable
-	//weapon.
 	int					saberDefending;
-	//RACC - Time between saberDefending toggling. 
 	int					saberDefendDecideTime;
-	//RACC - It looks like this is used for debouncing backing up during saber combat.
-	//TABBots use this to debounce saber attack fakes.
 	int					saberBFTime;
 	int					saberBTime;
 	int					saberSTime;
@@ -410,7 +367,6 @@ typedef struct bot_state_s
 	qboolean			saberPower;
 	int					saberPowerTime;
 
-	//RACC - Bot trying to do a Saber Challenge during this Clock time. 
 	int					botChallengingTime;
 
 	char				forceinfo[MAX_FORCE_INFO_SIZE];

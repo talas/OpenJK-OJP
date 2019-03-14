@@ -20,8 +20,6 @@ void NPC_AngerSound (void)
 */
 
 extern void G_SpeechEvent( gentity_t *self, int event );
-//RACC - NPC version of G_AddEvent for sound useage.  
-//seems to do some checking to prevent event spamming
 void G_AddVoiceEvent( gentity_t *self, int event, int speakDebounceTime )
 {
 	if ( !self->NPC )

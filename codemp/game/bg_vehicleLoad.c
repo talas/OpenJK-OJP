@@ -79,7 +79,7 @@ extern stringID_table_t animTable [MAX_ANIMATIONS+1];
 	//in the middle of the game as a new vehicle is created
 
 #define DYNAMICMEMORY_VEHICLES
-//NOTE: ONCE AGAIN we have the lack of trap_TrueMalloc for ui, a lazyness in ravensoft leads us to not being able to use dynamic loading...
+//NOTE: ONCE AGAIN we have the lack of trap_TrueMalloc for ui
 	//what does the ui even use this for?  anything?
 	//can I just blindly disable it for the ui?
 	//yep, we can.  

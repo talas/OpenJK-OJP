@@ -15,9 +15,6 @@ PUSHMOVE
 
 void MatchTeam( gentity_t *teamLeader, int moverState, int time );
 
-//RACC - this array holds all the entities that have been pushed by a given mover.
-		//This is used to "revert" all the entities that are pushed incase the mover
-		//is physically blocked.
 typedef struct {
 	gentity_t	*ent;
 	vec3_t	origin;
@@ -35,9 +32,9 @@ pushed_t	pushed[MAX_GENTITIES], *pushed_p;
 #define MOVER_PLAYER_USE	64
 #define MOVER_INACTIVE		128
 
-int	BMS_START = 0;		//RACC - start mover sound
+int	BMS_START = 0;
 int	BMS_MID = 1;
-int	BMS_END = 2;		//RACC - arrival mover sound.
+int	BMS_END = 2;
 
 /*
 -------------------------
@@ -46,7 +43,7 @@ G_PlayDoorLoopSound
 */
 
 void G_PlayDoorLoopSound( gentity_t *ent )
-{//RACC - play door movement sound
+{
 	if (!ent->soundSet || !ent->soundSet[0])
 	{
 		return;
@@ -158,8 +155,7 @@ G_TryPushingEntity
 Returns qfalse if the move is blocked
 ==================
 */
-qboolean	G_TryPushingEntity( gentity_t *check, gentity_t *pusher, vec3_t move, vec3_t amove ) 
-{//RACC - pusher attempts to push/rotate check.  used by mover entities.
+qboolean	G_TryPushingEntity( gentity_t *check, gentity_t *pusher, vec3_t move, vec3_t amove ) {
 	vec3_t		matrix[3], transpose[3];
 	vec3_t		org, org2, move2;
 	gentity_t	*block;
@@ -177,7 +173,6 @@ qboolean	G_TryPushingEntity( gentity_t *check, gentity_t *pusher, vec3_t move, v
 		&& (pusher->spawnflags&16) //IMPACT
 		&& Q_stricmp( "func_rotating", pusher->classname ) == 0 )
 	{//just blow the fuck out of them
-		//RACC - instant kill anything in the way.
 		G_Damage( check, pusher, pusher, NULL, NULL, pusher->damage, DAMAGE_NO_KNOCKBACK, MOD_CRUSH );
 		return qtrue;
 	}
@@ -237,8 +232,7 @@ qboolean	G_TryPushingEntity( gentity_t *check, gentity_t *pusher, vec3_t move, v
 
 	if (check->takedamage && !check->client && check->s.weapon && check->r.ownerNum < MAX_CLIENTS &&
 		check->health < 500)
-	{//RACC - non-player object that is owned by a player?  A weapon or item?  Damage it if
-		//we can.
+	{
 		if (check->health > 0)
 		{
 			G_Damage(check, pusher, pusher, vec3_origin, check->r.currentOrigin, 999, 0, MOD_UNKNOWN);
@@ -275,8 +269,7 @@ otherwise riders would continue to slide.
 If qfalse is returned, *obstacle will be the blocking entity
 ============
 */
-qboolean G_MoverPush( gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **obstacle ) 
-{//RACC - move mover entity and push/crush/etc all the stuff in its way.
+qboolean G_MoverPush( gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **obstacle ) {
 	int			i, e;
 	gentity_t	*check;
 	vec3_t		mins, maxs;
@@ -409,8 +402,7 @@ qboolean G_MoverPush( gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **
 G_MoverTeam
 =================
 */
-void G_MoverTeam( gentity_t *ent ) 
-{//RACC - update position for all the movers on this "team".
+void G_MoverTeam( gentity_t *ent ) {
 	vec3_t		move, amove;
 	gentity_t	*part, *obstacle;
 	vec3_t		origin, angles;
@@ -529,8 +521,7 @@ void CalcTeamDoorCenter ( gentity_t *ent, vec3_t center )
 SetMoverState
 ===============
 */
-void SetMoverState( gentity_t *ent, moverState_t moverState, int time ) 
-{//RACC - set mover state for binary state movers.
+void SetMoverState( gentity_t *ent, moverState_t moverState, int time ) {
 	vec3_t			delta;
 	float			f;
 
@@ -595,8 +586,7 @@ All entities in a mover team will move from pos1 to pos2
 in the same amount of time
 ================
 */
-void MatchTeam( gentity_t *teamLeader, int moverState, int time ) 
-{//RACC - toggles the mover state for all the movers in this group.
+void MatchTeam( gentity_t *teamLeader, int moverState, int time ) {
 	gentity_t		*slave;
 
 	for ( slave = teamLeader ; slave ; slave = slave->teamchain ) {
@@ -611,8 +601,7 @@ void MatchTeam( gentity_t *teamLeader, int moverState, int time )
 ReturnToPos1
 ================
 */
-void ReturnToPos1( gentity_t *ent ) 
-{//RACC - start binary movers on this team moving back to start state (pos1).
+void ReturnToPos1( gentity_t *ent ) {
 	ent->think = 0;
 	ent->nextthink = 0;
 	ent->s.time = level.time;
@@ -632,7 +621,7 @@ Reached_BinaryMover
 */
 
 void Reached_BinaryMover( gentity_t *ent ) 
-{//RACC - reached an end point on a binary mover.
+{
 	// stop the looping sound
 	ent->s.loopSound = 0;
 	ent->s.loopIsSoundset = qfalse;

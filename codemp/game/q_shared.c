@@ -898,11 +898,6 @@ int Q_strncmp (const char *s1, const char *s2, int n) {
 	return 0;		// strings are equal
 }
 
-
-//RACC - scans for s1 at the start of s2
-//1 = s1 is at beginning of s2 but they are not exactly the same
-//0 = s1 = s2
-//-1 = didn't find s1 at the start of s2
 int Q_stricmp (const char *s1, const char *s2) {
 	return (s1 && s2) ? Q_stricmpn (s1, s2, 99999) : -1;
 }
@@ -1115,7 +1110,6 @@ int Q_PrintStrlen( const char *string ) {
 }
 
 
-//RACC - removes all the colorstring information and such from a string
 char *Q_CleanStr( char *string ) {
 	char*	d;
 	char*	s;

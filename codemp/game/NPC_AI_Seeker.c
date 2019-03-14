@@ -483,7 +483,7 @@ qboolean Seeker_Fire( void )
 void Seeker_Ranged( qboolean visible, qboolean advance )
 {
 	if ( NPC->client->NPC_class != CLASS_BOBAFETT )
-	{//racc - boba fett doesn't run out of ammo.
+	{
 		if ( NPC->count > 0 || NPC->count == -1)
 		{
 			//[SeekerItemNpc]
@@ -629,7 +629,7 @@ void Seeker_FindEnemy( void )
 
 		//[SeekerItemNpc]
 		if(OnSameTeam(NPC->activator, ent))
-		{//our owner is on the same team as this entity, don't target them.
+		{
 			continue;
 		}
 

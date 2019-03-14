@@ -325,10 +325,7 @@ sfxHandle_t	CG_CustomSound( int clientNum, const char *soundName ) {
 
 	//CG_Error( "Unknown custom sound: %s", lSoundName );
 #ifndef FINAL_BUILD
-	//[RACC] - This error will occur whenever there's there's a player sound type mismatch. (IE a Player trying to play a NPC sound.)
-	//This does happen occasionally with animevent sounds but should not happen otherwise.
 	Com_Printf( "Unknown custom sound: %s\n", lSoundName );
-	//[RACC]
 #endif
 	return 0;
 }
@@ -765,7 +762,6 @@ retryModel:
 		iconName[j] = 0;
 		if (skinName[i] == '|')
 		{ //looks like it actually may be a custom model skin, let's try getting the icon...
-		//[RACC] - This appears to be relevent to the custom model icons
 			ci->modelIcon = trap_R_RegisterShaderNoMip ( va ( "models/players/%s/%s", modelName, iconName ) );
 		}
 	}
@@ -1703,7 +1699,6 @@ void CG_NewClientInfo( int clientNum, qboolean entitiesInitialized ) {
 
 	oldGhoul2 = ci->ghoul2Model;
 
-	//racc - copy all the our old saber instances into a backup area.
 	while (k < MAX_SABERS)
 	{
 		oldG2Weapons[k] = ci->ghoul2Weapons[k];
@@ -1714,8 +1709,7 @@ void CG_NewClientInfo( int clientNum, qboolean entitiesInitialized ) {
 	}
 
 	configstring = CG_ConfigString( clientNum + CS_PLAYERS );
-	if ( !configstring[0] ) 
-	{//racc - bad configstring, the player probably left the server? kill our ghoul2 instances
+	if ( !configstring[0] ) {
 		if (ci->ghoul2Model && trap_G2_HaveWeGhoul2Models(ci->ghoul2Model))
 		{ //clean this stuff up first
 			trap_G2API_CleanGhoul2Models(&ci->ghoul2Model);
@@ -3861,7 +3855,7 @@ qboolean CG_RagDoll(centity_t *cent, vec3_t forcedAngles)
 			inSomething = qtrue;
 		}
 		else if (cent->currentState.groundEntityNum == ENTITYNUM_NONE)
-		{//racc - in the air.
+		{
 			vec3_t cVel;
 
 			VectorCopy(cent->currentState.pos.trDelta, cVel);
@@ -4562,7 +4556,7 @@ static void CG_G2PlayerAngles( centity_t *cent, vec3_t legs[3], vec3_t legsAngle
 		}
 	}
 	else if (cent->isRagging)
-	{//racc - disable rag doll.
+	{
 		cent->isRagging = qfalse;
 		trap_G2API_SetRagDoll(cent->ghoul2, NULL); //calling with null parms resets to no ragdoll.
 	}
@@ -5799,7 +5793,6 @@ static void CG_RGBForSaberColor( saber_colors_t color, vec3_t rgb, int cnum, int
 			VectorSet( rgb, 1.0f, 1.0f, 1.0f );
 			break;
 	}
-//	Com_Printf("sabercolor %i %i %i ^1%i %i\n",(int)rgb[0],(int)rgb[1],(int)rgb[2],cnum,bnum);
 }
 
 //[SaberThrowSys]
@@ -9882,7 +9875,7 @@ void CG_AddSaberBlade( centity_t *cent, centity_t *scent, refEntity_t *saber, in
 		cent->currentState.eType != ET_NPC)
 	*/
 	//[/RGBSabers]
-	{//racc - in a team game where we want to override the saber colors.
+	{
 		if (client->team == TEAM_RED)
 		{
 			scolor = SABER_RED;
@@ -11082,8 +11075,6 @@ void CG_CacheG2AnimInfo(char *modelName)
 			animIndex = BG_ParseAnimationFile(GLAName, NULL, qfalse);
 		}
 
-		//[RACC] This is true even if the animation set for this model was already set.
-		//It's ok thou, the parsing functions are only slow the first time they are run for each set.
 		if (animIndex != -1)
 		{
 			slash = Q_strrchr( originalModelName, '/' );
@@ -11699,7 +11690,7 @@ void CG_G2Animated( centity_t *cent )
 	}
 
 	if (((cent->currentState.eFlags & EF_DEAD) || (cent->currentState.eFlags & EF_RAG)) && !cent->localAnimIndex)
-	{//racc - try rag dolling.
+	{
 		vec3_t forcedAngles;
 
 		VectorClear(forcedAngles);
@@ -15357,7 +15348,7 @@ SkipTrueView:
 	}
 
 	if ( cent->currentState.powerups & (1 << PW_DISINT_4) )
-	{//racc - do blur effect for grip or push/pull.
+	{
 		vec3_t tAng;
 		vec3_t efOrg;
 
@@ -15793,7 +15784,7 @@ SkipTrueView:
 	}
 stillDoSaber:
 	if ((cent->currentState.eFlags & EF_DEAD) && cent->currentState.weapon == WP_SABER)
-	{//racc - turn off saber if player died.
+	{
 		//cent->saberLength = 0;
 		BG_SI_SetDesiredLength(&ci->saber[0], 0, -1);
 		BG_SI_SetDesiredLength(&ci->saber[1], 0, -1);
@@ -15816,18 +15807,18 @@ stillDoSaber:
 				|| ci->saber[1].soundLoop) //??? //racc - or we have dual sabers
 				//(since one stays in hand when tossed.)
 			&& !(cent->currentState.eFlags & EF_DEAD))//still alive
-		{//racc - do the saber blade hum.
+		{
 			vec3_t soundSpot;
 			qboolean didFirstSound = qfalse;
 
 			if (cg.snap->ps.clientNum == cent->currentState.number)
-			{//racc - render the blade on top of ourself if it's our blade.
+			{
 				//trap_S_AddLoopingSound( cent->currentState.number, cg.refdef.vieworg, vec3_origin, 
 				//	trap_S_RegisterSound( "sound/weapons/saber/saberhum1.wav" ) );
 				VectorCopy(cg.refdef.vieworg, soundSpot);
 			}
 			else
-			{//racc - otherwise, generate the noise at the player's lerpOrigin
+			{
 				//trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, 
 				//	trap_S_RegisterSound( "sound/weapons/saber/saberhum1.wav" ) );
 				VectorCopy(cent->lerpOrigin, soundSpot);
@@ -15836,7 +15827,7 @@ stillDoSaber:
 			if (ci->saber[0].model[0] 
 				&& ci->saber[0].soundLoop 
 				&& !cent->currentState.saberInFlight)
-			{//racc - if our primary saber isn't in flight, use it's hum noise.
+			{
 				int i = 0;
 				qboolean hasLen = qfalse;
 
@@ -15860,7 +15851,7 @@ stillDoSaber:
 			if (ci->saber[1].model[0] 
 				&& ci->saber[1].soundLoop 
 					&& (!didFirstSound || ci->saber[0].soundLoop != ci->saber[1].soundLoop))
-			{//racc - do second saber's hum if we need to.
+			{
 				int i = 0;
 				qboolean hasLen = qfalse;
 
@@ -15884,7 +15875,7 @@ stillDoSaber:
 
 		if (iwantout 
 			&& !cent->currentState.saberInFlight)
-		{//racc - we're doing minimal rendering and our saber isn't out.  IE, don't render the saber blade.
+		{
 			if (cent->currentState.eFlags & EF_DEAD)
 			{
 				if (cent->ghoul2 
@@ -15907,7 +15898,7 @@ stillDoSaber:
 
 		if (cent->currentState.saberInFlight 
 			&& cent->currentState.saberEntityNum)
-		{//racc - saber in active saber throw.
+		{
 			centity_t *saberEnt;
 
 			saberEnt = &cg_entities[cent->currentState.saberEntityNum];
@@ -16146,8 +16137,6 @@ stillDoSaber:
 				}
 				*/
 				//[/SaberThrowSys]
-
-				//racc - set render for the second saber's blade as needed
 				if ( ci->saber[1].model	//dual sabers
 					&& cent->currentState.saberHolstered == 1 )//second one off
 				{
@@ -16267,7 +16256,7 @@ stillDoSaber:
 			}
 		}
 		else
-		{//saber is not in a throw.
+		{
 			//[SaberThrowSys]
 			//rearranged this code a little because sabers can now be returning without being active.
 			if( cent->currentState.saberHolstered == 2 )

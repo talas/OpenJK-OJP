@@ -5798,7 +5798,7 @@ Q3_SetInvincible
 */
 //[CoOp]
 static void Q3_SetInvincible( int entID, qboolean invincible)
-{//racc - set invincibility for given entity
+{
 	gentity_t	*ent  = &g_entities[entID];
 
 	if ( !ent )

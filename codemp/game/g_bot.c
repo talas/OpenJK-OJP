@@ -583,7 +583,6 @@ char *PickName ( void )
 G_AddRandomBot
 ===============
 */
-//RACC - Randomly add a bot to team.  -1 = any team.
 void G_AddRandomBot( int team ) {
 	int		i, n, num;
 	float	skill;
@@ -684,7 +683,6 @@ void G_AddRandomBot( int team ) {
 G_RemoveRandomBot
 ===============
 */
-//RACC - Randomly remove a bot from team.  -1 = any team.
 int G_RemoveRandomBot( int team ) {
 	int i;
 	char netname[36];
@@ -729,7 +727,6 @@ int G_RemoveRandomBot( int team ) {
 G_CountHumanPlayers
 ===============
 */
-//RACC - checks for the number of human players on a given team. team = -1 for all teams.
 //[AdminSys]
 int G_CountHumanPlayers( int ignoreClientNum, int team ) {
 //int G_CountHumanPlayers( int team ) {
@@ -778,7 +775,6 @@ int G_CountHumanPlayers( int ignoreClientNum, int team ) {
 G_CountBotPlayers
 ===============
 */
-//RACC - checks for the number of human players on a given team. team = -1 for all teams.
 int G_CountBotPlayers( int team ) {
 	int i, n, num;
 	gclient_t	*cl;
@@ -829,7 +825,6 @@ extern	vmCvar_t	g_minHumans;
 extern	vmCvar_t	g_maxBots;
 extern int OJP_PointSpread(void);
 //[/BotTweaks]
-//RACC - Adds/removes bots to maintain the minimum player limit.
 void G_CheckMinimumPlayers( void ) {
 	int minplayers;
 	int humanplayers, botplayers;
@@ -1219,7 +1214,6 @@ void G_CheckMinimumPlayers( void ) {
 G_CheckBotSpawn
 ===============
 */
-//RACC - Checks and does all the bot spawning stuff needed for this frame.
 void G_CheckBotSpawn( void ) {
 	int		n;
 

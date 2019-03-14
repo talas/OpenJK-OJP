@@ -13,7 +13,7 @@ FORCE INTERFACE
 #include "ui_force.h"
 
 int uiForceSide = FORCE_LIGHTSIDE;
-int uiJediNonJedi = -1;  //racc - indicates if we're jedi or merc while in jediVsMerc mode.  -1 == unknown
+int uiJediNonJedi = -1;
 int uiForceRank = FORCE_MASTERY_JEDI_KNIGHT;
 int uiMaxRank = MAX_FORCE_RANK;
 int uiMaxPoints = 20;
@@ -273,7 +273,7 @@ uiRank_t prevRank[42];
 // 
 extern qboolean UI_TrueJediEnabled( void );
 void UpdateForceUsed()
-{//racc - updates the current force powers setup based on current powers selected.
+{
 	int curpower, currank,spentInForce=0,i;
 	menuDef_t *menu;
 
@@ -299,7 +299,7 @@ void UpdateForceUsed()
 	if ( UI_TrueJediEnabled() )
 	{//true jedi mode is set
 		if ( uiJediNonJedi == -1 )
-		{//racc - we haven't determined if we're a jedi or merc yet.
+		{
 			int x = 0;
 			qboolean clear = qfalse, update = qfalse;
 			uiJediNonJedi = FORCE_NONJEDI;
@@ -1239,7 +1239,7 @@ qboolean UI_JediNonJedi_HandleKey(int flags, float *special, int key, int num, i
 }
 
 qboolean UI_ForceMaxRank_HandleKey(int flags, float *special, int key, int num, int min, int max, int type) 
-{//racc - handle key presses for the Force Master Rank menu item.
+{
 	if (key == A_MOUSE1 || key == A_MOUSE2 || key == A_ENTER || key == A_KP_ENTER) 
 	{
 		int i = num;

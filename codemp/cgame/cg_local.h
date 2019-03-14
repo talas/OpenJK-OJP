@@ -2337,7 +2337,6 @@ void CG_CheckChangedPredictableEvents( playerState_t *ps );
 
 //
 // cg_siege.c
-//[RACC] - This is actually cg_saga.c.
 //
 void CG_InitSiegeMode(void);
 void CG_SiegeRoundOver(centity_t *ent, int won);

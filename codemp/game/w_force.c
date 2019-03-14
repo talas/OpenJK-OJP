@@ -420,7 +420,6 @@ void WP_InitForcePowers( gentity_t *ent )
 	//[/ExpSys]
 	//[/CoOp]
 
-	//racc - actually all the NPC should have dumped out of here earlier than this.
 	if (ent->s.eType == ET_NPC && ent->s.number >= MAX_CLIENTS)
 	{ //rwwFIXMEFIXME: Temp
 		strcpy(userinfo, "forcepowers\\7-1-333003000313003120");
@@ -621,9 +620,6 @@ void WP_InitForcePowers( gentity_t *ent )
 //		ent->client->sess.setForce = qtrue;
 //	}
 
-	//racc - Forces the player to look at their Profiles menu in some situations 
-	//(like when the game starts or when the player's force power config string is bad)
-	//This also lets the client know the server's maxForceRank is.
 	//[BotTweaks]
 	if (ent->s.eType == ET_NPC || ent->r.svFlags & SVF_BOT)
 	//racc - bots care not about such things 
@@ -1097,7 +1093,7 @@ int ForcePowerUsableOn(gentity_t *attacker, gentity_t *other, forcePowers_t forc
 
 	if (other && other->client && other->s.eType == ET_NPC &&
 		g_gametype.integer == GT_SIEGE)
-	{ //can't use powers at all on npc's normally in siege... //racc - probably because they're objective based objects?
+	{ //can't use powers at all on npc's normally in siege...
 		return 0;
 	}
 
@@ -1280,8 +1276,7 @@ qboolean WP_ForcePowerUsable( gentity_t *self, forcePowers_t forcePower )
 //[ForceSys]
 /*
 int WP_AbsorbConversion(gentity_t *attacked, int atdAbsLevel, gentity_t *attacker, int atPower, int atPowerLevel, int atForceSpent)
-{//racc - performs force absorb check, returns power difference between the attacker's power level and the defender's power level.
-	//returns -1 if absorb didn't happen.  This function also handles the actual force absorb energy gain for the defender.
+{
 	int getLevel = 0;
 	int addTot = 0;
 	gentity_t *abSound;
@@ -1940,8 +1935,8 @@ void ForceGrip( gentity_t *self )
 	if ( tr.fraction != 1.0 &&
 		tr.entityNum != ENTITYNUM_NONE &&
 		g_entities[tr.entityNum].client &&
-		!g_entities[tr.entityNum].client->ps.fd.forceGripCripple &&  //racc - not currently under the effects of gripcripple.
-		g_entities[tr.entityNum].client->ps.fd.forceGripBeingGripped < level.time && //racc - not being gripped
+		!g_entities[tr.entityNum].client->ps.fd.forceGripCripple &&
+		g_entities[tr.entityNum].client->ps.fd.forceGripBeingGripped < level.time &&
 		ForcePowerUsableOn(self, &g_entities[tr.entityNum], FP_GRIP) &&
 		//[ForceSys]
 		!OJP_CounterForce(self, &g_entities[tr.entityNum], FP_GRIP) &&
@@ -2186,7 +2181,7 @@ void ForceLightning( gentity_t *self )
 	if( !WP_ForcePowerUsable( self, FP_LIGHTNING ) )
 	//if ( self->client->ps.fd.forcePower < 25 || !WP_ForcePowerUsable( self, FP_LIGHTNING ) )
 	//[/ForceSys]
-	{//racc - can't use this power while low on force or can't use this power now.
+	{
 		return;
 	}
 	if ( self->client->ps.fd.forcePowerDebounce[FP_LIGHTNING] > level.time )
@@ -3585,7 +3580,7 @@ qboolean CanCounterThrow(gentity_t *self, gentity_t *thrower, qboolean pull)
 	}
 /*
 	if ( self->client->ps.powerups[PW_DISINT_4] > level.time )took this out to see if its causing a bug, and it was!
-	{//racc in the process of getting pushed/pulled already.
+	{
 		return 0;
 	}
 */
@@ -3628,7 +3623,6 @@ qboolean CanCounterThrow(gentity_t *self, gentity_t *thrower, qboolean pull)
 		}
 	}
 
-	//racc - don't use because it assumes you have to have same power to pass WP_ForcePowerUsable.
 	if (pull)
 	{
 		powerUse = FP_PULL;
@@ -3643,7 +3637,6 @@ qboolean CanCounterThrow(gentity_t *self, gentity_t *thrower, qboolean pull)
 		return 0;
 	}
 
-	// racc - we want to be able to block push in mid-air
 	if (self->client->ps.groundEntityNum == ENTITYNUM_NONE)
 	{ //you cannot counter a push/pull if you're in the air
 		return 0;
@@ -3811,7 +3804,7 @@ void ForceThrow( gentity_t *self, qboolean pull )
 	//[ForceSys]
 	/*
 	if ( self->client->ps.powerups[PW_DISINT_4] > level.time )
-	{//racc - in the process of getting pushed/pulled.
+	{
 		return;
 	}
 	*/
@@ -3837,7 +3830,7 @@ void ForceThrow( gentity_t *self, qboolean pull )
 	}
 
 	if (!pull && self->client->ps.saberLockTime > level.time && self->client->ps.saberLockFrame)
-	{//RACC - used force push in a saber lock.
+	{
 		//[SaberLockSys]
 		/* can't use push in saberlocks anymore.
 		G_Sound( self, CHAN_BODY, G_SoundIndex( "sound/weapons/force/push.wav" ) );
@@ -3855,7 +3848,7 @@ void ForceThrow( gentity_t *self, qboolean pull )
 
 	//make sure this plays and that you cannot press fire for about 1 second after this
 	if ( pull )
-	{//RACC - force pull
+	{
 		G_Sound( self, CHAN_BODY, G_SoundIndex( "sound/weapons/force/pull.wav" ) );
 		if (self->client->ps.forceHandExtend == HANDEXTEND_NONE)
 		{
@@ -3878,7 +3871,7 @@ void ForceThrow( gentity_t *self, qboolean pull )
 		self->client->ps.powerups[PW_PULL] = self->client->ps.powerups[PW_DISINT_4];
 	}
 	else
-	{//RACC - Force Push
+	{
 		G_Sound( self, CHAN_BODY, G_SoundIndex( "sound/weapons/force/push.wav" ) );
 		if (self->client->ps.forceHandExtend == HANDEXTEND_NONE)
 		{
@@ -3889,7 +3882,7 @@ void ForceThrow( gentity_t *self, qboolean pull )
 			//[/ForceSys]
 		}
 		else if (self->client->ps.forceHandExtend == HANDEXTEND_KNOCKDOWN && G_InGetUpAnim(&self->client->ps))
-		{//RACC - Force Pushed while in get up animation.
+		{
 			if (self->client->ps.forceDodgeAnim > 4)
 			{
 				self->client->ps.forceDodgeAnim -= 8;
@@ -4211,7 +4204,7 @@ void ForceThrow( gentity_t *self, qboolean pull )
 			}
 		}
 		else
-		{//RACC - Missiles
+		{
 			if ( ent->s.pos.trType == TR_STATIONARY && (ent->s.eFlags&EF_MISSILE_STICK) )
 			{//can't force-push/pull stuck missiles (detpacks, tripmines)
 				continue;
@@ -4361,7 +4354,7 @@ void ForceThrow( gentity_t *self, qboolean pull )
 					&& push_list[x]->client->ps.MISHAP_VARIABLE > MISHAPLEVEL_HEAVY)
 				//if (otherPushPower && CanCounterThrow(push_list[x], self, pull))
 				//[/ForceSys]
-				{//racc - player blocked the throw.
+				{
 					if ( pull )
 					{
 						G_Sound( push_list[x], CHAN_BODY, G_SoundIndex( "sound/weapons/force/pull.wav" ) );
@@ -4380,7 +4373,6 @@ void ForceThrow( gentity_t *self, qboolean pull )
 						//push_list[x]->client->ps.forceHandExtendTime = level.time + 1000;
 						//[/ForceSys]
 					}
-					//racc - add the force push glow to the defender
 					push_list[x]->client->ps.powerups[PW_DISINT_4] = push_list[x]->client->ps.forceHandExtendTime + 200;
 
 					if (pull)
@@ -4462,7 +4454,7 @@ void ForceThrow( gentity_t *self, qboolean pull )
 						if (!OnSameTeam(self, push_list[x]) && canPullWeapon)
 						//if (!OnSameTeam(self, push_list[x]) && Q_irand(1, 10) <= randfact && canPullWeapon)
 						//[/ForceSys]
-						{//racc - pull the weapon out of the player's hand.
+						{
 							vec3_t uorg, vecnorm;
 							//[ForceSys]
 							VectorCopy(self->client->ps.origin, tfrom);
@@ -4977,7 +4969,7 @@ qboolean ValidGripEnt(gentity_t*self,gentity_t*ent)
 }
 
 void DoGripAction(gentity_t *self, forcePowers_t forcePower)
-{//racc - have someone in our grip, deal with them.
+{
 	gentity_t *gripEnt;
 	int gripLevel = 0;
 	trace_t tr;
@@ -6394,7 +6386,7 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 	*/
 	//The stance in relation to power level is no longer applicable with the crazy new akimbo/staff stances.
 	if (!self->client->ps.fd.saberAnimLevel)
-	{//racc - don't ever have SS_NONE?
+	{
 		self->client->ps.fd.saberAnimLevel = FORCE_LEVEL_1;
 	}
 

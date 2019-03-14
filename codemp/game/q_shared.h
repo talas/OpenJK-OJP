@@ -563,11 +563,7 @@ typedef enum {
 
 typedef enum {
 	BLOCKED_NONE,
-	BLOCKED_BOUNCE_MOVE,	//[RACC] This is used for situations where you want to manually 
-							//set a animation (normally deflections.)  To use, set your 
-							//sabermove to the move you want and then set this saberBlocked
-							//flag.  The animation will be set with the correct timers and
-							//weapontime.
+	BLOCKED_BOUNCE_MOVE,
 	BLOCKED_PARRY_BROKEN,
 	BLOCKED_ATK_BOUNCE,
 	BLOCKED_UPPER_RIGHT,
@@ -710,10 +706,10 @@ typedef struct
 	float		lengthMax;
 	float		lengthOld;
 	float		desiredLength;
-	vec3_t		muzzlePoint;		//racc - not updated on cgame side.		
-	vec3_t		muzzlePointOld;		//racc - not updated on cgame side.	
-	vec3_t		muzzleDir;			//racc - not updated on cgame side.	
-	vec3_t		muzzleDirOld;		//racc - not updated on cgame side.	
+	vec3_t		muzzlePoint;
+	vec3_t		muzzlePointOld;
+	vec3_t		muzzleDir;
+	vec3_t		muzzleDirOld;
 	saberTrail_t	trail;
 	int			hitWallDebounceTime;
 	int			storageTime;
@@ -1990,7 +1986,7 @@ typedef struct forcedata_s {
 	int			forceDoInit;
 
 	int			forceSide;
-	int			forceRank;		//racc - stores the force mastery rank of the player.  Is set but doesn't seem to be used.
+	int			forceRank;
 
 	int			forceDeactivateAll;
 
@@ -1999,10 +1995,9 @@ typedef struct forcedata_s {
 	//[SentryGun]
 	//racc - This variable isn't used anymore since we allow multiple sentry guns now.
 	//[/SentryGun]
-	//racc - flag for indicating when a player has a sentry gun deployed.  This prevents the player from deploying multiple sentry guns.
-	qboolean	sentryDeployed;	
+	qboolean	sentryDeployed;
 
-	int			saberAnimLevelBase;//sigh... //racc - This id's the saber style. SS_DUAL for dual sabers, SS_STAFF for staff sabers, and anything else for single saber. 
+	int			saberAnimLevelBase;//sigh...
 	int			saberAnimLevel;
 	int			saberDrawAnimLevel;
 
@@ -2161,13 +2156,10 @@ typedef struct playerState_s {
 
 	int			saberEntityNum;
 	float		saberEntityDist;
-	int			saberEntityState;	//racc - this keeps track of the saber's throw state.  
-									//0 = not thrown 1 = thrown.
+	int			saberEntityState;
 	int			saberThrowDelay;
 	qboolean	saberCanThrow;
-	//racc - indicates the time when the saber was first tossed.  We use this to determine
-	//when the saber should be able to return (to prevent throw spamming).
-	int			saberDidThrowTime; 
+	int			saberDidThrowTime;
 	int			saberDamageDebounceTime;
 	int			saberHitWallSoundDebounceTime;
 	int			saberEventFlags;
@@ -2202,9 +2194,7 @@ typedef struct playerState_s {
 	int			electrifyTime;
 
 	int			saberAttackSequence;
-	int			saberIdleWound;			//[RACC] - Idle damage debouncer, also used for 
-										//timing saber clash sparks in the middle of a 
-										//saber lock
+	int			saberIdleWound;
 	int			saberAttackWound;
 	int			saberBlockTime;
 
@@ -2238,7 +2228,6 @@ typedef struct playerState_s {
 	int			duelTime;
 	qboolean	duelInProgress;
 
-	//racc - this isn't used anymore in Enhanced thanks to the new saber system.
 	int			saberAttackChainCount;
 
 	int			saberHolstered;
@@ -2343,50 +2332,25 @@ typedef struct siegePers_s
 // so they aren't game/cgame only definitions
 //
 #define	BUTTON_ATTACK			1
-//[RACC] - +button0
-//+attack
-
 #define	BUTTON_TALK				2			// displays talk balloon and disables actions
-//[RACC] - +button1
-
 #define	BUTTON_USE_HOLDABLE		4
-//[RACC] - +button2
-
 #define	BUTTON_GESTURE			8
-//[RACC] - +button3
-
 #define	BUTTON_WALKING			16			// walking can't just be infered from MOVE_RUN
 										// because a key pressed late in the frame will
 										// only generate a small move value for that frame
 										// walking will use different animations and
 										// won't generate footsteps
-//[RACC] - +button4?
-
 #define	BUTTON_USE				32			// the ol' use key returns!
-//[RACC] - +button5
-//+use
-
-#define BUTTON_FORCEGRIP		64			
-//[RACC] - +button6
-
+#define BUTTON_FORCEGRIP		64			// 
 #define BUTTON_ALT_ATTACK		128
-//[RACC] - +button7
-//+altattack
 
 #define	BUTTON_ANY				256			// any key whatsoever
-//[RACC] - +button8?
 
 #define BUTTON_FORCEPOWER		512			// use the "active" force power
-//[RACC] - +button9
-//+useforce
 
 #define BUTTON_FORCE_LIGHTNING	1024
-//[RACC] - +button10
-//+force_lightning
 
 #define BUTTON_FORCE_DRAIN		2048
-//[RACC] - +button11
-//+force_drain
 
 //[SaberSys]
 //[SaberDefines]
@@ -2566,7 +2530,7 @@ typedef struct usercmd_s {
 	int				angles[3];
 	int 			buttons;
 	byte			weapon;           // weapon 
-	byte			forcesel;		  //racc - force power selection command.
+	byte			forcesel;
 	byte			invensel;
 	byte			generic_cmd;
 	signed char	forwardmove, rightmove, upmove;
@@ -2719,8 +2683,7 @@ typedef struct entityState_s {
 	int		time;
 	int		time2;
 
-	vec3_t	origin;			//racc - this variable isn't updated when the entity is a playing player, 
-							//but it is used when a player is spectating.
+	vec3_t	origin;
 	vec3_t	origin2;
 
 	vec3_t	angles;

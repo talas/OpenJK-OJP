@@ -375,7 +375,7 @@ void JMSaberThink(gentity_t *ent)
 	gJMSaberEnt = ent;
 
 	if (ent->enemy)
-	{//RACC - someone has the JediMaster saber.
+	{
 		if (!ent->enemy->client || !ent->enemy->inuse)
 		{ //disconnected?
 			VectorCopy(ent->enemy->s.pos.trBase, ent->s.pos.trBase);
@@ -397,7 +397,7 @@ void JMSaberThink(gentity_t *ent)
 		}
 	}
 	else if (ent->pos2[0] && ent->pos2[1] < level.time)
-	{//RACC - the jedimaster saber is loose.
+	{
 		VectorCopy(ent->s.origin2, ent->s.pos.trBase);
 		VectorCopy(ent->s.origin2, ent->s.origin);
 		VectorCopy(ent->s.origin2, ent->r.currentOrigin);
@@ -1219,9 +1219,9 @@ void MaintainBodyQueue(gentity_t *ent)
 	}
 
 	if (!ent->client->noCorpse && !ent->client->ps.fallingToDeath)
-	{//racc - we're suppose to have a corpse so attempt to create one.
+	{
 		if (!CopyToBodyQue (ent))
-		{//racc - no luck, but still remember to restore all the limb damage on the player
+		{
 			doRCG = qtrue;
 		}
 	}
@@ -3852,7 +3852,6 @@ void ClientSpawn(gentity_t *ent) {
 	//[/MELEE]
 
 
-	//racc - set weapons for everything except siege
 	//[CoOp]
 	//[ExpSys]
 	/* spawn weapons screws up the experience system
@@ -4352,7 +4351,7 @@ void ClientSpawn(gentity_t *ent) {
 
 // nmckenzie: DESERT_SIEGE... or well, siege generally.  This was over-writing the max value, which was NOT good for siege.
 	if ( inSiegeWithClass == qfalse )
-	{//racc - not playing siege, assign ammo levels.
+	{
 		//[ExpSys][Reload]
 		//client->ps.ammo[AMMO_POWERCELL] = ammoData[AMMO_POWERCELL].max * (float) (client->skillLevel[SK_BOWCASTER] < client->skillLevel[SK_DISRUPTOR] ? client->skillLevel[SK_DISRUPTOR] : client->skillLevel[SK_BOWCASTER])/FORCE_LEVEL_3;
 		client->ps.ammo[AMMO_POWERCELL] = ClipSize(AMMO_POWERCELL,ent);

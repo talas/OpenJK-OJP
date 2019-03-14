@@ -186,7 +186,7 @@ void NPC_BSAdvanceFight (void)
 //[CoOp]
 /* Not Used By Anything
 void Disappear(gentity_t *self)
-{//RACC - make self become invisible and quit thinking.  Used for BeamOut().
+{
 //	ClientDisconnect(self);
 	self->s.eFlags |= EF_NODRAW;
 	self->think = 0;
@@ -216,8 +216,7 @@ void BeamOut (gentity_t *self)
 //[/CoOp]
 
 void NPC_BSCinematic( void ) 
-{//RACC - AI Cinematic Behavior State.  
-	//Basically, just follow scripting orders and don't think.
+{
 
 	if( NPCInfo->scriptFlags & SCF_FIRE_WEAPON )
 	{
@@ -521,7 +520,7 @@ qboolean NPC_CheckInvestigate( int alertEventNum )
 void NPC_BSSleep( void ) 
 */
 void NPC_BSSleep( void ) 
-{//RACC - Follow a path, looking for enemies
+{
 	//[CoOp]
 	int alertEvent = NPC_CheckAlertEvents( qtrue, qfalse, -1, qfalse, AEL_MINOR, qfalse );
 	//int alertEvent = NPC_CheckAlertEvents( qtrue, qfalse, -1, qfalse, AEL_MINOR );
@@ -1072,13 +1071,10 @@ void NPC_BSJump (void)
 		}
 		break;
 	case JS_CROUCHING:
-		//racc - crouch before jump
 		if ( NPC->client->ps.legsTimer > 0 )
 		{//Still playing crouching anim
 			return;
 		}
-
-		//racc - jump!
 
 		//Create a parabola
 
@@ -1167,7 +1163,7 @@ void NPC_BSJump (void)
 		//FIXME: jumpsound?
 		break;
 	case JS_JUMPING:
-		//RACC - I'm flying!
+
 		if ( showBBoxes )
 		{
 			VectorAdd(NPC->r.mins, NPC->pos1, p1);
@@ -1242,7 +1238,6 @@ void NPC_BSJump (void)
 		}
 		break;
 	case JS_WAITING:
-		//RACC - Finished Jump.  reset state to start state.
 	default:
 		NPCInfo->jumpState = JS_FACING;
 		break;
@@ -1254,7 +1249,7 @@ void NPC_BSJump (void)
 extern qboolean InPlayersPVS(vec3_t point);
 //[/CoOp]
 void NPC_BSRemove (void)
-{//RACC - remove ourselves from the game world.  Just don't do it in front of players.
+{
 	NPC_UpdateAngles ( qtrue, qtrue );
 	//[CoOp]
 	if( !InPlayersPVS( NPC->r.currentOrigin ) )
@@ -1281,7 +1276,7 @@ void NPC_BSRemove (void)
 
 
 void NPC_BSSearch (void)
-{//RACC - Using current waypoint as a base, search the immediate branches of waypoints for enemies
+{
 	//[CoOp]
 	NPC_CheckAlertEvents(qtrue, qtrue, -1, qfalse, AEL_DANGER, qfalse);
 	//FIXME: do something with these alerts...?
@@ -1363,7 +1358,7 @@ void NPC_BSSearch (void)
 		//[/CoOp]
 
 		if ( VectorLengthSquared( vec ) < minGoalReachedDistSquared )
-		{//RACC - reached goal.
+		{
 			//Close enough, just got there
 			//[CoOp]
 			//[RAFIXME] - Impliment navigation code
@@ -1416,10 +1411,10 @@ void NPC_BSSearch (void)
 		}
 	}
 	else
-	{//RACC - standing at a waypoint investigating.
+	{
 		//We're there
 		if ( NPCInfo->investigateDebounceTime > level.time )
-		{//RACC - still investigating.
+		{
 			//Still waiting around for a bit
 			//Turn angles every now and then to look around
 			if ( NPCInfo->tempGoal->waypoint != WAYPOINT_NONE )
@@ -1583,8 +1578,7 @@ NPC_BSNoClip
 */
 
 void NPC_BSNoClip ( void )
-{//RACC - I think this is for NPCs set to noclip.  The bot just attempts to move directly
-	//to goal.
+{
 	if ( UpdateGoal() )
 	{
 		vec3_t	dir, forward, right, angles, up = {0, 0, 1};
@@ -2654,7 +2648,7 @@ void NPC_StartFlee( gentity_t *enemy, vec3_t dangerPoint, int dangerLevel, int f
 }
 
 void G_StartFlee( gentity_t *self, gentity_t *enemy, vec3_t dangerPoint, int dangerLevel, int fleeTimeMin, int fleeTimeMax )
-{//racc - g_ version of NPC_StartFlee.
+{
 	if ( !self->NPC )
 	{//player
 		return;

@@ -2496,7 +2496,6 @@ int SavePathData(const char *filename)
 	//[DynamicMemoryTweaks]
 	//added save message and cleaned up the code so this 
 	//doesn't have to use temp memory stuff.
-	//G_Printf("Saving waypoint table..\n");
 
 	//routePath = (char *)B_TempAlloc(1024);
 
@@ -2520,11 +2519,8 @@ int SavePathData(const char *filename)
 		return 0;
 	}
 
-	//G_Printf("Calculating Paths..\n");
-
 	CalculatePaths(); //make everything nice and connected before saving
 
-	//G_Printf("Marking flag nodes..\n");
 	FlagObjects(); //currently only used for flagging waypoints nearest CTF flags
 
 	//[DynamicMemoryTweaks]
@@ -2533,16 +2529,12 @@ int SavePathData(const char *filename)
 	//[/DynamicMemoryTweaks]
 	storeString = (char *)B_TempAlloc(4096);
 
-	//G_Printf("Creating path table image..\n");
-
 	//[DynamicMemoryTweaks]
 	Com_sprintf(fileString, WPARRAY_BUFFER_SIZE, "%i %i %f (%f %f %f) { ", gWPArray[i]->index, gWPArray[i]->flags, gWPArray[i]->weight, gWPArray[i]->origin[0], gWPArray[i]->origin[1], gWPArray[i]->origin[2]);
 	//Com_sprintf(fileString, 524288, "%i %i %f (%f %f %f) { ", gWPArray[i]->index, gWPArray[i]->flags, gWPArray[i]->weight, gWPArray[i]->origin[0], gWPArray[i]->origin[1], gWPArray[i]->origin[2]);
 	//[/DynamicMemoryTweaks]
 
 	n = 0;
-
-	//G_Printf("Setting neighbours..\n");
 
 	while (n < gWPArray[i]->neighbornum)
 	{
@@ -2569,8 +2561,6 @@ int SavePathData(const char *filename)
 
 	gWPArray[i]->disttonext = flLen;
 
-	//G_Printf("Creating waypoint list image..\n");
-	
 	//[DynamicMemoryTweaks]
 	Com_sprintf(fileString, WPARRAY_BUFFER_SIZE, "%s} %f\n", fileString, flLen);
 	//Com_sprintf(fileString, 524288, "%s} %f\n", fileString, flLen);

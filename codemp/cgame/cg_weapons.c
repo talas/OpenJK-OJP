@@ -463,12 +463,7 @@ Ghoul2 Insert Start
 				trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, weapon->readySound );
 			}
 		}
-
-		//gun.angles[1]=20;
-		//gun.origin[1]=20;
-		//gun.axis[1][1]=20;
-		//gun.axis[0][1]=20;
-		//gun.axis[2][1]=20;
+	
 		CG_PositionEntityOnTag( &gun, parent, parent->hModel, "tag_weapon");
 
 		if (!CG_IsMindTricked(cent->currentState.trickedentindex,

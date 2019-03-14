@@ -188,7 +188,7 @@ enum
 };
 
 static void ST_Speech( gentity_t *self, int speechType, float failChance )
-{//racc - do voice stuff
+{
 	if ( random() < failChance )
 	{
 		return;
@@ -728,7 +728,7 @@ qboolean NPC_CheckEnemyStealth( gentity_t *target )
 		//Now award any final bonuses to this number
 		contents = trap_PointContents( targ_org, target->s.number );
 		if ( contents&CONTENTS_WATER )
-		{//racc - target is in the water.
+		{
 			int myContents = trap_PointContents( NPC->client->renderInfo.eyePoint, NPC->s.number );
 			if ( !(myContents&CONTENTS_WATER) )
 			{//I'm not in water
@@ -787,7 +787,7 @@ qboolean NPC_CheckEnemyStealth( gentity_t *target )
 		}
 
 		if ( target_rating > realize && (NPCInfo->scriptFlags&SCF_LOOK_FOR_ENEMIES) )
-		{//racc - we got a good look at this dude, lock on.
+		{
 			G_SetEnemy( NPC, target );
 			NPCInfo->enemyLastSeenTime = level.time;
 			TIMER_Set( NPC, "attackDelay", Q_irand( 500, 2500 ) );
@@ -808,9 +808,9 @@ qboolean NPC_CheckEnemyStealth( gentity_t *target )
 				//FIXME: set desired yaw and pitch towards this guy?
 			}
 			else if ( TIMER_Get( NPC, "enemyLastVisible" ) <= level.time + 500 && (NPCInfo->scriptFlags&SCF_LOOK_FOR_ENEMIES) )	//FIXME: Is this reliable?
-			{//racc - has been in our crosshairs for too long.
+			{
 				if ( NPCInfo->rank < RANK_LT && !Q_irand( 0, 2 ) )
-				{//racc - lower level baddies get more suspicious instead of just attacking
+				{
 					int	interrogateTime = Q_irand( 2000, 4000 );
 					ST_Speech( NPC, SPEECH_SUSPICIOUS, 0 );
 					TIMER_Set( NPC, "interrogating", interrogateTime );
@@ -820,7 +820,7 @@ qboolean NPC_CheckEnemyStealth( gentity_t *target )
 					TIMER_Set( NPC, "stand", interrogateTime );
 				}
 				else
-				{//racc - attack!
+				{
 					G_SetEnemy( NPC, target );
 					NPCInfo->enemyLastSeenTime = level.time;
 					//FIXME: ambush guys (like those popping out of water) shouldn't delay...
@@ -1176,7 +1176,7 @@ ST_LookAround
 */
 
 static void ST_LookAround( void )
-{//racc - looking around to investigate something.
+{
 	vec3_t	lookPos;
 	float	perc = (float) ( level.time - NPCInfo->pauseTime ) / (float) NPCInfo->investigateDebounceTime;
 
@@ -1278,8 +1278,6 @@ void NPC_BSST_Investigate( void )
 	if ( NPCInfo->localState == LSTATE_INVESTIGATE && (NPCInfo->goalEntity!=NULL) )
 	{
 		//See if we're there
-		//[CoOp]
-		//RAFIXME - check to make sure this is inline with SP code.
 		if ( NAV_HitNavGoal( NPC->r.currentOrigin, NPC->r.mins, NPC->r.maxs, NPCInfo->goalEntity->r.currentOrigin, 32, FlyingCreature( NPC ) ) == qfalse )
 		{
 			ucmd.buttons |= BUTTON_WALKING;
@@ -1711,7 +1709,7 @@ static void ST_CheckMoveState( void )
 }
 
 void ST_ResolveBlockedShot( int hit )
-{//racc - try to do some stuff to be able to shot around our allies without hitting them.
+{
 	int	stuckTime;
 	//figure out how long we intend to stand here, max
 	if ( TIMER_Get( NPC, "roamTime" ) > TIMER_Get( NPC, "stick" ) )
@@ -1733,7 +1731,7 @@ void ST_ResolveBlockedShot( int hit )
 				if ( TIMER_Done( member, "stand" ) )
 				{//they're not being forced to stand
 					//tell them to duck at least as long as I'm not moving
-					TIMER_Set( member, "duck", stuckTime ); // tell my friend to duck so I can shoot over his head
+					TIMER_Set( member, "duck", stuckTime );
 					return;
 				}
 			}
@@ -2155,7 +2153,6 @@ void ST_Commander( void )
 	if ( group->lastSeenEnemyTime < level.time - 180000 )
 	{//dissolve the group
 		ST_Speech( NPC, SPEECH_LOST, 0.0f );
-		//RAFIXME - is this inline with SP?
 		group->enemy->waypoint = NAV_FindClosestWaypointForEnt( group->enemy, WAYPOINT_NONE );
 		for ( i = 0; i < group->numGroup; i++ )
 		{
@@ -2171,13 +2168,11 @@ void ST_Commander( void )
 			}
 			//Lost enemy for three minutes?  go into search mode?
 			G_ClearEnemy( NPC );
-			//RAFIXME - is this inline with SP?
 			NPC->waypoint = NAV_FindClosestWaypointForEnt( NPC, group->enemy->waypoint );
 			if ( NPC->waypoint == WAYPOINT_NONE )
 			{
 				NPCInfo->behaviorState = BS_DEFAULT;//BS_PATROL;
 			}
-			//RAFIXME - is this inline with SP?
 			else if ( group->enemy->waypoint == WAYPOINT_NONE || (trap_Nav_GetPathCost( NPC->waypoint, group->enemy->waypoint ) >= Q3_INFINITE) )
 			{
 				NPC_BSSearchStart( NPC->waypoint, BS_SEARCH );
@@ -3352,12 +3347,10 @@ void NPC_BSST_Attack( void )
 
  		NPCInfo->goalEntity = (enemyLOS)?(0):(NPC->enemy);
 	}
-	//[/CoOp]
-	
-	//RAFIXME - impliment firedelay somehow?
+	//[/CoOp]	
+
 	if ( NPC->client->ps.weaponTime > 0 && NPC->s.weapon == WP_ROCKET_LAUNCHER )
-	//if ( NPC->client->fireDelay && NPC->s.weapon == WP_ROCKET_LAUNCHER )
-	{//racc - don't move while you're firing a rocket launcher.
+	{
 		move = qfalse;
 	}
 

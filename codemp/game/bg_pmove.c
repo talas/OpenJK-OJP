@@ -422,9 +422,9 @@ the monster.  If it doesn't find a surface, it does nothinh\g
 and returns.
 ====================================================================
 */
-//[SPPortComplete]
+
 void PM_pitch_roll_for_slope( bgEntity_t *forwhom, vec3_t pass_slope, vec3_t storeAngles )
-{//racc - Must be in line with the pitch_roll_for_slope() in game
+{
 	vec3_t	slope;
 	vec3_t	nvf, ovf, ovr, startspot, endspot, new_angles = { 0, 0, 0 };
 	float	pitch, mod, dot;
@@ -517,7 +517,6 @@ void PM_pitch_roll_for_slope( bgEntity_t *forwhom, vec3_t pass_slope, vec3_t sto
 	}
 	*/
 }
-//[/SPPortComplete]
 
 #define		FLY_NONE	0
 #define		FLY_NORMAL	1
@@ -4642,7 +4641,6 @@ static void PM_CrashLand( void ) {
 	float		vel, acc;
 	float		t;
 	float		a, b, c, den;
-//	float		misc1,misc2,misc3,misc4;
 	qboolean	didRoll = qfalse;
 
 	//[CoOp]
@@ -5443,7 +5441,6 @@ static void PM_GroundTrace( void ) {
 	}
 
 	pm->ps->groundEntityNum = trace.entityNum;
-	//RACC - On ground, update ground timer
 	pm->ps->lastOnGround = pm->cmd.serverTime;
 
 	PM_AddTouchEnt( trace.entityNum );	
@@ -5835,7 +5832,7 @@ qboolean PM_SwimmingAnim( int anim )
 
 //[SPPortComplete]
 qboolean PM_RollingAnim( int anim )
-{//racc - anim is a roll?
+{
 	switch ( anim )
 	{
 	case BOTH_ROLL_F:			//# Roll forward
@@ -6465,8 +6462,6 @@ static void PM_Footsteps( void ) {
 		}
 		return;
 	}
-	//RACC - set idle stand if you're not moving and if your animation times 
-	//have kicked out.
 	// if not trying to move
 	//[MoveSys]
 	//added case for when we're restricted from moving (like during viewlocks)
@@ -6795,7 +6790,7 @@ static void PM_Footsteps( void ) {
 			footstep = qtrue;
 		}
 		else
-		{//RACC - walking
+		{
 			bobmove = 0.2f;	// walking bobs slow
 			if ( pm->ps->pm_flags & PMF_BACKWARDS_RUN )
 			{
@@ -10259,7 +10254,7 @@ qboolean PM_SaberInTransition( int move );
 extern qboolean BG_InSlowBounce(playerState_t *ps);
 //[/MoveSys]
 void BG_AdjustClientSpeed(playerState_t *ps, usercmd_t *cmd, int svTime)
-{//racc - this function adjusts the client's movement speed based on the situation.
+{
 	saberInfo_t	*saber;
 
 	if (ps->clientNum >= MAX_CLIENTS)
@@ -10530,9 +10525,7 @@ qboolean BG_InRollAnim( entityState_t *cent )
 }
 
 qboolean BG_InKnockDown( int anim )
-{//racc - simple BG knockdown check.  
-	//Doesn't check timers or consider some of the more special knockdown 
-	//related animations.  RAFIXME - Replace this with PM_InKnockDown?
+{
 	switch ( (anim) )
 	{
 	case BOTH_KNOCKDOWN1:
@@ -11815,8 +11808,7 @@ static void PM_CmdForSaberMoves(usercmd_t *ucmd)
 #else
 static ID_INLINE void PM_CmdForSaberMoves(usercmd_t *ucmd)
 #endif
-{//racc - basically, this function does all the movement and viewlocks for the special
-	//saber moves.
+{
 	//DUAL FORWARD+JUMP+ATTACK
 	if ( ( pm->ps->legsAnim == BOTH_JUMPATTACK6
 			&& pm->ps->saberMove == LS_JUMPATTACK_DUAL )

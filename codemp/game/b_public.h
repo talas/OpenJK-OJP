@@ -132,7 +132,6 @@ typedef struct
 {
 	//FIXME: Put in playerInfo or something
 	int			timeOfDeath;			//FIXME do we really need both of these
-										//racc - used to determine when we should disappear.
 	gentity_t	*touchedByPlayer;
 
 	visibility_t	enemyLastVisibility;
@@ -289,7 +288,6 @@ typedef struct
 
 	gentity_t	*watchTarget;	//for BS_CINEMATIC, keeps facing this ent
 
-	//racc - friendly fire data structure?
 	int			ffireCount;		//sigh... you'd think I'd be able to find a way to do this without having to use 3 int fields, but...
 	int			ffireDebounce;	
 	int			ffireFadeDebounce;

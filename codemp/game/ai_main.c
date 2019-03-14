@@ -1183,10 +1183,6 @@ int OrgVisible(vec3_t org1, vec3_t org2, int ignore)
 }
 
 //special waypoint visibility check
-//RACC
-//0 = wall in way
-//1 = player or no obstruction
-//2 = force field in the way.
 int WPOrgVisible(gentity_t *bot, vec3_t org1, vec3_t org2, int ignore)
 {
 	trace_t tr;
@@ -3314,8 +3310,6 @@ success:
 	return 1;
 }
 
-
-//RACC - Solid visual trace with two ignores
 int EntityVisibleBox(vec3_t org1, vec3_t mins, vec3_t maxs, vec3_t org2, int ignore, int ignore2)
 {
 	trace_t tr;
@@ -4066,7 +4060,6 @@ void GetIdealDestination(bot_state_t *bs)
 		distChange = 300;
 	}
 
-	//RACC - Go after your revenge enemy if you can get to him from there.
 	if (bs->revengeEnemy && bs->revengeEnemy->health > 0 &&
 		bs->revengeEnemy->client && (bs->revengeEnemy->client->pers.connected == CA_ACTIVE || bs->revengeEnemy->client->pers.connected == CA_AUTHORIZING))
 	{ //if we hate someone, always try to get to them
@@ -4726,11 +4719,9 @@ void SaberCombatHandling(bot_state_t *bs)
 
 	mid_down = (int)tr.endpos[2];
 
-	//RACC - Both over the same level of ground
 	if (me_down == en_down &&
 		en_down == mid_down)
 	{
-		//RACC - jump up if your enemy is in the air too.
 		if (usethisvec[2] > (bs->origin[2]+32) &&
 			bs->currentEnemy->client &&
 			bs->currentEnemy->client->ps.groundEntityNum == ENTITYNUM_NONE)
@@ -5172,7 +5163,6 @@ int ShouldSecondaryFire(bot_state_t *bs)
 }
 
 //standard weapon combat routines
-//RACC - This really only sets the attack buttons when appropiate.
 int CombatBotAI(bot_state_t *bs, float thinktime)
 {
 	vec3_t eorg, a;
@@ -6288,7 +6278,6 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 	int detSelect = 0;
 	vec3_t preFrameGAngles;
 
-	//RACC - Shut down AI if doing bot routing editting.
 	if (gDeactivated)
 	{
 		bs->wpCurrent = NULL;
@@ -6298,7 +6287,6 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 		return;
 	}
 
-	//RACC - Shut down AI if spectating.
 	if (g_entities[bs->client].inuse &&
 		g_entities[bs->client].client &&
 		g_entities[bs->client].client->sess.sessionTeam == TEAM_SPECTATOR)
@@ -6473,7 +6461,6 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 		bs->wpSeenTime = 0;
 		bs->wpDirection = 0;
 
-		//RACC - Try to respawn if you're done talking.
 		if (rand()%10 < 5 &&
 			(!bs->doChat || bs->chatTime < level.time))
 		{
@@ -6506,7 +6493,6 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 		bs->frame_Enemy_Vis = 0;
 	}
 
-	//RACC - revenge Enemy became inactive.
 	if (bs->revengeEnemy && bs->revengeEnemy->client &&
 		bs->revengeEnemy->client->pers.connected != CA_ACTIVE && bs->revengeEnemy->client->pers.connected != CA_AUTHORIZING)
 	{
@@ -6514,7 +6500,6 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 		bs->revengeHateLevel = 0;
 	}
 
-	//RACC - current enemy became inactive
 	if (bs->currentEnemy && bs->currentEnemy->client &&
 		bs->currentEnemy->client->pers.connected != CA_ACTIVE && bs->currentEnemy->client->pers.connected != CA_AUTHORIZING)
 	{
@@ -6523,7 +6508,6 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 
 	fjHalt = 0;
 
-	//RACC - Do the Force Powers Thing.
 #ifndef FORCEJUMP_INSTANTMETHOD
 	if (bs->forceJumpChargeTime > level.time)
 	{
@@ -6692,7 +6676,6 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 	}
 	else
 	{
-		//RACC - You see your enemy, quit trying to plant mines
 		if (bs->currentEnemy && bs->lastVisibleEnemyIndex == bs->currentEnemy->s.number &&
 			bs->frame_Enemy_Vis && bs->forceWeaponSelect /*&& bs->plantContinue < level.time*/)
 		{
@@ -6706,7 +6689,6 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 			bs->destinationGrabTime = 0;
 		}
 
-		//RACC - you need to switch to the det pack to be able do your det detpacks command
 		if (!bs->forceWeaponSelect && bs->cur_ps.hasDetPackPlanted && bs->plantKillEmAll > level.time)
 		{
 			bs->forceWeaponSelect = WP_DET_PACK;
@@ -6734,7 +6716,6 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 		return;
 	}*/
 
-	//RACC - Update reaction speed
 	reaction = bs->skills.reflex/bs->settings.skill;
 
 	if (reaction < 0)
@@ -6751,7 +6732,6 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 		bs->timeToReact = level.time + reaction;
 	}
 
-	//RACC - Blow detpacks
 	if (bs->cur_ps.weapon == WP_DET_PACK && bs->cur_ps.hasDetPackPlanted && bs->plantKillEmAll > level.time)
 	{
 		bs->doAltAttack = 1;
@@ -6854,7 +6834,6 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 	//Apparently this "allows you to cheese" when fighting against bots. I'm not sure why you'd want to con bots
 	//into an easy kill, since they're bots and all. But whatever.
 
-	//RACC - off the bot paths, try to find the nearest path point.
 	if (!bs->wpCurrent)
 	{
 		wp = GetNearestVisibleWP(bs->origin, bs->client);
@@ -6920,7 +6899,6 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 
 		visResult = WPOrgVisible(&g_entities[bs->client], bs->origin, bs->wpCurrent->origin, bs->client);
 
-		//RACC - There's a force field between you and your target WP.  turn around and go the other direction.
 		if (visResult == 2)
 		{
 			bs->frame_Waypoint_Vis = 0;
@@ -7033,10 +7011,8 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 			goalWPIndex = bs->wpCurrent->index+1;
 		}
 
-		
-		//RACC - Set goalAngles
 		if (bs->wpCamping)
-		{//RACC - pitch the camping tent.
+		{
 			VectorSubtract(bs->wpCampingTo->origin, bs->origin, a);
 			vectoangles(a, ang);
 			VectorCopy(ang, bs->goalAngles);
@@ -7072,7 +7048,6 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 			GetIdealDestination(bs);
 		}
 		
-		//RACC - Can't get to destination from here
 		if (bs->wpCurrent && bs->wpDestination)
 		{
 			if (TotalTrailDistance(bs->wpCurrent->index, bs->wpDestination->index, bs) == -1)
@@ -7093,7 +7068,6 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 			}
 		}
 
-		//RACC - Touched a waypoint.  Do touch stuff and move onto next waypoint.
 		if (bs->frame_Waypoint_Len < wpTouchDist || (g_RMG.integer && bs->frame_Waypoint_Len < wpTouchDist*2))
 		{
 			WPTouchRoutine(bs);
@@ -7264,7 +7238,6 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 			bs->destinationGrabTime = level.time + 100; //assures that we will continue staying within a general area of where we want to be in a combat situation
 		}
 
-		//RACC - set headlevel of the baddie
 		if (bs->currentEnemy->client)
 		{
 			VectorCopy(bs->currentEnemy->client->ps.origin, headlevel);
@@ -7275,8 +7248,6 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 			VectorCopy(bs->currentEnemy->client->ps.origin, headlevel);
 		}
 
-
-		//RACC - try shooting a flechette alt bolt at an enemy you just lost track of.
 		if (!bs->frame_Enemy_Vis)
 		{
 			//if (!bs->hitSpotted && VectorLength(a) > 256)
@@ -7330,7 +7301,6 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 
 	if (bs->currentEnemy)
 	{
-		//RACC - handle saber combat (other than the attack button pressing).
 		if (BotGetWeaponRange(bs) == BWEAPONRANGE_SABER)
 		{
 			int saberRange = SABER_ATTACK_RANGE;
@@ -7352,12 +7322,9 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 				bs->saberPowerTime = level.time + Q_irand(3000, 15000);
 			}
 
-			//RACC - switch stance if you want to.
 			if ( g_entities[bs->client].client->ps.fd.saberAnimLevel != SS_STAFF
 				&& g_entities[bs->client].client->ps.fd.saberAnimLevel != SS_DUAL )
 			{
-				//RACC - switch to heavy if you're attacking a health opponent,
-				//using a single saber, and have the red stance available.
 				if (bs->currentEnemy->health > 75 
 					&& g_entities[bs->client].client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE] > 2)
 				{
@@ -7398,7 +7365,6 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 					meleestrafe = 1;
 				}
 			}
-			//RACC - Try throwing the saber
 			else if (bs->saberThrowTime < level.time && !bs->cur_ps.saberInFlight &&
 				(bs->cur_ps.fd.forcePowersKnown & (1 << FP_SABERTHROW)) &&
 				InFieldOfVision(bs->viewangles, 30, a_fo) &&
@@ -7412,7 +7378,6 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 				//[/SaberSys]
 				bs->doAttack = 0;
 			}
-			//RACC - Maintain saber throw
 			else if (bs->cur_ps.saberInFlight && bs->frame_Enemy_Len > 300 && bs->frame_Enemy_Len < BOT_SABER_THROW_RANGE)
 			{
 				//[SaberSys]
@@ -7438,7 +7403,6 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 		VectorCopy(bs->origin, bs->goalPosition);
 	}
 
-	//RACC - Force jumping to waypoint, you're pretty close to target so quit Force Jumping
 	if (bs->forceJumping > level.time)
 	{
 		VectorCopy(bs->origin, noz_x);
@@ -7454,21 +7418,16 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 		}
 	}
 
-	//RACC - Chat action code.
-
-	//RACC - chatting ass off.  Since we don't have any enemies at the moment, just stand there.
 	if (bs->doChat && bs->chatTime > level.time && (!bs->currentEnemy || !bs->frame_Enemy_Vis))
 	{
 		return;
 	}
-	//RACC - Attempting to chat but also see an enemy.  Time to abort chatting
 	else if (bs->doChat && bs->currentEnemy && bs->frame_Enemy_Vis)
 	{
 		//bs->chatTime = level.time + bs->chatTime_stored;
 		bs->doChat = 0; //do we want to keep the bot waiting to chat until after the enemy is gone?
 		bs->chatTeam = 0;
 	}
-	//RACC - Otherwise, do the chat.
 	else if (bs->doChat && bs->chatTime <= level.time)
 	{
 		if (bs->chatTeam)
@@ -7487,10 +7446,8 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 		bs->doChat = 0;
 	}
 
-	//RACC - Check for loose flags and such.
 	CTFFlagMovement(bs);
 
-	//RACC - Attacking mission objective code.
 	if (/*bs->wpDestination &&*/ bs->shootGoal &&
 		/*bs->wpDestination->associated_entity == bs->shootGoal->s.number &&*/
 		bs->shootGoal->health > 0 && bs->shootGoal->takedamage)
@@ -7513,12 +7470,10 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 		}
 	}
 
-	//RACC -  explosives code!
 	if (bs->cur_ps.hasDetPackPlanted)
 	{ //check if our enemy gets near it and detonate if he does
 		BotCheckDetPacks(bs);
 	}
-	//RACC - Ok, we can't see our enemy at the moment, and we didn't just plant a mine/detpack, so try to plant some mines/bombs to get them.
 	else if (bs->currentEnemy && bs->lastVisibleEnemyIndex == bs->currentEnemy->s.number && !bs->frame_Enemy_Vis && bs->plantTime < level.time &&
 		//[SaberSys]
 		!bs->doAttack && !bs->doAltAttack && !bs->doSaberThrow)
@@ -7529,18 +7484,13 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 
 		if (bs->plantDecided > level.time || (bs->frame_Enemy_Len < BOT_PLANT_DISTANCE*2 && VectorLength(a) < BOT_PLANT_DISTANCE))
 		{
-			//RACC - check to see if we can switch to mines or det packs.
 			mineSelect = BotSelectChoiceWeapon(bs, WP_TRIP_MINE, 0);
 			detSelect = BotSelectChoiceWeapon(bs, WP_DET_PACK, 0);
-			
-			//RACC - Already planted a det pack, don't try to plant more.
 			if (bs->cur_ps.hasDetPackPlanted)
 			{
 				detSelect = 0;
 			}
 
-			//RACC - already decided to plant mines/dets and now what correct weapon.  
-			//Start trying to plant mines now.
 			if (bs->plantDecided > level.time && bs->forceWeaponSelect &&
 				bs->cur_ps.weapon == bs->forceWeaponSelect)
 			{
@@ -7550,10 +7500,8 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 				bs->plantContinue = level.time + 500;
 				bs->beStill = level.time + 500;
 			}
-			//RACC - decide to plant explosive
 			else if (mineSelect || detSelect)
 			{
-				//RACC - only set if there's a floor or wall close in front of you view.
 				if (BotSurfaceNear(bs))
 				{
 					if (!mineSelect)
@@ -7582,13 +7530,11 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 			}
 		}
 	}
-	//RACC - Deactivate the forced weapon select.
 	else if (bs->plantContinue < level.time)
 	{
 		bs->forceWeaponSelect = 0;
 	}
 
-	//RACC - I spy the JEDIMASTER'S SABER AND IT'S LOOSE!
 	if (g_gametype.integer == GT_JEDIMASTER && !bs->cur_ps.isJediMaster && bs->jmState == -1 && gJMSaberEnt && gJMSaberEnt->inuse)
 	{
 		vec3_t saberLen;
@@ -7606,14 +7552,11 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 		}
 	}
 
-	//RACC - Not in beStill mode, waiting for an elevator, or dropping down onto a wp with
-	//Force Jump.
 	if (bs->beStill < level.time && !WaitingForNow(bs, bs->goalPosition) && !fjHalt)
 	{
 		VectorSubtract(bs->goalPosition, bs->origin, bs->goalMovedir);
 		VectorNormalize(bs->goalMovedir);
 
-		//RACC - Doing a nondelayed jump, stand still
 		if (bs->jumpTime > level.time && bs->jDelay < level.time &&
 			level.clients[bs->client].pers.cmd.upmove > 0)
 		{
@@ -7662,7 +7605,6 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 		*/
 		//[/BotTweaks]
 
-		//RACC - Try to jump
 		if (BotTrace_Jump(bs, bs->goalPosition))
 		{
 			bs->jumpTime = level.time + 100;
@@ -7671,7 +7613,6 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 		{
 			bs->duckTime = level.time + 100;
 		}
-		//RACC - Strafe around players that are in the way to the goalposition.
 #ifdef BOT_STRAFE_AVOIDANCE
 		else
 		{
@@ -7713,7 +7654,6 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 		bs->jumpTime = bs->jumpHoldTime;
 	}
 
-	//RACC - Do jump code
 	if (bs->jumpTime > level.time && bs->jDelay < level.time)
 	{
 		if (bs->jumpHoldTime > level.time)
@@ -7741,14 +7681,11 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 		}
 	}
 
-	//RACC - Do couch code
 	if (bs->duckTime > level.time)
 	{
 		trap_EA_Crouch(bs->client);
 	}
 
-	//RACC - lock onto dangerousObject and try to blast it if you're using ranged weapon and
-	//not engaged with a enemy
 	if ( bs->dangerousObject && bs->dangerousObject->inuse && bs->dangerousObject->health > 0 &&
 		bs->dangerousObject->takedamage && (!bs->frame_Enemy_Vis || !bs->currentEnemy) &&
 		(BotGetWeaponRange(bs) == BWEAPONRANGE_MID || BotGetWeaponRange(bs) == BWEAPONRANGE_LONG) &&
@@ -7822,7 +7759,6 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 			}
 		}
 	}
-	//RACC - Team force useage code
 	else if (g_gametype.integer >= GT_TEAM)
 	{ //still check for anyone to help..
 		friendInLOF = CheckForFriendInLOF(bs);
@@ -7850,7 +7786,6 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 		bs->doAttack = 0;
 	}
 
-	//RACC - "defending"
 	if (bs->doAttack && bs->cur_ps.weapon == WP_SABER &&
 		bs->saberDefending && bs->currentEnemy && bs->currentEnemy->client &&
 		BotWeaponBlockable(bs->currentEnemy->client->ps.weapon) )
@@ -7858,7 +7793,6 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 		bs->doAttack = 0;
 	}
 
-	//RACC - saberlock button pressing code.
 	//[BotTweaks]
 	//prevent bot's from kicking your ass in saber locks when
 	//sv_fps is higher
@@ -7877,7 +7811,6 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 	}
 	//[/BotTweaks]
 
-	//RACC - Don't attack while trying to do a saber challenge.
 	if (bs->botChallengingTime > level.time)
 	{
 		bs->doAttack = 0;
@@ -7895,7 +7828,6 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 		bs->doAltAttack = 0;
 	}
 
-	//RACC - Do Attacks code.
 	if (bs->doAttack)
 	{
 		trap_EA_Attack(bs->client);
@@ -7905,14 +7837,11 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 		trap_EA_Alt_Attack(bs->client);
 	}
 
-
-	//RACC - saber Challenging, don't use offence force powers.
 	if (useTheForce && forceHostile && bs->botChallengingTime > level.time)
 	{
 		useTheForce = qfalse;
 	}
 
-	//RACC - Using the force.
 	if (useTheForce)
 	{
 #ifndef FORCEJUMP_INSTANTMETHOD

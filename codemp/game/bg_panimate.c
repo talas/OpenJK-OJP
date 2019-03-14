@@ -57,9 +57,8 @@ qboolean BG_SaberStanceAnim( int anim )
 
 
 //[SPPortComplete]
-//BG clone of PM_CrouchAnim
 qboolean BG_CrouchAnim( int anim )
-{//racc - checks animation to see if it's a crouch animation
+{
 	switch ( anim )
 	{
 	case BOTH_SIT1:				//# Normal chair sit.
@@ -521,9 +520,8 @@ qboolean BG_InExtraDefenseSaberMove( int move )
 }
 
 //[SPPortComplete]
-//BG clone of PM_FlippingAnim
 qboolean BG_FlippingAnim( int anim )
-{//racc - checks anim to see if it's a flip anim. 
+{
 	switch ( anim )
 	{
 	case BOTH_FLIP_F:			//# Flip forward
@@ -575,10 +573,8 @@ qboolean BG_FlippingAnim( int anim )
 	return qfalse;
 }
 
-
-//racc - clone of PM_SpinningSaberAnim
 qboolean BG_SpinningSaberAnim( int anim )
-{//racc - is this a move where the player spins?
+{
 	switch ( anim )
 	{
 	//level 1 - FIXME: level 1 will have *no* spins
@@ -884,7 +880,6 @@ int BG_BrokenParryForParry( int move )
 	return LS_NONE;
 }
 
-//[RACC] - Uses ps.saberBlocked defines for inputs
 int BG_KnockawayForParry( int move )
 {
 	//FIXME: need actual anims for this
@@ -3505,8 +3500,6 @@ void BG_SaberStartTransAnim( int clientNum, int saberAnimLevel, int weapon, int 
 	trap_Cvar_VariableStringBuffer("g_saberanimspeed", buf, sizeof(buf));
 	saberanimscale = atof(buf);
 	//[/SaberSys]
-
-	//racc - adjust saber attack animatons by the .sab files speed scaler.
 	if ( anim >= BOTH_A1_T__B_ && anim <= BOTH_ROLL_STAB )
 	{
 		if ( weapon == WP_SABER )

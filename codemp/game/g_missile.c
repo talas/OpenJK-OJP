@@ -668,7 +668,7 @@ qboolean G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 			if ((otherOwner->client && !BG_SaberInAttack(otherOwner->client->ps.saberMove))
 				|| (otherOwner->client && (pm->cmd.buttons & BUTTON_FORCEPOWER || pm->cmd.buttons & BUTTON_FORCEGRIP
 		         || pm->cmd.buttons & BUTTON_FORCE_LIGHTNING) ))
-			{//racc - play projectile block animation even in .
+			{
 				otherOwner->client->ps.weaponTime = 0;
 				WP_SaberBlockNonRandom(otherOwner, ent->r.currentOrigin, qtrue);
 			}
@@ -1065,7 +1065,7 @@ void G_RunMissile( gentity_t *ent ) {
 	}
 
 	trap_LinkEntity( ent );
-	//racc - assign groundEntityNum for body parts.
+
 	if (ent->s.weapon == G2_MODEL_PART && !ent->bounceCount)
 	{
 		vec3_t lowerOrg;
@@ -1095,13 +1095,11 @@ void G_RunMissile( gentity_t *ent ) {
 				ent->parent->client->hook = NULL;
 			}
 
-			//racc - make dropped sabers think when they hit a non-impact surface.
 			if ((ent->s.weapon == WP_SABER && ent->isSaberEntity) || isKnockedSaber)
 			{
 				G_RunThink( ent );
 				return;
 			}
-			//just kill off other weapon shots when they hit a non-impact surface.
 			else if (ent->s.weapon != G2_MODEL_PART)
 			{
 				G_FreeEntity( ent );
@@ -1153,7 +1151,7 @@ void G_RunMissile( gentity_t *ent ) {
 			BG_EvaluateTrajectory( &ent->s.pos, level.time, ent->s.origin2 );
 
 			if (VectorCompare(ent->s.origin, ent->s.origin2))
-			{//racc - don't allow the current origin/predicted origin be the same.
+			{
 				ent->s.origin2[2] += 2.0f; //whatever, at least it won't mess up.
 			}
 		}

@@ -537,11 +537,6 @@ it based on the supposed rank and spit it into powerOut, returning true if it wa
 to begin with and false if not.
 fpDisabled is actually only expected (needed) from the server, because the ui disables
 force power selection anyway when force powers are disabled on the server.
-
-//racc
-powerOut - The forcepowers string that we're checking.
-maxRank - The current force mastery level.  In Enhanced, this is the current skill point total for this player.
-freeSaber - Players get the saber combat skill for free.
 ================
 */
 qboolean BG_LegalizedForcePowers(char *powerOut, int maxRank, qboolean freeSaber, int teamForce, int gametype, int fpDisabled)
@@ -579,13 +574,11 @@ qboolean BG_LegalizedForcePowers(char *powerOut, int maxRank, qboolean freeSaber
 	//first of all, print the max rank into the string as the rank
 	strcpy(powerOut, va("%i-", maxRank));
 
-	//racc - skip over the maxRank in the string and the following '-'
 	while (i < 128 && powerBuf[i] && powerBuf[i] != '-')
 	{
 		i++;
 	}
 	i++;
-	//racc - read the force side part of powerBuf into the readBuf.
 	while (i < 128 && powerBuf[i] && powerBuf[i] != '-')
 	{
 		readBuf[c] = powerBuf[i];
@@ -636,7 +629,6 @@ qboolean BG_LegalizedForcePowers(char *powerOut, int maxRank, qboolean freeSaber
 	//allowedPoints = forceMasteryPoints[maxRank];
 	//[/ExpSys]
 
-	//racc - check to see if this power is approprate for your force side or if it's been disabled.
 	i = 0;
 	//RAFIXME - fpDisabled doesn't apply to the additional skills.
 	while (i < NUM_FORCE_POWERS)
@@ -669,7 +661,6 @@ qboolean BG_LegalizedForcePowers(char *powerOut, int maxRank, qboolean freeSaber
 		final_Powers[FP_TEAM_FORCE] = 0;
 	}
 
-	//racc - calculate the total cost of our current selection of force powers.
 	usedPoints = 0;
 	i = 0;
 	//[ExpSys]
@@ -781,7 +772,6 @@ qboolean BG_LegalizedForcePowers(char *powerOut, int maxRank, qboolean freeSaber
 						}
 						//[/StanceSelection]
 
-						//reduce either Saber Defense or Saberthrow to zero or until we have enough points.
 						while (final_Powers[whichOne] > 0 && usedPoints > allowedPoints)
 						{
 							if ( final_Powers[whichOne] > 1 ||
@@ -798,7 +788,7 @@ qboolean BG_LegalizedForcePowers(char *powerOut, int maxRank, qboolean freeSaber
 						}
 					}
 					else
-					{//racc - reduce this power down
+					{
 						//[ExpSys]
 						if (c == FP_SEE)
 						{//since force seeing is a prereq for all force powers now, don't reduce it unless we have no other force powers left
@@ -830,7 +820,7 @@ qboolean BG_LegalizedForcePowers(char *powerOut, int maxRank, qboolean freeSaber
 								//(c != FP_SABER_OFFENSE || !freeSaber) &&
 								//[/ExpSys]
 								(c != FP_SABER_DEFENSE || !freeSaber)) )
-							{//racc - don't reduce Force Jump/Saber Offense or Defense below level 1 because they're "free". 
+							{
 								usedPoints -= bgForcePowerCost[c][final_Powers[c]];
 								final_Powers[c]--;
 							}
@@ -971,7 +961,6 @@ qboolean BG_LegalizedForcePowers(char *powerOut, int maxRank, qboolean freeSaber
 	}
 	//[/ExpSys]
 
-	//racc - can't have saber defense or throw without saber offense.
 	if (final_Powers[FP_SABER_OFFENSE] < 1)
 	{
 		final_Powers[FP_SABER_DEFENSE] = 0;

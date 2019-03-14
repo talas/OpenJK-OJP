@@ -79,7 +79,6 @@ G_TeamEnemy
 
 qboolean G_TeamEnemy( gentity_t *self )
 {//FIXME: Probably a better way to do this, is a linked list of your teammates already available?
-	//racc - check our team of NPCs to see if someone else on our team has an enemy.
 	int	i;
 	gentity_t	*ent;
 
@@ -181,7 +180,7 @@ qboolean G_CheckSaberAllyAttackDelay( gentity_t *self, gentity_t *enemy )
 
 
 void G_AttackDelay( gentity_t *self, gentity_t *enemy )
-{//racc - sets initial attack delay and roamTime for new enemy  
+{
 	if ( enemy && self->client && self->NPC )
 	{//delay their attack based on how far away they're facing from enemy
 		vec3_t		fwd, dir;
@@ -373,7 +372,7 @@ void G_AttackDelay( gentity_t *self, gentity_t *enemy )
 
 		//don't shoot right away
 		if ( attDelay > 4000+((2-g_spskill.integer)*3000) )
-		{//racc - clamp max attDelay
+		{
 			attDelay = 4000+((2-g_spskill.integer)*3000);
 		}
 		TIMER_Set( self, "attackDelay", attDelay );//Q_irand( 1500, 4500 ) );
@@ -434,7 +433,7 @@ extern gentity_t *G_CheckControlledTurretEnemy(gentity_t *self, gentity_t *enemy
 extern void G_SoundOnEnt( gentity_t *ent, int channel, const char *soundPath );
 //[/CoOp]
 void G_SetEnemy( gentity_t *self, gentity_t *enemy )
-{//racc - set this enemy for this NPC
+{
 	int	event = 0;
 	
 	//Must be valid
@@ -486,7 +485,6 @@ void G_SetEnemy( gentity_t *self, gentity_t *enemy )
 	
 	if ( self->client && self->NPC && enemy->client && enemy->client->playerTeam == self->client->playerTeam )
 	{//Probably a damn script!
-		//racc - attacking ally.
 		if ( self->NPC->charmedTime > level.time )
 		{//Probably a damn script!
 			return;
@@ -503,7 +501,7 @@ void G_SetEnemy( gentity_t *self, gentity_t *enemy )
 	//self->NPC->enemyLastSeenTime = level.time;
 
 	if ( self->enemy == NULL )
-	{//racc - had no enemy before.
+	{
 		//TEMP HACK: turn on our saber
 		if ( self->health > 0 )
 		{
@@ -1145,7 +1143,6 @@ void NPC_ChangeWeapon( int newWeapon )
 void NPC_ApplyWeaponFireDelay(void)
 How long, if at all, in msec the actual fire should delay from the time the attack was started
 */
-//RAFIXME - this whole function doesn't do anything anymore, impliment this stuff somehow?
 void NPC_ApplyWeaponFireDelay(void)
 {	
 	if ( NPC->attackDebounceTime > level.time )
@@ -1430,7 +1427,7 @@ HaveWeapon
 */
 
 qboolean HaveWeapon( int weapon ) 
-{//racc - checks the current NPC for the given weapon.
+{
 	return ( client->ps.stats[STAT_WEAPONS] & ( 1 << weapon ) );
 }
 
@@ -1490,7 +1487,7 @@ qboolean CanShoot ( gentity_t *ent, gentity_t *shooter )
 	}
 	
 	if ( ShotThroughGlass( &tr, ent, spot, MASK_SHOT ) )
-	{//racc - reset traceEnt to whatever you'll hit thru the glass.
+	{
 		traceEnt = &g_entities[ tr.entityNum ];
 	}
 
@@ -1515,7 +1512,7 @@ qboolean CanShoot ( gentity_t *ent, gentity_t *shooter )
 	//and we didn't hit someone on our own team, shoot
 	VectorSubtract(spot, tr.endpos, diff);
 	if(VectorLength(diff) < random() * 32)
-	{//racc - randomly pass shot check anyway?
+	{
 		return qtrue;
 	}
 //MCG - End
@@ -1562,7 +1559,7 @@ void NPC_CheckPossibleEnemy( gentity_t *other, visibility_t vis )
 	if ( NPC->enemy && vis == VIS_FOV ) 
 	{
 		if ( NPCInfo->enemyLastSeenTime - level.time < 2000 ) 
-		{//racc - still haven't given up on old enemy.
+		{
 			return;
 		}
 		if ( enemyVisibility == VIS_UNKNOWN ) 
@@ -1570,7 +1567,7 @@ void NPC_CheckPossibleEnemy( gentity_t *other, visibility_t vis )
 			enemyVisibility = NPC_CheckVisibility ( NPC->enemy, CHECK_360|CHECK_FOV );
 		}
 		if ( enemyVisibility == VIS_FOV ) 
-		{//racc - see our old enemy still.
+		{
 			return;
 		}
 	}
@@ -1581,14 +1578,14 @@ void NPC_CheckPossibleEnemy( gentity_t *other, visibility_t vis )
 	}
 
 	if ( vis == VIS_FOV ) 
-	{//racc - initialize visual location of our enemy.
+	{
 		NPCInfo->enemyLastSeenTime = level.time;
 		VectorCopy( other->r.currentOrigin, NPCInfo->enemyLastSeenLocation );
 		NPCInfo->enemyLastHeardTime = 0;
 		VectorClear( NPCInfo->enemyLastHeardLocation );
 	} 
 	else 
-	{//racc - otherwise, initialize heard location of our enemy.
+	{
 		NPCInfo->enemyLastSeenTime = 0;
 		VectorClear( NPCInfo->enemyLastSeenLocation );
 		NPCInfo->enemyLastHeardTime = level.time;
@@ -1893,7 +1890,7 @@ qboolean ValidEnemy(gentity_t *ent)
 //[/CoOp]
 
 qboolean NPC_EnemyTooFar(gentity_t *enemy, float dist, qboolean toShoot)
-{//racc we're too far away from our opponent to be able to attack them.
+{
 	vec3_t	vec;
 
 	
@@ -1974,20 +1971,19 @@ gentity_t *NPC_PickEnemy( gentity_t *closestTo, int enemyTeam, qboolean checkVis
 			newenemy = &g_entities[i];
 			//newenemy = &g_entities[0];
 			if( newenemy->client && !(newenemy->flags & FL_NOTARGET) && !(newenemy->s.eFlags & EF_NODRAW))
-			{//racc - this dude is valid and is targetable.
+			{
 				if( newenemy->health > 0 )
-				{//enemy is alive.
+				{
 					if( NPC_ValidEnemy( newenemy) )//enemyTeam == TEAM_PLAYER || newenemy->client->playerTeam == enemyTeam || ( enemyTeam == TEAM_PLAYER ) )
 					{//FIXME:  check for range and FOV or vis?
 						if( newenemy != NPC->lastEnemy )
 						{//Make sure we're not just going back and forth here
 							if ( trap_InPVS(newenemy->r.currentOrigin, NPC->r.currentOrigin) )
-							{//racc - can possibly see this enemy.
+							{
 								if(NPCInfo->behaviorState == BS_INVESTIGATE ||	NPCInfo->behaviorState == BS_PATROL)
-								{//racc - specifically looking for enemies.
+								{
 									if(!NPC->enemy)
-									{//racc - don't currently have an enemy.
-										//racc - visibility checks.
+									{
 										if(!InVisrange(newenemy))
 										{
 											failed = qtrue;
@@ -2000,13 +1996,13 @@ gentity_t *NPC_PickEnemy( gentity_t *closestTo, int enemyTeam, qboolean checkVis
 								}
 
 								if ( !failed )
-								{//racc - still good.
+								{
 									VectorSubtract( closestTo->r.currentOrigin, newenemy->r.currentOrigin, diff );
 									relDist = VectorLengthSquared(diff);
 									if ( newenemy->client->hiddenDist > 0 )
-									{//racc - enemy has a set distance at which they can be detected.
+									{
 										if( relDist > newenemy->client->hiddenDist*newenemy->client->hiddenDist )
-										{//racc - outside detection range.
+										{
 											//out of hidden range
 											if ( VectorLengthSquared( newenemy->client->hiddenDir ) )
 											{//They're only hidden from a certain direction, check
@@ -2036,7 +2032,7 @@ gentity_t *NPC_PickEnemy( gentity_t *closestTo, int enemyTeam, qboolean checkVis
 									if(!failed)
 									{
 										if(findClosest)
-										{//racc - if we're suppose to find the closest enemy.
+										{
 											if(relDist < bestDist)
 											{
 												if(!NPC_EnemyTooFar(newenemy, relDist, qfalse))
@@ -2105,7 +2101,7 @@ gentity_t *NPC_PickEnemy( gentity_t *closestTo, int enemyTeam, qboolean checkVis
 	closestEnemy = NULL;
 
 	for ( entNum = 0; entNum < level.num_entities; entNum++ )
-	{//racc - ok, no dice so far, let's try looking thru all the entities for someone.
+	{
 		newenemy = &g_entities[entNum];
 		//[CoOp]
 		//made this include players in the check.
@@ -2269,21 +2265,21 @@ gentity_t *NPC_PickAlly ( qboolean facingEachOther, float range, qboolean ignore
 					 NPC->client->playerTeam == NPCTEAM_ENEMY ) )// && ally->client->playerTeam == TEAM_DISGUISE ) ) )
 				{//if on same team or if player is disguised as your team
 					if ( ignoreGroup )
-					{//racc - ignore our group leader and the allies we are leading. 
+					{
 						if ( ally == NPC->client->leader )
-						{//racc - ally is our leader
+						{
 							//reject
 							continue;
 						}
 						if ( ally->client && ally->client->leader && ally->client->leader == NPC )
-						{//racc - we are their leader
+						{
 							//reject
 							continue;
 						}
 					}
 
 					if(!trap_InPVS(ally->r.currentOrigin, NPC->r.currentOrigin))
-					{//racc - can't see this ally
+					{
 						continue;
 					}
 
@@ -2300,7 +2296,7 @@ gentity_t *NPC_PickAlly ( qboolean facingEachOther, float range, qboolean ignore
 					if ( relDist < bestDist )
 					{
 						if ( facingEachOther )
-						{//racc - we have to be facing each other.
+						{
 							vec3_t	vf;
 							float	dot;
 
@@ -2325,8 +2321,7 @@ gentity_t *NPC_PickAlly ( qboolean facingEachOther, float range, qboolean ignore
 						}
 
 						if ( NPC_CheckVisibility ( ally, CHECK_360|CHECK_VISRANGE ) >= VIS_360 )
-						{//racc - we can see this ally and he's the current bestdistance, set
-							//him to be the current best.
+						{
 							bestDist = relDist;
 							closestAlly = ally;
 						}
@@ -2359,7 +2354,7 @@ gentity_t *NPC_CheckEnemy( qboolean findNew, qboolean tooFarOk, qboolean setEnem
 	if ( NPC->enemy )
 	{
 		if ( !NPC->enemy->inuse )//|| NPC->enemy == NPC )//wtf?  NPCs should never get mad at themselves!
-		{//racc - our enemy is no longer in use.
+		{
 			if ( setEnemy )
 			{
 				G_ClearEnemy( NPC );
@@ -2413,7 +2408,7 @@ gentity_t *NPC_CheckEnemy( qboolean findNew, qboolean tooFarOk, qboolean setEnem
 	if ( NPC->enemy )
 	{
 		if ( NPC_EnemyTooFar(NPC->enemy, 0, qfalse) )
-		{//racc - enemy too far away for our weapon.
+		{
 			if(findNew)
 			{//See if there is a close one and take it if so, else keep this one
 				forcefindNew = qtrue;
@@ -2466,7 +2461,7 @@ gentity_t *NPC_CheckEnemy( qboolean findNew, qboolean tooFarOk, qboolean setEnem
 	}
 
 	if ( NPC->enemy )
-	{//racc - check for enemy death or FL_NOTARGET.
+	{
 		if ( NPC->enemy->health <= 0 || NPC->enemy->flags & FL_NOTARGET )
 		{
 			if ( setEnemy )
@@ -2510,7 +2505,7 @@ gentity_t *NPC_CheckEnemy( qboolean findNew, qboolean tooFarOk, qboolean setEnem
 		qboolean	foundenemy = qfalse;
 
 		if(!findNew)
-		{//racc - don't search for new enemies.
+		{
 			if ( setEnemy )
 			{
 				NPC->lastEnemy = NPC->enemy;
@@ -2542,8 +2537,7 @@ gentity_t *NPC_CheckEnemy( qboolean findNew, qboolean tooFarOk, qboolean setEnem
 		//[/CoOp]
 		{
 			if ( !foundenemy )
-			{//racc - didn't find an enemy, clear our enemy if we're suppose to
-				//set an enemy.
+			{
 				if ( setEnemy )
 				{
 					NPC->lastEnemy = NPC->enemy;
@@ -2557,9 +2551,9 @@ gentity_t *NPC_CheckEnemy( qboolean findNew, qboolean tooFarOk, qboolean setEnem
 	}
 
 	if ( NPC->enemy && NPC->enemy->client ) 
-	{//racc - we have an enemy
+	{
 		if(NPC->enemy->client->playerTeam)
-		{//racc - NPCTEAM_FREE players don't do this.
+		{
 //			assert( NPC->client->playerTeam != NPC->enemy->client->playerTeam);
 			//[CoOp]
 			if( NPC->client->playerTeam != NPC->enemy->client->playerTeam 
@@ -2567,9 +2561,7 @@ gentity_t *NPC_CheckEnemy( qboolean findNew, qboolean tooFarOk, qboolean setEnem
 				&& NPC->client->enemyTeam != NPC->enemy->client->playerTeam )
 			//if( NPC->client->playerTeam != NPC->enemy->client->playerTeam )
 			//[/CoOp]
-			{//racc - We're not attacking an ally, this isn't a NPCTEAM_FREE enemy,
-				//and our enemy is on a team other than our normal enemyTeam.
-				//As such, switch our enemyTeam.
+			{
 				NPC->client->enemyTeam = NPC->enemy->client->playerTeam;
 			}
 		}
@@ -2584,7 +2576,7 @@ NPC_ClearShot
 */
 
 qboolean NPC_ClearShot( gentity_t *ent )
-{//racc - check for a clear shot with this weapon from this NPC to this ent.
+{
 	vec3_t	muzzle;
 	trace_t	tr;
 
@@ -2598,7 +2590,7 @@ qboolean NPC_ClearShot( gentity_t *ent )
 //	if ( NPC->client->playerTeam == TEAM_SCAVENGERS )
 	//RAFIXME - impliment WP_BLASTER_PISTOL?
 	if( NPC->s.weapon == WP_BLASTER /*|| NPC->s.weapon == WP_BLASTER_PISTOL*/ ) // any other guns to check for?
-	{//racc - blaster shots do non-line traces.
+	{
 		vec3_t	mins = { -2, -2, -2 };
 		vec3_t	maxs = {  2,  2,  2 };
 
@@ -2684,7 +2676,7 @@ int NPC_ShotEntity( gentity_t *ent, vec3_t impactPos )
 }
 
 qboolean NPC_EvaluateShot( int hit, qboolean glassOK )
-{//racc - does firing at this entityNum result us in hitting our enemy or glass?
+{
 	if ( !NPC->enemy )
 	{
 		return qfalse;
@@ -2704,8 +2696,7 @@ Simply checks aggression and returns true or false
 */
 
 qboolean NPC_CheckAttack (float scale)
-{//racc - check to see if we should attack based on our shotTime and a scaled
-	//random check to our aggression level.
+{
 	if(!scale)
 		scale = 1.0;
 
@@ -2727,7 +2718,7 @@ Simply checks evasion and returns true or false
 */
 
 qboolean NPC_CheckDefend (float scale)
-{//racc - simple random check against this NPC's evasion stat.
+{
 	if(!scale)
 		scale = 1.0;
 
@@ -2754,7 +2745,7 @@ qboolean NPC_CheckCanAttack (float attack_scale, qboolean stationary)
 	gentity_t	*traceEnt = NULL;
 
 	if(NPC->enemy->flags & FL_NOTARGET)
-	{//racc - can't target our enemy.
+	{
 		return qfalse;
 	}
 
@@ -2790,7 +2781,7 @@ qboolean NPC_CheckCanAttack (float attack_scale, qboolean stationary)
 	}
 
 	if(NPCInfo->scriptFlags & SCF_DONT_FIRE)
-	{//racc - don't fire due to script.
+	{
 		return qfalse;
 	}
 
@@ -2806,7 +2797,7 @@ qboolean NPC_CheckCanAttack (float attack_scale, qboolean stationary)
 
 		//Check to duck
 		if ( NPC->enemy->client )
-		{//racc - try to evade attacks from our enemy if he's an NPC and attacking us.
+		{
 			if ( NPC->enemy->enemy == NPC )
 			{
 				if ( NPC->enemy->client->buttons & BUTTON_ATTACK )
@@ -3492,7 +3483,7 @@ NPC_FindSquadPoint
 */
 
 int NPC_FindSquadPoint( vec3_t position )
-{//racc - looks for the closest combat point with the squad flag.
+{
 	float	dist, nearestDist = (float)WORLD_SIZE*(float)WORLD_SIZE;
 	int		nearestPoint = -1;
 	int		i;
@@ -3534,7 +3525,7 @@ NPC_ReserveCombatPoint
 */
 
 qboolean NPC_ReserveCombatPoint( int combatPointID )
-{//racc - sets this combat point to occuped so others won't use it.
+{
 	//Make sure it's valid
 	if ( combatPointID > level.numCombatPoints )
 		return qfalse;
@@ -3557,7 +3548,7 @@ NPC_FreeCombatPoint
 */
 
 qboolean NPC_FreeCombatPoint( int combatPointID, qboolean failed )
-{//racc - frees up this combat point for use by others.
+{
 	if ( failed )
 	{//remember that this one failed for us
 		NPCInfo->lastFailedCombatPoint = combatPointID;
@@ -3568,7 +3559,6 @@ qboolean NPC_FreeCombatPoint( int combatPointID, qboolean failed )
 
 	//Make sure it's currently occupied
 	if ( level.combatPoints[combatPointID].occupied == qfalse )
-		//racc - weren't already using this combat point?
 		return qfalse;
 
 	//Free it
@@ -3585,7 +3575,7 @@ NPC_SetCombatPoint
 */
 
 qboolean NPC_SetCombatPoint( int combatPointID )
-{//racc - sets the current combat point for this bot
+{
 	//[CoOp]
 	//Don't set if we're already set to this combatpoint.
 	if (combatPointID==NPCInfo->combatPoint)
@@ -3670,7 +3660,7 @@ gentity_t *NPC_SearchForWeapons( void )
 }
 
 void NPC_SetPickUpGoal( gentity_t *foundWeap )
-{//racc - set the NPC so that they'll go grab this weapon.
+{
 	vec3_t org;
 
 	//NPCInfo->goalEntity = foundWeap;

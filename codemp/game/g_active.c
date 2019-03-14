@@ -213,8 +213,7 @@ void P_WorldEffects( gentity_t *ent ) {
 //==============================================================
 extern void G_ApplyKnockback( gentity_t *targ, vec3_t newDir, float knockback );
 void DoImpact( gentity_t *self, gentity_t *other, qboolean damageSelf )
-{//RACC - this appears to be for impact damage for dynamic map entities, like elevators,
-	//glass, etc.
+{
 	float magnitude, my_mass;
 	vec3_t	velocity;
 	int cont;
@@ -225,8 +224,6 @@ void DoImpact( gentity_t *self, gentity_t *other, qboolean damageSelf )
 		VectorCopy( self->client->ps.velocity, velocity );
 		if( !self->mass )
 		{
-			//RACC - Player Characters normally don't have masses assigned so they default.
-			//to this.
 			my_mass = 10;
 		}
 		else
@@ -3204,7 +3201,7 @@ void ClientThink_real( gentity_t *ent ) {
 	}
 
 	if (ent->client->ps.duelInProgress)
-	{//racc - we're in a private duel.
+	{
 		gentity_t *duelAgainst = &g_entities[ent->client->ps.duelIndex];
 
 		//Keep the time updated, so once this duel ends this player can't engage in a duel for another
@@ -3216,7 +3213,7 @@ void ClientThink_real( gentity_t *ent ) {
 		//[/DuelSys]
 
 		if (ent->client->ps.duelTime < level.time)
-		{//racc - just started the private duel.
+		{
 			//[DuelSys]	
 			int playerDuelShield; // MJN - for Shields.
 
@@ -3351,12 +3348,12 @@ void ClientThink_real( gentity_t *ent ) {
 
 		if (!duelAgainst || !duelAgainst->client || !duelAgainst->inuse ||
 			duelAgainst->client->ps.duelIndex != ent->s.number)
-		{//racc - bad dueling opponent state.
+		{
 			ent->client->ps.duelInProgress = 0;
 			G_AddEvent(ent, EV_PRIVATE_DUEL, 0);
 		}
 		else if (duelAgainst->health < 1 || duelAgainst->client->ps.stats[STAT_HEALTH] < 1)
-		{//racc - our opponent died.
+		{
 			ent->client->ps.duelInProgress = 0;
 			duelAgainst->client->ps.duelInProgress = 0;
 
@@ -3450,7 +3447,7 @@ void ClientThink_real( gentity_t *ent ) {
 			subLen = VectorLength(vSub);
 
 			if (subLen >= 1024)
-			{//racc - duelers too far apart.  Terminate duel.
+			{
 				ent->client->ps.duelInProgress = 0;
 				duelAgainst->client->ps.duelInProgress = 0;
 
@@ -3876,7 +3873,7 @@ void ClientThink_real( gentity_t *ent ) {
 	pm.entSize = sizeof(gentity_t);
 
 	if (ent->client->ps.saberLockTime > level.time)
-	{//racc - handle saberlocks
+	{
 		gentity_t *blockOpp = &g_entities[ent->client->ps.saberLockEnemy];
 
 		if (blockOpp && blockOpp->inuse && blockOpp->client)
@@ -4130,7 +4127,7 @@ void ClientThink_real( gentity_t *ent ) {
 	}
 
 	if (pm.checkDuelLoss)
-	{//racc - we owned someone in a saber duel, but didn't super break from the saberlock.  Check for death blow conditions. 
+	{
 		//[SaberLockSys]
 		//racc - losing a saberlock with checkDuelLoss set results in the loser mishaping.
 		if (pm.checkDuelLoss > 0 && (pm.checkDuelLoss <= MAX_CLIENTS || (pm.checkDuelLoss < (MAX_GENTITIES-1) && g_entities[pm.checkDuelLoss-1].s.eType == ET_NPC) ) )
@@ -4149,7 +4146,7 @@ void ClientThink_real( gentity_t *ent ) {
 			gentity_t *clientLost = &g_entities[pm.checkDuelLoss-1];
 
 			if (clientLost && clientLost->inuse && clientLost->client && Q_irand(0, 40) > clientLost->health)
-			{//racc - instant death!
+			{
 				vec3_t attDir;
 				VectorSubtract(ent->client->ps.origin, clientLost->client->ps.origin, attDir);
 				VectorNormalize(attDir);

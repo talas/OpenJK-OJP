@@ -924,8 +924,7 @@ void SetTeam( gentity_t *ent, char *s ) {
 			//}
 		}
 
-		if ( g_teamForceBalance.integer && !g_trueJedi.integer ) 
-		{//racc - override player's choice if the team balancer is in effect.
+		if ( g_teamForceBalance.integer && !g_trueJedi.integer ) {
 			int		counts[TEAM_NUM_TEAMS];
 
 			counts[TEAM_BLUE] = TeamCount( ent->client->ps.clientNum, TEAM_BLUE );
@@ -3386,7 +3385,7 @@ void Cmd_SaberAttackCycle_f(gentity_t *ent)
 		}
 	}
 	else
-	{//normal style selection
+	{
 		int attempts;
 		selectLevel++;
 
@@ -3569,10 +3568,7 @@ void Cmd_EngageDuel_f(gentity_t *ent)
 		return;
 	}
 
-	// New: Don't let a player duel if he just did and hasn't waited 10 seconds yet (note: If someone challenges him, his duel timer will reset so he can accept)
-	//[DuelSys]
-	// Update - MJN - This uses the new duelTimer cvar to get time, in seconds, before next duel is allowed.
-	//[/DuelSys]
+	//New: Don't let a player duel if he just did and hasn't waited 10 seconds yet (note: If someone challenges him, his duel timer will reset so he can accept)
 	if (ent->client->ps.fd.privateDuelTime > level.time)
 	{
 		trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "CANTDUEL_JUSTDID")) );
@@ -3617,7 +3613,7 @@ void Cmd_EngageDuel_f(gentity_t *ent)
 		}
 
 		if (challenged->client->ps.duelIndex == ent->s.number && challenged->client->ps.duelTime >= level.time)
-		{//racc - our duel target has already challenged us, start the duel.
+		{
 			//[DuelSys]
 			// MJN - added ^7 to clear the color on following text
 			trap_SendServerCommand( /*challenged-g_entities*/-1, va("print \"%s ^7%s %s!\n\"", challenged->client->pers.netname, G_GetStringEdString("MP_SVGAME", "PLDUELACCEPT"), ent->client->pers.netname) );

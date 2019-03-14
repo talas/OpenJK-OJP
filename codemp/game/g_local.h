@@ -2,7 +2,6 @@
 //
 // g_local.h -- local definitions for game module
 
-//testing
 #include "q_shared.h"
 #include "bg_public.h"
 #include "bg_vehicles.h"
@@ -57,12 +56,10 @@ extern vec3_t gPainPoint;
 
 // gentity->flags
 #define	FL_GODMODE				0x00000010
-#define	FL_NOTARGET				0x00000020  // racc - set to indicate that the target shouldn't be targeted.  
-											//	Also used to indicate that a NPC is in the process of spawning.
+#define	FL_NOTARGET				0x00000020
 #define	FL_TEAMSLAVE			0x00000400	// not the first on the team
 #define FL_NO_KNOCKBACK			0x00000800
-#define FL_DROPPED_ITEM			0x00001000	//RACC - this is an item that was dropped by a
-											//player.
+#define FL_DROPPED_ITEM			0x00001000
 #define FL_NO_BOTS				0x00002000	// spawn point not for bot use
 #define FL_NO_HUMANS			0x00004000	// spawn point just for bots
 #define FL_FORCE_GESTURE		0x00008000	// force gesture on client
@@ -213,7 +210,6 @@ struct gentity_s {
 	//rww - targetname and classname are now shared as well. ICARUS needs access to them.
 	char			*targetname;
 	char			*classname;			// set in QuakeEd
-	//RACC - trigger class
 
 	//rww - and yet more things to share. This is because the nav code is in the exe because it's all C++.
 	int				waypoint;			//Set once per frame, if you've moved, and if someone asks
@@ -323,8 +319,6 @@ struct gentity_s {
 	char		*target2;
 	char		*target3;		//For multiple targets, not used for firing/triggering/using, though, only for path branches
 	char		*target4;		//For multiple targets, not used for firing/triggering/using, though, only for path branches
-								//RACC - target trigger fired by misc_siege_item when it
-								//dies
 	char		*target5;		//mainly added for siege items
 	char		*target6;		//mainly added for siege items
 
@@ -337,8 +331,7 @@ struct gentity_s {
 	char		*opentarget;
 	char		*paintarget;
 
-	char		*goaltarget; //RACC - the targetname of the "drop off" trigger for a siege
-							//objective object.
+	char		*goaltarget;
 	char		*idealclass;
 
 	float		radius;
@@ -413,9 +406,9 @@ struct gentity_s {
 
 	//generic values used by various entities for different purposes.
 	int			genericValue1;
-	int			genericValue2;			//racc - Sentry Guns: Owner's team, so can self-destruct if owner switches teams
-	int			genericValue3;			//racc - Sentry Guns: Owner's entity number
-	int			genericValue4;			//racc - Sentry Guns: Enemy entityNum
+	int			genericValue2;
+	int			genericValue3;
+	int			genericValue4;
 	int			genericValue5;
 	int			genericValue6;
 	int			genericValue7;

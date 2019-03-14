@@ -646,7 +646,7 @@ static qboolean pas_find_enemies( gentity_t *self )
 			continue;
 		}
 		if (self->genericValue3 == target->s.number)
-		{//racc - don't attack owner
+		{
 			continue;
 		}
 		if(self->s.NPC_class == CLASS_SEEKER)
@@ -778,7 +778,7 @@ void sentryExpire(gentity_t *self)
 //---------------------------------
 void pas_think( gentity_t *ent )
 //---------------------------------
-{//racc - sentry gun think
+{
 	qboolean	moved;
 	float		diffYaw, diffPitch;
 	vec3_t		enemyDir, org;
@@ -836,9 +836,9 @@ void pas_think( gentity_t *ent )
 		ent->r.contents = CONTENTS_SOLID;
 	}
 
-	if (!g_entities[ent->genericValue3].inuse || !g_entities[ent->genericValue3].client || //racc - owner is in bad state
-		g_entities[ent->genericValue3].client->sess.sessionTeam != ent->genericValue2) //racc - owner isn't on the same team as we remember
-	{//racc - delete self
+	if (!g_entities[ent->genericValue3].inuse || !g_entities[ent->genericValue3].client ||
+		g_entities[ent->genericValue3].client->sess.sessionTeam != ent->genericValue2)
+	{
 		ent->think = G_FreeEntity;
 		ent->nextthink = level.time;
 		return;
@@ -1066,7 +1066,6 @@ void turret_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int 
 void SP_PAS( gentity_t *base )
 //---------------------------------
 {
-	//racc - give ammo to the unit
 	if ( base->count == 0 )
 	{
 		// give ammo
@@ -2528,7 +2527,7 @@ void Add_Ammo3 (gentity_t *ent, int weapon, int count, int *stop, qboolean *gave
 //[/AmmoSys]
 
 void Add_Ammo (gentity_t *ent, int weapon, int count)
-{ // weapon is actually type
+{
 	//[AmmoSys]
 	if ( ent->client->ps.eFlags & EF_DOUBLE_AMMO ) {
 		if ( ent->client->ps.ammo[weapon] < ammoData[weapon].max*2 ) {

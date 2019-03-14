@@ -346,7 +346,6 @@ saber_styles_t TranslateSaberStyle( const char *name )
 	return SS_NONE;
 }
 
-//[RACC] - Determines if this saber blade is using the .sab's first or second blade style.
 qboolean WP_SaberBladeUseSecondBladeStyle( saberInfo_t *saber, int bladeNum )
 {
 	if ( saber )

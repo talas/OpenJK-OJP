@@ -81,7 +81,7 @@ qboolean CanSee ( gentity_t *ent )
 }
 
 qboolean InFront( vec3_t spot, vec3_t from, vec3_t fromAngles, float threshHold )
-{//RACC - checks to see if spot is in front of from based on the viewangles fromAngle.
+{
 	vec3_t	dir, forward, angles;
 	float	dot;
 
@@ -128,7 +128,7 @@ qboolean InFOV3( vec3_t spot, vec3_t from, vec3_t fromAngles, int hFOV, int vFOV
 //NPC to position
 
 qboolean InFOV2( vec3_t origin, gentity_t *from, int hFOV, int vFOV ) 
-{//RAC - view angle check from an entity to a point
+{
 	vec3_t	fromAngles, eyes;
 
 	if( from->client )
@@ -220,8 +220,7 @@ qboolean InFOVFromPlayerView ( gentity_t *ent, int hFOV, int vFOV )
 //Entity to entity
 
 qboolean InFOV ( gentity_t *ent, gentity_t *from, int hFOV, int vFOV ) 
-{//RACC - check to see if the from entity can see the ent based on it's viewangles.
-	//DOESN'T check for obstructions, just the viewangle.
+{
 	vec3_t	eyes;
 	vec3_t	spot;
 	vec3_t	deltaVector;
@@ -289,7 +288,6 @@ qboolean InFOV ( gentity_t *ent, gentity_t *from, int hFOV, int vFOV )
 qboolean InVisrange ( gentity_t *ent ) 
 {//FIXME: make a calculate visibility for ents that takes into account
 	//lighting, movement, turning, crouch/stand up, other anims, hide brushes, etc.
-	//RACC - entity is inside NPC's visual range.
 	vec3_t	eyes;
 	vec3_t	spot;
 	vec3_t	deltaVector;
@@ -335,8 +333,7 @@ NPC_CheckVisibility
 */
 
 visibility_t NPC_CheckVisibility ( gentity_t *ent, int flags ) 
-{//RACC - general function to check for visibility to ent.  Uses flags to determine
-	//which checks to do.  Returns the best visiblity check that passed. 
+{
 	// flags should never be 0
 	if ( !flags ) 
 	{
@@ -795,7 +792,7 @@ qboolean G_CheckForDanger( gentity_t *self, int alertEvent )
 					return qfalse;
 				}
 				else
-				{//racc - flee!
+				{
 					//[CoOp]
 					if ( level.alertEvents[alertEvent].level >= AEL_DANGER_GREAT || self->s.weapon == WP_NONE || self->s.weapon == WP_MELEE )
 					{//flee for a longer period of time
@@ -947,7 +944,7 @@ ClearPlayerAlertEvents
 */
 
 void ClearPlayerAlertEvents( void )
-{//RACC - clear out the alert events when they're old
+{
 	int curNumAlerts = level.numAlertEvents;
 	int i;
 	//loop through them all (max 32)
@@ -1026,7 +1023,7 @@ G_ClearLOS
 
 // Position to position
 qboolean G_ClearLOS( gentity_t *self, const vec3_t start, const vec3_t end )
-{//RACC - visual trace checks for a clear line of sight between two points.
+{
 	trace_t		tr;
 	int			traceCount = 0;
 	
@@ -1054,7 +1051,7 @@ qboolean G_ClearLOS( gentity_t *self, const vec3_t start, const vec3_t end )
 
 //Entity to position
 qboolean G_ClearLOS2( gentity_t *self, gentity_t *ent, const vec3_t end )
-{//RACC - visual trace checks for a clear line of sight between entity and a point
+{
 	vec3_t	eyes;
 
 	CalcEntitySpot( ent, SPOT_HEAD_LEAN, eyes );
@@ -1064,7 +1061,7 @@ qboolean G_ClearLOS2( gentity_t *self, gentity_t *ent, const vec3_t end )
 
 //Position to entity
 qboolean G_ClearLOS3( gentity_t *self, const vec3_t start, gentity_t *ent )
-{//RACC - visual trace checks for a clear line of sight from some point to an entity
+{
 	vec3_t		spot;
 
 	//Look for the chest first
@@ -1084,7 +1081,7 @@ qboolean G_ClearLOS3( gentity_t *self, const vec3_t start, gentity_t *ent )
 
 //NPC's eyes to entity
 qboolean G_ClearLOS4( gentity_t *self, gentity_t *ent ) 
-{//RACC - visual trace checks for a clear line of sight from an entity to an entity.
+{
 	vec3_t	eyes;
 
 	//Calculate my position
@@ -1111,8 +1108,7 @@ NPC_GetFOVPercentage
 */
 
 float NPC_GetHFOVPercentage( vec3_t spot, vec3_t from, vec3_t facing, float hFOV )
-{//RACC - gives a percentage of how far spot is from the facing direction in the horizontal
-	//plane.  Drops to zero outside hFOV.
+{
 	vec3_t	deltaVector, angles;
 	float	delta;
 
@@ -1135,8 +1131,7 @@ NPC_GetVFOVPercentage
 */
 
 float NPC_GetVFOVPercentage( vec3_t spot, vec3_t from, vec3_t facing, float vFOV )
-{//RACC - gives a percentage of how far spot is from the facing direction in the vertical
-	//plane.  Drops to zero outside vFOV.
+{
 	vec3_t	deltaVector, angles;
 	float	delta;
 
@@ -1160,8 +1155,7 @@ NPC_FindLocalInterestPoint
 */
 
 int G_FindLocalInterestPoint( gentity_t *self )
-{//RACC - finds the closest visible "interest point" to self. Used for determining
-	//the client's/NPC's view target in SP.
+{
 	int		i, bestPoint = ENTITYNUM_NONE;
 	float	dist, bestDist = Q3_INFINITE;
 	vec3_t	diffVec, eyes;
@@ -1192,8 +1186,7 @@ int G_FindLocalInterestPoint( gentity_t *self )
 		}
 	}
 	if ( bestPoint != ENTITYNUM_NONE && level.interestPoints[bestPoint].target )
-	{//RACC - this interest point has a use target, use it since someone is looking
-		//at us.
+	{
 		G_UseTargets2( self, self, level.interestPoints[bestPoint].target );
 	}
 	return bestPoint;

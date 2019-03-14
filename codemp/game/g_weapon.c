@@ -34,7 +34,6 @@ static  vec3_t  muzzle2;//[DualPistols]
 
 // E11 Blaster
 //---------
-//racc - alt-fire spread
 #define BLASTER_SPREAD				1.6f//1.2f
 //[WeaponSys]
 //racc - primary fire spread
@@ -1011,7 +1010,7 @@ void WP_DisruptorAltFire( gentity_t *ent )
 		}
 
 		if(G_DoDodge(traceEnt, ent, tr.endpos, -1, &damage, MOD_DISRUPTOR_SNIPER))
-		{//player physically dodged the damage.  Act like we didn't hit him.
+		{
 			skip = tr.entityNum;
 			VectorCopy(tr.endpos, start);
 			continue;
@@ -5392,12 +5391,12 @@ void emplaced_gun_update(gentity_t *self)
 		ownLen = VectorLength(vLen);
 
 		if (!(self->activator->client->pers.cmd.buttons & BUTTON_USE) && self->genericValue1)
-		{//RACC - finished attaching the player to the turret.
+		{
 			self->genericValue1 = 0;
 		}
 
 		if ((self->activator->client->pers.cmd.buttons & BUTTON_USE) && !self->genericValue1)
-		{//RACC - trigger start to get off the emplaced turret
+		{
 			self->activator->client->ps.emplacedIndex = 0;
 			self->activator->client->ps.saberHolstered = 0;
 			self->nextthink = level.time + 50;

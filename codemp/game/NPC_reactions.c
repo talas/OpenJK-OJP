@@ -1207,7 +1207,7 @@ void NPC_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
 //[SPPortComplete]
 /* this feature isn't used anymore.  Maybe enable later?
 void NPC_CheckPlayerAim( void )
-{//racc - have NPCs complain if the player is looking at them for too long
+{
 	//FIXME: need appropriate dialogue
 	*//*
 	gentity_t *player = &g_entities[0];
@@ -1228,7 +1228,7 @@ void NPC_CheckPlayerAim( void )
 
 /* this feature isn't used anymore.  Maybe enable later?
 void NPC_CheckAllClear( void )
-{//racc - all clear signal for NPCs in teams?  Not used.
+{
 	//FIXME: need to make this happen only once after losing enemies, not over and over again
 	*//*
 	if ( NPC->client && !NPC->enemy && level.time - teamLastEnemyTime[NPC->client->playerTeam] > 10000 )

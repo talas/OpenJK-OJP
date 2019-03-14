@@ -80,7 +80,6 @@ void CorpsePhysics( gentity_t *self )
 
 	if ( eventClearTime == level.time + ALERT_CLEAR_TIME )
 	{//events were just cleared out so add me again
-		//RACC - dead NPCs give off sight events to alert other NPCs.
 		if ( !(self->client->ps.eFlags&EF_NODRAW) )
 		{
 			AddSightEvent( self->enemy, self->r.currentOrigin, 384, AEL_DISCOVERED, 0.0f );
@@ -103,7 +102,6 @@ void CorpsePhysics( gentity_t *self )
 	*/
 	//[/CoOp]
 
-	//RACC - control contents of dead NPCs
 	//if ( level.time - self->s.time > 500 )
 	if (self->client->respawnTime < (level.time+500))
 	{//don't turn "nonsolid" until about 1 second after actual death
@@ -125,7 +123,7 @@ void CorpsePhysics( gentity_t *self )
 		}
 
 		if ( self->message )
-		{//racc - I have a key. set me as a trigger so the key can be picked up.
+		{
 			self->r.contents |= CONTENTS_TRIGGER;
 		}
 	}
@@ -233,7 +231,7 @@ void NPC_RemoveBody( gentity_t *self )
 	//[/CoOp]
 
 	if ( self->NPC->nextBStateThink <= level.time )
-	{//racc - run logic at 20fps
+	{
 		trap_ICARUS_MaintainTaskManager(self->s.number);
 	//[CoOp] SP Code
 		self->NPC->nextBStateThink = level.time + FRAMETIME;
@@ -455,7 +453,7 @@ Determines when it's ok to ditch the corpse
 */
 
 int BodyRemovalPadTime( gentity_t *ent )
-{//racc - sets how long to wait before trying to remove the NPC's body.
+{
 	int	time;
 
 	if ( !ent || !ent->client )
@@ -560,8 +558,7 @@ Effect to be applied when ditching the corpse
 //[CoOp]
 /* doesn't do anything here or in SP code.  removing.
 static void NPC_RemoveBodyEffect(void)
-{//racc - I think this is for some special effects to be done on body removal.
-	//This doesn't actually do anything anymore.
+{
 //	vec3_t		org;
 //	gentity_t	*tent;
 
@@ -826,7 +823,7 @@ static void DeadThink ( void )
 		if ( level.time >= NPCInfo->timeOfDeath + BodyRemovalPadTime( NPC ) )
 		{
 			if ( NPC->client->ps.eFlags & EF_NODRAW )
-			{//racc - we're not drawing this body anyway, just remove if ready.
+			{
 				if (!trap_ICARUS_IsRunning(NPC->s.number))
 				//if ( !NPC->taskManager || !NPC->taskManager->IsRunning() )
 				{
@@ -859,7 +856,7 @@ static void DeadThink ( void )
 				if ( npc_class == CLASS_SEEKER || npc_class == CLASS_REMOTE || npc_class == CLASS_PROBE || npc_class == CLASS_MOUSE ||
 					 npc_class == CLASS_GONK || npc_class == CLASS_R2D2 || npc_class == CLASS_R5D2 ||
 					 npc_class == CLASS_MARK2 || npc_class == CLASS_SENTRY )//npc_class == CLASS_PROTOCOL ||
-				{//racc - droids quit drawing and are removed after a while.
+				{
 					NPC->client->ps.eFlags |= EF_NODRAW;
 					NPCInfo->timeOfDeath = level.time + FRAMETIME * 8;
 				}
@@ -907,7 +904,7 @@ gclient_t	*_saved_client;
 usercmd_t	_saved_ucmd;
 
 void SaveNPCGlobals(void) 
-{//racc - save the current NPCGlobals to a back up
+{
 	_saved_NPC = NPC;
 	_saved_NPCInfo = NPCInfo;
 	_saved_client = client;
@@ -915,7 +912,7 @@ void SaveNPCGlobals(void)
 }
 
 void RestoreNPCGlobals(void) 
-{//racc - load the saved NPCGlobals from the back up
+{
 	NPC = _saved_NPC;
 	NPCInfo = _saved_NPCInfo;
 	client = _saved_client;
@@ -924,7 +921,7 @@ void RestoreNPCGlobals(void)
 
 //We MUST do this, other funcs were using NPC illegally when "self" wasn't the global NPC
 void ClearNPCGlobals( void ) 
-{//racc - clear the current NPCGlobals.
+{
 	NPC = NULL;
 	NPCInfo = NULL;
 	client = NULL;
@@ -967,9 +964,9 @@ void NPC_ShowDebugInfo (void)
 extern qboolean InPlayersPVS(vec3_t point);
 //[/CoOp]
 void NPC_ApplyScriptFlags (void)
-{//racc - apply the scriptflags assigned to this NPC
+{
 	if ( NPCInfo->scriptFlags & SCF_CROUCHED )
-	{//racc - crouch flag
+	{
 		if ( NPCInfo->charmedTime > level.time && (ucmd.forwardmove || ucmd.rightmove) )
 		{//ugh, if charmed and moving, ignore the crouched command
 		}
@@ -980,11 +977,11 @@ void NPC_ApplyScriptFlags (void)
 	}
 
 	if(NPCInfo->scriptFlags & SCF_RUNNING)
-	{//racc - running flag
+	{
 		ucmd.buttons &= ~BUTTON_WALKING;
 	}
 	else if(NPCInfo->scriptFlags & SCF_WALKING)
-	{//racc - walk!
+	{
 		if ( NPCInfo->charmedTime > level.time && (ucmd.forwardmove || ucmd.rightmove) )
 		{//ugh, if charmed and moving, ignore the walking command
 		}
@@ -1185,8 +1182,7 @@ void NPC_HandleAIFlags (void)
 	}
 
 	if ( NPCInfo->ffireCount > 0 )
-	{//racc - I'm guessing that this is to keep track of how often an ally has shot you for
-		//friendly fire/turn on your ally reasons.  This reduces the ffireCount over time.
+	{
 		if ( NPCInfo->ffireFadeDebounce < level.time )
 		{
 			NPCInfo->ffireCount--;
@@ -1215,7 +1211,7 @@ void NPC_AvoidWallsAndCliffs (void)
 //[/CoOp]
 
 void NPC_CheckAttackScript(void)
-{//racc - trigger attack script if we're attacking.
+{
 	if(!(ucmd.buttons & BUTTON_ATTACK))
 	{
 		return;
@@ -2427,7 +2423,7 @@ void NPC_ExecuteBState ( gentity_t *self)//, int msec )
 	}
 
 	if ( NPC->client->ps.saberLockTime && NPC->client->ps.saberLockEnemy != ENTITYNUM_NONE )
-	{//racc - force looking at our saberlock target
+	{
 		NPC_SetLookTarget( NPC, NPC->client->ps.saberLockEnemy, level.time+1000 );
 	}
 	else if ( !NPC_CheckLookTarget( NPC ) )
@@ -2459,14 +2455,14 @@ void NPC_ExecuteBState ( gentity_t *self)//, int msec )
 		}
 
 		if(client->ps.weaponstate == WEAPON_IDLE)
-		{//racc - override weapon state if we have an enemy
+		{
 			client->ps.weaponstate = WEAPON_READY;
 		}
 	}
 	else 
 	{
 		if(client->ps.weaponstate == WEAPON_READY)
-		{//racc - set weapon to idle if we don't have an enemy.
+		{
 			client->ps.weaponstate = WEAPON_IDLE;
 		}
 	}
@@ -2577,8 +2573,7 @@ void NPC_ExecuteBState ( gentity_t *self)//, int msec )
 //[CoOp] SP Code
 /* function not used anymore.
 void NPC_CheckInSolid(void)
-{//RACC - checks to make sure that the NPC doesn't get stuck in an solid.
-	//If it does, the game moves it to the last known safe area.
+{
 	trace_t	trace;
 	vec3_t	point;
 	VectorCopy(NPC->r.currentOrigin, point);
@@ -2604,7 +2599,7 @@ void NPC_CheckInSolid(void)
 
 /* Not in SP Code.
 void G_DroidSounds( gentity_t *self )
-{//have the droids make some random beeps and noises.
+{
 	if ( self->client )
 	{//make the noises
 		if ( TIMER_Done( self, "patrolNoise" ) && !Q_irand( 0, 20 ) )
@@ -2659,7 +2654,6 @@ void NPC_Think ( gentity_t *self)//, int msec )
 	//self->nextthink = level.time + FRAMETIME;
 	//[/CoOp]
 
-	//RACC - set up the NPC global
 	SetNPCGlobals( self );
 
 	memset( &ucmd, 0, sizeof( ucmd ) );
@@ -3011,7 +3005,7 @@ void NPC_InitAnimTable( void )
 */
 /*
 void NPC_InitAnimTable( void )
-{//racc - MP uses a different, probably better method for the animation table data.
+{
 	int i;
 
 	for ( i = 0; i < MAX_ANIM_FILES; i++ )
@@ -3030,8 +3024,6 @@ void NPC_InitAnimTable( void )
 void NPC_InitGame( void ) 
 {
 //	globals.NPCs = (gNPC_t *) gi.TagMalloc(game.maxclients * sizeof(game.bots[0]), TAG_GAME);
-
-//RAFIXME - impliment this cvar?
 //	trap_Cvar_Register(&debugNPCName, "d_npc", "0", CVAR_CHEAT);
 
 	NPC_LoadParms();

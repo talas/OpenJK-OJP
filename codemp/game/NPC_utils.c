@@ -1355,7 +1355,6 @@ gentity_t *NPC_PickEnemyExt( qboolean checkAlerts )
 
 				//If it's on our team, then take its enemy as well
 				if ( ( event->owner->client ) && ( event->owner->client->playerTeam == NPC->client->playerTeam ) )
-				//racc - communicate enemies with allies if our allies are making a lot of noise.				
 					return event->owner->enemy;
 			}
 		}
@@ -1382,10 +1381,7 @@ NPC_CheckPlayerDistance
 */
 
 static qboolean NPC_CheckPlayerDistance( void )
-{//racc - check for a closer player to the NPC than it's current enemy.
-	//qtrue = changed to closer player
-	//qfalse = no change.
-
+{
 	//[CoOp] added SP Code
 	//also set it up to work for multiple players.
 
@@ -1475,7 +1471,7 @@ NPC_FindEnemy
 */
 
 qboolean NPC_FindEnemy( qboolean checkAlerts )
-{//RACC - checks to see if our enemy is still valid.  Updates if it is not.
+{
 	gentity_t *newenemy;
 
 	//[CoOp] SP Code
@@ -1520,8 +1516,7 @@ qboolean NPC_FindEnemy( qboolean checkAlerts )
 	}*/
 	
 
-	//Otherwise, turn off the flag since if we have a locked enemy at this point,
-	//the enemy is invalid.
+	//Otherwise, turn off the flag
 	NPC->NPC->aiFlags &= ~NPCAI_LOCKEDENEMY;
 //	NPC->svFlags &= ~SVF_LOCKEDENEMY;
 	/* Moved up.  SP Code

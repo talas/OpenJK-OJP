@@ -1958,7 +1958,7 @@ static void UI_DrawGenericNum(rectDef_t *rect, float scale, vec4_t color, int te
 }
 
 static void UI_DrawForceMastery(rectDef_t *rect, float scale, vec4_t color, int textStyle, int val, int min, int max, int iMenuFont)
-{//racc - renders the player's current force mastery level to the screen.
+{
 	int i;
 	//[ExpSys]
 	int x;
@@ -2377,8 +2377,7 @@ static void UI_DrawMapCinematic(rectDef_t *rect, float scale, vec4_t color, qboo
 }
 
 static void UI_SetForceDisabled(int force)
-{//racc - Disables force powers in the menus based on current force powers disabled.  
-	//This disables the individual force skill items in the menus and locks them to their desired "disabled" value.
+{
 	int i = 0;
 
 	if (force)
@@ -3558,7 +3557,6 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float
     case UI_FORCE_POINTS:
       UI_DrawGenericNum(&rect, scale, color, textStyle, uiForceAvailable, 1, forceMasteryPoints[MAX_FORCE_RANK], ownerDraw,iMenuFont);
       break;
-	//racc - this shouldn't be used anymore since the experience system uses g_forceMaxRank differently.
 	case UI_FORCE_MASTERY_SET:
       UI_DrawForceMastery(&rect, scale, color, textStyle, uiForceRank, 0, MAX_FORCE_RANK, iMenuFont);
       break;
@@ -4725,7 +4723,6 @@ static qboolean UI_OwnerDrawHandleKey(int ownerDraw, int flags, float *special, 
     case UI_JEDI_NONJEDI:
       return UI_JediNonJedi_HandleKey(flags, special, key, uiJediNonJedi, 0, 1, ownerDraw);
       break;
-	//racc - this shouldn't be used anymore since the experience system uses g_forceMaxRank differently.
 	case UI_FORCE_MASTERY_SET:
       return UI_ForceMaxRank_HandleKey(flags, special, key, uiForceRank, 1, MAX_FORCE_RANK, ownerDraw);
       break;
@@ -6160,7 +6157,7 @@ static void UI_RunMenuScript(char **args)
 	if (String_Parse(args, &name)) 
 	{
 		if (Q_stricmp(name, "StartServer") == 0) 
-		{//racc - UI script for starting game.
+		{
 			int i, added = 0;
 			float skill;
 			int warmupTime = 0;

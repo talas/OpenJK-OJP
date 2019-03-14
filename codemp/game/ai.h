@@ -75,7 +75,7 @@ void NPC_BSMark1_Default( void );
 // AI Mark 2
 void NPC_BSMark2_Default( void );
 
-//racc - Monsters
+
 void NPC_BSMineMonster_Default( void );
 void NPC_BSHowler_Default( void );
 void NPC_BSRancor_Default( void );

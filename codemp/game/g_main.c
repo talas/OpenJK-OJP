@@ -658,7 +658,6 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &d_patched, "d_patched", "0", CVAR_CHEAT, 0, qfalse },
 
 	{ &g_saberRealisticCombat, "g_saberRealisticCombat", "0", CVAR_CHEAT },
-	//racc - prevents the use of offensive powers while hands are using two handed/dual sabers.
 	{ &g_saberRestrictForce, "g_saberRestrictForce", "0", CVAR_CHEAT },
 	//[SaberSys]
 	//Yeah, this funks up my shit.  Turning it off for now.
@@ -3290,8 +3289,7 @@ void CheckExitRules( void ) {
 		sKillLimit = "Kill limit hit.";
 	}
 	
-	if ( g_gametype.integer < GT_SIEGE && g_fraglimit.integer ) 
-	{//RACC - check for fraglimit.
+	if ( g_gametype.integer < GT_SIEGE && g_fraglimit.integer ) {
 		if ( level.teamScores[TEAM_RED] >= g_fraglimit.integer ) 
 		{
 			trap_SendServerCommand( -1, va("print \"Red %s\n\"", G_GetStringEdString("MP_SVGAME", "HIT_THE_KILL_LIMIT")) );

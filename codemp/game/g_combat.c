@@ -641,7 +641,6 @@ void TossClientItems( gentity_t *self ) {
 		}
 	}
 
-	//racc - this sets the weapon that the player body will use.
 	self->s.bolt2 = weapon;
 
 	//[CoOp]
@@ -3072,7 +3071,7 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 			{
 				if ((attacker->client && attacker->client->ps.isJediMaster) ||
 					(self->client && self->client->ps.isJediMaster))
-				{//racc - killed the JM or JM who killed someone
+				{
 					AddScore( attacker, self->r.currentOrigin, 1 );
 					//[SaberSys]
 					AddFatigueKillBonus( attacker, self );

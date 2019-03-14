@@ -486,7 +486,6 @@ void WP_ActivateSaber( gentity_t *self )
 
 #define PROPER_THROWN_VALUE 999 //Ah, well.. 
 
-//[RACC] - This seems to be the think setting for telling the saber to resume it's normal position in the hand.
 void SaberUpdateSelf(gentity_t *ent)
 {
 	if (ent->r.ownerNum == ENTITYNUM_NONE)
@@ -772,8 +771,7 @@ void WP_SaberInitBladeData( gentity_t *ent )
 	gentity_t *saberent = NULL;
 	gentity_t *checkEnt;
 	int i = 0;
-	
-	//G_Printf("WP_SaberInitBladeData called\n");
+
 	while (i < level.num_entities)
 	{ //make sure there are no other saber entities floating around that think they belong to this client.
 		checkEnt = &g_entities[i];
@@ -1302,9 +1300,9 @@ int G_SaberLockAnim( int attackerSaberStyle, int defenderSaberStyle, int topOrSi
 	int baseAnim = -1;
 	if ( lockOrBreakOrSuperBreak == SABERLOCK_LOCK )
 	{//special case: if we're using the same style and locking
-		if ( attackerSaberStyle == defenderSaberStyle  //racc - using same style
-			|| (attackerSaberStyle>=SS_FAST&&attackerSaberStyle<=SS_TAVION&&defenderSaberStyle>=SS_FAST&&defenderSaberStyle<=SS_TAVION) ) //racc - or using single saber
-		{//using same style 
+		if ( attackerSaberStyle == defenderSaberStyle 
+			|| (attackerSaberStyle>=SS_FAST&&attackerSaberStyle<=SS_TAVION&&defenderSaberStyle>=SS_FAST&&defenderSaberStyle<=SS_TAVION) )
+		{//using same style
 			if ( winOrLose == SABERLOCK_LOSE )
 			{//you want the defender's stance...
 				switch ( defenderSaberStyle )
@@ -1916,7 +1914,7 @@ qboolean WP_SabersCheckLock( gentity_t *ent1, gentity_t *ent2 )
 			ent2->client->ps.duelIndex != ent1->s.number)
 		{ //only allow saber locking if two players are dueling with each other directly
 			if (g_gametype.integer != GT_DUEL && g_gametype.integer != GT_POWERDUEL)
-			{//racc - you're always dueling each other in the duel gametypes.
+			{
 				return qfalse;
 			}
 		}
@@ -2342,9 +2340,6 @@ int PM_SaberDeflectionForQuad( int quad );
 #include "../namespace_end.h"
 
 extern stringID_table_t animTable[MAX_ANIMATIONS+1];
-//[RACC] - Determines the deflection animation for an attacking player.  Returns true if it 
-//find and set a deflection animation for the situation, returns qfalse for bad situations
-//or situations where the saber was bounced instead of deflected.
 static GAME_INLINE qboolean WP_GetSaberDeflectionAngle( gentity_t *attacker, gentity_t *defender, float saberHitFraction )
 {
 	qboolean animBasedDeflection = qtrue;
@@ -2617,8 +2612,6 @@ static GAME_INLINE qboolean WP_GetSaberDeflectionAngle( gentity_t *attacker, gen
 	}
 }
 
-
-//[RACC] - Uses saberMove defines for input
 int G_KnockawayForParry( int move )
 {
 	//FIXME: need actual anims for this
@@ -6345,7 +6338,6 @@ static GAME_INLINE qboolean CheckSaberDamage(gentity_t *self, int rSaberNum, int
 	//Add the standard radius into the box size
 	saberBoxSize += (self->client->saber[rSaberNum].blade[rBladeNum].radius*0.5f);
 
-	//Setting things up so the game always does realistic box traces for the sabers.
 	VectorSet(saberTrMins, -saberBoxSize, -saberBoxSize, -saberBoxSize);
 	VectorSet(saberTrMaxs, saberBoxSize, saberBoxSize, saberBoxSize);
 
@@ -6466,8 +6458,6 @@ static GAME_INLINE qboolean CheckSaberDamage(gentity_t *self, int rSaberNum, int
 		saberHitWall = qtrue;
 	}
 
-	//if(tr.entityNum == ENTITYNUM_WORLD)
-		//return qfalse;
 
 	if (g_entities[tr.entityNum].takedamage &&
 		(g_entities[tr.entityNum].health > 0 || !(g_entities[tr.entityNum].s.eFlags & EF_DISINTEGRATION)) &&
@@ -7218,8 +7208,6 @@ void WP_SaberStartMissileBlockCheck( gentity_t *self, usercmd_t *ucmd  )
 		}
 	}
 
-	//[RACC] - I beleive that this has to do with how the bots do blocking.  I'm 
-	//leaving it now.
 	if ( self->client->ps.fd.forcePowerDebounce[FP_SABER_DEFENSE] > level.time )
 	{//can't block while gripping (FIXME: or should it break the grip?  Pain should break the grip, I think...)
 		doFullRoutine = qfalse;
@@ -7962,7 +7950,7 @@ static GAME_INLINE void saberCheckRadiusDamage(gentity_t *saberent, int returnin
 #define THROWN_SABER_COMP
 
 static GAME_INLINE void saberMoveBack( gentity_t *ent, qboolean goingBack ) 
-{//racc - This function does the actual movement thrown sabers (ones that aren't "dead").
+{
 	vec3_t		origin, oldOrg;
 
 	//[SaberThrowSys]
@@ -8041,7 +8029,7 @@ static GAME_INLINE void saberMoveBack( gentity_t *ent, qboolean goingBack )
 
 
 void SaberBounceSound( gentity_t *self, gentity_t *other, trace_t *trace )
-{//racc - This function makes the saber lay flat if it touches something.
+{
 	VectorCopy(self->r.currentAngles, self->s.apos.trBase);
 	self->s.apos.trBase[PITCH] = 90;
 }
@@ -8167,7 +8155,7 @@ void saberReactivate(gentity_t *saberent, gentity_t *saberOwner);
 void saberBackToOwner(gentity_t *saberent);
 
 void DownedSaberThink(gentity_t *saberent)
-{//racc - this is the think function for a thrown saber entity that has been knocked to the ground.
+{
 	gentity_t *saberOwn = NULL;
 	qboolean notDisowned = qfalse;
 	qboolean pullBack = qfalse;
@@ -8175,7 +8163,7 @@ void DownedSaberThink(gentity_t *saberent)
 	saberent->nextthink = level.time;
 
 	if (saberent->r.ownerNum == ENTITYNUM_NONE)
-	{//racc - We've lost our owner.
+	{
 		MakeDeadSaber(saberent);
 
 		saberent->think = G_FreeEntity;
@@ -8190,7 +8178,7 @@ void DownedSaberThink(gentity_t *saberent)
 		!saberOwn->client ||
 		saberOwn->client->sess.sessionTeam == TEAM_SPECTATOR ||
 		(saberOwn->client->ps.pm_flags & PMF_FOLLOW))
-	{//racc - owner is invalid.
+	{
 		MakeDeadSaber(saberent);
 
 		saberent->think = G_FreeEntity;
@@ -8199,7 +8187,7 @@ void DownedSaberThink(gentity_t *saberent)
 	}
 
 	if (saberOwn->client->ps.saberEntityNum)
-	{//racc - our owner thinks he's still got a saber in flight or in his hand.  Not good.
+	{
 		if (saberOwn->client->ps.saberEntityNum == saberent->s.number)
 		{ //owner shouldn't have this set if we're thinking in here. Must've fallen off a cliff and instantly respawned or something.
 			notDisowned = qtrue;
@@ -8224,7 +8212,7 @@ void DownedSaberThink(gentity_t *saberent)
 
 #ifdef _DEBUG
 		if (saberOwn->client->saberStoredIndex != saberent->s.number)
-		{ //I'm paranoid.		
+		{ //I'm paranoid.
 			//[test]
 			//kill the saber entity to recover
 			G_LogPrintf("Saber index didn't match that of owner in DownedSaberThink!\n");
@@ -8408,8 +8396,7 @@ void DrownedSaberTouch( gentity_t *self, gentity_t *other, trace_t *trace )
 
 
 void saberReactivate(gentity_t *saberent, gentity_t *saberOwner)
-{//racc - I think this function reactivates the saberentity after it was set to be a dropped
-	//saber.
+{
 	saberent->s.saberInFlight = qtrue;
 
 	saberent->s.apos.trType = TR_LINEAR;
@@ -8445,7 +8432,6 @@ void saberReactivate(gentity_t *saberent, gentity_t *saberOwner)
 
 #define SABER_RETRIEVE_DELAY 3000 //3 seconds for now. This will leave you nice and open if you lose your saber.
 
-//[RACC] - create a loose saber for this saber entity.
 void saberKnockDown(gentity_t *saberent, gentity_t *saberOwner, gentity_t *other)
 {
 	saberOwner->client->ps.saberEntityNum = 0; //still stored in client->saberStoredIndex
@@ -8483,7 +8469,6 @@ void saberKnockDown(gentity_t *saberent, gentity_t *saberOwner, gentity_t *other
 	//[SaberThrowSys]
 	//don't try to move during the frame of our creation.
 	//saberMoveBack(saberent, qtrue);
-
 	//make sure that this saber has it's owner associated with it so we can render blades on this dropped saber properly.
 	saberent->s.owner = saberOwner->s.number;
 	//[/SaberThrowSys]
@@ -8790,9 +8775,6 @@ qboolean ButterFingers(gentity_t *saberent, gentity_t *saberOwner, gentity_t *ot
 	
 //Called when we want to try knocking the saber out of the owner's hand upon them going into a broken parry.
 //Also called on reflected attacks.
-//[RACC] - Checks the two player's saber attack levels and determines if the saberOwner should lose his
-//saber or not.  This also calculates the lost saber's ejection velocity and actually does the lost
-//saber if it's suppose to happen.
 qboolean saberCheckKnockdown_BrokenParry(gentity_t *saberent, gentity_t *saberOwner, gentity_t *other)
 {
 	int myAttack;
@@ -8954,13 +8936,13 @@ qboolean saberCheckKnockdown_Thrown(gentity_t *saberent, gentity_t *saberOwner, 
 }
 
 void saberBackToOwner(gentity_t *saberent)
-{//racc - Think func for sabers that are actively trying to fly back to their owners.
+{
 	gentity_t *saberOwner = &g_entities[saberent->r.ownerNum];
 	vec3_t dir;
 	float ownerLen;
 
 	if (saberent->r.ownerNum == ENTITYNUM_NONE)
-	{//racc - saber lost track of owner.
+	{
 		MakeDeadSaber(saberent);
 
 		saberent->think = G_FreeEntity;
@@ -8971,7 +8953,7 @@ void saberBackToOwner(gentity_t *saberent)
 	if (!saberOwner->inuse ||
 		!saberOwner->client ||
 		saberOwner->client->sess.sessionTeam == TEAM_SPECTATOR)
-	{//racc - saber owner not valid 
+	{
 		MakeDeadSaber(saberent);
 
 		saberent->think = G_FreeEntity;
@@ -9015,13 +8997,12 @@ void saberBackToOwner(gentity_t *saberent)
 
 	saberent->r.contents = CONTENTS_LIGHTSABER;
 
-	//racc - Apprenently pos1 is the hand bolt.
 	VectorSubtract(saberent->pos1, saberent->r.currentOrigin, dir);
 
 	ownerLen = VectorLength(dir);
 
 	if (saberent->speed < level.time)
-	{//racc - update the saber's speed
+	{
 		float baseSpeed = 900;
 
 		VectorNormalize(dir);
@@ -9083,7 +9064,7 @@ void saberBackToOwner(gentity_t *saberent)
 		saberent->s.loopIsSoundset = qfalse;
 
 		if (ownerLen <= 32)
-		{//racc - picked up the saber.
+		{
 			G_Sound( saberent, CHAN_AUTO, G_SoundIndex( "sound/weapons/saber/saber_catch.wav" ) );
 
 			saberOwner->client->ps.saberInFlight = qfalse;
@@ -9146,16 +9127,14 @@ void thrownSaberBallistics(gentity_t *saberEnt, gentity_t *saberOwn, qboolean st
 //[/SaberThrowSys]
 
 void thrownSaberTouch (gentity_t *saberent, gentity_t *other, trace_t *trace)
-{//racc - this function sets up a thrown saber to start returning to the player.  In addition,
-	//it tries to damage the hit target (other) if possible.  This can be reached by
-	//situations that don't involve impacts.
+{
 	gentity_t *hitEnt = other;
 	//[SaberThrowSys]
 	gentity_t *saberOwn = &g_entities[saberent->r.ownerNum];
 	//[/SaberThrowSys]
 
 	if (other && other->s.number == saberent->r.ownerNum)
-	{//racc - we hit our owner, just ignore it.
+	{
 		return;
 	}
 	
@@ -9200,7 +9179,7 @@ void thrownSaberTouch (gentity_t *saberent, gentity_t *other, trace_t *trace)
 		(other->r.contents & CONTENTS_LIGHTSABER) &&
 		g_entities[other->r.ownerNum].client &&
 		g_entities[other->r.ownerNum].inuse)
-	{//racc - hit another lightsaber entity, hit the saber's owner instead.
+	{
 		hitEnt = &g_entities[other->r.ownerNum];
 	}
 
@@ -9242,13 +9221,13 @@ void thrownSaberTouch (gentity_t *saberent, gentity_t *other, trace_t *trace)
 #define SABER_MAX_THROW_DISTANCE 700
 extern void G_StopObjectMoving( gentity_t *object );
 void saberFirstThrown(gentity_t *saberent)
-{//racc - this is the think function for live thrown sabers.
+{
 	vec3_t		vSub;
 	float		vLen;
 	gentity_t	*saberOwn = &g_entities[saberent->r.ownerNum];
 
 	if (saberent->r.ownerNum == ENTITYNUM_NONE)
-	{//racc - lost track of our owner.
+	{
 		MakeDeadSaber(saberent);
 
 		saberent->think = G_FreeEntity;
@@ -9260,7 +9239,7 @@ void saberFirstThrown(gentity_t *saberent)
 		!saberOwn->inuse ||
 		!saberOwn->client ||
 		saberOwn->client->sess.sessionTeam == TEAM_SPECTATOR)
-	{//racc - owner is invalid.
+	{
 		MakeDeadSaber(saberent);
 
 		saberent->think = G_FreeEntity;
@@ -9320,7 +9299,7 @@ void saberFirstThrown(gentity_t *saberent)
 	//[/SaberThrowSys]
 
 	if (BG_HasYsalamiri(g_gametype.integer, &saberOwn->client->ps))
-	{//racc - we have the Ysalamiri, we can't throw sabers.
+	{
 		//[SaberThrowSys]
 		//lost force concentration, switch the saber into ballistics mode.
 		thrownSaberBallistics(saberent, saberOwn, qfalse);
@@ -9330,7 +9309,7 @@ void saberFirstThrown(gentity_t *saberent)
 	}
 	
 	if (!BG_CanUseFPNow(g_gametype.integer, &saberOwn->client->ps, level.time, FP_SABERTHROW))
-	{//racc - can't use saber throw at the moment.
+	{
 		//[SaberThrowSys]
 		//lost force concentration, switch the saber into ballistics mode.
 		thrownSaberBallistics(saberent, saberOwn, qfalse);
@@ -9403,7 +9382,7 @@ void saberFirstThrown(gentity_t *saberent)
 		//Yes we do!
 	if (saberOwn->client->ps.fd.forcePowerLevel[FP_SABERTHROW] >= FORCE_LEVEL_3 &&
 		saberent->speed < level.time)
-	{ 
+	{ //if owner is rank 3 in saber throwing, the saber goes where he points
 		vec3_t fwd, traceFrom, traceTo, dir;
 		trace_t tr;
 
@@ -9426,10 +9405,7 @@ void saberFirstThrown(gentity_t *saberent)
 			//traceTo[2] += fwd[2];
 		}
 
-		//racc - move the saber for this frame based on it's current movement.
 		saberMoveBack(saberent, qfalse);
-
-		
 		VectorCopy(saberent->r.currentOrigin, saberent->s.pos.trBase);
 		
 		if (saberOwn->client->ps.fd.forcePowerLevel[FP_SABERTHROW] >= FORCE_LEVEL_3)
@@ -9447,8 +9423,6 @@ void saberFirstThrown(gentity_t *saberent)
 
 		VectorScale(dir, 500, saberent->s.pos.trDelta );
 		saberent->s.pos.trTime = level.time;
-
-		//VectorCopy(dir,saberent->r.currentOrigin);
 
 		if (saberOwn->client->ps.fd.forcePowerLevel[FP_SABERTHROW] >= FORCE_LEVEL_3)
 		{ //we'll treat them to a quicker update rate if their throw rank is high enough
@@ -10625,10 +10599,6 @@ static void G_GrabSomeMofos(gentity_t *self)
 	}
 }
 
-//[SaberLockSys]
-//used for server side new saber lock clash effect.  Attempting a bgame solution instead.
-//extern float ShortestLineSegBewteen2LineSegs( vec3_t start1, vec3_t end1, vec3_t start2, vec3_t end2, vec3_t close_pnt1, vec3_t close_pnt2 );
-//[/SaberLockSys]
 void WP_SaberPositionUpdate( gentity_t *self, usercmd_t *ucmd )
 { //rww - keep the saber position as updated as possible on the server so that we can try to do realistic-looking contact stuff
   //Note that this function also does the majority of working in maintaining the server g2 client instance (updating angles/anims/etc)
@@ -11141,22 +11111,22 @@ void WP_SaberPositionUpdate( gentity_t *self, usercmd_t *ucmd )
 	}
 
 	if ( BG_SuperBreakWinAnim( self->client->ps.torsoAnim ) )
-	{//racc - we've won a saber lock, indicate that we're firing.
+	{
 		self->client->ps.weaponstate = WEAPON_FIRING;
 	}
 	if (self->client->ps.weapon != WP_SABER ||
 		self->client->ps.weaponstate == WEAPON_RAISING ||
 		self->client->ps.weaponstate == WEAPON_DROPPING ||
 		self->health < 1)
-	{//racc - we're not using a lightsaber.
+	{
 		if (!self->client->ps.saberInFlight)
-		{//racc - and our saber isn't in flight. skip the saber damage stuff.
+		{
 			returnAfterUpdate = 1;
 		}
 	}
 
 	if (self->client->ps.saberThrowDelay < level.time)
-	{//racc - update saberCanThrow.
+	{
 		if ( (self->client->saber[0].saberFlags&SFL_NOT_THROWABLE) )
 		{//cant throw it normally!
 			if ( (self->client->saber[0].saberFlags&SFL_SINGLE_BLADE_THROWABLE) )
@@ -11295,10 +11265,6 @@ nextStep:
 		goto finalUpdate;
 	}
 
-	//racc - at this point, we're going to do the calculations for sabers.  This only
-	//runs if we're alive and have the saber selected. (it doesn't have to be on or
-	//in our hand.
-
 	//We'll get data for blade 0 first no matter what it is and stick them into
 	//the constant ("_Always") values. Later we will handle going through each blade.
 	trap_G2API_GetBoltMatrix(self->ghoul2, 1, 0, &boltMatrix, properAngles, properOrigin, level.time, NULL, self->modelScale);
@@ -11325,7 +11291,7 @@ nextStep:
 	VectorMA( boltOrigin, self->client->saber[0].blade[0].lengthMax, boltAngles, end );
 
 	if (self->client->ps.saberEntityNum)
-	{//racc - update the position of our saber entity if it's not in flight.
+	{
 		//I guess it's good to keep the position updated even when contents are 0
 		if (mySaber && ((mySaber->r.contents & CONTENTS_LIGHTSABER) || mySaber->r.contents == 0) && !self->client->ps.saberInFlight)
 		{ //place it roughly in the middle of the saber..
@@ -11333,9 +11299,6 @@ nextStep:
 		}
 	}
 
-	//racc - I think this is set this way so that the saber always starts facing in the 
-	//direction the player is facing.  This isn't techincally the detection of the saber 
-	//blade anymore.
 	boltAngles[YAW] = self->client->ps.viewangles[YAW];
 
 /*	{
@@ -11354,7 +11317,7 @@ nextStep:
 		if (saberent)
 		{
 			if (!self->client->ps.saberEntityState && self->client->ps.saberEntityNum)
-			{//RACC - starting the saber throw, since our saber is supposed to be inflight and we haven't lost it.
+			{
 				vec3_t startorg, startang, dir;
 
 				VectorCopy(boltOrigin, saberent->r.currentOrigin);
@@ -11444,8 +11407,7 @@ nextStep:
 				trap_LinkEntity(saberent);
 			}
 			else if (self->client->ps.saberEntityNum) //only do this stuff if your saber is active and has not been knocked out of the air.
-			{//racc - this a life tossed saber.
-				//racc - update pos1 (the origin of first saber blade)
+			{
 				VectorCopy(boltOrigin, saberent->pos1);
 				trap_LinkEntity(saberent);
 
@@ -11477,8 +11439,7 @@ nextStep:
 		gentity_t *saberent = &g_entities[saberNum];
 
 		if (!self->client->ps.saberInFlight && saberent)
-		{//RACC - make sure the saber entity is the correct size if it's in the hand and
-		//turned on.  This also resets the saber entity after it returns to the owner's hand.
+		{
 			saberent->r.svFlags |= (SVF_NOCLIENT);
 			saberent->r.contents = CONTENTS_LIGHTSABER;
 			SetSaberBoxSize(saberent);
@@ -11486,8 +11447,6 @@ nextStep:
 			saberent->s.loopIsSoundset = qfalse;
 		}
 
-		//racc - Don't do hit detection/updating on your saber while in saber locks.  
-		//Bare in mind that you're going to still have hit detection for the blade that starts the saberlock.
 		if (self->client->ps.saberLockTime > level.time && self->client->ps.saberEntityNum)
 		{
 			//[SaberLockSys]
@@ -11526,7 +11485,7 @@ nextStep:
 
 			/* yeah, this looks stupid with the new saber impact effects.
 			if (self->client->ps.saberIdleWound < level.time)
-			{//RACC - spark effects for saberlocks
+			{
 				gentity_t *te;
 				vec3_t dir;
 				te = G_TempEntity( g_entities[saberNum].r.currentOrigin, EV_SABER_BLOCK );
@@ -11582,8 +11541,6 @@ nextStep:
 		//The saber doesn't use this system for damage dealing anymore.
 		//WP_SaberClearDamage();
 		//[/SaberSys]
-
-		//racc - reset the clash flag.
 		saberDoClashEffect = qfalse;
 
 		//Now cycle through each saber and each blade on the saber and do damage traces.
@@ -11639,7 +11596,7 @@ nextStep:
 				//get the new data
 				//then update the bolt pos/dir. rBladeNum corresponds to the bolt index because blade bolts are added in order.
 				if ( rSaberNum == 0 && self->client->ps.saberInFlight )
-				{//RACC - Thrown saber 
+				{
 					if ( !self->client->ps.saberEntityNum )
 					{//dropped it... shouldn't get here, but...
 						//assert(0);
@@ -11684,7 +11641,6 @@ nextStep:
 				{	//[EnhancedImpliment] - Actually I think this should be done before the 
 					//damage checks instead of after.  This should make the blade collision
 					//detection work better.
-					//racc - update the saber blade position stuff.
 					trap_G2API_GetBoltMatrix(self->ghoul2, rSaberNum+1, rBladeNum, &boltMatrix, properAngles, properOrigin, level.time, NULL, self->modelScale);
 					BG_GiveMeVectorFromMatrix(&boltMatrix, ORIGIN, self->client->saber[rSaberNum].blade[rBladeNum].muzzlePoint);
 					BG_GiveMeVectorFromMatrix(&boltMatrix, NEGATIVE_Y, self->client->saber[rSaberNum].blade[rBladeNum].muzzleDir);
@@ -11841,7 +11797,7 @@ nextStep:
 									trMask = (MASK_PLAYERSOLID|CONTENTS_LIGHTSABER|MASK_SHOT);
 								}
 								else
-								{//racc - no luck hitting anything.
+								{
 									gotHit = qtrue; //break out of the loop
 								}
 							}
@@ -12005,10 +11961,6 @@ int WP_MissileBlockForBlock( int saberBlock )
 	return saberBlock;
 }
 
-
-//[RACC] - Pick the correct saberBlocked block setting based on the hitlocation, your current
-// viewheight, and the attack type.  This is also used as a general quadrant finder for other
-//moves.
 void WP_SaberBlockNonRandom( gentity_t *self, vec3_t hitloc, qboolean missileBlock )
 {
 	vec3_t diff, fwdangles={0,0,0}, right;

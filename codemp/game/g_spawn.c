@@ -531,7 +531,7 @@ spawn_t	spawns[] = {
 	{"trigger_once", SP_trigger_once},
 	{"trigger_push", SP_trigger_push},
 	{"trigger_teleport", SP_trigger_teleport},
-	{"trigger_hurt", SP_trigger_hurt},  //RACC - Fall to death trigger.
+	{"trigger_hurt", SP_trigger_hurt},
 	{"trigger_space", SP_trigger_space},
 	{"trigger_shipboundary", SP_trigger_shipboundary},
 	{"trigger_hyperspace", SP_trigger_hyperspace},

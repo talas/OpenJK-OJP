@@ -3904,13 +3904,12 @@ void SP_misc_weapon_shooter( gentity_t *self )
 		//[/CoOp]
 	}
 
-	//racc - load the weapon assets on the clients for this weapon.
 	RegisterItem(BG_FindItemForWeapon(self->s.weapon));
 
 	//set where our muzzle is
 	VectorCopy( self->s.origin, self->client->renderInfo.muzzlePoint );
 	//permanently updated (don't need for MP)
-	//self->client->renderInfo.mPCalcTime = Q3_INFINITE; //racc - is must be the update time for the renderInfo.  Cool!
+	//self->client->renderInfo.mPCalcTime = Q3_INFINITE;
 
 	//set up to link
 	if ( self->target )

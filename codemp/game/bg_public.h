@@ -646,8 +646,7 @@ extern	pmove_t		*pm;
 
 #define SETANIM_FLAG_NORMAL		0//Only set if timer is 0
 #define SETANIM_FLAG_OVERRIDE	1//Override previous
-#define SETANIM_FLAG_HOLD		2//Set the new timer //RACC - new timer terminates right 
-								 //before end frame
+#define SETANIM_FLAG_HOLD		2//Set the new timer
 #define SETANIM_FLAG_RESTART	4//Allow restarting the anim if playing the same one (weapon fires)
 #define SETANIM_FLAG_HOLDLESS	8//Set the new timer
 //[AnimationSys]
@@ -741,7 +740,6 @@ typedef enum {
 #define	EF_FIRING				(1<<9)		// for lightning gun
 #define EF_ALT_FIRING			(1<<10)		// for alt-fires, mostly for lightning guns though
 #define	EF_JETPACK_ACTIVE		(1<<11)		//jetpack is activated
-											//RACC - also used to flag vehicle missiles
 
 //[CoOp]
 #define EF_DISABLE_SHADER_ANIM	(1<<12)		// Normally shader animation chugs along, but movers can force shader animation to be on frame 1
@@ -844,7 +842,7 @@ typedef enum {
 	//PW_DOUBLER, //rww - removed
 	//PW_AMMOREGEN, //rww - removed
 	PW_SPEEDBURST,
-	PW_DISINT_4,	//racc - used to render the push/pull/grip glow effect on the players.
+	PW_DISINT_4,
 	PW_SPEED,
 	PW_CLOAKED,
 	PW_FORCE_ENLIGHTENED_LIGHT,
@@ -998,7 +996,7 @@ typedef enum {
 	EV_USE_ITEM9,
 	EV_USE_ITEM10,
 	EV_USE_ITEM11,
-	EV_USE_ITEM12,		//use flamethrower
+	EV_USE_ITEM12,
 	EV_USE_ITEM13,
 	EV_USE_ITEM14,
 	EV_USE_ITEM15,

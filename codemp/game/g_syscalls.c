@@ -316,13 +316,11 @@ qboolean trap_ICARUS_IsInitialized( int entID )
 	return syscall(G_ICARUS_ISINITIALIZED, entID);
 }
 
-//racc - same as IIcarusInterface::GetIcarus()->Update() in SP code.
 qboolean trap_ICARUS_MaintainTaskManager( int entID )
 {
 	return syscall(G_ICARUS_MAINTAINTASKMANAGER, entID);
 }
-//racc - same as IIcarusInterface::GetIcarus()->IsRunning() in SP code except
-//with reversed output.
+
 qboolean trap_ICARUS_IsRunning( int entID )
 {
 	return syscall(G_ICARUS_ISRUNNING, entID);

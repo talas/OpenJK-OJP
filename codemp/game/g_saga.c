@@ -52,8 +52,6 @@ void LogExit( const char *string );
 void SetTeamQuick(gentity_t *ent, int team, qboolean doBegin);
 
 static char gParseObjectives[MAX_SIEGE_INFO_SIZE];
-
-//RACC - holds the completed objective data.
 //[TABBot]
 //used in ai_tab.c don't do static anymore.
 char gObjectiveCfgStr[1024];
