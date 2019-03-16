@@ -1674,64 +1674,9 @@ float G_PointDistFromLineSegment( const vec3_t start, const vec3_t end, const ve
 
 
 //[SaberLockSys]
-// racc - This function works, but I decided to use ShortestLineSegBewteen2LineSegs 
-//since it was already used in the code.
-
-//whored from http://geometryalgorithms.com/Archive/algorithm_0106/algorithm_0106.htm#dist3D_Segment_to_Segment()
-#define SMALL_NUM  0.00000001 // anything that avoids division overflow
-void G_FindClosestPointBetweenLineSegments( vec3_t start1, vec3_t end1, vec3_t start2, vec3_t end2, vec3_t closestPoint)
-{
-	vec3_t u, v, w;
-	float a, b, c, d, e, D;
-	float    sc;
-	VectorSubtract(end1, start1, u);
-	VectorSubtract(end2, start2, v);
-	VectorSubtract(start1, start2, w);
-
-	/*
-    Vector   u = L1.P1 - L1.P0;
-    Vector   v = L2.P1 - L2.P0;
-    Vector   w = L1.P0 - L2.P0;
-	*/
-	a = DotProduct(u,u);        // always >= 0
-    b = DotProduct(u,v);
-    c = DotProduct(v,v);        // always >= 0
-    d = DotProduct(u,w);
-    e = DotProduct(v,w);
-    D = a*c - b*b;       // always >= 0
-   
-
-    // compute the line parameters of the two closest points
-    if (D < SMALL_NUM) {         // the lines are almost parallel
-        sc = 0.0;
-        //tc = (b>c ? d/b : e/c);   // use the largest denominator
-    }
-    else {
-        sc = (b*e - c*d) / D;
-        //tc = (a*e - b*d) / D;
-    }
-
-    // get the difference of the two closest points
-    //Vector   dP = w + (sc * u) - (tc * v);  // = L1(sc) - L2(tc)
-
-	//return norm(dP);   // return the closest distance
-
-	if(sc < 0)
-	{//past the start point on segment
-		VectorCopy(start1, closestPoint);
-	}
-	else if(sc > 1)
-	{//past the start point on the segment
-		VectorCopy(end1, closestPoint);
-	}
-
-	//somewhere inbetween
-	VectorMA(start1, sc, u, closestPoint);
-}
-
-
+//moved this to q_math.c to make it available for the saber lock effects on the cgame side.
 float ShortestLineSegBewteen2LineSegs( vec3_t start1, vec3_t end1, vec3_t start2, vec3_t end2, vec3_t close_pnt1, vec3_t close_pnt2 )
-{//racc - finds the shorts line between two line segments.  I moved this to q_math.c to make it available for the saber lock effects on the cgame side.
+{
 	float	current_dist, new_dist;
 	vec3_t	new_pnt;
 	//start1, end1 : the first segment
