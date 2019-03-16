@@ -5134,7 +5134,7 @@ Q3_SetFireWeapon
 
 
 //[CoOp]
-//[SPPortCompleted]
+//[SPPortComplete]
 /*
 ============
 Q3_SetSafeRemove
@@ -5167,7 +5167,7 @@ static void Q3_SetSafeRemove(int entID, qboolean add)
 		ent->NPC->scriptFlags &= ~SCF_SAFE_REMOVE;
 	}
 }
-//[/SPPortCompleted]
+//[/SPPortComplete]
 //[/CoOp]
 
 
@@ -7821,7 +7821,7 @@ qboolean Q3_Set( int taskID, int entID, const char *type_name, const char *data 
 
 	case SET_ADJUST_AREA_PORTALS:
 	//[CoOp]
-	//[SPPortCompleted]
+	//[SPPortComplete]
 		if(!Q_stricmp("true", ((char *)data)))
 		{
 			Q3_SetAdjustAreaPortals( entID, qtrue );
@@ -7831,13 +7831,13 @@ qboolean Q3_Set( int taskID, int entID, const char *type_name, const char *data 
 			Q3_SetAdjustAreaPortals( entID, qfalse );
 		}
 		//G_DebugPrint( WL_WARNING, "Q3_SetAdjustAreaPortals: NOT SUPPORTED IN MP\n");
-	//[/SPPortCompleted]
+	//[/SPPortComplete]
 	//[/CoOp]
 		break;
 	
 	case SET_DMG_BY_HEAVY_WEAP_ONLY:
 	//[CoOp]
-	//[SPPortCompleted]
+	//[SPPortComplete]
 		if(!stricmp("true", ((char *)data)))
 		{
 			Q3_SetDmgByHeavyWeapOnly( entID, qtrue );
@@ -7847,13 +7847,13 @@ qboolean Q3_Set( int taskID, int entID, const char *type_name, const char *data 
 			Q3_SetDmgByHeavyWeapOnly( entID, qfalse );
 		}
 		//G_DebugPrint( WL_WARNING, "Q3_SetDmgByHeavyWeapOnly: NOT SUPPORTED IN MP\n");
-	//[/SPPortCompleted]
+	//[/SPPortComplete]
 	//[/CoOp]
 		break;
 
 	case SET_SHIELDED:
 	//[CoOp]
-	//[SPPortCompleted]
+	//[SPPortComplete]
 		if(!stricmp("true", ((char *)data)))
 		{
 			Q3_SetShielded( entID, qtrue );
@@ -7863,13 +7863,13 @@ qboolean Q3_Set( int taskID, int entID, const char *type_name, const char *data 
 			Q3_SetShielded( entID, qfalse );
 		}
 		//G_DebugPrint( WL_WARNING, "Q3_SetShielded: NOT SUPPORTED IN MP\n");
-	//[/SPPortCompleted]
+	//[/SPPortComplete]
 	//[/CoOp]
 		break;
 
 	case SET_NO_GROUPS:
 	//[CoOp]
-	//[SPPortCompleted]
+	//[SPPortComplete]
 		if(!stricmp("true", ((char *)data)))
 		{
 			Q3_SetNoGroups( entID, qtrue );
@@ -7879,7 +7879,7 @@ qboolean Q3_Set( int taskID, int entID, const char *type_name, const char *data 
 			Q3_SetNoGroups( entID, qfalse );
 		}
 		//G_DebugPrint( WL_WARNING, "Q3_SetNoGroups: NOT SUPPORTED IN MP\n");
-	//[/SPPortCompleted]
+	//[/SPPortComplete]
 	//[/CoOp]
 		break;
 
@@ -7894,7 +7894,7 @@ qboolean Q3_Set( int taskID, int entID, const char *type_name, const char *data 
 		}
 		break;
 	//[CoOp]
-	//[SPPortCompleted]
+	//[SPPortComplete]
 	case SET_SAFE_REMOVE:
 		if(!stricmp("true", ((char *)data)))
 		{
@@ -7905,7 +7905,7 @@ qboolean Q3_Set( int taskID, int entID, const char *type_name, const char *data 
 			Q3_SetSafeRemove( entID, qfalse);
 		}
 		break;
-	//[/SPPortCompleted]
+	//[/SPPortComplete]
 	//[/CoOp]
 
 	case SET_INACTIVE:

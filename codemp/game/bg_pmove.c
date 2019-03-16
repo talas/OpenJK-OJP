@@ -2174,7 +2174,7 @@ void PM_AdjustAngleForWallGrap( playerState_t *ps, usercmd_t *ucmd )
 //[/LedgeGrab]
 
 //[KnockdownSys]
-//[SPPortCompete]
+//[SPPortComplete]
 extern qboolean PM_InForceGetUp( playerState_t *ps );
 int PM_MinGetUpTime( playerState_t *ps );
 qboolean PM_AdjustAnglesForKnockdown( playerState_t *ps, usercmd_t *ucmd )
@@ -2233,7 +2233,7 @@ qboolean PM_AdjustAnglesForKnockdown( playerState_t *ps, usercmd_t *ucmd )
 	}
 	return qfalse;
 }
-//[/SPPortCompete]
+//[/SPPortComplete]
 //[/KnockdownSys]
 
 //Set the height for when a force jump was started. If it's 0, nuge it up (slight hack to prevent holding jump over slopes)

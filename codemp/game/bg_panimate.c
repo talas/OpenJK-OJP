@@ -1473,7 +1473,7 @@ qboolean PM_InSaberAnim( int anim )
 
 
 //[KnockdownSys]
-//[SPPortCompete]
+//[SPPortComplete]
 qboolean PM_InForceGetUp( playerState_t *ps )
 {//racc - Are we in a getup animation that uses the Force?
 	switch ( ps->legsAnim )
@@ -1620,7 +1620,7 @@ qboolean PM_InKnockDown( playerState_t *ps )
 	*/
 	//[/KnockdownSys]
 }
-//[/SPPortCompete]
+//[/SPPortComplete]
 
 
 qboolean PM_PainAnim( int anim )
@@ -1922,7 +1922,7 @@ qboolean BG_SaberLockBreakAnim( int anim )
 }
 
 
-//[SPPortCompete]
+//[SPPortComplete]
 //[KnockdownSys]
 qboolean BG_KnockDownAnim( int anim )
 {//racc - is this a "normal" knockdown animation?
@@ -1965,7 +1965,7 @@ qboolean PM_KnockDownAnimExtended( int anim )
 	return qfalse;
 }
 //[/KnockdownSys]
-//[/SPPortCompete]
+//[/SPPortComplete]
 
 qboolean BG_FullBodyTauntAnim( int anim )
 {
