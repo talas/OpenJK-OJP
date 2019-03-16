@@ -3692,10 +3692,7 @@ static qboolean	PM_CheckWaterJump( void ) {
 
 	spot[2] += 16;
 	cont = pm->pointcontents (spot, pm->ps->clientNum );
-	//[WATERJUMPFIX]
-	if ( cont&(CONTENTS_SOLID|CONTENTS_PLAYERCLIP|CONTENTS_WATER|CONTENTS_SLIME|CONTENTS_LAVA|CONTENTS_BODY) ) {
-	//if ( cont ) {
-	//[/WATERJUMPFIX]
+	if ( cont ) {
 		return qfalse;
 	}
 
