@@ -16575,15 +16575,7 @@ stillDoSaber:
 				}
 
 				{
-				//[MiscCodeTweaks]
-				//fixed compiler issue.
-				unsigned char savRGBA[3];
-				savRGBA[0] = legs.shaderRGBA[0];
-				savRGBA[1] = legs.shaderRGBA[1];
-				savRGBA[2] = legs.shaderRGBA[2];
-
-				//const unsigned char savRGBA[3] = {legs.shaderRGBA[0],legs.shaderRGBA[1],legs.shaderRGBA[2]};
-				//[/MiscCodeTweaks]
+				const unsigned char savRGBA[3] = {legs.shaderRGBA[0],legs.shaderRGBA[1],legs.shaderRGBA[2]};
 				legs.shaderRGBA[0] = max(255-subLen/4,1);
 				legs.shaderRGBA[1] = max(255-subLen/4,1);
 				legs.shaderRGBA[2] = max(255-subLen/4,1);

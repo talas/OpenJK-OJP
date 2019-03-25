@@ -7574,10 +7574,7 @@ static qboolean PM_DoChargedWeapons( qboolean vehicleRocketLock, bgEntity_t *veh
 				pm->ps->weaponChargeSubtractTime = pm->cmd.serverTime + weaponData[pm->ps->weapon].altChargeSubTime;
 
 #ifdef _DEBUG
-				//[MiscCodeTweaks]
-				//commented this message since we normally don't need it.
-				//Com_Printf("Starting charge\n");
-				//[/MiscCodeTweaks]
+				Com_Printf("Starting charge\n");
 #endif
 				assert(pm->ps->weapon > WP_NONE);
 				BG_AddPredictableEventToPlayerstate(EV_WEAPON_CHARGE_ALT, pm->ps->weapon, pm->ps);
@@ -7616,10 +7613,7 @@ static qboolean PM_DoChargedWeapons( qboolean vehicleRocketLock, bgEntity_t *veh
 				pm->ps->weaponChargeSubtractTime = pm->cmd.serverTime + weaponData[pm->ps->weapon].chargeSubTime;
 
 #ifdef _DEBUG
-				//[MiscCodeTweaks]
-				//commented this message since we normally don't need it.
-				//Com_Printf("Starting charge\n");
-				//[/MiscCodeTweaks]
+				Com_Printf("Starting charge\n");
 #endif
 				BG_AddPredictableEventToPlayerstate(EV_WEAPON_CHARGE, pm->ps->weapon, pm->ps);
 			}
@@ -7657,13 +7651,9 @@ rest:
 	if ( pm->ps->weaponstate == WEAPON_CHARGING )
 	{
 		// weapon has a charge, so let us do an attack
-//[MiscCodeTweaks]
-/*
 #ifdef _DEBUG
 		Com_Printf("Firing.  Charge time=%d\n", pm->cmd.serverTime - pm->ps->weaponChargeTime);
 #endif
-*/
-//[/MiscCodeTweaks]
 
 		// dumb, but since we shoot a charged weapon on button-up, we need to repress this button for now
 		pm->cmd.buttons |= BUTTON_ATTACK;
@@ -7672,13 +7662,9 @@ rest:
 	else if ( pm->ps->weaponstate == WEAPON_CHARGING_ALT )
 	{
 		// weapon has a charge, so let us do an alt-attack
-//[MiscCodeTweaks]
-/*
 #ifdef _DEBUG
 		Com_Printf("Firing.  Charge time=%d\n", pm->cmd.serverTime - pm->ps->weaponChargeTime);
 #endif
-*/
-//[/MiscCodeTweaks]
 
 		// dumb, but since we shoot a charged weapon on button-up, we need to repress this button for now
 		pm->cmd.buttons |= BUTTON_ALT_ATTACK;

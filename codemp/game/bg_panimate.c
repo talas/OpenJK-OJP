@@ -3121,12 +3121,7 @@ int BG_ParseAnimationFile(const char *filename, animation_t *animset, qboolean i
 		{
 //#ifndef FINAL_BUILD
 #ifdef _DEBUG
-			//[MiscCodeTweaks]
-			if(Q_stricmp( "ROOT", token ) != 0)
-			{
-				Com_Printf(S_COLOR_RED"WARNING: Unknown token %s in %s\n", token, filename);
-			}
-			//[/MiscCodeTweaks]
+			Com_Printf(S_COLOR_RED"WARNING: Unknown token %s in %s\n", token, filename);
 			while (token[0])
 			{
 				token = COM_ParseExt( (const char **) &text_p, qfalse );	//returns empty string when next token is EOL
