@@ -2548,9 +2548,6 @@ void QDECL G_LogPrintf( const char *fmt, ... ) {
 	va_list		argptr;
 	char		string[1024];
 	int			min, tens, sec;
-	//[OverflowProtection]
-	int			l;
-	//[/OverflowProtection]
 
 	sec = level.time / 1000;
 
@@ -2561,28 +2558,18 @@ void QDECL G_LogPrintf( const char *fmt, ... ) {
 
 	Com_sprintf( string, sizeof(string), "%3i:%i%i ", min, tens, sec );
 
-	//[OverflowProtection]
-	l = strlen(string);
-	//[/OverflowProtection]
-
 	va_start( argptr, fmt );
-	//[OverflowProtection]
-	Q_vsnprintf(string + l, sizeof( string ) - l, fmt, argptr );
-	//vsprintf( string +7 , fmt,argptr );
-	//[/OverflowProtection]
+	vsprintf( string +7 , fmt,argptr );
 	va_end( argptr );
 
 	if ( g_dedicated.integer ) {
-		//[OverflowProtection]
-		G_Printf( "%s", string + l );
-		//G_Printf( "%s", string + 7 );
-		//[/OverflowProtection]
+		G_Printf( "%s", string + 7 );
 	}
 
 	if ( !level.logFile ) {
 		return;
 	}
-	
+
 	trap_FS_Write( string, strlen( string ), level.logFile );
 }
 

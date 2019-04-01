@@ -382,10 +382,7 @@ void G_DebugPrint( int level, const char *format, ... )
 //[/SuperDindon]
 
 	va_start (argptr, format);
-	//[OverflowProtection]
-	Q_vsnprintf(text, sizeof(text), format, argptr);
-	//vsprintf( text, format, argptr );
-	//[/OverflowProtection]
+	vsprintf (text, format, argptr);
 	va_end (argptr);
 
 	//Add the color formatting

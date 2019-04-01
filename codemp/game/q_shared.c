@@ -1132,56 +1132,6 @@ char *Q_CleanStr( char *string ) {
 }
 
 
-//[OverflowProtection]
-/*
-============
-Q_vsnprintf
-
-vsnprintf portability:
-
-C99 standard: vsnprintf returns the number of characters (excluding the trailing
-'\0') which would have been written to the final string if enough space had been available
-snprintf and vsnprintf do not write more than size bytes (including the trailing '\0')
-
-win32: _vsnprintf returns the number of characters written, not including the terminating null character,
-or a negative value if an output error occurs. If the number of characters to write exceeds count, then count 
-characters are written and -1 is returned and no trailing '\0' is added.
-
-Q_vsnprintf: always appends a trailing '\0', returns number of characters written (not including terminal \0)
-or returns -1 on failure or if the buffer would be overflowed.
-============
-*/
-int Q_vsnprintf( char *dest, int size, const char *fmt, va_list argptr ) {
-	int ret;
-
-#ifdef _WIN32
-	ret = _vsnprintf( dest, size-1, fmt, argptr );
-#else
-	ret = vsnprintf( dest, size, fmt, argptr );
-#endif
-
-	dest[size-1] = '\0';
-	if ( ret < 0 || ret >= size ) {
-		return -1;
-	}
-	return ret;
-}
-
-
-//Ensiform provided this version of Com_sprintf, which is supposed to be overflow protected and less hacky.
-void QDECL Com_sprintf( char *dest, int size, const char *fmt, ...) {
-	int		ret;
-	va_list		argptr;
-
-	va_start (argptr,fmt);
-	ret = Q_vsnprintf (dest, size, fmt, argptr);
-	va_end (argptr);
-	if (ret == -1) {
-		Com_Printf ("Com_sprintf2: overflow of %i bytes buffer\n", size);
-	}
-}
-
-/* basejka code
 void QDECL Com_sprintf( char *dest, int size, const char *fmt, ...) {
 	int		len;
 	va_list		argptr;
@@ -1203,8 +1153,6 @@ void QDECL Com_sprintf( char *dest, int size, const char *fmt, ...) {
 	}
 	Q_strncpyz (dest, bigbuffer, size );
 }
-*/
-//[/OverflowProtection]
 
 
 /*
@@ -1216,40 +1164,6 @@ varargs versions of all text functions.
 FIXME: make this buffer size safe someday
 ============
 */
-//[OverflowProtection]
-//Ensiform provided this new version which apprenently can't overflow and gives the char array pool circular indexing to
-//provide better protection against multiple va strings stepping on each other's data.
-char	* QDECL va( char *format, ... ) {
-	va_list		argptr;
-	#define	MAX_VA_STRING	32000
-	static char		temp_buffer[MAX_VA_STRING];
-	static char		string[MAX_VA_STRING];	// in case va is called by nested functions
-	static int		index = 0;
-	char	*buf;
-	int len;
-
-
-	va_start (argptr, format);
-	vsprintf (temp_buffer, format,argptr);
-	va_end (argptr);
-
-	if ((len = strlen(temp_buffer)) >= MAX_VA_STRING) {
-		Com_Error( ERR_DROP, "Attempted to overrun string in call to va2()\n" );
-	}
-
-	if (len + index >= MAX_VA_STRING-1) {
-		index = 0;
-	}
-
-	buf = &string[index];
-	memcpy( buf, temp_buffer, len+1 );
-
-	index += len + 1;
-
-	return buf;
-}
-
-/* basejka code
 char	* QDECL va( const char *format, ... ) {
 	va_list		argptr;
 	static char		string[2][32000];	// in case va is called by nested functions
@@ -1265,8 +1179,6 @@ char	* QDECL va( const char *format, ... ) {
 
 	return buf;
 }
-*/
-//[/OverflowProtection]
 
 
 /*

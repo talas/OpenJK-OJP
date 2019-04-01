@@ -1600,9 +1600,6 @@ qboolean COM_BitCheck( const int array[], int bitNum );
 void COM_BitSet( int array[], int bitNum );
 void COM_BitClear( int array[], int bitNum );
 
-//[OverflowProtection]
-int Q_vsnprintf( char *dest, int size, const char *fmt, va_list argptr );
-//[/OverflowProtection]
 
 //=============================================
 
@@ -1633,11 +1630,7 @@ float	LittleFloat (const float *l);
 
 void	Swap_Init (void);
 */
-//[OverflowProtection]
-char	* QDECL va( char *format, ... );
-//char	* QDECL va(const char *format, ...);
-//[/OverflowProtection]
-
+char	* QDECL va(const char *format, ...);
 
 //=============================================
 

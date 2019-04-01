@@ -2099,10 +2099,7 @@ int LoadPathData(const char *filename)
 	i_cv = 0;
 
 	//[DynamicMemoryTweaks]
-	//[OverflowProtection]
-	//strcpy(routePath, va("botroutes/%s.wnt\0", filename));
 	Com_sprintf(routePath, sizeof(routePath), "botroutes/%s.wnt", filename);
-	//[/OverflowProtection]
 	//routePath = (char *)B_TempAlloc(1024);
 
 	//Com_sprintf(routePath, 1024, "botroutes/%s.wnt\0", filename);
