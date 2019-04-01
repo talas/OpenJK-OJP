@@ -720,7 +720,7 @@ static cvarTable_t		gameCvarTable[] = {
 	// Shield boost on duel start
 	{ &g_playerDuelShield, "g_playerDuelShield", "50", CVAR_ARCHIVE, 0, qfalse },
 	// Duel Stats
-	{ &g_duelStats, "g_duelStats", "1", CVAR_ARCHIVE, 0, qtrue },
+	{ &g_duelStats, "g_duelStats", "0", CVAR_ARCHIVE, 0, qtrue },
 	// Log Duel Stats
 	{ &g_logDuelStats, "g_logDuelStats", "0", CVAR_ARCHIVE, 0, qtrue },
 	//[/DuelSys]
