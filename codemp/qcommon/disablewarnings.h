@@ -35,12 +35,4 @@
 #pragma warning(disable : 4213)		//nonstandard extension used : cast on l-value
 #pragma warning(disable : 4245)		//signed/unsigned mismatch
 
-//[VS2005]
-//remove additional warnings that VS2005 kicks out.
-#ifdef VS2005
-#pragma warning(disable : 4996)		//deprecated library function warnings
-#pragma warning(disable : 4005)		//macro redefinition warnings.  Used often as part of C++->C AI hacks.
-#endif
-//[/VS2005]
-
 #endif
