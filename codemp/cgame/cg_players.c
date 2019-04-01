@@ -372,13 +372,6 @@ qboolean CG_ParseSurfsFile( const char *modelName, const char *skinName, char *s
 	if ( len >= sizeof( text ) - 1 ) 
 	{
 		Com_Printf( "File %s too long\n", sfilename );
-
-//[TicketFix143]
-    // Though too big to read, this was still a valid
-    // file, so we need to close it!
-    trap_FS_FCloseFile( f ); 
-//[/TicketFix143]
-
 		return qfalse;
 	}
 

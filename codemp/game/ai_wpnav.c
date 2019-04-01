@@ -2123,9 +2123,6 @@ int LoadPathData(const char *filename)
 	//[/DynamicMemoryTweaks]
 	{
 		G_Printf(S_COLOR_RED "Route file exceeds maximum length\n");
-		//[MissingCloseFile]
-		trap_FS_FCloseFile(f);
-		//[/MissingCloseFile]
 		return 0;
 	}
 

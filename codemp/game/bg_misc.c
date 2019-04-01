@@ -429,7 +429,6 @@ qboolean BG_FileExists(const char *fileName)
 			trap_FS_FCloseFile(fh);
 			return qtrue;
 		}
-		trap_FS_FCloseFile(fh);
 	}
 
 	return qfalse;

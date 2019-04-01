@@ -1566,7 +1566,6 @@ void BG_VehWeaponLoadParms( void )
 			}
 
 			if ( totallen + len >= MAX_VEH_WEAPON_DATA_SIZE ) {
-trap_FS_FCloseFile(f);//[TicketFix143] May be too large but close the file
 				Com_Error(ERR_DROP, "Vehicle Weapon extensions (*.vwp) are too large" );
 			}
 			strcat( marker, tempReadBuffer );
@@ -1702,7 +1701,6 @@ void BG_VehicleLoadParms( void )
 #ifdef _JK2MP
 			trap_FS_Read(tempReadBuffer, len, f);
 			tempReadBuffer[len] = 0;
-			trap_FS_FCloseFile(f);
 #else
 			gi.FS_Read(tempReadBuffer, len, f);
 			tempReadBuffer[len] = 0;
@@ -1719,6 +1717,7 @@ void BG_VehicleLoadParms( void )
 //[DynamicMemory_Vehicles]
 #ifdef DYNAMICMEMORY_VEHICLES
 			if ( totallen + len >= maxLen ) {
+				trap_FS_FCloseFile(f);
 				Com_Error(ERR_DROP, "Vehicle extensions (*.veh) somehow exceeded precalculated size! (should never happen)" );
 			}
 #else
@@ -1727,13 +1726,11 @@ void BG_VehicleLoadParms( void )
 			}
 #endif
 			strcat( marker, tempReadBuffer );
-			/*
 #ifdef _JK2MP
 			trap_FS_FCloseFile( f );
 #else
 			gi.FS_FCloseFile( f );
 #endif
-			*/
 
 			totallen += len;
 			marker = VehicleParms+totallen;

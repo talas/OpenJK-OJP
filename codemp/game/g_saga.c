@@ -179,9 +179,6 @@ void InitSiegeMode(void)
 
 	if (!f || len >= MAX_SIEGE_INFO_SIZE)
 	{
-		//[MissingCloseFile]
-		trap_FS_FCloseFile(f);
-		//[/MissingCloseFile]
 		goto failure;
 	}
 
