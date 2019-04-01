@@ -1971,8 +1971,6 @@ int G_PickDeathAnim( gentity_t *self, vec3_t point, int damage, int mod, int hit
 	return deathAnim;
 }
 
-
-//[SPPortComplete]
 //[KnockdownSys]
 static int G_CheckForLedge( gentity_t *self, vec3_t fallCheckDir, float checkDist );
 int G_CheckLedgeDive( gentity_t *self, float checkDist, const vec3_t checkVel, qboolean tryOpposite, qboolean tryPerp )
@@ -2058,8 +2056,6 @@ int G_CheckLedgeDive( gentity_t *self, float checkDist, const vec3_t checkVel, q
 	return cliff_fall;
 }
 //[/KnockdownSys]
-//[/SPPortComplete]
-
 
 gentity_t *G_GetJediMaster(void)
 {

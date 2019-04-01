@@ -1085,7 +1085,7 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 }
 
 
-//[KnockdownSys][SPPortComplete]
+//[KnockdownSys]
 void G_ThrownDeathAnimForDeathAnim( gentity_t *hitEnt, vec3_t impactPoint )
 {//racc - sets an alternate "being thrown" death animation based on current death animation.
 	int anim = -1;
@@ -1189,7 +1189,7 @@ void G_ThrownDeathAnimForDeathAnim( gentity_t *hitEnt, vec3_t impactPoint )
 		NPC_SetAnim( hitEnt, SETANIM_BOTH, anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
 	}
 }
-//[/SPPortComplete][/KnockdownSys]
+//[/KnockdownSys]
 
 /*
 ==============

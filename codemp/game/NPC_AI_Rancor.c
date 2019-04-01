@@ -708,8 +708,6 @@ void Rancor_Combat( void )
 	}
 }
 
-
-//[SPPortComplete]
 /*
 -------------------------
 NPC_Rancor_Pain
@@ -844,7 +842,6 @@ void NPC_Rancor_Pain( gentity_t *self, gentity_t *attacker, int damage )
 		*/
 	}
 }
-//[/SPPortComplete]
 
 void Rancor_CheckDropVictim( void )
 {

@@ -561,7 +561,6 @@ void PM_SetSpecialMoveValues (void)
 
 
 //[CoOp] 
-//[SPPortComplete]
 #ifdef QAGAME
 extern void G_SoundOnEnt( gentity_t *ent, int channel, const char *soundPath );
 static void PM_FallToDeath( gentity_t *self )
@@ -608,9 +607,7 @@ static void PM_FallToDeath( gentity_t *self )
 	//pm->ps->friction = 1;
 }
 #endif
-//[/SPPortComplete]
 //[/CoOp]
-
 
 static void PM_SetVehicleAngles( vec3_t normal )
 {
@@ -1035,9 +1032,7 @@ void PM_HoverTrace( void )
 }
 //end vehicle functions crudely ported from sp -rww
 
-
 //[CoOp]
-//[SPPortComplete]
 /*
 =============
 PM_SetWaterLevelAtPoint	FIXME: avoid this twice?  certainly if not moving
@@ -1087,7 +1082,6 @@ static void PM_SetWaterLevelAtPoint( vec3_t org, int *waterlevel, int *watertype
 		}
 	}
 }
-//[/SPPortComplete]
 //[/CoOp]
 
 /*
@@ -2174,7 +2168,6 @@ void PM_AdjustAngleForWallGrap( playerState_t *ps, usercmd_t *ucmd )
 //[/LedgeGrab]
 
 //[KnockdownSys]
-//[SPPortComplete]
 extern qboolean PM_InForceGetUp( playerState_t *ps );
 int PM_MinGetUpTime( playerState_t *ps );
 qboolean PM_AdjustAnglesForKnockdown( playerState_t *ps, usercmd_t *ucmd )
@@ -2233,7 +2226,6 @@ qboolean PM_AdjustAnglesForKnockdown( playerState_t *ps, usercmd_t *ucmd )
 	}
 	return qfalse;
 }
-//[/SPPortComplete]
 //[/KnockdownSys]
 
 //Set the height for when a force jump was started. If it's 0, nuge it up (slight hack to prevent holding jump over slopes)
@@ -4385,7 +4377,6 @@ static void PM_NoclipMove( void ) {
 //============================================================================
 
 //[CoOp]
-//[SPPortComplete]
 static float PM_DamageForDelta( int delta )
 {
 	float damage = delta;
@@ -4473,9 +4464,7 @@ static float PM_CrashLandDelta( vec3_t prev_vel, int waterlevel )
 
 	return delta;
 }
-//[/SPPortComplete]
 //[CoOp]
-
 
 /*
 ================
@@ -5827,7 +5816,6 @@ qboolean PM_SwimmingAnim( int anim )
 	return qfalse;
 }
 
-//[SPPortComplete]
 qboolean PM_RollingAnim( int anim )
 {
 	switch ( anim )
@@ -5852,7 +5840,6 @@ qboolean PM_RollingAnim( int anim )
 	}
 	return qfalse;
 }
-//[/SPPortComplete]
 
 void PM_AnglesForSlope( const float yaw, const vec3_t slope, vec3_t angles )
 {
@@ -10071,8 +10058,6 @@ void PM_AdjustAttackStates( pmove_t *pm )
 	}
 }
 
-
-//[SPPortComplete]
 void BG_CmdForRoll( playerState_t *ps, int anim, usercmd_t *pCmd )
 {
 //[DodgeSys]
@@ -10229,7 +10214,6 @@ void BG_CmdForRoll( playerState_t *ps, int anim, usercmd_t *pCmd )
 	}
 	pCmd->upmove = 0;
 }
-//[/SPPortComplete]
 
 qboolean PM_SaberInTransition( int move );
 

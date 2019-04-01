@@ -1,4 +1,3 @@
-//[SPPortComplete]
 #include "b_local.h"
 #include "g_nav.h"
 
@@ -411,4 +410,3 @@ void NPC_BSRemote_Default( void )
 		Remote_Idle();
 	}
 }
-//[/SPPortComplete]

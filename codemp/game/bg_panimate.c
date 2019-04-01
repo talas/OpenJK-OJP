@@ -54,9 +54,6 @@ qboolean BG_SaberStanceAnim( int anim )
 	return qfalse;
 }
 
-
-
-//[SPPortComplete]
 qboolean BG_CrouchAnim( int anim )
 {
 	switch ( anim )
@@ -87,8 +84,6 @@ qboolean BG_CrouchAnim( int anim )
 	}
 	return qfalse;
 }
-//[/SPPortComplete]
-
 
 qboolean BG_InSpecialJump( int anim )
 {
@@ -519,7 +514,6 @@ qboolean BG_InExtraDefenseSaberMove( int move )
 	return qfalse;
 }
 
-//[SPPortComplete]
 qboolean BG_FlippingAnim( int anim )
 {
 	switch ( anim )
@@ -680,7 +674,6 @@ qboolean BG_SpinningSaberAnim( int anim )
 	}
 	return qfalse;
 }
-//[/SPPortComplete]
 
 qboolean BG_SaberInSpecialAttack( int anim )
 {
@@ -1231,9 +1224,6 @@ qboolean BG_InKnockDownOnGround( playerState_t *ps )
 	return qfalse;
 }
 
-
-//[SPPortComplete]
-//BG "clone" of PM_StabDownAnim
 qboolean BG_StabDownAnim( int anim )
 {
 	switch ( anim )
@@ -1245,10 +1235,6 @@ qboolean BG_StabDownAnim( int anim )
 	}
 	return qfalse;
 }
-//[/SPPortComplete]
-
-
-
 
 int PM_SaberBounceForAttack( int move )
 {
@@ -1473,7 +1459,6 @@ qboolean PM_InSaberAnim( int anim )
 
 
 //[KnockdownSys]
-//[SPPortComplete]
 qboolean PM_InForceGetUp( playerState_t *ps )
 {//racc - Are we in a getup animation that uses the Force?
 	switch ( ps->legsAnim )
@@ -1620,8 +1605,6 @@ qboolean PM_InKnockDown( playerState_t *ps )
 	*/
 	//[/KnockdownSys]
 }
-//[/SPPortComplete]
-
 
 qboolean PM_PainAnim( int anim )
 {
@@ -1922,7 +1905,6 @@ qboolean BG_SaberLockBreakAnim( int anim )
 }
 
 
-//[SPPortComplete]
 //[KnockdownSys]
 qboolean BG_KnockDownAnim( int anim )
 {//racc - is this a "normal" knockdown animation?
@@ -1965,7 +1947,6 @@ qboolean PM_KnockDownAnimExtended( int anim )
 	return qfalse;
 }
 //[/KnockdownSys]
-//[/SPPortComplete]
 
 qboolean BG_FullBodyTauntAnim( int anim )
 {

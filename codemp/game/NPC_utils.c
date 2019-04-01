@@ -1308,7 +1308,7 @@ int NPC_FindNearestEnemy( gentity_t *ent )
 NPC_PickEnemyExt
 -------------------------
 */
-//[SPPortComplete]
+
 gentity_t *NPC_PickEnemyExt( qboolean checkAlerts )
 {
 	//Check for Hazard Team status and remove this check
@@ -1571,7 +1571,6 @@ qboolean NPC_CheckEnemyExt( qboolean checkAlerts )
 */
 	return NPC_FindEnemy( checkAlerts );
 }
-//[/SPPortComplete]
 
 /*
 -------------------------
@@ -1776,7 +1775,6 @@ NPC_CheckCharmed
 */
 extern void G_AddVoiceEvent( gentity_t *self, int event, int speakDebounceTime );
 //[CoOp]
-//[SPPortComplete]
 void G_CheckCharmed( gentity_t *self )
 {
 	if ( self
@@ -1826,7 +1824,6 @@ void NPC_CheckCharmed( void )
 	}
 }
 */
-//[/SPPortComplete]
 //[/CoOp]
 
 void G_GetBoltPosition( gentity_t *self, int boltIndex, vec3_t pos, int modelIndex )

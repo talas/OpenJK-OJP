@@ -1,0 +1,104 @@
+codemp/game/NPC.c
+	all
+
+codemp/game/NPC_AI_Civilian.c
+	all
+
+codemp/game/NPC_AI_Droid.c
+	void NPC_Droid_Pain
+
+codemp/game/NPC_AI_Jedi.c
+	all
+
+codemp/game/NPC_AI_Rancor.c
+	void NPC_Rancor_Pain
+
+codemp/game/NPC_AI_Remote.c
+	all
+
+codemp/game/NPC_AI_SaberDroid.c
+	all
+
+codemp/game/NPC_AI_Seeker.c
+	all
+
+codemp/game/NPC_AI_Stormtrooper.c
+	all
+
+codemp/game/NPC_behavior.c
+	all
+
+codemp/game/NPC_move.c
+	qboolean NPC_TryJump
+	qboolean NPC_JumpBackingUp
+
+codemp/game/NPC_reactions.c
+	void NPC_SetPainEvent
+	void NPC_CheckPlayerAim
+
+codemp/game/NPC_senses.c
+	all
+
+codemp/game/NPC_utils.c
+	gentity_t *NPC_PickEnemyExt
+	qboolean NPC_FindPlayer
+	static qboolean NPC_CheckPlayerDistance
+	qboolean NPC_FindEnemy
+	qboolean NPC_CheckEnemyExt
+	void G_CheckCharmed
+	void NPC_CheckCharmed
+
+codemp/game/bg_panimate.c
+	qboolean BG_CrouchAnim
+	qboolean BG_FlippingAnim
+	qboolean BG_SpinningSaberAnim
+	qboolean BG_StabDownAnim
+	qboolean PM_InForceGetUp
+	qboolean PM_InGetUp
+	qboolean PM_InKnockDown
+	qboolean BG_KnockDownAnim
+	qboolean PM_KnockDownAnimExtended
+
+codemp/game/bg_pmove.c
+	static void PM_FallToDeath
+	static void PM_SetWaterLevelAtPoint
+	qboolean PM_AdjustAnglesForKnockdown
+	static float PM_DamageForDelta
+	static void PM_CrashLandDamage
+	static float PM_CrashLandDelta
+	qboolean PM_RollingAnim
+	void BG_CmdForRoll
+
+codemp/game/g_ICARUScb.c
+	static void Q3_RemoveEnt
+	static void Q3_SetAngles
+	static void Q3_SetAdjustAreaPortals
+	static void Q3_SetDmgByHeavyWeapOnly
+	static void Q3_SetShielded
+	static void Q3_SetNoGroups
+	static void Q3_SetDPitch
+	static void Q3_SetDYaw
+	static void Q3_SetSafeRemove
+	static void Q3_SetSaberActive
+	qboolean Q3_Set
+		SET_ORIGIN
+		SET_ADJUST_AREA_PORTALS
+		SET_DMG_BY_HEAVY_WEAP_ONLY
+		SET_SHIELDED
+		SET_NO_GROUPS
+		SET_SAFE_REMOVE
+
+codemp/game/g_active.c
+	void G_ThrownDeathAnimForDeathAnim
+
+codemp/game/g_combat.c
+	int G_CheckLedgeDive
+
+codemp/game/g_misc.c
+	void misc_weapon_shooter_fire
+	void misc_weapon_shooter_use
+	void misc_weapon_shooter_aim
+	void SP_misc_weapon_shooter
+
+codemp/game/g_utils.c
+	void G_SetOrigin

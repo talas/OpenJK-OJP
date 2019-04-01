@@ -1,4 +1,3 @@
-//[SPPortComplete]
 //[CoOp]
 //this entire file is a port of the SP version of this code.
 // leave this line at the top of all AI_xxxx.cpp files for PCH reasons...
@@ -435,4 +434,3 @@ void NPC_BSSD_Default( void )
 	}
 }
 //[/CoOp]
-//[/SPPortComplete]

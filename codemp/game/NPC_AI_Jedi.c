@@ -1,4 +1,3 @@
-//[SPPortComplete]
 #include "b_local.h"
 #include "g_nav.h"
 #include "anims.h"
@@ -9357,4 +9356,3 @@ void NPC_BSJedi_Default( void )
 	}
 	//[/CoOp]
 }
-//[/SPPortComplete]

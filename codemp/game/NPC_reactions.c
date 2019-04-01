@@ -135,7 +135,6 @@ static void NPC_CheckAttacker( gentity_t *other, int mod )
 	//[/CoOp]
 }
 
-//[SPPortComplete]
 void NPC_SetPainEvent( gentity_t *self )
 {
 	if ( !self->NPC || !(self->NPC->aiFlags&NPCAI_DIE_ON_IMPACT) )
@@ -153,7 +152,6 @@ void NPC_SetPainEvent( gentity_t *self )
 	//	}
 	}
 }
-//[/SPPortComplete]
 
 /*
 -------------------------
@@ -1204,7 +1202,6 @@ void NPC_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
 }
 
 //[CoOp] SP Code
-//[SPPortComplete]
 /* this feature isn't used anymore.  Maybe enable later?
 void NPC_CheckPlayerAim( void )
 {
@@ -1241,5 +1238,4 @@ void NPC_CheckAllClear( void )
 	*//*
 }
 */
-//[/SPPortComplete]
 //[/CoOp] SP Code

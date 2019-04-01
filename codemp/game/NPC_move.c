@@ -253,7 +253,6 @@ qboolean NPC_CanTryJump()
 
 
 //[CoOp]
-//[SPPortComplete]
 qboolean NPC_TryJump(void);
 qboolean NPC_TryJump3(const vec3_t pos,	float max_xy_dist, float max_z_diff)
 {
@@ -500,7 +499,6 @@ qboolean NPC_TryJump(void)
 	}
 	return qfalse;
 }
-//[/SPPortComplete]
 //[/CoOp]
 
 
@@ -632,7 +630,6 @@ qboolean NPC_Jumping()
 }
 
 
-//[SPPortComplete]
 qboolean NPC_JumpBackingUp()
 {//check for and back up before a large jump if we're supposed to.
 	if (NPCInfo->jumpBackupTime)
@@ -654,7 +651,6 @@ qboolean NPC_JumpBackingUp()
 	}
 	return qfalse;
 }
-//[/SPPortComplete]
 //[/CoOp]
 
 

@@ -1,4 +1,3 @@
-//[SPPortComplete]
 #include "b_local.h"
 #include "g_nav.h"
 #include "anims.h"
@@ -3678,4 +3677,3 @@ void NPC_BSST_Default( void )
 		NPC_BSST_Attack();
 	}
 }
-//[/SPPortComplete]

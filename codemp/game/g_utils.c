@@ -2059,7 +2059,6 @@ G_SetOrigin
 Sets the pos trajectory for a fixed position
 ================
 */
-//[SPPortComplete]
 void G_SetOrigin( gentity_t *ent, vec3_t origin ) {
 	VectorCopy( origin, ent->s.pos.trBase );
 	//[CoOp]
@@ -2100,7 +2099,6 @@ void G_SetOrigin( gentity_t *ent, vec3_t origin ) {
 	}
 	//[/CoOp]
 }
-//[/SPPortComplete]
 
 qboolean G_CheckInSolid (gentity_t *self, qboolean fix)
 {

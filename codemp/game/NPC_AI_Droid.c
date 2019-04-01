@@ -270,7 +270,6 @@ void Droid_Spin( void )
 NPC_BSDroid_Pain
 -------------------------
 */
-//[SPPortComplete]
 void NPC_Droid_Pain(gentity_t *self, gentity_t *attacker, int damage)
 {
 	gentity_t *other = attacker;
@@ -439,7 +438,6 @@ void NPC_Droid_Pain(gentity_t *self, gentity_t *attacker, int damage)
 
 	NPC_Pain( self, attacker, damage);
 }
-//[/SPPortComplete]
 
 
 /*

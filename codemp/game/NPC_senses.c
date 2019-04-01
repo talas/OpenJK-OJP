@@ -1,4 +1,3 @@
-//[SPPortComplete]
 //NPC_senses.cpp
 
 #include "b_local.h"
@@ -1266,4 +1265,3 @@ void G_CheckSpecialPersistentEvents( gentity_t *ent )
 	}
 }
 //[/CoOp]
-//[/SPPortComplete]

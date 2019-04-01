@@ -1,4 +1,3 @@
-//[SPPortComplete]
 #include "b_local.h"
 #include "g_nav.h"
 
@@ -1071,4 +1070,3 @@ void NPC_BSSeeker_Default( void )
 	//Seeker_FollowOwner();
 	//[/CoOp]
 }
-//[/SPPortComplete]

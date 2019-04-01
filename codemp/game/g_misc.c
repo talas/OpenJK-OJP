@@ -3804,7 +3804,6 @@ void G_FreeClientForShooter(gclient_t *cl)
 	}
 }
 
-//[SPPortComplete]
 void misc_weapon_shooter_fire( gentity_t *self )
 {
 	FireWeapon( self, (self->spawnflags&1) );
@@ -3934,7 +3933,6 @@ void SP_misc_weapon_shooter( gentity_t *self )
 		self->wait = 500;
 	}
 }
-//[/SPPortComplete]
 
 /*QUAKED misc_weather_zone (0 .5 .8) ? 
 Determines a region to check for weather contents - will significantly reduce load time

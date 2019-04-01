@@ -1,4 +1,3 @@
-//[SPPortComplete]
 //NPC_behavior.cpp
 /*
 FIXME - MCG:
@@ -2760,6 +2759,3 @@ void NPC_BSEmplaced( void )
 		}
 	}
 }
-//[/SPPortComplete]
-
-

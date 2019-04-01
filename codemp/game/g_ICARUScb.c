@@ -1232,7 +1232,6 @@ Q3_RemoveEnt
   Argument		: sharedEntity_t *victim
 ============
 */
-//[SPPortComplete]
 //[CoOp]
 static void Q3_RemoveEnt( gentity_t *victim )
 {
@@ -1346,7 +1345,6 @@ void Q3_RemoveEnt( gentity_t *victim )
 }
 */
 //[/CoOp]
-//[/SPPortComplete]
 
 
 /*
@@ -2365,7 +2363,6 @@ Q3_SetAngles
 Sets the angles of an entity directly
 =============
 */
-//[SPPortComplete]
 //[CoOp]
 void UpdatePlayerCameraAngle(gentity_t * ent, vec3_t newAngle);
 static void Q3_SetDYaw( int entID, float data );
@@ -2410,7 +2407,6 @@ static void Q3_SetAngles( int entID, vec3_t angles )
 }
 
 //[CoOp]
-//[SPPortComplete]
 /*
 ============
 Q3_SetAdjustAreaPortals
@@ -2504,7 +2500,6 @@ static void Q3_SetNoGroups( int entID, qboolean noGroups )
 	
 	ent->NPC->scriptFlags = noGroups ? (ent->NPC->scriptFlags|SCF_NO_GROUPS) : (ent->NPC->scriptFlags&~SCF_NO_GROUPS);
 }
-//[/SPPortComplete]
 //[/CoOp]
 
 /*
@@ -3367,7 +3362,6 @@ Q3_SetDPitch
   Argument		: float data
 ============
 */
-//[SPPortComplete]
 //[CoOp]
 static void Q3_SetDPitch( int entID, float data )
 {
@@ -3453,8 +3447,6 @@ static void Q3_SetDYaw( int entID, float data )
 	//G_DebugPrint( WL_WARNING, "Q3_SetDYaw: NOT SUPPORTED IN MP\n");
 	//[/CoOp]
 }
-//[/SPPortComplete]
-
 
 
 /*
@@ -5131,7 +5123,6 @@ Q3_SetFireWeapon
 
 
 //[CoOp]
-//[SPPortComplete]
 /*
 ============
 Q3_SetSafeRemove
@@ -5164,7 +5155,6 @@ static void Q3_SetSafeRemove(int entID, qboolean add)
 		ent->NPC->scriptFlags &= ~SCF_SAFE_REMOVE;
 	}
 }
-//[/SPPortComplete]
 //[/CoOp]
 
 
@@ -6720,7 +6710,6 @@ Q3_SetSaberActive
   Argument		: qboolean shields
 ============
 */
-//[SPPortComplete]
 static void Q3_SetSaberActive( int entID, qboolean active )
 {
 	gentity_t *ent = &g_entities[entID];
@@ -6787,7 +6776,6 @@ static void Q3_SetSaberActive( int entID, qboolean active )
 		Cmd_ToggleSaber_f(ent);
 	}
 }
-//[/SPPortComplete]
 
 /*
 ============
@@ -6943,7 +6931,6 @@ qboolean Q3_Set( int taskID, int entID, const char *type_name, const char *data 
 	//		showscript can take any number of targetnames or "all"?  Groupname?
 	switch ( toSet )
 	{
-	//[SPPortComplete]
 	case SET_ORIGIN:
 		sscanf( data, "%f %f %f", &vector_data[0], &vector_data[1], &vector_data[2] );
 		G_SetOrigin( ent, vector_data );
@@ -6968,7 +6955,6 @@ qboolean Q3_Set( int taskID, int entID, const char *type_name, const char *data 
 		trap_LinkEntity( ent );
 		//[/CoOp]
 		break;
-	//[/SPPortComplete]
 
 	case SET_TELEPORT_DEST:
 		sscanf( data, "%f %f %f", &vector_data[0], &vector_data[1], &vector_data[2] );
@@ -7818,7 +7804,6 @@ qboolean Q3_Set( int taskID, int entID, const char *type_name, const char *data 
 
 	case SET_ADJUST_AREA_PORTALS:
 	//[CoOp]
-	//[SPPortComplete]
 		if(!Q_stricmp("true", ((char *)data)))
 		{
 			Q3_SetAdjustAreaPortals( entID, qtrue );
@@ -7828,13 +7813,11 @@ qboolean Q3_Set( int taskID, int entID, const char *type_name, const char *data 
 			Q3_SetAdjustAreaPortals( entID, qfalse );
 		}
 		//G_DebugPrint( WL_WARNING, "Q3_SetAdjustAreaPortals: NOT SUPPORTED IN MP\n");
-	//[/SPPortComplete]
 	//[/CoOp]
 		break;
 	
 	case SET_DMG_BY_HEAVY_WEAP_ONLY:
 	//[CoOp]
-	//[SPPortComplete]
 		if(!stricmp("true", ((char *)data)))
 		{
 			Q3_SetDmgByHeavyWeapOnly( entID, qtrue );
@@ -7844,13 +7827,11 @@ qboolean Q3_Set( int taskID, int entID, const char *type_name, const char *data 
 			Q3_SetDmgByHeavyWeapOnly( entID, qfalse );
 		}
 		//G_DebugPrint( WL_WARNING, "Q3_SetDmgByHeavyWeapOnly: NOT SUPPORTED IN MP\n");
-	//[/SPPortComplete]
 	//[/CoOp]
 		break;
 
 	case SET_SHIELDED:
 	//[CoOp]
-	//[SPPortComplete]
 		if(!stricmp("true", ((char *)data)))
 		{
 			Q3_SetShielded( entID, qtrue );
@@ -7860,13 +7841,11 @@ qboolean Q3_Set( int taskID, int entID, const char *type_name, const char *data 
 			Q3_SetShielded( entID, qfalse );
 		}
 		//G_DebugPrint( WL_WARNING, "Q3_SetShielded: NOT SUPPORTED IN MP\n");
-	//[/SPPortComplete]
 	//[/CoOp]
 		break;
 
 	case SET_NO_GROUPS:
 	//[CoOp]
-	//[SPPortComplete]
 		if(!stricmp("true", ((char *)data)))
 		{
 			Q3_SetNoGroups( entID, qtrue );
@@ -7876,7 +7855,6 @@ qboolean Q3_Set( int taskID, int entID, const char *type_name, const char *data 
 			Q3_SetNoGroups( entID, qfalse );
 		}
 		//G_DebugPrint( WL_WARNING, "Q3_SetNoGroups: NOT SUPPORTED IN MP\n");
-	//[/SPPortComplete]
 	//[/CoOp]
 		break;
 
@@ -7891,7 +7869,6 @@ qboolean Q3_Set( int taskID, int entID, const char *type_name, const char *data 
 		}
 		break;
 	//[CoOp]
-	//[SPPortComplete]
 	case SET_SAFE_REMOVE:
 		if(!stricmp("true", ((char *)data)))
 		{
@@ -7902,7 +7879,6 @@ qboolean Q3_Set( int taskID, int entID, const char *type_name, const char *data 
 			Q3_SetSafeRemove( entID, qfalse);
 		}
 		break;
-	//[/SPPortComplete]
 	//[/CoOp]
 
 	case SET_INACTIVE:

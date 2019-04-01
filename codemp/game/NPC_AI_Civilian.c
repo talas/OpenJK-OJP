@@ -1,5 +1,4 @@
 //[CoOp]
-//[SPPortComplete]
 // leave this line at the top of all AI_xxxx.cpp files for PCH reasons...
 #include "b_local.h"
 #include "g_headers.h"
@@ -48,5 +47,4 @@ void NPC_BSCivilian_Default( int bState )
 		}
 	}
 }
-//[/SPPortComplete]
 //[/CoOp]

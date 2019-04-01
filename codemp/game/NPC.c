@@ -1,4 +1,3 @@
-//[SPPortComplete]
 //
 // NPC.cpp - generic functions
 //
@@ -3094,4 +3093,3 @@ void NPC_SetAnim(gentity_t *ent, int setAnimParts, int anim, int setAnimFlags)
 	}
 	*/
 }
-//[/SPPortComplete]
