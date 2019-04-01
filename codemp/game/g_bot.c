@@ -1327,13 +1327,6 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 //	char			*headmodel;
 	char			userinfo[MAX_INFO_STRING];
 	int				preTeam = 0;
-	//[DuelGuns][EnhancedImpliment]
-	/*
-	char			*firearm; // ** change gun model	
-	qboolean		bot_dualguns = qfalse;
-	int				gunoption=0;
-	*/
-	//[/DuelGuns][EnhancedImpliment]
 
 	// get the botinfo from bots.txt
 	botinfo = G_GetBotInfoByName( name );
@@ -1429,32 +1422,6 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 		Info_SetValueForKey( userinfo, "personality", s );
 	}
 
-	//[DuelGuns][EnhancedImpliment]
-	/*
-//	if(1)//f_dualguns.integer)
-//	{
-		key = "dualgun";
-		s = Info_ValueForKey(botinfo, key);
-		if (*s)
-		{
-			gunoption = atoi(s);
-		}
-		if(gunoption>0)
-			bot_dualguns = qtrue;
-//	}
-
-	firearm = Info_ValueForKey( botinfo, "firearm");
-	if (!*firearm)
-	{
-		Info_SetValueForKey( userinfo, "firearm", botname );
-	}
-	else
-	{
-		Info_SetValueForKey( userinfo, "firearm", firearm);
-	}
-	*/
-	//[/DuelGuns][EnhancedImpliment]
-
 	//[RGBSabers]
 	key = "rgb_saber1";
 	s = Info_ValueForKey( botinfo, key );
@@ -1493,15 +1460,6 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 		trap_SendServerCommand( -1, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "UNABLE_TO_ADD_BOT")));
 		return;
 	}
-
-	//[DuelGuns][EnhancedImpliment]
-	/*
-	if(bot_dualguns)
-	{
-		g_entities[clientNum].client->ps.dualguns = 1;		
-	}
-	*/
-	//[/DuelGuns][EnhancedImpliment]
 
 	// initialize the bot settings
 	if( !team || !*team ) {
