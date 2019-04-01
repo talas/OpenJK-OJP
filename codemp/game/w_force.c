@@ -12,7 +12,6 @@ extern void NPC_Jedi_PlayConfusionSound( gentity_t *self );
 extern void NPC_UseResponse( gentity_t *self, gentity_t *user, qboolean useWhenDone );
 //NEEDED FOR MIND-TRICK on NPCS=========================================================
 extern void Jedi_Decloak( gentity_t *self );
-//extern void G_AddMercBalance(gentity_t *defender, int amount);//add balance for having forcepower used on absorbing gunners
 //[FatigueSys]
 extern void G_AddMercBalance(gentity_t *self, int amount);//add balance to flamethrower
 extern qboolean BG_SaberAttacking( playerState_t *ps );
@@ -160,66 +159,9 @@ const int DodgeAbsorbBlockLevels[NUM_FORCE_POWER_LEVELS] =
 	0
 };
 
-#define SK_DP_FORFORCE		.5f	//determines the number of DP points players get for each skill point dedicated to Force Powers.
-#define SK_DP_FORMERC		1/6.0f	//determines the number of DP points get for each skill point dedicated to gunner/merc skills.
 void DetermineDodgeMax(gentity_t *ent)
 {
 	ent->client->ps.stats[STAT_MAX_DODGE] = 100;
-
-	/* Sets the maximum number of dodge points this player should have.  This is based on their skill point allocation.
-	/*int i;
-	int skillCount;
-	float dodgeMax = 0;
-
-	assert(ent && ent->client);
-
-	if(ent->client->ps.isJediMaster)
-	{//jedi masters have much more DP and don't actually have skills.
-		ent->client->ps.stats[STAT_MAX_DODGE] = 100;
-		return;
-	}
-	else if(ent->s.number < MAX_CLIENTS)
-	{//players get a initial DP bonus.
-		dodgeMax = 50;
-	}
-
-	//force powers
-	for(i = 0; i < NUM_FORCE_POWERS; i++)
-	{
-		if(ent->client->ps.fd.forcePowerLevel[i])
-		{//has points in this skill
-			for(skillCount = FORCE_LEVEL_1; skillCount <= ent->client->ps.fd.forcePowerLevel[i]; skillCount++)
-			{
-				dodgeMax += bgForcePowerCost[i][skillCount] * SK_DP_FORFORCE;
-			}
-		}
-	}
-
-	//additional skills
-	for(i = 0; i < NUM_SKILLS; i++)
-	{
-		if(ent->client->skillLevel[i])
-		{//has points in this skill
-			for(skillCount = FORCE_LEVEL_1; skillCount <= ent->client->skillLevel[i]; skillCount++)
-			{
-				//[StanceSelection]
-				if(i >= SK_BLUESTYLE && i <= SK_STAFFSTYLE)
-				{//styles count as force powers
-					dodgeMax += bgForcePowerCost[i+NUM_FORCE_POWERS][skillCount] * SK_DP_FORFORCE;
-				}
-				else
-				{
-					dodgeMax += bgForcePowerCost[i+NUM_FORCE_POWERS][skillCount] * SK_DP_FORMERC;
-				}
-
-				//dodgeMax += bgForcePowerCost[i][skillCount] * SK_DP_FORMERC;
-				//[/StanceSelection]
-			}
-		}
-	}
-
-	ent->client->ps.stats[STAT_MAX_DODGE] = (int) dodgeMax;
-	*/
 }
 //[/DodgeSys]
 
@@ -638,13 +580,7 @@ void WP_InitForcePowers( gentity_t *ent )
 	}
 	else
 	{
-		//[ExpSys]
-		//since the possibility that a player's force configuration is more likely to be bad
-		//with the new experience system, just go ahead and don't force warned clients into the
-		//force powers screen.
-		//if (!ent->client->sess.setForce)
 		if (warnClient || !ent->client->sess.setForce)
-		//[/ExpSys]
 		{ //the client's rank is too high for the server and has been autocapped, so tell them
 			if (g_gametype.integer != GT_HOLOCRON && g_gametype.integer != GT_JEDIMASTER )
 			{
@@ -762,11 +698,7 @@ void WP_SpawnInitForcePowers( gentity_t *ent )
 {
 	int i = 0;
 
-	//[SaberSys]
-	//new balancing system uses 7 as the default.
-	//ent->client->ps.saberAttackChainCount = 7;
 	ent->client->ps.saberAttackChainCount = 0;
-	//[/SaberSys]
 
 	i = 0;
 
@@ -1275,9 +1207,6 @@ qboolean WP_ForcePowerUsable( gentity_t *self, forcePowers_t forcePower )
 	return WP_ForcePowerAvailable( self, forcePower, 0 );	// OVERRIDEFIXME
 }
 
-
-//[ForceSys]
-/*
 int WP_AbsorbConversion(gentity_t *attacked, int atdAbsLevel, gentity_t *attacker, int atPower, int atPowerLevel, int atForceSpent)
 {
 	int getLevel = 0;
@@ -1336,9 +1265,6 @@ int WP_AbsorbConversion(gentity_t *attacked, int atdAbsLevel, gentity_t *attacke
 
 	return getLevel;
 }
-*/
-//[/ForceSys]
-
 
 void WP_ForcePowerRegenerate( gentity_t *self, int overrideAmt )
 { //called on a regular interval to regenerate force power.
@@ -1478,8 +1404,6 @@ void WP_ForcePowerStart( gentity_t *self, forcePowers_t forcePower, int override
 	case FP_RAGE:
 		hearable = qtrue;
 		hearDist = 256;
-		//[ForceSys]
-		/*
 		if (self->client->ps.fd.forcePowerLevel[FP_RAGE] == FORCE_LEVEL_1)
 		{
 			duration = 8000;
@@ -1496,9 +1420,6 @@ void WP_ForcePowerStart( gentity_t *self, forcePowers_t forcePower, int override
 		{
 			break;
 		}
-		*/
-		duration=10000;
-		//[/ForceSys]
 
 		self->client->ps.fd.forcePowersActive |= ( 1 << forcePower );
 		break;
@@ -1933,7 +1854,7 @@ void ForceGrip( gentity_t *self )
 	tto[0] = tfrom[0] + fwd[0]*MAX_GRIP_DISTANCE;
 	tto[1] = tfrom[1] + fwd[1]*MAX_GRIP_DISTANCE;
 	tto[2] = tfrom[2] + fwd[2]*MAX_GRIP_DISTANCE;
-	
+
 	trap_Trace(&tr, tfrom, NULL, NULL, tto, self->s.number, MASK_PLAYERSOLID);
 
 	if ( tr.fraction != 1.0 &&
@@ -1969,16 +1890,6 @@ void ForceGrip( gentity_t *self )
 		self->client->ps.forceHandExtend = HANDEXTEND_FORCE_HOLD;
 		self->client->ps.forceHandExtendTime = level.time + 5000;
 	}
-	//[ForceSys]
-	/*
-	else if(self && Q_stricmp(g_entities[tr.entityNum].classname,"body") == 0)
-	{
-		self->client->ps.fd.forceGripEntityNum = tr.entityNum;
-		self->client->ps.fd.forceGripDamageDebounceTime = 0;
-		self->client->ps.forceHandExtend = HANDEXTEND_FORCE_HOLD;
-		self->client->ps.forceHandExtendTime = level.time + 5000;
-	}*/
-	//[ForceSys]
 	else
 	{
 		self->client->ps.fd.forceGripEntityNum = ENTITYNUM_NONE;
@@ -2223,11 +2134,7 @@ void ForceLightning( gentity_t *self )
 
 	G_Sound( self, CHAN_BODY, G_SoundIndex("sound/weapons/force/lightning") );
 	//[ForceSys]
-	if(self->client->ps.fd.forcePowerLevel[FP_LIGHTNING] == FORCE_LEVEL_1)
-		WP_ForcePowerStart( self, FP_LIGHTNING, 0 );
-	else
-		WP_ForcePowerStart( self, FP_LIGHTNING, 0 );
-	
+	WP_ForcePowerStart( self, FP_LIGHTNING, 0 );
 	//WP_ForcePowerStart( self, FP_LIGHTNING, 500 );
 	//[ForceSys]
 }
@@ -2491,8 +2398,8 @@ void ForceLightningDamage( gentity_t *self, gentity_t *traceEnt, vec3_t dir, vec
 				//[/ForceSys]
 
 				if ( self->client->ps.weapon == WP_MELEE
-					&& self->client->ps.fd.forcePowerLevel[FP_LIGHTNING] > FORCE_LEVEL_2
-					&& !Q_irand(0, 1) )
+					&& !Q_irand(0, 1) //[ForceSys]
+					&& self->client->ps.fd.forcePowerLevel[FP_LIGHTNING] > FORCE_LEVEL_2 )
 				{//2-handed lightning
 					//jackin' 'em up, Palpatine-style
 					dmg *= 2;
@@ -2704,9 +2611,6 @@ void ForceDrain( gentity_t *self )
 	WP_ForcePowerStart( self, FP_DRAIN, 500 );
 }
 
-
-//[ForceSys]
-/* NUAM
 void ForceDrainDamage( gentity_t *self, gentity_t *traceEnt, vec3_t dir, vec3_t impactPoint )
 {
 	gentity_t *tent;
@@ -2789,7 +2693,7 @@ void ForceDrainDamage( gentity_t *self, gentity_t *traceEnt, vec3_t dir, vec3_t 
 
 				//Drain the standard amount since we just drained someone else
 
-				*//*
+				/*
 				if (self->client->ps.fd.forcePowerLevel[FP_DRAIN] == FORCE_LEVEL_1)
 				{
 					BG_ForcePowerDrain( &self->client->ps, FP_DRAIN, 0 );
@@ -2819,7 +2723,7 @@ void ForceDrainDamage( gentity_t *self, gentity_t *traceEnt, vec3_t dir, vec3_t 
 				//	traceEnt->client->ps.powerups[PW_DISINT_1] = level.time + 500;
 				}
 				*/
-				/*
+
 				if (traceEnt->client->forcePowerSoundDebounce < level.time)
 				{
 					tent = G_TempEntity( impactPoint, EV_FORCE_DRAINED);
@@ -2832,7 +2736,6 @@ void ForceDrainDamage( gentity_t *self, gentity_t *traceEnt, vec3_t dir, vec3_t 
 		}
 	}
 }
-
 
 int ForceShootDrain( gentity_t *self )
 {
@@ -2966,9 +2869,6 @@ int ForceShootDrain( gentity_t *self )
 
 	return gotOneOrMore;
 }
-*/
-//[/ForceSys]
-
 
 void ForceJumpCharge( gentity_t *self, usercmd_t *ucmd )
 { //I guess this is unused now. Was used for the "charge" jump type.
@@ -3765,10 +3665,7 @@ void ForceThrow( gentity_t *self, qboolean pull )
 	vec3_t		pushDir;
 	vec3_t		thispush_org;
 	vec3_t		tfrom, tto, fwd, a;
-	//[ForceSys]
-	//NUAM in the basejka code?
-	//float		knockback = pull?0:200;
-	//[/ForceSys]
+	float		knockback = pull?0:200;
 	int			powerUse = 0;
     //[SentryTurnoff]
 	gentity_t *aimingAt; 
@@ -3947,12 +3844,7 @@ void ForceThrow( gentity_t *self, qboolean pull )
 		tto[0] = tfrom[0] + fwd[0]*radius/2;
 		tto[1] = tfrom[1] + fwd[1]*radius/2;
 		tto[2] = tfrom[2] + fwd[2]*radius/2;
-		/*
-		//[CoOp]
-		//moved up a bit for the sake of the brush based force stuff.
-		numListedEntities = 0;
-		//[/CoOp]
-		*/
+
 		trap_Trace(&tr, tfrom, NULL, NULL, tto, self->s.number, MASK_PLAYERSOLID);
 
 		if (tr.fraction != 1.0 &&
@@ -3966,10 +3858,7 @@ void ForceThrow( gentity_t *self, qboolean pull )
 				}
 			}
 
-			//[CoOp]
-			//moved up a bit for the sake of the brush based force stuff.
 			numListedEntities = 0;
-			//[/CoOp]
 			entityList[numListedEntities] = tr.entityNum;
 
 			if (pull)
@@ -4068,11 +3957,6 @@ void ForceThrow( gentity_t *self, qboolean pull )
 		tto[1] = tfrom[1] + fwd[1]*radius/2;
 		tto[2] = tfrom[2] + fwd[2]*radius/2;
 
-		//[CoOp]
-		//moved up a bit for the sake of the brush based force stuff.
-		//numListedEntities = 0;
-		//[/CoOp]
-
 		trap_Trace(&tr, tfrom, NULL, NULL, tto, self->s.number, MASK_PLAYERSOLID);
 
 		if (tr.fraction != 1.0 &&
@@ -4086,10 +3970,6 @@ void ForceThrow( gentity_t *self, qboolean pull )
 				}
 			}
 
-			//[CoOp]
-			//moved up a bit for the sake of the brush based force stuff.
-			//numListedEntities = 0;
-			//[/CoOp]
 			aimingAt = &g_entities[tr.entityNum];
 			if(ent == aimingAt)//Looking at the sentry...so deactivate for 10 seconds
 				ent->nextthink = level.time + 5000;
@@ -4339,9 +4219,7 @@ void ForceThrow( gentity_t *self, qboolean pull )
 					}
 				}
 
-				//[ForceSys]
-				//knockback = pull?0:200;
-				//[/ForceSys]
+				knockback = pull?0:200;
 
 				pushPowerMod = pushPower;
 
@@ -5393,10 +5271,7 @@ static void WP_UpdateMindtrickEnts(gentity_t *self)
 //[ForceSys]
 static int SpeedDebounceTime = 0;
 //sets the time between force speed FP drains.  
-static int ProtectDebounceTime=0;
-//same as above except for Protect
 #define SPEEDDEBOUNCE		200 
-#define PROTECTDEBOUNCE		200
 //[/ForceSys]
 static void WP_ForcePowerRun( gentity_t *self, forcePowers_t forcePower, usercmd_t *cmd )
 {
@@ -5445,56 +5320,6 @@ static void WP_ForcePowerRun( gentity_t *self, forcePowers_t forcePower, usercmd
 			WP_ForcePowerStop( self, forcePower );
 		}
 		break;
-		//[ForceSys]
-		case FP_PROTECT:
-			{
-		int debounce = PROTECTDEBOUNCE;
-		/*
-		if (self->client->ps.fd.forcePowerDebounce[forcePower] < level.time)
-		{
-			BG_ForcePowerDrain( &self->client->ps, forcePower, 1 );
-			if (self->client->ps.fd.forcePower < 1)
-			{
-				WP_ForcePowerStop(self, forcePower);
-			}
-
-			self->client->ps.fd.forcePowerDebounce[forcePower] = level.time + 300;
-		}
-		*/
-		
-
-		if(self->client->ps.fd.forcePowerLevel[FP_PROTECT] >= FORCE_LEVEL_3)
-			debounce=250;
-
-		if ( self->client->holdingObjectiveItem >= MAX_CLIENTS  
-			&& self->client->holdingObjectiveItem < ENTITYNUM_WORLD )
-		{
-			if ( g_entities[self->client->holdingObjectiveItem].genericValue15 )
-			{//disables force powers
-				WP_ForcePowerStop( self, forcePower );
-			}
-		}
-		
-		if ( (ucmd.buttons & BUTTON_FORCEPOWER) && self->client->ps.fd.forcePowerSelected == FP_PROTECT )
-		{//holding it keeps it going
-			self->client->ps.fd.forcePowerDuration[FP_PROTECT] = level.time + 500;
-		}
-
-		if ( self->client->ps.fd.forcePower < forcePowerNeeded[self->client->ps.fd.forcePowerLevel[FP_PROTECT]][FP_PROTECT] 
-			|| self->client->ps.fd.forcePowerDuration[FP_PROTECT] < level.time )
-		{
-			WP_ForcePowerStop( self, forcePower );
-		}
-		else if( ProtectDebounceTime == level.time //someone already advanced the timer this frame
-			|| (level.time - ProtectDebounceTime >= debounce) )
-		{
-			BG_ForcePowerDrain( &self->client->ps, forcePower, 0 );
-			ProtectDebounceTime = level.time;
-		}
-
-		break;
-			}
-		//[/ForceSys]
 	case FP_SPEED:
 		//This is handled in PM_WalkMove and PM_StepSlideMove
 		if ( self->client->holdingObjectiveItem >= MAX_CLIENTS  
@@ -5573,6 +5398,8 @@ static void WP_ForcePowerRun( gentity_t *self, forcePowers_t forcePower, usercmd
 		{
 			int addTime = 400;
 
+			self->health -= 2;
+
 			if (self->client->ps.fd.forcePowerLevel[FP_RAGE] == FORCE_LEVEL_1)
 			{
 				addTime = 150;
@@ -5587,8 +5414,19 @@ static void WP_ForcePowerRun( gentity_t *self, forcePowers_t forcePower, usercmd
 			}
 			self->client->ps.forceRageDrainTime = level.time + addTime;
 		}
-		
+
+		if (self->health < 1)
+		{
+			self->health = 1;
+			WP_ForcePowerStop(self, forcePower);
+		}
+
+		self->client->ps.stats[STAT_HEALTH] = self->health;
 		break;
+#if 0
+		//[ForceSys]
+		//replaced drain with force lightning for the moment because drain is WAY over powered when 
+		//used in the new saber system.
 	case FP_DRAIN:
 		if (self->client->ps.forceHandExtend != HANDEXTEND_FORCE_HOLD)
 		{
@@ -5598,43 +5436,25 @@ static void WP_ForcePowerRun( gentity_t *self, forcePowers_t forcePower, usercmd
 
 		if ( self->client->ps.fd.forcePowerLevel[FP_DRAIN] > FORCE_LEVEL_1 )
 		{//higher than level 1
-			if ( (cmd->buttons & BUTTON_FORCE_DRAIN) || ((ucmd.buttons & BUTTON_FORCEPOWER) && self->client->ps.fd.forcePowerSelected == FP_DRAIN) )
+			if ( (cmd->buttons & BUTTON_FORCE_DRAIN) || ((cmd->buttons & BUTTON_FORCEPOWER) && self->client->ps.fd.forcePowerSelected == FP_DRAIN) )
 			{//holding it keeps it going
 				self->client->ps.fd.forcePowerDuration[FP_DRAIN] = level.time + 500;
 			}
 		}
 		// OVERRIDEFIXME
-		//[ForceSys]
-		if ( !WP_ForcePowerAvailable( self, forcePower, 1 ) || self->client->ps.fd.forcePowerDuration[FP_DRAIN] < level.time 
-			|| self->client->ps.groundEntityNum == ENTITYNUM_NONE || self->client->ps.fd.forcePower < 1 )
-		//if ( !WP_ForcePowerAvailable( self, forcePower, 0 ) || self->client->ps.fd.forcePowerDuration[FP_DRAIN] < level.time ||
-		//	self->client->ps.fd.forcePower < 25)
-		//[/ForceSys]
+		if ( !WP_ForcePowerAvailable( self, forcePower, 0 ) || self->client->ps.fd.forcePowerDuration[FP_DRAIN] < level.time ||
+			self->client->ps.fd.forcePower < 25)
 		{
 			WP_ForcePowerStop( self, forcePower );
 		}
-		//[ForceSys]
-		//replaced drain with force lightning for the moment because drain is WAY over powered when 
-		//used in the new saber system.
 		else
 		{
-			ForceShootLightning( self );
-			//[ForceSys]
-			BG_ForcePowerDrain( &self->client->ps, forcePower, 1 );
-			//BG_ForcePowerDrain( &self->client->ps, forcePower, 0 );
-			//[/ForceSys]
-
-			//show the drain lightning effect
-			self->client->ps.activeForcePass = self->client->ps.fd.forcePowerLevel[FP_DRAIN] + FORCE_LEVEL_3;
-		}
-		/* basejka code
-		else
-		{	
 			ForceShootDrain( self );
 		}
-		*/
-		//[/ForceSys]
 		break;
+#endif
+		//[/ForceSys]
+	case FP_DRAIN:
 	case FP_LIGHTNING:
 		if (self->client->ps.forceHandExtend != HANDEXTEND_FORCE_HOLD)
 		{ //Animation for hand extend doesn't end with hand out, so we have to limit lightning intervals by animation intervals (once hand starts to go in in animation, lightning should stop)
@@ -5686,6 +5506,18 @@ static void WP_ForcePowerRun( gentity_t *self, forcePowers_t forcePower, usercmd
 	case FP_SABER_DEFENSE:
 		break;
 	case FP_SABERTHROW:
+		break;
+	case FP_PROTECT:
+		if (self->client->ps.fd.forcePowerDebounce[forcePower] < level.time)
+		{
+			BG_ForcePowerDrain( &self->client->ps, forcePower, 1 );
+			if (self->client->ps.fd.forcePower < 1)
+			{
+				WP_ForcePowerStop(self, forcePower);
+			}
+
+			self->client->ps.fd.forcePowerDebounce[forcePower] = level.time + 300;
+		}
 		break;
 	case FP_ABSORB:
 		if (self->client->ps.fd.forcePowerDebounce[forcePower] < level.time)
@@ -7102,40 +6934,6 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 		self->client->DodgeDebounce = level.time + g_dodgeRegenTime.integer;
 	}
 	//[/DodgeSys]
-
-	//[SaberSys]
-	/* MP was merged with FP.
-	if(self->client->MishapDebounce < level.time  
-		&& !BG_InSlowBounce(&self->client->ps) && !PM_SaberInBrokenParry(self->client->ps.saberMove)
-		&& !PM_InKnockDown(&self->client->ps) && self->client->ps.forceHandExtend != HANDEXTEND_DODGE
-		&& self->client->ps.saberLockTime < level.time	//not in a saber lock.
-		&& self->client->ps.groundEntityNum != ENTITYNUM_NONE)  //can't regen while in the air.
-	{
-		if(self->client->ps.saberAttackChainCount > 0)
-		{
-			self->client->ps.saberAttackChainCount--;
-		}
-		
-		if(self->client->ps.weapon == WP_SABER)
-		{//saberer regens slower since they use MP differently
-			if(self->client->ps.fd.saberAnimLevel == SS_MEDIUM)
-			{//yellow style is more "centered" and recovers MP faster.
-				//self->client->MishapDebounce = level.time + (g_mishapRegenTime.integer*.75);
-				//self->client->MishapDebounce/=100*10+self->client->MishapDebounce;
-				self->client->MishapDebounce = level.time + (g_mishapRegenTime.integer*.75);
-			}
-			else
-			{
-				self->client->MishapDebounce = level.time + g_mishapRegenTime.integer;
-			}
-		}
-		else
-		{//gunner regen faster
-				self->client->MishapDebounce = level.time + g_mishapRegenTime.integer/5;
-		}
-	}
-	*/
-	//[/SaberSys]
 	
 powersetcheck:
 
