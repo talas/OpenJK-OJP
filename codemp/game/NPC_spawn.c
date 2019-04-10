@@ -951,6 +951,14 @@ int NPC_WeaponsForTeam( team_t team, int spawnflags, const char *NPC_type )
 		{
 			return (( 1 << WP_STUN_BATON));
 		}
+		//[CoOp]
+		if ( Q_strncmp( "human_merc", NPC_type, 10 ) == 0 )
+		{
+			//there are some instances where Raven used ICARUS scripting to give these guys 
+			//rockets.  As such, be sure to precash the rocket.
+			return (( 1 << WP_BLASTER)|( 1 << WP_ROCKET_LAUNCHER));
+		}
+		//[/CoOp]
 		//Stormtroopers, etc.
 		return ( 1 << WP_BLASTER);
 		break;
@@ -3277,11 +3285,8 @@ void SP_NPC_MorganKatarn( gentity_t *self)
 //ALLIES
 //=============================================================================================
 
-//[CoOp]
-/*QUAKED NPC_Jedi(1 0 0) (-16 -16 -24) (16 16 40) TRAINER MASTER RANDOM x CEILING CINEMATIC NOTSOLID STARTINSOLID SHY
+/*QUAKED NPC_Jedi(1 0 0) (-16 -16 -24) (16 16 40) TRAINER x x x CEILING CINEMATIC NOTSOLID STARTINSOLID SHY
 TRAINER - Special Jedi- instructor
-MASTER - Special Jedi- master
-RANDOM - creates a random Jedi student using the available player models/skins (excludes the current model of the player)
 CEILING - Sticks to the ceiling until he sees an enemy or takes pain
 CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
 NOTSOLID - Starts not solid
@@ -3290,70 +3295,11 @@ SHY - Spawner is shy
 
 Ally Jedi NPC Buddy - tags along with player
 */
-extern cvar_t	*g_char_model;
 void SP_NPC_Jedi( gentity_t *self)
 {
 	if(!self->NPC_type)
 	{
-		if ( self->spawnflags & 4 )
-		{//random!
-			//int sanityCheck = 20;	//just in case
-			//while ( sanityCheck-- )
-			//{
-				switch( Q_irand( 0, 11 ) )
-				{
-				case 0:
-					self->NPC_type = "jedi_hf1";
-					break;
-				case 1:
-					self->NPC_type = "jedi_hf2";
-					break;
-				case 2:
-					self->NPC_type = "jedi_hm1";
-					break;
-				case 3:
-					self->NPC_type = "jedi_hm2";
-					break;
-				case 4:
-					self->NPC_type = "jedi_kdm1";
-					break;
-				case 5:
-					self->NPC_type = "jedi_kdm2";
-					break;
-				case 6:
-					self->NPC_type = "jedi_rm1";
-					break;
-				case 7:
-					self->NPC_type = "jedi_rm2";
-					break;
-				case 8:
-					self->NPC_type = "jedi_tf1";
-					break;
-				case 9:
-					self->NPC_type = "jedi_tf2";
-					break;
-				case 10:
-					self->NPC_type = "jedi_zf1";
-					break;
-				case 11:
-				default://just in case
-					self->NPC_type = "jedi_zf2";
-					break;
-				};
-				/* not going to do this for MP.
-				if ( strstr( self->NPC_type, g_char_model->string ) != NULL )
-				{//bah, we're using this one, try again
-					continue;
-				}
-				*/
-				//break;	//get out of the while
-			//}
-		}
-		else if ( self->spawnflags & 2 )
-		{
-			self->NPC_type = "jedimaster";
-		}
-		else if ( self->spawnflags & 1 )
+		if ( self->spawnflags & 1 )
 		{
 			self->NPC_type = "jeditrainer";
 		}
@@ -3378,52 +3324,6 @@ void SP_NPC_Jedi( gentity_t *self)
 
 	SP_NPC_spawner( self );
 }
-
-/* replaced with SP version of same code
-*//*QUAKED NPC_Jedi(1 0 0) (-16 -16 -24) (16 16 40) TRAINER x x x CEILING CINEMATIC NOTSOLID STARTINSOLID SHY
-TRAINER - Special Jedi- instructor
-CEILING - Sticks to the ceiling until he sees an enemy or takes pain
-CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
-NOTSOLID - Starts not solid
-STARTINSOLID - Don't try to fix if spawn in solid
-SHY - Spawner is shy
-
-Ally Jedi NPC Buddy - tags along with player
-*/
-/*
-void SP_NPC_Jedi( gentity_t *self)
-{
-	if(!self->NPC_type)
-	{
-		if ( self->spawnflags & 1 )
-		{
-			self->NPC_type = "jeditrainer";
-		}
-		else 
-		{
-			*//*
-			if ( !Q_irand( 0, 2 ) )
-			{
-				self->NPC_type = "JediF";
-			}
-			else 
-			*//*if ( Q_irand( 0, 1 ) )
-			{
-				self->NPC_type = "Jedi";
-			}
-			else
-			{
-				self->NPC_type = "Jedi2";
-			}
-		}
-	}
-
-	WP_SetSaberModel( NULL, CLASS_JEDI );
-
-	SP_NPC_spawner( self );
-}
-*/
-//[/CoOp]
 
 /*QUAKED NPC_Prisoner(1 0 0) (-16 -16 -24) (16 16 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
 DROPTOFLOOR - NPC can be in air, but will spawn on the closest floor surface below it
@@ -3531,54 +3431,6 @@ void SP_NPC_StormtrooperOfficer( gentity_t *self)
 
 
 //[CoOp]
-/*QUAKED NPC_Human_Merc(1 0 0) (-16 -16 -24) (16 16 40) BOWCASTER REPEATER FLECHETTE CONCUSSION DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
-100 health, blaster rifle
-
-BOWCASTER - Starts with a Bowcaster
-REPEATER - Starts with a Repeater
-FLECHETTE - Starts with a Flechette gun
-CONCUSSION - Starts with a Concussion Rifle
-
-If you want them to start with any other kind of weapon, make a spawnscript for them that sets their weapon.
-
-"message" - turns on his key surface.  This is the name of the key you get when you walk over his body.  This must match the "message" field of the func_security_panel you want this key to open.  Set to "goodie" to have him carrying a goodie key that player can use to operate doors with "GOODIE" spawnflag.  NOTE: this overrides all the weapon spawnflags
-
-DROPTOFLOOR - NPC can be in air, but will spawn on the closest floor surface below it
-CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
-NOTSOLID - Starts not solid
-STARTINSOLID - Don't try to fix if spawn in solid
-SHY - Spawner is shy
-*/
-void SP_NPC_Human_Merc( gentity_t *self)
-{
-	if(self->spawnflags & 1)
-	{
-		self->NPC_type = "human_merc_bow";
-	}
-	else if(self->spawnflags & 2)
-	{
-		self->NPC_type = "human_merc_rep";
-	}
-	else if(self->spawnflags & 4)
-	{
-		self->NPC_type = "human_merc_flc";
-	}
-	else if(self->spawnflags & 8)
-	{
-		self->NPC_type = "human_merc_cnc";
-	}
-	else
-	{
-		self->NPC_type = "human_merc";
-	}
-	
-	//there are some instances where Raven used ICARUS scripting to give these guys 
-	//rockets.  As such, be sure to precash the rocket.
-	RegisterItem(BG_FindItemForWeapon(WP_ROCKET_LAUNCHER));
-
-	SP_NPC_spawner( self );
-}
-
 /*QUAKED NPC_Rosh_Penin (1 0 0) (-16 -16 -24) (16 16 32) DARKSIDE NOFORCE x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
 Good Rosh
 DARKSIDE (1) - Evil Rosh

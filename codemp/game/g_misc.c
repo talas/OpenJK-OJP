@@ -280,26 +280,7 @@ void SP_misc_model( gentity_t *ent ) {
 #endif
 }
 
-
 //[CoOp]
-/*QUAKED misc_model_static (1 0 0) (-16 -16 0) (16 16 16)
-"model"		arbitrary .md3 file to display
-"_frame"	"x" which frame from an animated md3
-"modelscale"	"x" uniform scale
-"modelscale_vec" "x y z" scale model in each axis
-"zoffset"	units to offset vertical culling position by, can be
-			negative or positive. This does not affect the actual
-			position of the model, only the culling position. Use
-			it for models with stupid origins that go below the
-			ground and whatnot.
-
-loaded as a model in the renderer - does not take up precious bsp space!
-*/
-void SP_misc_model_static(gentity_t *ent)
-{
-	G_FreeEntity( ent );
-}
-
 extern void misc_model_breakable_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath );
 void misc_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 {
@@ -433,6 +414,23 @@ void SP_misc_gas_tank( gentity_t *ent )
 }
 //[/CoOp]
 
+/*QUAKED misc_model_static (1 0 0) (-16 -16 0) (16 16 16)
+"model"		arbitrary .md3 file to display
+"_frame"	"x" which frame from an animated md3
+"modelscale"	"x" uniform scale
+"modelscale_vec" "x y z" scale model in each axis
+"zoffset"	units to offset vertical culling position by, can be
+			negative or positive. This does not affect the actual
+			position of the model, only the culling position. Use
+			it for models with stupid origins that go below the
+			ground and whatnot.
+
+loaded as a model in the renderer - does not take up precious bsp space!
+*/
+void SP_misc_model_static(gentity_t *ent)
+{
+	G_FreeEntity( ent );
+}
 
 /*QUAKED misc_G2model (1 0 0) (-16 -16 -16) (16 16 16)
 "model"		arbitrary .glm file to display
@@ -2096,11 +2094,10 @@ void EnergyAmmoStationSettings(gentity_t *ent)
 ammo_power_converter_use
 ================
 */
-//[AmmoSys]
 void ammo_power_converter_use( gentity_t *self, gentity_t *other, gentity_t *activator)
 {
 	int			add = 0.0f;//,highest;
-//	qboolean	overcharge; // ensiform - not used
+	qboolean	overcharge;
 //	int			difBlaster,difPowerCell,difMetalBolts;
 	int			stop = 1;
 
@@ -2111,7 +2108,7 @@ void ammo_power_converter_use( gentity_t *self, gentity_t *other, gentity_t *act
 
 	if (self->setTime < level.time)
 	{
-		//overcharge = qfalse; // ensiform - not rly used
+		overcharge = qfalse;
 
 		if (!self->s.loopSound)
 		{
@@ -3693,10 +3690,7 @@ void ref_link ( gentity_t *ent )
 		}
 		else
 		{
-			//[CoOp]
-			//added newline
-			Com_Printf( S_COLOR_RED"ERROR: ref_tag (%s) has invalid target (%s)\n", ent->targetname, ent->target );
-			//[/CoOp]
+			Com_Printf( S_COLOR_RED"ERROR: ref_tag (%s) has invalid target (%s)", ent->targetname, ent->target );
 		}
 	}
 	

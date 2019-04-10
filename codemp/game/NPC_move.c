@@ -5,11 +5,6 @@
 #include "g_nav.h"
 #include "anims.h"
 
-//[CoOp]
-//needed for math.h functions
-//#include "q_shared.h"
-//[/CoOp]
-
 void G_Cylinder( vec3_t start, vec3_t end, float radius, vec3_t color );
 
 qboolean G_BoundsOverlap(const vec3_t mins1, const vec3_t maxs1, const vec3_t mins2, const vec3_t maxs2);

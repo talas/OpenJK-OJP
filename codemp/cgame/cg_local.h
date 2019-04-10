@@ -85,11 +85,8 @@
 
 #define	DEFAULT_MODEL			"kyle"
 
-//[ExpSys]
-//moved to bg_public.h since we need now need it in other areas as well.
-//#define DEFAULT_FORCEPOWERS		"5-1-000000000000000000"
+#define DEFAULT_FORCEPOWERS		"5-1-000000000000000000"
 //"rank-side-heal.lev.speed.push.pull.tele.grip.lightning.rage.protect.absorb.teamheal.teamforce.drain.see"
-//[/ExpSys]
 
 #define DEFAULT_REDTEAM_NAME		"Empire"
 #define DEFAULT_BLUETEAM_NAME		"Rebellion"

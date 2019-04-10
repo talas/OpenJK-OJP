@@ -1729,6 +1729,11 @@ float NPC_MaxDistSquaredForWeapon (void)
 	}
 }
 
+/*
+-------------------------
+ValidEnemy
+-------------------------
+*/
 //[CoOp]
 //This replaces ValidEnemy.
 qboolean G_ValidEnemy( gentity_t *self, gentity_t *enemy )

@@ -1570,9 +1570,6 @@ qboolean PM_InKnockDown( playerState_t *ps )
 	case BOTH_KNOCKDOWN3:
 	case BOTH_KNOCKDOWN4:
 	case BOTH_KNOCKDOWN5:
-	//[MELEE]
-	case BOTH_PLAYER_PA_3_FLY:
-	//[/MELEE]
 		return qtrue;
 		break;
 	case BOTH_GETUP1:
@@ -2758,13 +2755,13 @@ int BG_ParseAnimationEvtFile( const char *as_filename, int animFileIndex, int ev
 	assert(animFileIndex < MAX_ANIM_FILES);
 	assert(eventFileIndex < MAX_ANIM_FILES);
 
-	if ( animFileIndex < 0 || animFileIndex >= MAX_ANIM_FILES || eventFileIndex >= MAX_ANIM_FILES)
-	{
+	if ( animFileIndex < 0 || animFileIndex >= MAX_ANIM_FILES )
+	{//WTF??!!
 		return 0;
 	}
 
-	if (eventFileIndex == -1)
-	{
+	if ( eventFileIndex < 0 || eventFileIndex >= MAX_ANIM_FILES )
+	{//WTF??!!
 		forcedIndex = 0;
 	}
 	else
@@ -3233,19 +3230,9 @@ Base animation for overall body
 */
 static void BG_StartLegsAnim( playerState_t *ps, int anim )
 {
-	//[CoOp]
-	//This causes problems with t1_fatal's fake dead body scripting, so I'm disabling it.
-	//RAFIXME - Please note that this error has been coming up when player's are killed by 
-	//the Wampa on siege_hoth.
-	//[Test]
-	//RAFIXME - unfortunately, there's a problem with the NPC animation
-	//code where it's giving bots some weird animation commands after
-	//death.
 	if ( ps->pm_type >= PM_DEAD )
 	{
-		//[test]
-		//assert(!BG_InDeathAnim(anim));
-		//[/test]
+		assert(!BG_InDeathAnim(anim));
 		//please let me know if this assert fires on you (ideally before you close/ignore it) -rww
 
 		//vehicles are allowed to do this.. IF it's a vehicle death anim
@@ -3254,8 +3241,6 @@ static void BG_StartLegsAnim( playerState_t *ps, int anim )
 			return;
 		}
 	}
-	//[/CoOp]
-
 	if ( ps->legsTimer > 0 )
 	{
 		return;		// a high priority animation is running
@@ -3326,23 +3311,12 @@ Override animations for upper body
 */
 void BG_StartTorsoAnim( playerState_t *ps, int anim )
 {
-	//[CoOp]
-	//This causes problems with t1_fatal's fake dead body scripting, so I'm disabling it.
-	//RAFIXME - Please note that this error has been coming up when player's are killed by 
-	//the Wampa on siege_hoth.
-	//[Test]
-	//RAFIXME - unfortunately, there's a problem with the NPC animation
-	//code where it's giving bots some weird animation commands after
-	//death.
 	if ( ps->pm_type >= PM_DEAD )
 	{
-		//[test]
-		//assert(!BG_InDeathAnim(anim));
-		//[/test]
+		assert(!BG_InDeathAnim(anim));
 		//please let me know if this assert fires on you (ideally before you close/ignore it) -rww
 		return;
 	}
-	//[/CoOp]
 
 	if (ps->torsoAnim == anim)
 	{

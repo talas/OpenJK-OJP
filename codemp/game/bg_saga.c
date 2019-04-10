@@ -52,7 +52,7 @@ stringID_table_t bgSiegeClassFlagNames[] =
 	ENUM2STRING(CFL_SINGLE_ROCKET),
 	ENUM2STRING(CFL_CUSTOMSKEL),
 	ENUM2STRING(CFL_EXTRA_AMMO),
-	{"", -1}
+	"", -1
 };
 
 //saber stances
@@ -66,20 +66,20 @@ stringID_table_t StanceTable[] =
 	ENUM2STRING(SS_TAVION),
 	ENUM2STRING(SS_DUAL),
 	ENUM2STRING(SS_STAFF),
-	{"", 0}
+	"", 0
 };
 
 //Weapon and force power tables are also used in NPC parsing code and some other places.
 stringID_table_t WPTable[] =
 {
-	{"NULL",WP_NONE},
+	"NULL",WP_NONE,
 	ENUM2STRING(WP_NONE),
 	// Player weapons
 	ENUM2STRING(WP_STUN_BATON),
 	ENUM2STRING(WP_MELEE),
 	ENUM2STRING(WP_SABER),
 	ENUM2STRING(WP_BRYAR_PISTOL),
-	{"WP_BLASTER_PISTOL", WP_BRYAR_PISTOL},
+	"WP_BLASTER_PISTOL", WP_BRYAR_PISTOL,
 	ENUM2STRING(WP_BLASTER),
 	ENUM2STRING(WP_DISRUPTOR),
 	ENUM2STRING(WP_BOWCASTER),
@@ -94,7 +94,7 @@ stringID_table_t WPTable[] =
 	ENUM2STRING(WP_BRYAR_OLD),
 	ENUM2STRING(WP_EMPLACED_GUN),
 	ENUM2STRING(WP_TURRET),
-	{"", 0}
+	"", 0
 };
 
 stringID_table_t FPTable[] =
@@ -117,7 +117,7 @@ stringID_table_t FPTable[] =
 	ENUM2STRING(FP_SABER_OFFENSE),
 	ENUM2STRING(FP_SABER_DEFENSE),
 	ENUM2STRING(FP_SABERTHROW),
-	{"",	-1}
+	"",	-1
 };
 
 stringID_table_t HoldableTable[] =
@@ -136,7 +136,7 @@ stringID_table_t HoldableTable[] =
 	ENUM2STRING(HI_EWEB),
 	ENUM2STRING(HI_CLOAK),
 
-	{"", -1}
+	"", -1
 };
 
 stringID_table_t PowerupTable[] =
@@ -158,7 +158,7 @@ stringID_table_t PowerupTable[] =
 	ENUM2STRING(PW_FORCE_BOON),
 	ENUM2STRING(PW_YSALAMIRI),
 
-	{"", -1}
+	"", -1
 };
 
 
@@ -302,7 +302,7 @@ int BG_SiegeGetValueGroup(char *buf, char *group, char *outbuf)
 
 				isGroup = qfalse;
 
-				while (buf[i] && (buf[i] == ' ' || buf[i] == SIEGECHAR_TAB || buf[i] == '\n' || buf[i] == '\r') )
+				while (buf[i] && buf[i] == ' ' || buf[i] == SIEGECHAR_TAB || buf[i] == '\n' || buf[i] == '\r')
 				{ //parse to the next valid character
 					i++;
 				}

@@ -6,6 +6,7 @@
 #include "bg_public.h"
 #include "bg_strap.h"
 #include "bg_local.h"
+
 #ifdef QAGAME
 #include "g_local.h"
 #endif
@@ -559,10 +560,7 @@ qboolean BG_LegalizedForcePowers(char *powerOut, int maxRank, qboolean freeSaber
 	if (powerLen >= 128)
 	{ //This should not happen. If it does, this is obviously a bogus string.
 		//They can have this string. Because I said so.
-		//[ExpSys]
-		strcpy(powerBuf, DEFAULT_FORCEPOWERS);
-		//strcpy(powerBuf, "7-1-032330000000001333");
-		//[/ExpSys]
+		strcpy(powerBuf, "7-1-032330000000001333");
 		maintainsValidity = qfalse;
 	}
 	else
@@ -2330,7 +2328,7 @@ void BG_CycleForce(playerState_t *ps, int direction)
 	int presel = i;
 	int foundnext = -1;
 
-	if (!(ps->fd.forcePowersKnown & (1 << x)) ||
+	if (!ps->fd.forcePowersKnown & (1 << x) ||
 		x >= NUM_FORCE_POWERS ||
 		x == -1)
 	{ //apparently we have no valid force powers
@@ -2496,6 +2494,18 @@ void BG_CycleInven(playerState_t *ps, int direction)
 		}
 	}
 }
+
+//[CoOp]
+qboolean COM_BitCheck( const int array[], int bitNum ) {
+	int i = 0;
+	while (bitNum > 31) {
+		i++;
+		bitNum -= 32;
+	}
+	if(i >= sizeof(array)) return qfalse;
+	return ((array[i] & (1 << bitNum) ) != 0);	// (SA) heh, whoops. :)
+}
+//[/CoOp]
 
 /*
 ================

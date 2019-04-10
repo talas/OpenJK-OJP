@@ -1138,6 +1138,21 @@ void G_RegisterCvars( void ) {
 		G_Printf( "g_gametype %i is out of range, defaulting to 0\n", g_gametype.integer );
 		trap_Cvar_Set( "g_gametype", "0" );
 	}
+	else if (g_gametype.integer == GT_HOLOCRON)
+	{
+		G_Printf( "This gametype is not supported.\n" );
+		trap_Cvar_Set( "g_gametype", "0" );
+	}
+	else if (g_gametype.integer == GT_JEDIMASTER)
+	{
+		G_Printf( "This gametype is not supported.\n" );
+		trap_Cvar_Set( "g_gametype", "0" );
+	}
+	else if (g_gametype.integer == GT_CTY)
+	{
+		G_Printf( "This gametype is not supported.\n" );
+		trap_Cvar_Set( "g_gametype", "0" );
+	}
 
 	level.warmupModificationCount = g_warmup.modificationCount;
 }
@@ -4153,10 +4168,6 @@ qboolean G_PointInBounds( vec3_t point, vec3_t mins, vec3_t maxs );
 int g_siegeRespawnCheck = 0;
 int ojp_ffaRespawnTimerCheck =0;//[FFARespawnTimer]
 
-//[AREAPORTALFIX]
-void SetMoverState( gentity_t *ent, moverState_t moverState, int time );
-//[/AREAPORTALFIX]
-
 void G_RunFrame( int levelTime ) {
 	int			i;
 	gentity_t	*ent;
@@ -4461,26 +4472,6 @@ void G_RunFrame( int levelTime ) {
 			continue;
 		}
 		//[/Test]
-		
-		//[AREAPORTALFIX]
-		//fix for self-deactivating areaportals in Siege
-		if ( ent->s.eType == ET_MOVER && g_gametype.integer == GT_SIEGE && level.intermissiontime)
-		{
-			if ( !Q_stricmp("func_door", ent->classname) && ent->moverState != MOVER_POS1 )
-			{
-				SetMoverState( ent, MOVER_POS1, level.time );
-				if ( ent->teammaster == ent || !ent->teammaster ) 
-				{
-					trap_AdjustAreaPortalState( ent, qfalse );
-				}
-
-				//stop the looping sound
-				ent->s.loopSound = 0;
-				ent->s.loopIsSoundset = qfalse;
-			}
-			continue;
-		}
-		//[/AREAPORTALFIX]
 
 		if ( i < MAX_CLIENTS ) 
 		{

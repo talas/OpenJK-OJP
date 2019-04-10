@@ -7,11 +7,8 @@
 
 #include "g_local.h"
 
-//[CoOp]
-//some SP maps require more memory.  Bumped the memory size a little.
-#define POOLSIZE	(4 * 88400) 
-//#define POOLSIZE	(256 * 1024)
-//[/CoOp]
+
+#define POOLSIZE	(256 * 1024)
 
 static char		memoryPool[POOLSIZE];
 static int		allocPoint;

@@ -365,7 +365,7 @@ qboolean CG_ParseSurfsFile( const char *modelName, const char *skinName, char *s
 
 	// load the file
 	len = trap_FS_FOpenFile( sfilename, &f, FS_READ );
-	if ( !f) //[TicketFix143]
+	if ( len <= 0 ) 
 	{//no file
 		return qfalse;
 	}
@@ -5879,12 +5879,11 @@ void CG_DoSaberLight( saberInfo_t *saber , int cnum, int bnum)
 			}
 		}
 
-	//[RGBSabers]
-		trap_R_AddLightToScene( mid, (diameter + random()*8.0f), rgb[0], rgb[1], rgb[2] );
+		trap_R_AddLightToScene( mid, diameter + (random()*8.0f), rgb[0], rgb[1], rgb[2] );
 	}
 }
 
-
+//[RGBSabers]
 void CG_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax, float radius, saber_colors_t color, int rfx, qboolean doLight, int cnum, int bnum )
 {
 	vec3_t		mid;

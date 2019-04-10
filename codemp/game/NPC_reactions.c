@@ -253,7 +253,7 @@ void NPC_ChoosePainAnimation( gentity_t *self, gentity_t *other, vec3_t point, i
 	}
 	else 
 	{
-		if ( (other && other->s.weapon == WP_SABER) || /*mod == MOD_ELECTROCUTE ||*/ mod == MOD_CRUSH/*FIXME:MOD_FORCE_GRIP*/ )
+		if ( other && other->s.weapon == WP_SABER || /*mod == MOD_ELECTROCUTE ||*/ mod == MOD_CRUSH/*FIXME:MOD_FORCE_GRIP*/ )
 		{
 			pain_chance = 1.0f;//always take pain from saber
 		}
@@ -1030,8 +1030,6 @@ void NPC_Respond( gentity_t *self, int userNum )
 		break;
 	case CLASS_GONK:				// droid
 		G_Sound(self, CHAN_AUTO, G_SoundIndex(va("sound/chars/gonk/misc/gonktalk%d.wav",Q_irand(1, 2))));
-		break;
-	default:
 		break;
 	}
 	

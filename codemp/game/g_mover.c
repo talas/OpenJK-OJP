@@ -155,6 +155,7 @@ G_TryPushingEntity
 Returns qfalse if the move is blocked
 ==================
 */
+extern void G_DamageFromKiller( gentity_t *pEnt, gentity_t *pVehEnt, gentity_t *attacker, vec3_t org, int damage, int dflags, int mod );
 qboolean	G_TryPushingEntity( gentity_t *check, gentity_t *pusher, vec3_t move, vec3_t amove ) {
 	vec3_t		matrix[3], transpose[3];
 	vec3_t		org, org2, move2;
@@ -173,7 +174,16 @@ qboolean	G_TryPushingEntity( gentity_t *check, gentity_t *pusher, vec3_t move, v
 		&& (pusher->spawnflags&16) //IMPACT
 		&& Q_stricmp( "func_rotating", pusher->classname ) == 0 )
 	{//just blow the fuck out of them
-		G_Damage( check, pusher, pusher, NULL, NULL, pusher->damage, DAMAGE_NO_KNOCKBACK, MOD_CRUSH );
+		/*
+		if ( check->m_pVehicle )
+		{
+			G_DamageFromKiller( check, check, pusher, NULL, pusher->damage, DAMAGE_NO_KNOCKBACK, MOD_CRUSH );
+		}
+		else
+		*/
+		{
+			G_Damage( check, pusher, pusher, NULL, NULL, pusher->damage, DAMAGE_NO_KNOCKBACK, MOD_CRUSH );
+		}
 		return qtrue;
 	}
 
@@ -237,6 +247,7 @@ qboolean	G_TryPushingEntity( gentity_t *check, gentity_t *pusher, vec3_t move, v
 		{
 			G_Damage(check, pusher, pusher, vec3_origin, check->r.currentOrigin, 999, 0, MOD_UNKNOWN);
 		}
+		return qfalse;
 	}
 	// if it is ok to leave in the old position, do it
 	// this is only relevent for riding entities, not pushed

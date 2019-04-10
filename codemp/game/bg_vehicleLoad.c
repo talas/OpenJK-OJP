@@ -54,8 +54,6 @@ extern qhandle_t	trap_R_RegisterShader( const char *name );
 extern qhandle_t	trap_R_RegisterShaderNoMip( const char *name );
 extern int			trap_FX_RegisterEffect(const char *file);
 extern sfxHandle_t	trap_S_RegisterSound( const char *sample);		// returns buzz if not found
-
-
 #include "../namespace_end.h"
 #else//UI
 #include "../namespace_begin.h"
@@ -71,29 +69,20 @@ extern stringID_table_t animTable [MAX_ANIMATIONS+1];
 
 // These buffers are filled in with the same contents and then just read from in
 // a few places.
-
 //[DynamicMemory_Vehicles]
 //TODO: dynamicize g_vehicleInfo as well
 //NOTE: why dont we just load all g_vehicleInfo indexes at game startup?  it (currently) is static memory, 
 	//so memory usage has nothing to do with it, and better to have the load time be at startup instead of 
 	//in the middle of the game as a new vehicle is created
-
 #define DYNAMICMEMORY_VEHICLES
 //NOTE: ONCE AGAIN we have the lack of trap_TrueMalloc for ui
 	//what does the ui even use this for?  anything?
 	//can I just blindly disable it for the ui?
 	//yep, we can.  
-
 #ifndef WE_ARE_IN_THE_UI
-
 #ifndef DYNAMICMEMORY_VEHICLES
-//[MOREVEHICLES]
-#define MAX_VEH_WEAPON_DATA_SIZE 0x10000
-#define MAX_VEHICLE_DATA_SIZE 0x40000
-
-//#define MAX_VEH_WEAPON_DATA_SIZE 0x4000
-//#define MAX_VEHICLE_DATA_SIZE 0x10000
-//[/MOREVEHICLES]
+#define MAX_VEH_WEAPON_DATA_SIZE 0x20000
+#define MAX_VEHICLE_DATA_SIZE 0x80000
 
 	char	VehWeaponParms[MAX_VEH_WEAPON_DATA_SIZE];
 	char	VehicleParms[MAX_VEHICLE_DATA_SIZE];

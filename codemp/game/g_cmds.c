@@ -344,22 +344,6 @@ void Cmd_Give_f (gentity_t *cmdent, int baseArg)
 			ent->client->ps.stats[STAT_HOLDABLE_ITEMS] |= (1 << i);
 		}
 	}
-
-	if (give_all || Q_stricmp( name, "force") == 0)
-	{
-		if (trap_Argc() == 3+baseArg) {
-			trap_Argv( 2+baseArg, arg, sizeof( arg ) );
-			ent->client->ps.fd.forcePower = atoi(arg);
-			if (ent->client->ps.fd.forcePower > 100) {
-				ent->client->ps.fd.forcePower = 100;
-			}
-		}
-		else {
-			ent->client->ps.fd.forcePower = 100;
-		}
-		if (!give_all)
-			return;
-	}
 	//[/CoOp]
 
 	if (give_all || Q_stricmp(name, "weapons") == 0)
@@ -1676,7 +1660,7 @@ qboolean G_SetSaber(gentity_t *ent, int saberNum, char *saberName, qboolean sieg
 
 	//[StanceSelection]
 	if ( !G_ValidSaberStyle(ent, ent->client->ps.fd.saberAnimLevel) )
-	{//had an illegal style, revert to default
+	{
 		ent->client->ps.fd.saberAnimLevel = SS_MEDIUM;
 		ent->client->saberCycleQueue = ent->client->ps.fd.saberAnimLevel;
 	}
@@ -4154,6 +4138,12 @@ void ClientCommand( int clientNum ) {
 		Cmd_SetViewpos_f( ent );
 	else if (Q_stricmp (cmd, "stats") == 0)
 		Cmd_Stats_f( ent );
+	/*
+	else if (Q_stricmp (cmd, "kylesmash") == 0)
+	{
+		TryGrapple(ent);
+	}
+	*/
 	//for convenient powerduel testing in release
 	else if (Q_stricmp(cmd, "killother") == 0 && CheatsOk( ent ))
 	{
@@ -4448,7 +4438,6 @@ void ClientCommand( int clientNum ) {
 	{
 		Cmd_ToggleSaber_f(ent);
 	}
-	/* racc - This cheat code isn't used anymore.
 	else if (Q_stricmp(cmd, "thedestroyer") == 0 && CheatsOk( ent ) && ent && ent->client && ent->client->ps.saberHolstered && ent->client->ps.weapon == WP_SABER)
 	{
 		Cmd_ToggleSaber_f(ent);
@@ -4457,7 +4446,6 @@ void ClientCommand( int clientNum ) {
 		{
 		}
 	}
-	*/
 	//begin bot debug cmds
 	else if (Q_stricmp(cmd, "debugBMove_Forward") == 0 && CheatsOk(ent))
 	{

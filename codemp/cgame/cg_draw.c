@@ -1581,10 +1581,10 @@ void CG_DrawForcePower( menuDef_t *menuHUD )
 		cg.forceHUDActive = qtrue;
 	}
 
-	if (!cg.forceHUDActive)
-	{
-		return;
-	}
+//	if (!cg.forceHUDActive)
+//	{
+//		return;
+//	}
 
 	inc = (float)  maxForcePower / MAX_HUD_TICS;
 	value = cg.snap->ps.fd.forcePower;
@@ -7075,10 +7075,7 @@ static void CG_DrawVote(void) {
 	char							sNo[20];
 	char							sVote[20];
 	char							sCmd[100];
-	//[VoteSys]
-	char							sParm[100];
-	//const char*						sParm = 0;
-	//[/VoteSys]
+	const char*						sParm = 0;
 
 	if ( !cgs.voteTime ) {
 		return;
@@ -7095,170 +7092,78 @@ static void CG_DrawVote(void) {
 		sec = 0;
 	}
 
-	//[VoteSys]
-	memset(sYes, 0, sizeof(sYes));
-	memset(sNo, 0, sizeof(sNo));
-	memset(sVote, 0, sizeof(sVote));
-	memset(sCmd, 0, sizeof(sCmd));
-	memset(sParm, 0, sizeof(sParm));
-	//[/VoteSys]
-
 	if (strncmp(cgs.voteString, "map_restart", 11)==0)
 	{
-		//[VoteSys]
-		Q_strncpyz(sCmd, CG_GetStringEdString("MENUS", "RESTART_MAP"), sizeof(sCmd));
-		//trap_SP_GetStringTextString("MENUS_RESTART_MAP", sCmd, sizeof(sCmd) );
-		//[/VoteSys]
+		trap_SP_GetStringTextString("MENUS_RESTART_MAP", sCmd, sizeof(sCmd) );
 	}
 	else if (strncmp(cgs.voteString, "vstr nextmap", 12)==0)
 	{
-		//[VoteSys]
-		Q_strncpyz(sCmd, CG_GetStringEdString("MENUS", "NEXT_MAP"), sizeof(sCmd));
-		//trap_SP_GetStringTextString("MENUS_NEXT_MAP", sCmd, sizeof(sCmd) );
-		//[/VoteSys]
+		trap_SP_GetStringTextString("MENUS_NEXT_MAP", sCmd, sizeof(sCmd) );
 	}
 	else if (strncmp(cgs.voteString, "g_doWarmup", 10)==0)
 	{
-		//[VoteSys]
-		Q_strncpyz(sCmd, CG_GetStringEdString("MENUS", "WARMUP"), sizeof(sCmd));
-		//trap_SP_GetStringTextString("MENUS_WARMUP", sCmd, sizeof(sCmd) );
-		//[/VoteSys]
+		trap_SP_GetStringTextString("MENUS_WARMUP", sCmd, sizeof(sCmd) );
 	}
 	else if (strncmp(cgs.voteString, "g_gametype", 10)==0)
 	{
-		//[VoteSys]
-		Q_strncpyz(sCmd, CG_GetStringEdString("MENUS", "GAME_TYPE"), sizeof(sCmd));
-		//trap_SP_GetStringTextString("MENUS_GAME_TYPE", sCmd, sizeof(sCmd) );
-		//[/VoteSys]
-		if      ( stricmp("Free For All", cgs.voteString+11)==0 )
+		trap_SP_GetStringTextString("MENUS_GAME_TYPE", sCmd, sizeof(sCmd) );
+		if      ( stricmp("Free For All", cgs.voteString+11)==0 ) 
 		{
-			//[VoteSys]
-			Q_strncpyz(sParm, CG_GetStringEdString("MENUS", "FREE_FOR_ALL"), sizeof(sParm));
-			//sParm = CG_GetStringEdString("MENUS", "FREE_FOR_ALL");
-			//[/VoteSys]
+			sParm = CG_GetStringEdString("MENUS", "FREE_FOR_ALL");
 		}
-		else if ( stricmp("Duel", cgs.voteString+11)==0 )
+		else if ( stricmp("Duel", cgs.voteString+11)==0 ) 
 		{
-			//[VoteSys]
-			Q_strncpyz(sParm, CG_GetStringEdString("MENUS", "DUEL"), sizeof(sParm));
-			//sParm = CG_GetStringEdString("MENUS", "DUEL");
-			//[/VoteSys]
+			sParm = CG_GetStringEdString("MENUS", "DUEL");
 		}
-		else if ( stricmp("Jedi Master", cgs.voteString+11)==0 )
+		else if ( stricmp("Holocron FFA", cgs.voteString+11)==0  ) 
 		{
-			//[VoteSys]
-			Q_strncpyz(sParm, CG_GetStringEdString("OJP_MENUS", "JEDIMASTER"), sizeof(sParm));
-			//sParm = CG_GetStringEdString("OJP_MENUS", "JEDIMASTER");
-			//[/VoteSys]
+			sParm = CG_GetStringEdString("MENUS", "HOLOCRON_FFA");
 		}
-		else if ( stricmp("Holocron FFA", cgs.voteString+11)==0  )
+		else if ( stricmp("Power Duel", cgs.voteString+11)==0  ) 
 		{
-			//[VoteSys]
-			Q_strncpyz(sParm, CG_GetStringEdString("MENUS", "HOLOCRON_FFA"), sizeof(sParm));
-			//sParm = CG_GetStringEdString("MENUS", "HOLOCRON_FFA");
-			//[/VoteSys]
+			sParm = CG_GetStringEdString("MENUS", "POWERDUEL");
 		}
-		else if ( stricmp("Power Duel", cgs.voteString+11)==0  )
+		else if ( stricmp("Team FFA", cgs.voteString+11)==0  ) 
 		{
-			//[VoteSys]
-			Q_strncpyz(sParm, CG_GetStringEdString("MENUS", "POWERDUEL"), sizeof(sParm));
-			//sParm = CG_GetStringEdString("MENUS", "POWERDUEL");
-			//[/VoteSys]
-		}
-		else if ( stricmp("Team FFA", cgs.voteString+11)==0  )
-		{
-			//[VoteSys]
-			Q_strncpyz(sParm, CG_GetStringEdString("MENUS", "TEAM_FFA"), sizeof(sParm));
-			//sParm = CG_GetStringEdString("MENUS", "TEAM_FFA");
-			//[/VoteSys]
-		}
-		else if ( stricmp("Siege", cgs.voteString+11)==0  )
-		{
-			//[VoteSys]
-			Q_strncpyz(sParm, CG_GetStringEdString("MENUS", "SIEGE"), sizeof(sParm));
-			//sParm = CG_GetStringEdString("MENUS", "SIEGE");
-			//[/VoteSys]
-		}
-		else if ( stricmp("Capture the Flag", cgs.voteString+11)==0  )
-		{
-			//[VoteSys]
-			Q_strncpyz(sParm, CG_GetStringEdString("MENUS", "CAPTURE_THE_FLAG"), sizeof(sParm));
-			//sParm = CG_GetStringEdString("MENUS", "CAPTURE_THE_FLAG");
-			//[/VoteSys]
-		}
-		else if ( stricmp("Capture the Ysalamiri", cgs.voteString+11)==0  )
-		{
-			Q_strncpyz(sParm, CG_GetStringEdString("MENUS", "CAPTURE_THE_YSALIMARI"), sizeof(sParm));
-			//sParm = CG_GetStringEdString("MENUS", "CAPTURE_THE_YSALIMARI");
+			sParm = CG_GetStringEdString("MENUS", "TEAM_FFA");
 		}
 		//[CoOp]
-		//[VoteSys]
 		else if ( stricmp("Single Player", cgs.voteString+11)==0 )
 		{
-			
-			Q_strncpyz(sParm, CG_GetStringEdString("OJP_MENUS", "COOP"), sizeof(sParm));
-			//sParm = CG_GetStringEdString("OJP_MENUS", "COOP");
+			sParm = CG_GetStringEdString("OJP_MENUS", "COOP");
 		}
-		//[/VoteSys]
 		//[/CoOp]
-		//[VoteSys]
-		else
+		else if ( stricmp("Siege", cgs.voteString+11)==0  ) 
 		{
-			Q_strncpyz(sParm, CG_GetStringEdString("MENUS", "SAGA"), sizeof(sParm));
-			//sParm = CG_GetStringEdString("MENUS", "SAGA");
+			sParm = CG_GetStringEdString("MENUS", "SIEGE");
 		}
-		//[/VoteSys]
+		else if ( stricmp("Capture the Flag", cgs.voteString+11)==0  ) 
+		{
+			sParm = CG_GetStringEdString("MENUS", "CAPTURE_THE_FLAG");
+		}
+		else if ( stricmp("Capture the Ysalamiri", cgs.voteString+11)==0  ) 
+		{
+			sParm = CG_GetStringEdString("MENUS", "CAPTURE_THE_YSALIMARI");
+		} 
 	}
 	else if (strncmp(cgs.voteString, "map", 3)==0)
 	{
-		//[VoteSys]
-		Q_strncpyz(sCmd, CG_GetStringEdString("MENUS", "NEW_MAP"), sizeof(sCmd));
-		Q_strncpyz(sParm, cgs.voteString+4, sizeof(sParm));
-		//trap_SP_GetStringTextString("MENUS_NEW_MAP", sCmd, sizeof(sCmd) );
-		//sParm = cgs.voteString+4;
-		//[/VoteSys]
+		trap_SP_GetStringTextString("MENUS_NEW_MAP", sCmd, sizeof(sCmd) );
+		sParm = cgs.voteString+4;
 	}
-
 	else if (strncmp(cgs.voteString, "kick", 4)==0)
 	{
-		//[VoteSys]
-		Q_strncpyz(sCmd, CG_GetStringEdString("MENUS", "KICK_PLAYER"), sizeof(sCmd));
-		Q_strncpyz(sParm, cgs.voteString+5, sizeof(sParm));
-		//trap_SP_GetStringTextString("MENUS_KICK_PLAYER", sCmd, sizeof(sCmd) );
-		//sParm = cgs.voteString+5;
-		//[/VoteSys]
-	}
-	//[VoteSys]
-	else if (strncmp(cgs.voteString, "timelimit", 9)==0)
-	{
-		Q_strncpyz(sCmd, CG_GetStringEdString("MP_INGAME", "TIMELIMIT"), sizeof(sCmd));
-		Q_strncpyz(sParm, cgs.voteString+10, sizeof(sParm));
-	}
-	else if (strncmp(cgs.voteString, "fraglimit", 9)==0)
-	{
-		Q_strncpyz(sCmd, CG_GetStringEdString("MP_INGAME", "FRAGLIMIT"), sizeof(sCmd));
-		Q_strncpyz(sParm, cgs.voteString+10, sizeof(sParm));
-	}
-	else if (strncmp(cgs.voteString, "capturelimit", 12)==0)
-	{
-		Q_strncpyz(sCmd, CG_GetStringEdString("MP_INGAME", "CAPTURELIMIT"), sizeof(sCmd));
-		Q_strncpyz(sParm, cgs.voteString+13, sizeof(sParm));
-	}
-	else
-	{
-		Q_strncpyz(sCmd, cgs.voteString, sizeof(sCmd));
+		trap_SP_GetStringTextString("MENUS_KICK_PLAYER", sCmd, sizeof(sCmd) );
+		sParm = cgs.voteString+5;
 	}
 
-	Q_strncpyz(sVote, CG_GetStringEdString("MENUS", "VOTE"), sizeof(sVote));
-	Q_strncpyz(sYes, CG_GetStringEdString("MENUS", "YES"), sizeof(sYes));
-	Q_strncpyz(sNo, CG_GetStringEdString("MENUS", "NO"), sizeof(sNo));
-	//trap_SP_GetStringTextString("MENUS_VOTE", sVote, sizeof(sVote) );
-	//trap_SP_GetStringTextString("MENUS_YES", sYes, sizeof(sYes) );
-	//trap_SP_GetStringTextString("MENUS_NO",  sNo,  sizeof(sNo) );
 
-	if (*sParm && sParm[0])
-	//if (sParm && sParm[0])
-	//[/VoteSys]
+
+	trap_SP_GetStringTextString("MENUS_VOTE", sVote, sizeof(sVote) );
+	trap_SP_GetStringTextString("MENUS_YES", sYes, sizeof(sYes) );
+	trap_SP_GetStringTextString("MENUS_NO",  sNo,  sizeof(sNo) );
+
+	if (sParm && sParm[0])
 	{
 		s = va("%s(%i):<%s %s> %s:%i %s:%i", sVote, sec, sCmd, sParm, sYes, cgs.voteYes, sNo, cgs.voteNo);
 	}
@@ -7626,10 +7531,6 @@ static void CG_DrawWarmup( void ) {
 			s = CG_GetStringEdString("MENUS", "CAPTURE_THE_FLAG");//"Capture the Flag";
 		} else if ( cgs.gametype == GT_CTY ) {
 			s = CG_GetStringEdString("MENUS", "CAPTURE_THE_YSALIMARI");//"Capture the Ysalamiri";
-		//[CoOp]
-		} else if ( cgs.gametype == GT_SINGLE_PLAYER ) {
-			s = CG_GetStringEdString("OJP_MENUS", "COOP");//"Cooperative";
-		//[/CoOp]
 		} else {
 			s = "";
 		}

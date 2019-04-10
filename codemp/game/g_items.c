@@ -298,7 +298,7 @@ void CreateShield(gentity_t *ent)
 	int			height, posWidth, negWidth, halfWidth = 0;
 	qboolean	xaxis;
 	int			paramData = 0;
-//	static int	shieldID;
+	static int	shieldID;
 
 	// trace upward to find height of shield
 	VectorCopy(ent->r.currentOrigin, end);
@@ -1050,14 +1050,12 @@ void turret_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int 
 
 	//ExplodeDeath( self );
 	G_FreeEntity( self );
-
 	//[SentryGun]
 	if (owner->client->ps.fd.forcePowerLevel[FP_SEE] == FORCE_LEVEL_0)
 	{
 	owner->sentryDeadThink = level.time + 30000;
 	}
 	//[/SentryGun]
-
 }
 
 #define TURRET_AMMO_COUNT 40
@@ -2499,9 +2497,22 @@ int Pickup_Holdable( gentity_t *ent, gentity_t *other ) {
 
 //======================================================================
 
+void Add_Ammo (gentity_t *ent, int weapon, int count)
+{
+	if ( ent->client->ps.ammo[weapon] < ammoData[weapon].max )
+	{
+		ent->client->ps.ammo[weapon] += count;
+		if ( ent->client->ps.ammo[weapon] > ammoData[weapon].max )
+		{
+			ent->client->ps.ammo[weapon] = ammoData[weapon].max;
+		}
+	}
+}
+
 //[AmmoSys]
 void Add_Ammo3 (gentity_t *ent, int weapon, int count, int *stop, qboolean *gaveSome)
 { // weapon is actually ammotype
+	// TODO: use OpenJK code from Add_Ammo
 	if ( ent->client->ps.eFlags & EF_DOUBLE_AMMO ) {
 		if ( ent->client->ps.ammo[weapon] < ammoData[weapon].max*2 ) {
 			*gaveSome = qtrue;
@@ -2525,35 +2536,6 @@ void Add_Ammo3 (gentity_t *ent, int weapon, int count, int *stop, qboolean *gave
 	}
 }
 //[/AmmoSys]
-
-void Add_Ammo (gentity_t *ent, int weapon, int count)
-{
-	//[AmmoSys]
-	if ( ent->client->ps.eFlags & EF_DOUBLE_AMMO ) {
-		if ( ent->client->ps.ammo[weapon] < ammoData[weapon].max*2 ) {
-			ent->client->ps.ammo[weapon] += count;
-			if ( ent->client->ps.ammo[weapon] >= ammoData[weapon].max*2 ) {
-				ent->client->ps.ammo[weapon] = ammoData[weapon].max*2;
-			}
-		}
-	} else {
-		if ( ent->client->ps.ammo[weapon] < ammoData[weapon].max ) {
-			ent->client->ps.ammo[weapon] += count;
-			if ( ent->client->ps.ammo[weapon] >= ammoData[weapon].max ) {
-				ent->client->ps.ammo[weapon] = ammoData[weapon].max;
-			}
-		}
-	}
-	/*if ( ent->client->ps.ammo[weapon] < ammoData[weapon].max )
-	{
-		ent->client->ps.ammo[weapon] += count;
-		if ( ent->client->ps.ammo[weapon] > ammoData[weapon].max )
-		{
-			ent->client->ps.ammo[weapon] = ammoData[weapon].max;
-		}
-	}*/
-	//[/AmmoSys]
-}
 
 int Pickup_Ammo (gentity_t *ent, gentity_t *other)
 {

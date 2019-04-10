@@ -57,7 +57,7 @@ stringID_table_t SaberTable[] =
 	ENUM2STRING(SABER_LANCE),
 	ENUM2STRING(SABER_STAR),
 	ENUM2STRING(SABER_TRIDENT),
-	{"",	-1}
+	"",	-1
 };
 
 stringID_table_t SaberMoveTable[] =
@@ -256,7 +256,7 @@ stringID_table_t SaberMoveTable[] =
 	ENUM2STRING(LS_REFLECT_LR),
 	ENUM2STRING(LS_REFLECT_LL),
 	//[/SaberSys]
-	{"",	-1}
+	"",	-1
 };
 
 //Also used in npc code

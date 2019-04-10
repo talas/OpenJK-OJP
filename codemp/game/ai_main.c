@@ -19,12 +19,7 @@
 #include "q_shared.h"
 #include "botlib.h"		//bot lib interface
 #include "be_aas.h"
-
-//[SaberSys]
-//I think this isn't defined correctly.
-#include "../game/be_ea.h"
-//#include "be_ea.h"
-//[/SaberSys]
+#include "be_ea.h"
 #include "be_ai_char.h"
 #include "be_ai_chat.h"
 #include "be_ai_gen.h"
@@ -44,15 +39,6 @@
 */
 
 #define MAX_PATH		144
-
-//[BotTweaks]
-//Make the bot ai run at a seperate fps than the world updates.  This is allow players to
-//up the sv_fps without unintentionally upping this as well.
-//[TABBot]
-//moved to ai_main.h so we could seperate out the tab code into ai_tab.c
-//#define BOT_THINK_TIME	1000/bot_fps.integer
-//#define BOT_THINK_TIME	0
-//[/BotTweaks]
 
 //bot states
 bot_state_t	*botstates[MAX_CLIENTS];
@@ -4768,7 +4754,7 @@ void SaberCombatHandling(bot_state_t *bs)
 				bs->beStill = level.time + Q_irand(500, 1000);
 				bs->saberSTime = level.time + Q_irand(1200, 1800);
 			}
-			else if (bs->currentEnemy->client->ps.weapon == WP_SABER && bs->frame_Enemy_Len < 80 && ((Q_irand(1, 10) < 8 && bs->saberBFTime < level.time) || bs->saberBTime > level.time || BG_SaberInKata(bs->currentEnemy->client->ps.saberMove) || bs->currentEnemy->client->ps.saberMove == LS_SPINATTACK || bs->currentEnemy->client->ps.saberMove == LS_SPINATTACK_DUAL))
+			else if (bs->currentEnemy->client->ps.weapon == WP_SABER && bs->frame_Enemy_Len < 80 && (Q_irand(1, 10) < 8 && bs->saberBFTime < level.time) || bs->saberBTime > level.time || BG_SaberInKata(bs->currentEnemy->client->ps.saberMove) || bs->currentEnemy->client->ps.saberMove == LS_SPINATTACK || bs->currentEnemy->client->ps.saberMove == LS_SPINATTACK_DUAL)
 			{
 				vec3_t vs;
 				vec3_t groundcheck;

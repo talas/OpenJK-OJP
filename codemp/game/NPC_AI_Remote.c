@@ -241,8 +241,8 @@ void Remote_Fire (void)
 	//[SeekerItemNpc]
 	//these dont need to be static, and vright and up arent used
 	/*static*/ vec3_t	forward;//, vright, up;
-	/*static vec3_t	muzzle;*/
 	//[/SeekerItemNpc]
+	static vec3_t	muzzle;
 	gentity_t	*missile;
 
 	CalcEntitySpot( NPC->enemy, SPOT_HEAD, enemy_org1 );

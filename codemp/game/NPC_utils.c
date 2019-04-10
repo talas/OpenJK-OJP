@@ -128,7 +128,7 @@ void CalcEntitySpot ( const gentity_t *ent, const spot_t spot, vec3_t point )
 		{
 			AngleVectors( ent->NPC->shootAngles, forward, right, up );
 		}
-		else if(ent->client)
+		else if(ent->client) //[CoOp]
 		{
 			AngleVectors( ent->client->ps.viewangles, forward, right, up );
 		}
@@ -1094,12 +1094,12 @@ qboolean NPC_ClearLOS2( gentity_t *ent, const vec3_t end )
 	return G_ClearLOS2( NPC, ent, end );
 }
 
-//[CoOp]
 /*
 -------------------------
 NPC_ValidEnemy
 -------------------------
 */
+//[CoOp]
 /* moved to NPC_Combat.c and converted to SP version.
 qboolean NPC_ValidEnemy( gentity_t *ent )
 {

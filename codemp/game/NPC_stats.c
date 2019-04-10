@@ -22,7 +22,7 @@ stringID_table_t TeamTable[] =
 	//ENUM2STRING(NPCTEAM_ENEMY),
 	//[/CoOp]
 	ENUM2STRING(NPCTEAM_NEUTRAL),	// most droids are team_neutral, there are some exceptions like Probe,Seeker,Interrogator
-	{"",	-1}
+	"",	-1
 };
 
 // this list was made using the model directories, this MUST be in the same order as the CLASS_ enum in teams.h
@@ -101,7 +101,7 @@ stringID_table_t ClassTable[] =
 	//[NPCSandCreature]
 	ENUM2STRING(CLASS_SAND_CREATURE),
 	//[/NPCSandCreature]
-	{"",	-1}
+	"",	-1
 };
 
 stringID_table_t BSTable[] =
@@ -117,10 +117,10 @@ stringID_table_t BSTable[] =
 	ENUM2STRING(BS_REMOVE),//# Waits for player to leave PVS then removes itself
 	ENUM2STRING(BS_CINEMATIC),//# Does nothing but face it's angles and move to a goal if it has one
 	//the rest are internal only
-	{"",				-1}
+	"",				-1,
 };
 
-#define stringIDExpand(str, strEnum)	{ str, strEnum }, ENUM2STRING(strEnum)
+#define stringIDExpand(str, strEnum)	str, strEnum, ENUM2STRING(strEnum)
 
 stringID_table_t BSETTable[] =
 {
@@ -141,7 +141,7 @@ stringID_table_t BSETTable[] =
 	ENUM2STRING(BSET_FFIRE),//# script to run when player shoots their own teammates
 	ENUM2STRING(BSET_FFDEATH),//# script to run when player kills a teammate
 	stringIDExpand("", BSET_INVALID),
-	{"",				-1},
+	"",				-1,
 };
 
 #include "../namespace_begin.h"
@@ -1228,335 +1228,6 @@ qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 					NPC->client->ps.customRGBA[2]=Q_irand(0,255);
 					NPC->client->ps.customRGBA[3]=255;
 				} 
-				//[CoOp]
-				//custom color settings for NPCs from SP code
-				else if ( !Q_stricmp( value, "random1") )
-				{
-					NPC->client->ps.customRGBA[3]=255;
-					switch (Q_irand(0,5))
-					{
-					default:
-					case 0:
-						NPC->client->ps.customRGBA[0]=127;
-						NPC->client->ps.customRGBA[1]=153;
-						NPC->client->ps.customRGBA[2]=255;
-						break;
-					case 1:
-						NPC->client->ps.customRGBA[0]=177;
-						NPC->client->ps.customRGBA[1]=29;
-						NPC->client->ps.customRGBA[2]=13;
-						break;
-					case 2:
-						NPC->client->ps.customRGBA[0]=47;
-						NPC->client->ps.customRGBA[1]=90;
-						NPC->client->ps.customRGBA[2]=40;
-						break;
-					case 3:
-						NPC->client->ps.customRGBA[0]=181;
-						NPC->client->ps.customRGBA[1]=207;
-						NPC->client->ps.customRGBA[2]=255;
-						break;
-					case 4:
-						NPC->client->ps.customRGBA[0]=138;
-						NPC->client->ps.customRGBA[1]=83;
-						NPC->client->ps.customRGBA[2]=0;
-						break;
-					case 5:
-						NPC->client->ps.customRGBA[0]=254;
-						NPC->client->ps.customRGBA[1]=199;
-						NPC->client->ps.customRGBA[2]=14;
-						break;
-					}
-				} 
-				else if ( !Q_stricmp( value, "jedi_hf" ) )
-				{
-					NPC->client->ps.customRGBA[3]=255;
-					switch (Q_irand(0,7))
-					{
-					default:
-					case 0://red1
-						NPC->client->ps.customRGBA[0]=165;
-						NPC->client->ps.customRGBA[1]=48;
-						NPC->client->ps.customRGBA[2]=21;
-						break;
-					case 1://yellow1
-						NPC->client->ps.customRGBA[0]=254;
-						NPC->client->ps.customRGBA[1]=230;
-						NPC->client->ps.customRGBA[2]=132;
-						break;
-					case 2://bluegray
-						NPC->client->ps.customRGBA[0]=181;
-						NPC->client->ps.customRGBA[1]=207;
-						NPC->client->ps.customRGBA[2]=255;
-						break;
-					case 3://pink
-						NPC->client->ps.customRGBA[0]=233;
-						NPC->client->ps.customRGBA[1]=183;
-						NPC->client->ps.customRGBA[2]=208;
-						break;
-					case 4://lt blue
-						NPC->client->ps.customRGBA[0]=161;
-						NPC->client->ps.customRGBA[1]=226;
-						NPC->client->ps.customRGBA[2]=240;
-						break;
-					case 5://blue
-						NPC->client->ps.customRGBA[0]=101;
-						NPC->client->ps.customRGBA[1]=159;
-						NPC->client->ps.customRGBA[2]=255;
-						break;
-					case 6://orange
-						NPC->client->ps.customRGBA[0]=255;
-						NPC->client->ps.customRGBA[1]=157;
-						NPC->client->ps.customRGBA[2]=114;
-						break;
-					case 7://violet
-						NPC->client->ps.customRGBA[0]=216;
-						NPC->client->ps.customRGBA[1]=160;
-						NPC->client->ps.customRGBA[2]=255;
-						break;
-					}
-				}
-				else if ( !Q_stricmp( value, "jedi_hm" ) )
-				{
-					NPC->client->ps.customRGBA[3]=255;
-					switch (Q_irand(0,7))
-					{
-					default:
-					case 0://yellow
-						NPC->client->ps.customRGBA[0]=252;
-						NPC->client->ps.customRGBA[1]=243;
-						NPC->client->ps.customRGBA[2]=180;
-						break;
-					case 1://blue
-						NPC->client->ps.customRGBA[0]=69;
-						NPC->client->ps.customRGBA[1]=109;
-						NPC->client->ps.customRGBA[2]=255;
-						break;
-					case 2://gold
-						NPC->client->ps.customRGBA[0]=254;
-						NPC->client->ps.customRGBA[1]=197;
-						NPC->client->ps.customRGBA[2]=73;
-						break;
-					case 3://orange
-						NPC->client->ps.customRGBA[0]=178;
-						NPC->client->ps.customRGBA[1]=78;
-						NPC->client->ps.customRGBA[2]=18;
-						break;
-					case 4://bluegreen
-						NPC->client->ps.customRGBA[0]=112;
-						NPC->client->ps.customRGBA[1]=153;
-						NPC->client->ps.customRGBA[2]=161;
-						break;
-					case 5://blue2
-						NPC->client->ps.customRGBA[0]=123;
-						NPC->client->ps.customRGBA[1]=182;
-						NPC->client->ps.customRGBA[2]=255;
-						break;
-					case 6://green2
-						NPC->client->ps.customRGBA[0]=0;
-						NPC->client->ps.customRGBA[1]=88;
-						NPC->client->ps.customRGBA[2]=105;
-						break;
-					case 7://violet
-						NPC->client->ps.customRGBA[0]=138;
-						NPC->client->ps.customRGBA[1]=0;
-						NPC->client->ps.customRGBA[2]=0;
-						break;
-					}
-				}
-				else if ( !Q_stricmp( value, "jedi_kdm" ) )
-				{
-					NPC->client->ps.customRGBA[3]=255;
-					switch (Q_irand(0,8))
-					{
-					default:
-					case 0://blue
-						NPC->client->ps.customRGBA[0]=85;
-						NPC->client->ps.customRGBA[1]=120;
-						NPC->client->ps.customRGBA[2]=255;
-						break;
-					case 1://violet
-						NPC->client->ps.customRGBA[0]=173;
-						NPC->client->ps.customRGBA[1]=142;
-						NPC->client->ps.customRGBA[2]=219;
-						break;
-					case 2://brown1
-						NPC->client->ps.customRGBA[0]=254;
-						NPC->client->ps.customRGBA[1]=197;
-						NPC->client->ps.customRGBA[2]=73;
-						break;
-					case 3://orange
-						NPC->client->ps.customRGBA[0]=138;
-						NPC->client->ps.customRGBA[1]=83;
-						NPC->client->ps.customRGBA[2]=0;
-						break;
-					case 4://gold
-						NPC->client->ps.customRGBA[0]=254;
-						NPC->client->ps.customRGBA[1]=199;
-						NPC->client->ps.customRGBA[2]=14;
-						break;
-					case 5://blue2
-						NPC->client->ps.customRGBA[0]=68;
-						NPC->client->ps.customRGBA[1]=194;
-						NPC->client->ps.customRGBA[2]=217;
-						break;
-					case 6://red1
-						NPC->client->ps.customRGBA[0]=170;
-						NPC->client->ps.customRGBA[1]=3;
-						NPC->client->ps.customRGBA[2]=30;
-						break;
-					case 7://yellow1
-						NPC->client->ps.customRGBA[0]=225;
-						NPC->client->ps.customRGBA[1]=226;
-						NPC->client->ps.customRGBA[2]=144;
-						break;
-					case 8://violet2
-						NPC->client->ps.customRGBA[0]=167;
-						NPC->client->ps.customRGBA[1]=202;
-						NPC->client->ps.customRGBA[2]=255;
-						break;
-					}
-				}
-				else if ( !Q_stricmp( value, "jedi_rm" ) )
-				{
-					NPC->client->ps.customRGBA[3]=255;
-					switch (Q_irand(0,8))
-					{
-					default:
-					case 0://blue
-						NPC->client->ps.customRGBA[0]=127;
-						NPC->client->ps.customRGBA[1]=153;
-						NPC->client->ps.customRGBA[2]=255;
-						break;
-					case 1://green1
-						NPC->client->ps.customRGBA[0]=208;
-						NPC->client->ps.customRGBA[1]=249;
-						NPC->client->ps.customRGBA[2]=85;
-						break;
-					case 2://blue2
-						NPC->client->ps.customRGBA[0]=181;
-						NPC->client->ps.customRGBA[1]=207;
-						NPC->client->ps.customRGBA[2]=255;
-						break;
-					case 3://gold
-						NPC->client->ps.customRGBA[0]=138;
-						NPC->client->ps.customRGBA[1]=83;
-						NPC->client->ps.customRGBA[2]=0;
-						break;
-					case 4://gold
-						NPC->client->ps.customRGBA[0]=224;
-						NPC->client->ps.customRGBA[1]=171;
-						NPC->client->ps.customRGBA[2]=44;
-						break;
-					case 5://green2
-						NPC->client->ps.customRGBA[0]=49;
-						NPC->client->ps.customRGBA[1]=155;
-						NPC->client->ps.customRGBA[2]=131;
-						break;
-					case 6://red1
-						NPC->client->ps.customRGBA[0]=163;
-						NPC->client->ps.customRGBA[1]=79;
-						NPC->client->ps.customRGBA[2]=17;
-						break;
-					case 7://violet2
-						NPC->client->ps.customRGBA[0]=148;
-						NPC->client->ps.customRGBA[1]=104;
-						NPC->client->ps.customRGBA[2]=228;
-						break;
-					case 8://green3
-						NPC->client->ps.customRGBA[0]=138;
-						NPC->client->ps.customRGBA[1]=136;
-						NPC->client->ps.customRGBA[2]=0;
-						break;
-					}
-				}
-				else if ( !Q_stricmp( value, "jedi_tf" ) )
-				{
-					NPC->client->ps.customRGBA[3]=255;
-					switch (Q_irand(0,5))
-					{
-					default:
-					case 0://green1
-						NPC->client->ps.customRGBA[0]=255;
-						NPC->client->ps.customRGBA[1]=235;
-						NPC->client->ps.customRGBA[2]=100;
-						break;
-					case 1://blue1
-						NPC->client->ps.customRGBA[0]=62;
-						NPC->client->ps.customRGBA[1]=155;
-						NPC->client->ps.customRGBA[2]=255;
-						break;
-					case 2://red1
-						NPC->client->ps.customRGBA[0]=255;
-						NPC->client->ps.customRGBA[1]=110;
-						NPC->client->ps.customRGBA[2]=120;
-						break;
-					case 3://purple
-						NPC->client->ps.customRGBA[0]=180;
-						NPC->client->ps.customRGBA[1]=150;
-						NPC->client->ps.customRGBA[2]=255;
-						break;
-					case 4://flesh
-						NPC->client->ps.customRGBA[0]=255;
-						NPC->client->ps.customRGBA[1]=200;
-						NPC->client->ps.customRGBA[2]=212;
-						break;
-					case 5://base
-						NPC->client->ps.customRGBA[0]=255;
-						NPC->client->ps.customRGBA[1]=255;
-						NPC->client->ps.customRGBA[2]=255;
-						break;
-					}
-				}
-				else if ( !Q_stricmp( value, "jedi_zf" ) )
-				{
-					NPC->client->ps.customRGBA[3]=255;
-					switch (Q_irand(0,7))
-					{
-					default:
-					case 0://red1
-						NPC->client->ps.customRGBA[0]=204;
-						NPC->client->ps.customRGBA[1]=19;
-						NPC->client->ps.customRGBA[2]=21;
-						break;
-					case 1://orange1
-						NPC->client->ps.customRGBA[0]=255;
-						NPC->client->ps.customRGBA[1]=107;
-						NPC->client->ps.customRGBA[2]=40;
-						break;
-					case 2://pink1
-						NPC->client->ps.customRGBA[0]=255;
-						NPC->client->ps.customRGBA[1]=148;
-						NPC->client->ps.customRGBA[2]=155;
-						break;
-					case 3://gold
-						NPC->client->ps.customRGBA[0]=255;
-						NPC->client->ps.customRGBA[1]=164;
-						NPC->client->ps.customRGBA[2]=59;
-						break;
-					case 4://violet1
-						NPC->client->ps.customRGBA[0]=216;
-						NPC->client->ps.customRGBA[1]=160;
-						NPC->client->ps.customRGBA[2]=255;
-						break;
-					case 5://blue1
-						NPC->client->ps.customRGBA[0]=101;
-						NPC->client->ps.customRGBA[1]=159;
-						NPC->client->ps.customRGBA[2]=255;
-						break;
-					case 6://blue2
-						NPC->client->ps.customRGBA[0]=161;
-						NPC->client->ps.customRGBA[1]=226;
-						NPC->client->ps.customRGBA[2]=240;
-						break;
-					case 7://blue3
-						NPC->client->ps.customRGBA[0]=37;
-						NPC->client->ps.customRGBA[1]=155;
-						NPC->client->ps.customRGBA[2]=181;
-						break;
-					}
-				}
-				//[/CoOp]
 				else 
 				{
 					NPC->client->ps.customRGBA[0]=atoi(value);

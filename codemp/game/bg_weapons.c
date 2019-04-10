@@ -144,7 +144,7 @@ weaponData_t weaponData[WP_NUM_WEAPONS] =
 		0,						//	int		chargeSub;			// amount to subtract during charge on each interval
 		0,//1,						//int		altChargeSub;		// above for secondary
 		0,						//	int		maxCharge;			// stop subtracting once charged for this many ms
-		0//1500					//	int		altMaxCharge;		// above for secondary
+		0,//1500					//	int		altMaxCharge;		// above for secondary
 	},
 	{	// WP_BLASTER
 //		"E11 Blaster Rifle",	//	char	classname[32];		// Spawning name

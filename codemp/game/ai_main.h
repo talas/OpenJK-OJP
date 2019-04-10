@@ -1,9 +1,6 @@
 #include "bg_saga.h"
 
-//[ExpSys]
-//moved to bg_public.h since we want to use it in a variety of locations now.
-//#define DEFAULT_FORCEPOWERS		"5-1-000000000000000000"
-//[/ExpSys]
+#define DEFAULT_FORCEPOWERS		"5-1-000000000000000000"
 
 //#define FORCEJUMP_INSTANTMETHOD 1
 

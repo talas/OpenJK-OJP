@@ -1174,6 +1174,11 @@ qboolean CG_CalcFOVFromX( float fov_x )
 	cg.refdef.fov_x = fov_x;
 	cg.refdef.fov_y = fov_y;
 
+#ifdef _XBOX
+	if(cg.widescreen)
+		cg.refdef.fov_x *= 1.125f;
+#endif
+
 	return (inwater);
 }
 

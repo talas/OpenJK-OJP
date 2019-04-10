@@ -251,7 +251,6 @@ void SP_misc_portal_camera(gentity_t *ent);
 void SP_misc_portal_surface(gentity_t *ent);
 void SP_misc_weather_zone( gentity_t *ent );
 //[CoOp]
-void SP_misc_model_breakable( gentity_t *self );
 void SP_misc_exploding_crate(gentity_t *ent);
 void SP_misc_gas_tank(gentity_t *ent);
 void SP_misc_trip_mine(gentity_t *ent);
@@ -378,7 +377,6 @@ void SP_NPC_Cultist_Saber_Powers( gentity_t *self );
 void SP_NPC_Cultist_Destroyer( gentity_t *self );
 void SP_NPC_Cultist_Commando( gentity_t *self );
 //[CoOp]
-void SP_NPC_Human_Merc( gentity_t *self );
 void SP_NPC_HazardTrooper( gentity_t *self );
 //[/CoOp]
 
@@ -594,7 +592,6 @@ spawn_t	spawns[] = {
 	{"misc_model_ammo_power_converter", SP_misc_model_ammo_power_converter},
 	{"misc_model_health_power_converter", SP_misc_model_health_power_converter},
 	//[CoOp]	
-	{"misc_model_breakable", SP_misc_model_breakable},
 	{"misc_exploding_crate", SP_misc_exploding_crate},
 	{"misc_gas_tank", SP_misc_gas_tank},
 	{"misc_trip_mine", SP_misc_trip_mine},
@@ -716,7 +713,6 @@ spawn_t	spawns[] = {
 	{"NPC_Cultist_Commando", SP_NPC_Cultist_Commando },
 
 	//[CoOp]	
-	{"NPC_Human_Merc", SP_NPC_Human_Merc },
 	{"NPC_HazardTrooper", SP_NPC_HazardTrooper },
 	//[/CoOp]
 

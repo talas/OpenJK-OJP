@@ -296,6 +296,7 @@ static void Howler_TryDamage( int damage, qboolean tongue, qboolean knockdown )
 					return;
 				}
 			}
+
 			//FIXME: some sort of damage effect (claws and tongue are cutting you... blood?)
 			G_Damage( victim, NPC, NPC, dir, tr.endpos, damage, DAMAGE_NO_KNOCKBACK, MOD_MELEE );
 			if ( knockdown && victim->health > 0 )

@@ -1,4 +1,6 @@
-
+#if defined(_XBOX) && defined(_UI)
+extern char *HolocronIcons[];
+#else
 char *HolocronIcons[] = {
 	"gfx/mp/f_icon_lt_heal",		//FP_HEAL,
 	"gfx/mp/f_icon_levitation",		//FP_LEVITATION,
@@ -19,3 +21,4 @@ char *HolocronIcons[] = {
 	"gfx/mp/f_icon_saber_defend",	//FP_SABER_DEFENSE,
 	"gfx/mp/f_icon_saber_throw"		//FP_SABERTHROW
 };
+#endif

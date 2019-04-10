@@ -246,12 +246,7 @@ static inline float LittleFloat (const float l) { return FloatSwap(&l); }
 #define stricmp strcasecmp
 
 #define	MAC_STATIC // bk: FIXME
-
-#if defined(_WIN32) && !defined(__GNUC__)
 #define ID_INLINE inline 
-#elif !defined(_WIN32)
-#define ID_INLINE inline 
-#endif
 
 #ifdef __i386__
 #define	CPUSTRING	"linux-i386"
@@ -261,11 +256,7 @@ static inline float LittleFloat (const float l) { return FloatSwap(&l); }
 #define	CPUSTRING	"linux-other"
 #endif
 
-#if defined(_WIN32) && !defined(__GNUC__)
 #define	PATH_SEP '/'
-#elif !defined(_WIN32)
-#define	PATH_SEP '/'
-#endif
 
 // bk001205 - try
 #ifdef Q3_STATIC
@@ -275,26 +266,7 @@ static inline float LittleFloat (const float l) { return FloatSwap(&l); }
 #define	BOTLIB_HARD_LINKED
 #endif
 
-#if defined(_WIN32) && !defined(__GNUC__)
-
-#if !idppc 
-inline static short BigShort( short l) { return ShortSwap(l); }
-#define LittleShort
-inline static int BigLong(int l) { return LongSwap(l); }
-#define LittleLong
-inline static float BigFloat(const float *l) { return FloatSwap(l); }
-#define LittleFloat
-#elif
-#define BigShort
-inline static short LittleShort(short l) { return ShortSwap(l); }
-#define BigLong
-inline static int LittleLong (int l) { return LongSwap(l); }
-#define BigFloat
-inline static float LittleFloat (const float *l) { return FloatSwap(l); }
-#endif
-
-#elif !defined(_WIN32)
-#if !idppc 
+#if !idppc
 inline static short BigShort( short l) { return ShortSwap(l); }
 #define LittleShort
 inline static int BigLong(int l) { return LongSwap(l); }
@@ -308,7 +280,6 @@ inline static short LittleShort(short l) { return ShortSwap(l); }
 inline static int LittleLong (int l) { return LongSwap(l); }
 #define BigFloat
 inline static float LittleFloat (const float *l) { return FloatSwap(l); }
-#endif
 #endif
 
 #endif
@@ -360,6 +331,9 @@ typedef unsigned short		word;
 typedef unsigned long		ulong;
 
 typedef enum {qfalse, qtrue}	qboolean;
+#ifdef _XBOX
+#define	qboolean	int		//don't want strict type checking on the qboolean
+#endif
 
 typedef int		qhandle_t;
 typedef int		thandle_t; //rwwRMG - inserted
@@ -1176,11 +1150,6 @@ CT_MAX
 
 extern vec4_t colorTable[CT_MAX];
 
-//[CoOp]
-//added clear color for easy of use.
-extern	vec4_t		colorClear;
-//[/CoOp]
-
 extern	vec4_t		colorBlack;
 extern	vec4_t		colorRed;
 extern	vec4_t		colorGreen;
@@ -1236,6 +1205,28 @@ extern	vec3_t	axisDefault[3];
 
 #define	IS_NAN(x) (((*(int *)&x)&nanmask)==nanmask)
 
+#ifdef _XBOX
+inline void Q_CastShort2Float(float *f, const short *s)
+{
+	*f = ((float)*s);
+}
+
+inline void Q_CastUShort2Float(float *f, const unsigned short *s)
+{
+	*f = ((float)*s);
+}
+
+inline void Q_CastShort2FloatScale(float *f, const short *s, float scale)
+{
+	*f = ((float)*s) * scale;
+}
+
+inline void Q_CastUShort2FloatScale(float *f, const unsigned short *s, float scale)
+{
+	*f = ((float)*s) * scale;
+}
+#endif // _XBOX
+
 #if idppc
 
 static inline float Q_rsqrt( float number ) {
@@ -1276,16 +1267,121 @@ float powf ( float x, int y );
 int DirToByte( vec3_t dir );
 void ByteToDir( int b, vec3_t dir );
 
+#ifdef _XBOX
+// SSE Vectorized math functions
+inline vec_t DotProduct( const vec3_t v1, const vec3_t v2 ) {
+#if defined (_XBOX)		/// use xbox stuff
+	float res;
+    __asm {
+        mov     edx, v1
+        movss   xmm1, [edx]
+        movhps  xmm1, [edx+4]
+
+        mov     edx, v2
+        movss   xmm2, [edx]
+        movhps  xmm2, [edx+4]
+
+        mulps   xmm1, xmm2
+
+        movaps  xmm0, xmm1
+
+        shufps  xmm0, xmm0, 32h
+        addps   xmm1, xmm0
+
+        shufps  xmm0, xmm0, 32h
+        addps   xmm1, xmm0
+
+        movss   [res], xmm1
+    }
+    return res;
+#else
+	return v1[0]*v2[0] + v1[1]*v2[1] + v1[2]*v2[2];
+#endif
+}
+
+inline void VectorSubtract( const vec3_t veca, const vec3_t vecb, vec3_t o ) {
+#ifdef _XBOX
+	__asm {
+        mov      ecx, veca
+        movss    xmm0, [ecx]
+        movhps   xmm0, [ecx+4]
+
+        mov      edx, vecb
+        movss    xmm1, [edx]
+        movhps   xmm1, [edx+4]
+
+        subps    xmm0, xmm1
+
+        mov      eax, o
+        movss    [eax], xmm0
+        movhps   [eax+4], xmm0
+    }
+#else
+	o[0] = veca[0]-vecb[0];
+	o[1] = veca[1]-vecb[1];
+	o[2] = veca[2]-vecb[2];
+#endif
+}
+
+inline void VectorAdd( const vec3_t veca, const vec3_t vecb, vec3_t o ) {
+#ifdef _XBOX
+  __asm {
+        mov      ecx, veca
+        movss    xmm0, [ecx]
+        movhps   xmm0, [ecx+4]
+
+        mov      edx, vecb
+        movss    xmm1, [edx]
+        movhps   xmm1, [edx+4]
+
+        addps    xmm0, xmm1
+
+        mov      eax, o
+        movss    [eax], xmm0
+        movhps   [eax+4], xmm0
+    }
+#else
+	o[0] = veca[0]+vecb[0];
+	o[1] = veca[1]+vecb[1];
+	o[2] = veca[2]+vecb[2];
+#endif
+}
+
+inline void VectorScale( const vec3_t i, vec_t scale, vec3_t o ) {
+#ifdef _XBOX
+__asm {
+        movss    xmm0, scale
+        shufps   xmm0, xmm0, 0h
+
+        mov      edx, i
+        movss    xmm1, [edx]
+        movhps   xmm1, [edx+4]
+
+        mulps    xmm0, xmm1
+
+        mov      eax, o
+        movss    [eax], xmm0
+        movhps   [eax+4], xmm0
+    }
+#else
+	o[0] = i[0]*scale;
+	o[1] = i[1]*scale;
+	o[2] = i[2]*scale;
+#endif
+}
+#endif	// _XBOX
+
 #if	1
 //rwwRMG - added math defines
 #define minimum(x,y) ((x)<(y)?(x):(y))
 #define maximum(x,y) ((x)>(y)?(x):(y))
 
+#ifndef _XBOX	// Done above to use SSE
 #define DotProduct(x,y)					((x)[0]*(y)[0]+(x)[1]*(y)[1]+(x)[2]*(y)[2])
 #define VectorSubtract(a,b,c)			((c)[0]=(a)[0]-(b)[0],(c)[1]=(a)[1]-(b)[1],(c)[2]=(a)[2]-(b)[2])
 #define VectorAdd(a,b,c)				((c)[0]=(a)[0]+(b)[0],(c)[1]=(a)[1]+(b)[1],(c)[2]=(a)[2]+(b)[2])
 #define	VectorScale(v, s, o)			((o)[0]=(v)[0]*(s),(o)[1]=(v)[1]*(s),(o)[2]=(v)[2]*(s))
-
+#endif
 #define VectorCopy(a,b)					((b)[0]=(a)[0],(b)[1]=(a)[1],(b)[2]=(a)[2])
 #define VectorCopy4(a,b)				((b)[0]=(a)[0],(b)[1]=(a)[1],(b)[2]=(a)[2],(b)[3]=(a)[3])
 #define	VectorMA(v, s, b, o)			((o)[0]=(v)[0]+(b)[0]*(s),(o)[1]=(v)[1]+(b)[1]*(s),(o)[2]=(v)[2]+(b)[2]*(s))
@@ -1384,11 +1480,63 @@ static ID_INLINE int VectorCompare( const vec3_t v1, const vec3_t v2 ) {
 }
 
 static ID_INLINE vec_t VectorLength( const vec3_t v ) {
+#ifdef _XBOX
+	float res;
+
+	__asm {
+        mov     edx, v
+        movss   xmm1, [edx]
+        movhps  xmm1, [edx+4]
+
+        movaps  xmm2, xmm1
+
+        mulps   xmm1, xmm2
+
+        movaps  xmm0, xmm1
+
+        shufps  xmm0, xmm0, 32h
+        addps   xmm1, xmm0
+
+        shufps  xmm0, xmm0, 32h
+        addps   xmm1, xmm0
+
+        sqrtss  xmm1, xmm1
+        movss   [res], xmm1
+    }
+
+    return res;
+#else
 	return (vec_t)sqrt (v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
+#endif
 }
 
 static ID_INLINE vec_t VectorLengthSquared( const vec3_t v ) {
+#ifdef _XBOX
+	float res;
+	__asm {
+        mov     edx, v
+        movss   xmm1, [edx]
+        movhps  xmm1, [edx+4]
+
+        movaps  xmm2, xmm1
+
+        mulps   xmm1, xmm2
+
+        movaps  xmm0, xmm1
+
+        shufps  xmm0, xmm0, 32h
+        addps   xmm1, xmm0
+
+        shufps  xmm0, xmm0, 32h
+        addps   xmm1, xmm0
+
+        movss   [res], xmm1
+    }
+
+    return res;
+#else
 	return (v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
+#endif
 }
 
 static ID_INLINE vec_t Distance( const vec3_t p1, const vec3_t p2 ) {
@@ -1592,14 +1740,6 @@ void	Q_strcat( char *dest, int size, const char *src );
 int Q_PrintStrlen( const char *string );
 // removes color sequences from string
 char *Q_CleanStr( char *string );
-
-char	*Q_stristr( const char *s, const char *find);
-char	*Q_StrReplace(char *haystack, char *needle, char *newp);
-
-qboolean COM_BitCheck( const int array[], int bitNum );
-void COM_BitSet( int array[], int bitNum );
-void COM_BitClear( int array[], int bitNum );
-
 
 //=============================================
 
@@ -2988,7 +3128,7 @@ String ID Tables
 
 ========================================================================
 */
-#define ENUM2STRING(arg)   { #arg,arg }
+#define ENUM2STRING(arg)   #arg,arg
 typedef struct stringID_table_s
 {
 	char	*name;

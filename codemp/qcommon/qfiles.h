@@ -243,10 +243,6 @@ typedef struct {
 
 //=============================================================================
 
-#ifdef _XBOX
-removed
-#else // _XBOX
-
 typedef struct {
 	int		fileofs, filelen;
 } lump_t;

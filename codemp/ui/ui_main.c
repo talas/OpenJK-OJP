@@ -1971,9 +1971,6 @@ static void UI_DrawForceMastery(rectDef_t *rect, float scale, vec4_t color, int 
 		i = min;
 	}
 	//[ExpSys]
-	//initialize s to make the compiler happy.  However, the below code shouldn't ever NOT set s.
-	s = (char *)UI_GetStringEdString("MP_INGAME", forceMasteryLevels[0]);
-
 	//allowing for dynamic skill point totals.  Determine rank based on the highest mastery
 	//level the player has points for.
 	for(x = NUM_FORCE_MASTERY_LEVELS-1; x >= 0; x--)
@@ -2617,9 +2614,7 @@ void UpdateForceStatus()
 		char	info[MAX_INFO_STRING];
 		//[CoOp]
 		int gametype;
-
 		trap_GetConfigString( CS_SERVERINFO, info, sizeof(info) );
-
 		gametype = atoi(Info_ValueForKey(info, "g_gametype"));
 
 		if (gametype == GT_SINGLE_PLAYER)

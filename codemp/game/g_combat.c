@@ -2798,7 +2798,7 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 		//if ( self->client->NPC_class == CLASS_BOBAFETT && self->client->moveType == MT_FLYSWIM )
 		if (0)
 		{
-			Boba_FlyStop( self );
+			Boba_FlyStop( self ); // 74145: is this right?
 		}
 		//[NPCSandCreature]
 		if ( self->s.NPC_class == CLASS_RANCOR || self->s.NPC_class == CLASS_WAMPA || self->s.NPC_class == CLASS_SAND_CREATURE)
@@ -4031,7 +4031,7 @@ void G_Dismember( gentity_t *ent, gentity_t *enemy, vec3_t point, int limbType, 
 		Com_sprintf( stubCapName, sizeof( stubCapName), "%s_cap_r_leg", stubName );
 	}
 
-	if (ent->ghoul2 && limbName[0] && trap_G2API_GetSurfaceRenderStatus(ent->ghoul2, 0, limbName))
+	if (ent->ghoul2 && limbName && trap_G2API_GetSurfaceRenderStatus(ent->ghoul2, 0, limbName))
 	{ //is it already off? If so there's no reason to be doing it again, so get out of here.
 		return;
 	}
@@ -4148,7 +4148,7 @@ void G_Dismember( gentity_t *ent, gentity_t *enemy, vec3_t point, int limbType, 
 		}
 	}
 
-	if (ent->s.eType == ET_NPC && ent->ghoul2 && limbName[0] && stubCapName[0] )
+	if (ent->s.eType == ET_NPC && ent->ghoul2 && limbName && stubCapName)
 	{ //if it's an npc remove these surfs on the server too. For players we don't even care cause there's no further dismemberment after death.
 		trap_G2API_SetSurfaceOnOff(ent->ghoul2, limbName, 0x00000100);
 		trap_G2API_SetSurfaceOnOff(ent->ghoul2, stubCapName, 0);

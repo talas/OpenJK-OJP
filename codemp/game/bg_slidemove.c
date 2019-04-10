@@ -654,8 +654,8 @@ qboolean	PM_SlideMove( qboolean gravity ) {
 
 	if ( gravity ) {
 		VectorCopy( pm->ps->velocity, endVelocity );
-		endVelocity[2] -= pm->ps->gravity * pml.frametime+3;
-
+		endVelocity[2] -= pm->ps->gravity * pml.frametime;
+		endVelocity[2] -= 3;
 		pm->ps->velocity[2] = ( pm->ps->velocity[2] + endVelocity[2] ) * 0.5;
 		primal_velocity[2] = endVelocity[2];
 		if ( pml.groundPlane ) {
@@ -913,7 +913,12 @@ void PM_StepSlideMove( qboolean gravity ) {
 	if (pm->ps->clientNum >= MAX_CLIENTS)
 	{
 		// apply ground friction, even if on ladder
-		if (pEnt && ( pEnt->s.NPC_class == CLASS_ATST || (pEnt->s.NPC_class == CLASS_VEHICLE && pEnt->m_pVehicle && pEnt->m_pVehicle->m_pVehicleInfo->type == VH_WALKER) ) )
+		if (pEnt &&
+			pEnt->s.NPC_class == CLASS_ATST ||
+				(pEnt->s.NPC_class == CLASS_VEHICLE &&
+					pEnt->m_pVehicle &&
+					pEnt->m_pVehicle->m_pVehicleInfo->type == VH_WALKER)
+			)
 		{//AT-STs can step high
 			up[2] += 66.0f;
 			isGiant = qtrue;

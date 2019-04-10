@@ -550,20 +550,14 @@ qboolean G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 		ent->s.weapon != WP_THERMAL &&
 		ent->s.weapon != WP_TRIP_MINE &&
 		ent->s.weapon != WP_DET_PACK &&
-		//[BoltBlockSys]
-		//ent->s.weapon != WP_DEMP2 &&
-		//[/BoltBlockSys]
+		ent->s.weapon != WP_DEMP2 &&
 		ent->methodOfDeath != MOD_REPEATER_ALT &&
 		ent->methodOfDeath != MOD_FLECHETTE_ALT_SPLASH &&
 		ent->methodOfDeath != MOD_CONC &&
 		ent->methodOfDeath != MOD_CONC_ALT &&
 		other->client->ps.saberBlockTime < level.time &&
 		!isKnockedSaber &&
-		//[BoltBlockSys]
-		//use the OJP version of the sabercanblock.
-		OJP_SaberCanBlock(other, ent, qfalse, vec3_origin, -1, -1) )
-		//WP_SaberCanBlock(other, ent->r.currentOrigin, 0, 0, qtrue, 0))
-		//[/BoltBlockSys]
+		WP_SaberCanBlock(other, ent->r.currentOrigin, 0, 0, qtrue, 0))
 	*/
 	//[/BoltBlockSys]
 	{ //only block one projectile per 200ms (to prevent giant swarms of projectiles being blocked)
@@ -1025,12 +1019,6 @@ void G_RunMissile( gentity_t *ent ) {
 			{ //since we used G2TRFLAG_GETSURFINDEX, tr.surfaceFlags will actually contain the index of the surface on the ghoul2 model we collided with.
 				g2Hit->client->g2LastSurfaceHit = tr.surfaceFlags;
 				g2Hit->client->g2LastSurfaceTime = level.time;
-				//[BugFix12]
-				//BUGFIX12RAFIXME - ugh, can't seem to get the model index on the 
-				//trap_G2Traces.  These probably need to be replaced with the more
-				//indepth G2traces.  For now, just assume that the player model was hit.
-				g2Hit->client->g2LastSurfaceModel = G2MODEL_PLAYER;
-				//[/BugFix12]
 			}
 
 			if (g2Hit->ghoul2)

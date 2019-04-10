@@ -1802,5 +1802,5 @@ stringID_table_t animTable [MAX_ANIMATIONS+1] =
 	ENUM2STRING(BOTH_P6_S1_B_),		//[backblock]
 	ENUM2STRING(BOTH_P7_S1_B_),		//[backblock]	
 	//must be terminated
-	{NULL,-1}
+	NULL,-1
 };

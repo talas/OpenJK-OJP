@@ -199,7 +199,9 @@ void WP_InitForcePowers( gentity_t *ent )
 		maxRank = FORCE_MASTERY_JEDI_MASTER;
 		trap_Cvar_Set( "g_maxForceRank", va("%i", maxRank) );
 	}
+	*/
 
+	/*
 	//[ForceSys]
 	if(g_gametype.integer == GT_POWERDUEL && ent->client->sess.duelTeam == DUELTEAM_DOUBLE)
 	{//double saberers have a lower force rank than the sole dueler while in power duel.
@@ -6810,21 +6812,13 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 			/*
 			if (g_gametype.integer == GT_SIEGE)
 			{
-				//[FatigueSys]
-				//removing the siege regen restriction for players carrying an objective since FP is now used for more 
-				//than just Force Powers.
-				*//*
 				if (self->client->holdingObjectiveItem &&
 					g_entities[self->client->holdingObjectiveItem].inuse &&
 					g_entities[self->client->holdingObjectiveItem].genericValue15)
 				{ //1 point per 7 seconds.. super slow
 					self->client->ps.fd.forcePowerRegenDebounceTime = level.time + 7000;
 				}
-				*//*
-
-				if (self->client->siegeClass != -1 &&
-				//else if (self->client->siegeClass != -1 &&
-				//[/FatigueSys]
+				else if (self->client->siegeClass != -1 &&
 					(bgSiegeClasses[self->client->siegeClass].classflags & (1<<CFL_FASTFORCEREGEN)))
 				{ //if this is siege and our player class has the fast force regen ability, then recharge with 1/5th the usual delay
 					self->client->ps.fd.forcePowerRegenDebounceTime = level.time + (g_forceRegenTime.integer*0.2);

@@ -620,9 +620,7 @@ static void AnimateVehicle( Vehicle_t *pVeh )
 			}
 			else
 			{//wide open for you, baby
-				//ROP VEHICLE_IMP START
 				Anim = BOTH_STAND2;
-				//ROP VEHICLE_IMP END
 			}
 		}
 	}

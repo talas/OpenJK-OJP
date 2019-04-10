@@ -1247,11 +1247,10 @@ static void WP_FireBowcaster( gentity_t *ent, qboolean altFire )
 		WP_BowcasterAltFire( ent );
 	}
 	else
+	*/
 	{
 		WP_BowcasterMainFire( ent );
 	}
-	*/
-	WP_BowcasterMainFire( ent );
 }
 
 
@@ -1751,59 +1750,6 @@ static void WP_TraceSetStart( gentity_t *ent, vec3_t start, vec3_t mins, vec3_t 
 	}
 }
 
-
-//[CoOp]
-void WP_Explode( gentity_t *self )
-{//make this entity explode
-	gentity_t	*attacker = self;
-	vec3_t		forward={0,0,1};
-
-	// stop chain reaction runaway loops
-	self->takedamage = qfalse;
-
-	self->s.loopSound = 0;
-
-	if ( !self->client )
-	{
-		AngleVectors( self->s.angles, forward, NULL, NULL );
-	}
-
-	/* RAFIXME - need to figure this thingy out.
-	if ( self->fxID > 0 )
-	{
-		G_PlayEffect( self->fxID, self->r.currentOrigin, forward );
-	}
-	*/
-	
-	if ( self->s.owner )
-	{
-		attacker = &g_entities[self->s.owner];
-	}
-	else if ( self->activator )
-	{
-		attacker = self->activator;
-	}
-
-	if ( self->splashDamage > 0 && self->splashRadius > 0 )
-	{ 
-		G_RadiusDamage( self->r.currentOrigin, attacker, self->splashDamage, 
-			self->splashRadius, self/*don't ignore attacker*/, self,
-			/*RAFIXME - impliment this mod? MOD_EXPLOSIVE_SPLASH*/ MOD_ROCKET_SPLASH );
-	}
-
-	if ( self->target )
-	{
-		G_UseTargets( self, attacker );
-	}
-
-	G_SetOrigin( self, self->r.currentOrigin );
-
-	self->nextthink = level.time + 50;
-	self->think = G_FreeEntity;
-}
-//[/CoOp]
-
-
 void WP_ExplosiveDie(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod)
 {
 	laserTrapExplode(self);
@@ -1850,10 +1796,10 @@ static void WP_CreateFlechetteBouncyThing( vec3_t start, vec3_t fwd, gentity_t *
 
 	missile->bounceCount = 50;
 
-	missile->damage = FLECHETTE_DAMAGE;
+	missile->damage = FLECHETTE_ALT_DAMAGE;
 	missile->dflags = 0;
-//	missile->splashDamage = FLECHETTE_ALT_SPLASH_DAM;
-//	missile->splashRadius = FLECHETTE_ALT_SPLASH_RAD;
+	missile->splashDamage = FLECHETTE_ALT_SPLASH_DAM;
+	missile->splashRadius = FLECHETTE_ALT_SPLASH_RAD;
 
 	missile->r.svFlags = SVF_USE_CURRENT_ORIGIN;
 
@@ -1867,41 +1813,23 @@ static void WP_CreateFlechetteBouncyThing( vec3_t start, vec3_t fwd, gentity_t *
 static void WP_FlechetteAltFire( gentity_t *self )
 //---------------------------------------------------------
 {
-	vec3_t		fwd, angs;
-	gentity_t	*missile;
+	vec3_t 	dir, fwd, start, angs;
 	int i;
 
-	for (i = 0; i < FLECHETTE_SHOTS+FLECHETTE_SHOTS; i++ )
+	vectoangles( forward, angs );
+	VectorCopy( muzzle, start );
+
+	WP_TraceSetStart( self, start, vec3_origin, vec3_origin );//make sure our start point isn't on the other side of a wall
+
+	for ( i = 0; i < 2; i++ )
 	{
-		vectoangles( forward, angs );
+		VectorCopy( angs, dir );
 
-		if (i != 0)
-		{ //do nothing on the first shot, it will hit the crosshairs
-			angs[PITCH] += crandom() * FLECHETTE_SPREAD+0.5f;
-			angs[YAW]	+= crandom() * FLECHETTE_SPREAD+0.5f;
-		}
+		dir[PITCH] -= random() * 4 + 8; // make it fly upwards
+		dir[YAW] += crandom() * 2;
+		AngleVectors( dir, fwd, NULL, NULL );
 
-		AngleVectors( angs, fwd, NULL, NULL );
-
-		missile = CreateMissile( muzzle, fwd, FLECHETTE_VELOCITY, 10000, self, qfalse);
-
-		missile->classname = "flech_proj";
-		missile->s.weapon = WP_FLECHETTE;
-
-		VectorSet( missile->r.maxs, FLECHETTE_SIZE, FLECHETTE_SIZE, FLECHETTE_SIZE );
-		VectorScale( missile->r.maxs, -1, missile->r.mins );
-
-		missile->damage = FLECHETTE_DAMAGE;
-		missile->dflags = DAMAGE_DEATH_KNOCKBACK;
-		missile->methodOfDeath = MOD_FLECHETTE;
-		missile->clipmask = MASK_SHOT | CONTENTS_LIGHTSABER;
-
-		// we don't want it to bounce forever
-		missile->bounceCount = Q_irand(5,8);
-
-		missile->flags |= FL_BOUNCE_SHRAPNEL;
-		missile->damageDecreaseTime = level.time + 300;
-		
+		WP_CreateFlechetteBouncyThing( start, fwd, self );
 	}
 }
 #endif
@@ -3170,7 +3098,6 @@ void BlowDetpacks(gentity_t *ent)
 				found->think = DetPackBlow;
 				found->nextthink = level.time + 100 + random() * 200;
 				G_Sound( found, CHAN_BODY, G_SoundIndex("sound/weapons/detpack/warning.wav") );
-
 				//[CoOp]
 				// would be nice if this actually worked?
 				AddSoundEvent( NULL, found->r.currentOrigin, found->splashRadius*2, AEL_DANGER, qfalse, qtrue );//FIXME: are we on ground or not?

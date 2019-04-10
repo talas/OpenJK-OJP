@@ -9,6 +9,7 @@
  * $Revision: 1.4 $
  *
  *****************************************************************************/
+#pragma warning(disable : 4701) //local variable may be used without having been initialized
 
 #include "g_local.h"
 

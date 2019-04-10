@@ -7,10 +7,6 @@
 vec3_t	vec3_origin = {0,0,0};
 vec3_t	axisDefault[3] = { { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 } };
 
-//[CoOp]
-//added clear color for easy of use.
-vec4_t		colorClear  = {0, 0, 0, 0};
-//[/CoOp]
 vec4_t		colorBlack	= {0, 0, 0, 1};
 vec4_t		colorRed	= {1, 0, 0, 1};
 vec4_t		colorGreen	= {0, 1, 0, 1};

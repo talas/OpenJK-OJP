@@ -153,25 +153,6 @@ void Jedi_ClearTimers( gentity_t *ent )
 	//[/CoOp]
 }
 
-//[CoOp]
-//ported from SP
-qboolean Jedi_CultistDestroyer( gentity_t *self )
-{ 
-	if ( !self || !self->client )
-	{
-		return qfalse;
-	}
-	//FIXME: just make a flag, dude!
-	if ( self->client->NPC_class == CLASS_REBORN
-		&& self->s.weapon == WP_MELEE
-		&& Q_stricmp( "cultist_destroyer", self->NPC_type ) == 0 )
-	{
-		return qtrue;
-	}
-	return qfalse;
-}
-//[/CoOp]
-
 void Jedi_PlayBlockedPushSound( gentity_t *self )
 {
 	if ( !self->s.number )
@@ -2042,7 +2023,7 @@ static void Jedi_AdjustSaberAnimLevel( gentity_t *self, int newLevel )
 	//[/StanceSelection]
 
 	if ( self->client->playerTeam == NPCTEAM_ENEMY )
-	{//racc - force stance types based on rank or NPC class
+	{
 		//[CoOp]
 		//special stances for specific cultist types
 		//FIXME: CLASS_CULTIST + self->NPC->rank instead of these Q_stricmps?
@@ -2296,15 +2277,25 @@ saberMoveName_t G_PickAutoMultiKick( gentity_t *self, qboolean allowSingles, qbo
 
 extern qboolean G_CanKickEntity( gentity_t *self, gentity_t *target );
 extern saberMoveName_t G_PickAutoKick( gentity_t *self, gentity_t *enemy, qboolean storeMove );
-//[/CoOp]
 extern float NPC_EnemyRangeFromBolt( int boltIndex );
+//[/CoOp]
 static void Jedi_CombatDistance( int enemy_dist )
 {//FIXME: for many of these checks, what we really want is horizontal distance to enemy
+	if ( NPC->client->ps.fd.forcePowersActive&(1<<FP_GRIP) &&
+		NPC->client->ps.fd.forcePowerLevel[FP_GRIP] > FORCE_LEVEL_1 )
+	{//when gripping, don't move
+		return;
+	}
+	else if ( !TIMER_Done( NPC, "gripping" ) )
+	{//stopped gripping, clear timers just in case
+		TIMER_Set( NPC, "gripping", -level.time );
+		TIMER_Set( NPC, "attackDelay", Q_irand( 0, 1000 ) );
+	}
+
 	//[CoOp]
 	if ( Jedi_CultistDestroyer( NPC ) )
-	{//destroyers suicide charge
+	{
 		Jedi_Advance();
-		//always run, regardless of what navigation tells us to do!
 		NPC->client->ps.speed = NPCInfo->stats.runSpeed;
 		ucmd.buttons &= ~BUTTON_WALKING;
 		return;
@@ -2322,17 +2313,6 @@ static void Jedi_CombatDistance( int enemy_dist )
 		}
 	}
 	//[/CoOp]
-
-	if ( NPC->client->ps.fd.forcePowersActive&(1<<FP_GRIP) &&
-		NPC->client->ps.fd.forcePowerLevel[FP_GRIP] > FORCE_LEVEL_1 )
-	{//when gripping, don't move
-		return;
-	}
-	else if ( !TIMER_Done( NPC, "gripping" ) )
-	{//stopped gripping, clear timers just in case
-		TIMER_Set( NPC, "gripping", -level.time );
-		TIMER_Set( NPC, "attackDelay", Q_irand( 0, 1000 ) );
-	}
 	
 	if ( NPC->client->ps.fd.forcePowersActive&(1<<FP_DRAIN) &&
 		NPC->client->ps.fd.forcePowerLevel[FP_DRAIN] > FORCE_LEVEL_1 )
@@ -3963,7 +3943,7 @@ evasionType_t Jedi_SaberBlockGo( gentity_t *self, usercmd_t *cmd, vec3_t pHitloc
 			}
 		}
 	}
-
+	// Revenge of the Tabs
 	if (	( self->client->NPC_class == CLASS_BOBAFETT //boba fett
 				|| (self->client->NPC_class == CLASS_REBORN && self->s.weapon != WP_SABER) //non-saber reborn (cultist)
 			)
@@ -4455,9 +4435,9 @@ evasionType_t Jedi_SaberBlockGo( gentity_t *self, usercmd_t *cmd, vec3_t pHitloc
 			}
 		}
 		else
-		{//saber is busy or the attack is very low
+		{
 			if ( incoming || !saberBusy )
-			{//try blocking
+			{
 				if ( rightdot >= 0 )
 				{
 					self->client->ps.saberBlocked = BLOCKED_LOWER_RIGHT;
@@ -5079,6 +5059,7 @@ static qboolean Jedi_SaberBlock( void )
 		if ( evasionType != EVASION_DODGE )
 		{//(not dodge)
 			int parryReCalcTime;
+
 			if ( !NPC->client->ps.saberInFlight )
 			{//make sure saber is on
 				WP_ActivateSaber(NPC);
@@ -5115,7 +5096,7 @@ static qboolean Jedi_SaberBlock( void )
 			}
 		}
 		else
-		{//dodged.
+		{
 			int dodgeTime = NPC->client->ps.torsoTimer;
 			if ( NPCInfo->rank > RANK_LT_COMM && NPC->client->NPC_class != CLASS_DESANN )
 			{//higher-level guys can dodge faster
@@ -6368,22 +6349,6 @@ static qboolean Jedi_AttackDecide( int enemy_dist )
 	if ( !TIMER_Done( NPC, "allyJediDelay" ) )
 	{//jedi allies hold off attacking non-saber using enemies.  Probably to give the
 		//player more oppurtunity to battle.
-		return qfalse;
-	}
-
-	if ( Jedi_CultistDestroyer( NPC ) )
-	{//destroyer
-		if ( enemy_dist <= 32 )
-		{//go boom!
-			NPC->flags |= FL_GODMODE;
-			NPC->takedamage = qfalse;
-
-			NPC_SetAnim( NPC, SETANIM_BOTH, BOTH_FORCE_RAGE, SETANIM_FLAG_HOLD|SETANIM_FLAG_OVERRIDE );
-			NPC->client->ps.fd.forcePowersActive |= ( 1 << FP_RAGE );
-//RAFIXME - useDebounceTime not implimented
-			NPC->painDebounceTime /*= NPC->useDebounceTime*/ = level.time + NPC->client->ps.torsoTimer;
-			return qtrue;
-		}
 		return qfalse;
 	}
 	//[/CoOp]
@@ -8881,8 +8846,7 @@ float Twins_DangerDist( void )
 
 extern void WP_Explode( gentity_t *self );
 qboolean Jedi_InSpecialMove( void )
-{//handles Jedi NPC behavior during special moves. returns true if we're doing something
-	//special.
+{
 	if ( NPC->client->ps.torsoAnim == BOTH_KYLE_PA_1
 		|| NPC->client->ps.torsoAnim == BOTH_KYLE_PA_2 
 		|| NPC->client->ps.torsoAnim == BOTH_KYLE_PA_3 
@@ -8891,7 +8855,7 @@ qboolean Jedi_InSpecialMove( void )
 		|| NPC->client->ps.torsoAnim == BOTH_PLAYER_PA_3
 		|| NPC->client->ps.torsoAnim == BOTH_FORCE_DRAIN_GRAB_END
 		|| NPC->client->ps.torsoAnim == BOTH_FORCE_DRAIN_GRABBED )
-	{//grappling someone or are being grappled.
+	{
 		NPC_UpdateAngles( qtrue, qtrue );
 		return qtrue;
 	}
@@ -8911,7 +8875,7 @@ qboolean Jedi_InSpecialMove( void )
 
 	if ( NPC->client->ps.torsoAnim == BOTH_FORCE_DRAIN_GRAB_START
 		|| NPC->client->ps.torsoAnim == BOTH_FORCE_DRAIN_GRAB_HOLD )
-	{//using the drain grapple move
+	{
 		if ( !TIMER_Done( NPC, "draining" ) )
 		{//FIXME: what do we do if we ran out of power?  NPC's can't?
 			//FIXME: don't keep turning to face enemy or we'll end up spinning around
@@ -8922,7 +8886,7 @@ qboolean Jedi_InSpecialMove( void )
 	}
 
 	if ( NPC->client->ps.torsoAnim == BOTH_TAVION_SWORDPOWER )
-	{//using the sithsword to heal.
+	{
 		NPC->health += Q_irand( 1, 2 ); 
 		if ( NPC->health > NPC->client->pers.maxHealth )
 		{
@@ -8959,7 +8923,7 @@ qboolean Jedi_InSpecialMove( void )
 		return qtrue;
 	}
 	else if ( NPC->client->ps.torsoAnim == BOTH_SCEPTER_HOLD )
-	{//in the scepter laser attack
+	{
 		if ( NPC->client->ps.torsoTimer <= 100 )
 		{
 			NPC->s.loopSound = 0;
@@ -8988,7 +8952,7 @@ qboolean Jedi_InSpecialMove( void )
 		return qtrue;
 	}
 	else if ( NPC->client->ps.torsoAnim == BOTH_SCEPTER_STOP )
-	{//coming out of the scepter laser attack
+	{
 		if ( NPC->enemy )
 		{
 			NPC_FaceEnemy( qtrue );
@@ -9000,7 +8964,7 @@ qboolean Jedi_InSpecialMove( void )
 		return qtrue;
 	}
 	else if ( NPC->client->ps.torsoAnim == BOTH_TAVION_SCEPTERGROUND )
-	{//specter slamming
+	{
 		if ( NPC->client->ps.torsoTimer <= 1200 
 			&& !NPC->count ) 
 		{
@@ -9012,12 +8976,11 @@ qboolean Jedi_InSpecialMove( void )
 	}
 
 	if ( Jedi_CultistDestroyer( NPC ) )
-	{//cultist destroyer behavior.
+	{
 		if ( !NPC->takedamage )
 		{//ready to explode
 			//RAFIXME - this is a hack, I hope this works
 			if ( NPC->painDebounceTime <= level.time )
-			//if ( NPC->useDebounceTime <= level.time )
 			{
 				//this should damage everyone - FIXME: except other destroyers?
 				NPC->client->playerTeam = TEAM_FREE;//FIXME: will this destroy wampas, tusken & rancors?
@@ -9269,12 +9232,6 @@ extern void NPC_BSST_Patrol( void );
 extern void NPC_BSSniper_Default( void );
 void NPC_BSJedi_Default( void )
 {
-	//[CoOp]
-	if ( Jedi_InSpecialMove() )
-	{//doing some special move behavior.
-		return;
-	}
-
 
 	Jedi_CheckCloak();
 	if( !NPC->enemy )
@@ -9299,18 +9256,8 @@ void NPC_BSJedi_Default( void )
 		{//we were still waiting to drop down - must have had enemy set on me outside my AI
 			Jedi_Ambush( NPC );
 		}
+
 		//[CoOp]
-		if ( Jedi_CultistDestroyer( NPC ) 
-			&& !NPCInfo->charmedTime )
-		{//destroyer rages and makes sound when it sees an enemy
-			//permanent effect
-			NPCInfo->charmedTime = Q3_INFINITE;
-			NPC->client->ps.fd.forcePowersActive |= ( 1 << FP_RAGE );
-			NPC->client->ps.fd.forcePowerDuration[FP_RAGE] = Q3_INFINITE;
-			//NPC->client->ps.eFlags |= EF_FORCE_DRAINED;
-			//FIXME: precache me!
-			NPC->s.loopSound = G_SoundIndex( "sound/movers/objects/green_beam_lp2.wav" );//test/charm.wav" );
-		}
 		/* not in SP code.
 		if ( NPC->client->NPC_class == CLASS_BOBAFETT )
 		{

@@ -170,7 +170,7 @@ void InitSiegeMode(void)
 
 	Com_sprintf(levelname, sizeof(levelname), "maps/%s.siege\0", mapname.string);
 
-	if ( /*!levelname ||*/ !levelname[0])
+	if (!levelname || !levelname[0])
 	{
 		goto failure;
 	}

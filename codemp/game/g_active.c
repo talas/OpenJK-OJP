@@ -1739,8 +1739,6 @@ void G_CheckMovingLoopingSounds( gentity_t *ent, usercmd_t *ucmd )
 				break;
 			case CLASS_PROBE:
 				ent->s.loopSound = G_SoundIndex( "sound/chars/probe/misc/probedroidloop" );
-			default:
-				break;
 			}
 		}
 		else
@@ -3237,14 +3235,11 @@ void ClientThink_real( gentity_t *ent ) {
 				&& ent->client->ps.saberHolstered 
 				&& ent->client->ps.duelTime )
 			{
-				if(!ent->client->ps.saberHolstered){
-					if (ent->client->saber[0].soundOff){
-						G_Sound(ent, CHAN_AUTO, ent->client->saber[0].soundOff);
-					}	
-					if (ent->client->saber[1].soundOff){
-						G_Sound(ent, CHAN_AUTO, ent->client->saber[1].soundOff);
-					}
-					ent->client->ps.saberHolstered = 2;
+				ent->client->ps.saberHolstered = 0;
+
+				if (ent->client->saber[0].soundOn)
+				{
+					G_Sound(ent, CHAN_AUTO, ent->client->saber[0].soundOn);
 				}
 				if (ent->client->saber[1].soundOn)
 				{

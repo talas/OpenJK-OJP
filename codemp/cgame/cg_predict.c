@@ -865,6 +865,7 @@ void CG_PmoveClientPointerUpdate()
 	{
 		cgSendPS[i] = &cgSendPSPool[i];
 
+		// These will be invalid at this point on Xbox
 		cg_entities[i].playerState = cgSendPS[i];
 	}
 
@@ -1071,6 +1072,7 @@ void CG_PredictPlayerState( void ) {
 		if (cg_entities[i].currentState.eType == ET_PLAYER ||
 			cg_entities[i].currentState.eType == ET_NPC)
 		{
+			// Need a new playerState_t on Xbox
 			VectorCopy( cg_entities[i].currentState.pos.trBase, cgSendPS[i]->origin );
 			VectorCopy( cg_entities[i].currentState.pos.trDelta, cgSendPS[i]->velocity );
 			cgSendPS[i]->saberLockFrame = cg_entities[i].currentState.forceFrame;

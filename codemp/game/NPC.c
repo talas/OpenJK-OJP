@@ -2154,8 +2154,6 @@ void NPC_RunBehavior( int team, int bState )
 			case CLASS_GALAKMECH:
 				NPC_BSGM_Default();
 				return;
-			default:
-				break;
 			}
 
 			//[CoOp]

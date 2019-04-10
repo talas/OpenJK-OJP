@@ -135,13 +135,6 @@ int G_GetMapTypeBits(char *type)
 			typeBits |= (1 << GT_FFA);
 			typeBits |= (1 << GT_TEAM);
 		}
-
-		//[CoOp]
-		if( strstr( type, "coop" ) ) {
-			typeBits |= (1 << GT_SINGLE_PLAYER);
-		}
-		//[CoOp]
-
 		if( strstr( type, "team" ) ) {
 			typeBits |= (1 << GT_TEAM);
 		}
@@ -162,6 +155,11 @@ int G_GetMapTypeBits(char *type)
 		if( strstr( type, "siege" ) ) {
 			typeBits |= (1 << GT_SIEGE);
 		}
+		//[CoOp]
+		if( strstr( type, "coop" ) ) {
+			typeBits |= (1 << GT_SINGLE_PLAYER);
+		}
+		//[CoOp]
 		if( strstr( type, "ctf" ) ) {
 			typeBits |= (1 << GT_CTF);
 		}
@@ -1591,14 +1589,10 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 	{
 		if( delay == 0 ) {
 			ClientBegin( clientNum, qfalse );
-			//UNIQUEFIX - what's the purpose of this?
-			//ClientUserinfoChanged( clientNum );
 			return;
 		}
 
 		AddBotToSpawnQueue( clientNum, delay );
-		//UNIQUEFIX - what's the purpose of this?
-		//ClientUserinfoChanged( clientNum );
 	}
 }
 

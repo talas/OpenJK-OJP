@@ -189,7 +189,6 @@ void *UI_Alloc( int size ) {
 	allocPoint += ( size + 15 ) & ~15;
 
 	return p;
-
 }
 
 /*
@@ -3165,7 +3164,6 @@ qboolean Item_ListBox_HandleKey(itemDef_t *item, int key, qboolean down, qboolea
 	listBoxDef_t *listPtr = (listBoxDef_t*)item->typeData;
 	int count = DC->feederCount(item->special);
 	int max, viewmax;
-//JLFMOUSE
 	if (force || (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && item->window.flags & WINDOW_HASFOCUS))
 	{
 		max = Item_ListBox_MaxScroll(item);
@@ -4047,11 +4045,7 @@ qboolean Item_Slider_HandleKey(itemDef_t *item, int key, qboolean down) {
 			}
 		}
 	}
-
-	//[UITweaks]
-	//Raven missed a Debug message
-	//DC->Print("slider handle key exit\n");
-	//[/UITweaks]
+	DC->Print("slider handle key exit\n");
 	return qfalse;
 }
 
@@ -4095,27 +4089,39 @@ qboolean Item_HandleKey(itemDef_t *item, int key, qboolean down) {
       //return Item_TextField_HandleKey(item, key);
 		}
       return qfalse;
+      break;
     case ITEM_TYPE_COMBO:
       return qfalse;
+      break;
     case ITEM_TYPE_LISTBOX:
       return Item_ListBox_HandleKey(item, key, down, qfalse);
+      break;
 	case ITEM_TYPE_TEXTSCROLL:
       return Item_TextScroll_HandleKey(item, key, down, qfalse);
+      break;
     case ITEM_TYPE_YESNO:
       return Item_YesNo_HandleKey(item, key);
+      break;
     case ITEM_TYPE_MULTI:
       return Item_Multi_HandleKey(item, key);
+      break;
     case ITEM_TYPE_OWNERDRAW:
       return Item_OwnerDraw_HandleKey(item, key);
+      break;
     case ITEM_TYPE_BIND:
 			return Item_Bind_HandleKey(item, key, down);
+      break;
     case ITEM_TYPE_SLIDER:
 	//[INTSLIDER]
 	case ITEM_TYPE_INTSLIDER:
 	//[/INTSLIDER]
       return Item_Slider_HandleKey(item, key, down);
+    //case ITEM_TYPE_IMAGE:
+    //  Item_Image_Paint(item);
+    //  break;
     default:
       return qfalse;
+      break;
   }
 
   //return qfalse;
@@ -5760,7 +5766,6 @@ void Item_ListBox_Paint(itemDef_t *item) {
 	// there is no clipping available so only the last completely visible item is painted
 	count = DC->feederCount(item->special);
 
-//JLFLISTBOX MPMOVED
 	if (listPtr->startPos > (count?count-1:count))
 	{//probably changed feeders, so reset
 		listPtr->startPos = 0;
@@ -9211,11 +9216,7 @@ qboolean MenuParse_descAlignment( itemDef_t *item, int handle )
 
 	if (!PC_Int_Parse(handle, &menu->descAlignment)) 
 	{
-		//[CoOp]
-		//added newline for error message.
-		Com_Printf(S_COLOR_YELLOW "Unknown desc alignment value\n");
-		//Com_Printf(S_COLOR_YELLOW "Unknown desc alignment value");
-		//[/CoOp]
+		Com_Printf(S_COLOR_YELLOW "Unknown desc alignment value");
 		return qfalse;
 	}
 
@@ -9642,7 +9643,6 @@ void *Display_CaptureItem(int x, int y) {
 
 // FIXME: 
 qboolean Display_MouseMove(void *p, int x, int y) {
-
 	int i;
 	menuDef_t *menu = (menuDef_t *) p;
 

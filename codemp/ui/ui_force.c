@@ -152,7 +152,6 @@ void UI_UpdateClientForcePowers(const char *teamArg)
 	//[ExpSys]
 	char newForceString[MAX_INFO_STRING];
 	int i;
-	//Q_strcat
 	strncpy(newForceString,va("%i-%i-",uiForceRank, uiForceSide),sizeof(newForceString));
 
 	for(i =0;i<NUM_TOTAL_SKILLS;i++)
@@ -1334,7 +1333,6 @@ qboolean UI_ForcePowerRank_HandleKey(int flags, float *special, int key, int num
 		{
 			return qtrue;
 		}
-		else if (forcepower == FP_SABER_DEFENSE || forcepower == FP_SABERTHROW)
 		*/
 		//[StanceSelection]
 		if (forcepower == FP_SABER_DEFENSE 

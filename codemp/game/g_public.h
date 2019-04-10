@@ -10,7 +10,6 @@
 //moved to q_shared.h to support ShortestLineSegBewteen2LineSegs
 //#define Q3_INFINITE			16777216 
 //[/SaberLockSys]
-
 #define	GAME_API_VERSION	8
 
 // entity->svFlags

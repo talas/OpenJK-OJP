@@ -680,8 +680,7 @@ static void PM_SetVehicleAngles( vec3_t normal )
 		vec3_t	velocity;
 		float	speed;
 		VectorCopy( pm->ps->velocity, velocity );
-		velocity[ROLL] = 0.0f;
-
+		velocity[2] = 0.0f;
 		speed = VectorNormalize( velocity );
 		if ( speed > 32.0f || speed < -32.0f ) 
 		{
@@ -4630,7 +4629,6 @@ static void PM_CrashLand( void ) {
 	qboolean	didRoll = qfalse;
 
 	//[CoOp]
-	//falling to death NPCs pavement smear.
 #ifdef QAGAME
 	if ( g_entities[pm->ps->clientNum].NPC && g_entities[pm->ps->clientNum].NPC->aiFlags & NPCAI_DIE_ON_IMPACT )
 	{//have to do death on impact if we are falling to our death, FIXME: should we avoid any additional damage this func?
@@ -4923,16 +4921,15 @@ static void PM_CrashLand( void ) {
 		}
 	}
 
-	// make sure velocity resets so we don't bounce back up again in case we miss the clear elsewhere
-	//pm->ps->velocity[2] = 0;
-	//Clear velocity
-
 	if(PM_InForceFall())
 	{
 		return;
 	}
 
+	// make sure velocity resets so we don't bounce back up again in case we miss the clear elsewhere
+	//pm->ps->velocity[2] = 0;
 	VectorClear(pm->ps->velocity);
+
 	// start footstep cycle over
 	pm->ps->bobCycle = 0;
 }
@@ -7463,10 +7460,9 @@ static qboolean PM_DoChargedWeapons( qboolean vehicleRocketLock, bgEntity_t *veh
 			// primary fire charges the weapon
 			if ( pm->cmd.buttons & BUTTON_ATTACK
 #ifdef QAGAME
-				&& g_entities[pm->ps->clientNum].client->skillLevel[SK_BOWCASTER] > FORCE_LEVEL_2)
-#else
-)
+				&& g_entities[pm->ps->clientNum].client->skillLevel[SK_BOWCASTER] > FORCE_LEVEL_2
 #endif
+				)
 			{
 				charging = qtrue;
 			}
@@ -7623,8 +7619,7 @@ static qboolean PM_DoChargedWeapons( qboolean vehicleRocketLock, bgEntity_t *veh
 			{
 				if (pm->ps->weaponChargeSubtractTime < pm->cmd.serverTime)
 				{
-					int amount = weaponData[pm->ps->weapon].chargeSub;
-					pm->ps->ammo[weaponData[pm->ps->weapon].ammoIndex] -= amount;
+					pm->ps->ammo[weaponData[pm->ps->weapon].ammoIndex] -= weaponData[pm->ps->weapon].chargeSub;
 					pm->ps->weaponChargeSubtractTime = pm->cmd.serverTime + weaponData[pm->ps->weapon].chargeSubTime;
 				}
 			}
@@ -8183,9 +8178,12 @@ static void PM_Weapon( void )
 		}
 	}
 
-	if ( pm_entSelf->s.NPC_class != CLASS_VEHICLE && pm->ps->m_iVehicleNum )
+	if (pm_entSelf->s.NPC_class!=CLASS_VEHICLE
+		&&pm->ps->m_iVehicleNum)
 	{ //riding a vehicle
-		if ( (veh = pm_entVeh) && veh->m_pVehicle && (veh->m_pVehicle->m_pVehicleInfo->type == VH_WALKER || veh->m_pVehicle->m_pVehicleInfo->type == VH_FIGHTER) )
+		veh = pm_entVeh;
+		if ( veh &&
+			(veh->m_pVehicle && veh->m_pVehicle->m_pVehicleInfo->type == VH_WALKER || veh->m_pVehicle && veh->m_pVehicle->m_pVehicleInfo->type == VH_FIGHTER) )
 		{//riding a walker/fighter
 			//keep saber off, do no weapon stuff at all!
 			pm->ps->saberHolstered = 2;
@@ -8589,7 +8587,6 @@ static void PM_Weapon( void )
 	if(1)
 	{
 	gentity_t *ent = (gentity_t*)pm_entSelf;
-
 	if(ent->reloadTime > 0)
 		return;
 	//[PistolLevel3]
@@ -10304,8 +10301,8 @@ void BG_AdjustClientSpeed(playerState_t *ps, usercmd_t *cmd, int svTime)
 		if(g_entities[pm->ps->clientNum].client->ps.fd.forcePowerLevel[FP_SPEED] >= FORCE_LEVEL_3)
 			ps->speed *= 2.0;
 		else
-			ps->speed *= 1.6;//was 1.7
 #endif
+			ps->speed *= 1.6;//was 1.7
 	}
 	else if (ps->fd.forcePowersActive & (1 << FP_RAGE))
 	{
@@ -11351,7 +11348,7 @@ void BG_G2PlayerAngles(void *ghoul2, int motionBolt, entityState_t *cent, int ti
 	int					adddir = 0;
 	static int			dir;
 	static int			i;
-//	static int			movementOffsets[8] = { 0, 22, 45, -22, 0, 22, -45, -22 };
+	static int			movementOffsets[8] = { 0, 22, 45, -22, 0, 22, -45, -22 };
 	float				degrees_negative = 0;
 	float				degrees_positive = 0;
 	static float		dif;

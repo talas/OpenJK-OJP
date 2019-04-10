@@ -380,7 +380,7 @@ static void CG_Obituary( entityState_t *ent ) {
 		}
 		if ( vehMessage )
 		{
-			message = (char *)CG_GetStringEdString("OJP_INGAMEVEH", message);
+			message = (char *)CG_GetStringEdString("MP_INGAMEVEH", message);
 		}
 		else
 		{
@@ -646,7 +646,7 @@ clientkilled:
 		{
 			if ( vehMessage )
 			{
-				message = (char *)CG_GetStringEdString("OJP_INGAMEVEH", message);
+				message = (char *)CG_GetStringEdString("MP_INGAMEVEH", message);
 			}
 			else
 			{

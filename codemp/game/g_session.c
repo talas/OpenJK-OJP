@@ -137,12 +137,11 @@ void G_ReadSessionData( gclient_t *client ) {
 		&client->sess.selectedFP,
 		&client->sess.duelTeam,
 		&client->sess.siegeDesiredTeam,
-		&client->sess.siegeClass[0],
-		&client->sess.saberType[0],
+		&client->sess.siegeClass,
+		&client->sess.saberType,
+		&client->sess.saber2Type,
 		//[ExpSys]
-		&client->sess.saber2Type[0],
 		&client->sess.skillPoints
-		//&client->sess.saber2Type
 		//[ExpSys]
 		);
 
