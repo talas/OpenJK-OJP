@@ -576,7 +576,6 @@ int Q3_PlaySound( int taskID, int entID, const char *name, const char *channel )
 		//[CoOp]
 		//play CHAN_VOICE_GLOBAL on correct channel
 		voice_chan = CHAN_VOICE_GLOBAL;
-		//voice_chan = CHAN_AUTO;//CHAN_VOICE_GLOBAL;
 		//[/CoOp]
 		type_voice = qtrue;
 		bBroadcast = qtrue;
@@ -641,7 +640,6 @@ int Q3_PlaySound( int taskID, int entID, const char *name, const char *channel )
 			//[CoOp]
 			//these should be playing on the entity in question, not a temp entity
 			G_EntitySound( ent, voice_chan, G_SoundIndex((char *) finalName) );
-			//G_Sound( ent, voice_chan, G_SoundIndex((char *) finalName) );
 			//[/CoOp]
 		}
 		//Remember we're waiting for this
@@ -701,38 +699,6 @@ void Q3_Play( int taskID, int entID, const char *type, const char *name )
 			trap_LinkEntity( ent );
 		}
 	}
-
-	/*
-	if ( !Q_stricmp( type, "PLAY_ROFF" ) )
-	{
-		// Try to load the requested ROFF
-		ent->roffid = trap_ROFF_Cache((char*)name);
-		if ( ent->roffid )
-		{
-			ent->roffname = G_NewString( name );
-
-			// Start the roff from the beginning
-			//ent->roff_ctr = 0;
-
-			//Save this off for later
-			trap_ICARUS_TaskIDSet( ent, TID_MOVE_NAV, taskID );
-
-			// Let the ROFF playing start.
-			//ent->next_roff_time = level.time;
-
-			//rww - Maybe use pos1 and pos2? I don't think we need to care if these values are sent across the net.
-			// These need to be initialised up front...
-			//VectorCopy( ent->r.currentOrigin, ent->pos1 );
-			//VectorCopy( ent->r.currentAngles, ent->pos2 );
-			VectorCopy( ent->r.currentOrigin, ent->s.origin2 );
-			VectorCopy( ent->r.currentAngles, ent->s.angles2 );
-
-			trap_LinkEntity( ent );
-
-			trap_ROFF_Play(ent->s.number, ent->roffid, qtrue);
-		}
-	}
-	*/
 	//[/ROFF]
 }
 
@@ -1282,68 +1248,6 @@ static void Q3_RemoveEnt( gentity_t *victim )
 		victim->nextthink = level.time + 100;
 	}
 }
-
-
-/* basejka method
-void Q3_RemoveEnt( gentity_t *victim )
-{
-	if( victim->client )
-	{
-		if ( victim->s.eType != ET_NPC )
-		{
-			G_DebugPrint( WL_WARNING, "Q3_RemoveEnt: You can't remove clients in MP!\n" );
-			//[CoOp]
-			//I already know about this
-			//assert(0); //can't remove clients in MP
-			//[/CoOp]
-		}
-		else
-		{//remove the NPC
-			if ( victim->client->NPC_class == CLASS_VEHICLE )
-			{//eject everyone out of a vehicle that's about to remove itself
-				Vehicle_t *pVeh = victim->m_pVehicle;
-				if ( pVeh && pVeh->m_pVehicleInfo )
-				{
-					pVeh->m_pVehicleInfo->EjectAll( pVeh );
-				}
-			}
-			victim->think = G_FreeEntity;
-			victim->nextthink = level.time + 100;
-		}
-		*//*
-		//ClientDisconnect(ent);
-		victim->s.eFlags |= EF_NODRAW;
-		victim->s.eType = ET_INVISIBLE;
-		victim->contents = 0;
-		victim->health = 0;
-		victim->targetname = NULL;
-
-		if ( victim->NPC && victim->NPC->tempGoal != NULL )
-		{
-			G_FreeEntity( victim->NPC->tempGoal );
-			victim->NPC->tempGoal = NULL;
-		}
-		if ( victim->client->ps.saberEntityNum != ENTITYNUM_NONE && victim->client->ps.saberEntityNum > 0 )
-		{
-			if ( g_entities[victim->client->ps.saberEntityNum].inuse )
-			{
-				G_FreeEntity( &g_entities[victim->client->ps.saberEntityNum] );
-			}
-			victim->client->ps.saberEntityNum = ENTITYNUM_NONE;
-		}
-		//Disappear in half a second
-		victim->e_ThinkFunc = thinkF_G_FreeEntity;
-		victim->nextthink = level.time + 500;
-		return;
-		*//*
-	}
-	else
-	{
-		victim->think = G_FreeEntity;
-		victim->nextthink = level.time + 100;
-	}
-}
-*/
 //[/CoOp]
 
 
@@ -1468,7 +1372,6 @@ int Q3_GetFloat( int entID, int type, const char *name, float *value )
 	case SET_SKILL:
 		//[CoOp]
 		*value = g_spskill.integer;
-		//return 0;
 		//[CoOp]
 		break;
 
@@ -1621,19 +1524,16 @@ int Q3_GetFloat( int entID, int type, const char *name, float *value )
 	case SET_STARTFRAME:	//## %d="0" # frame to start animation sequence on
 		//[CoOp]
 		*value = (ent->startFrame);
-		//return 0;
 		//[/CoOp]
 		break;
 	case SET_ENDFRAME:	//## %d="0" # frame to end animation sequence on
 		//[CoOp]
 		*value = (ent->endFrame);
-		//return 0;
 		//[/CoOp]
 		break;
 	case SET_ANIMFRAME:	//## %d="0" # of current frame
 		//[CoOp]
 		*value = (ent->s.frame);
-		//return 0;
 		//[/CoOp]
 		break;
 
@@ -1652,8 +1552,6 @@ int Q3_GetFloat( int entID, int type, const char *name, float *value )
 			return qfalse;
 		}
 		*value = ent->NPC->ignorePain;
-
-		//return 0;
 		//[/CoOp]
 		break;
 	case SET_IGNOREENEMIES://## %t="BOOL_TYPES" # Do not acquire enemies
@@ -1699,7 +1597,6 @@ int Q3_GetFloat( int entID, int type, const char *name, float *value )
 	case SET_UNDYING://## %t="BOOL_TYPES" # Can take damage down to 1 but not die
 		//[CoOp]
 		*value = (ent->flags&FL_UNDYING);
-		//return 0;
 		//[CoOp]
 		break;
 	case SET_NOAVOID://## %t="BOOL_TYPES" # Will not avoid other NPCs or architecture
@@ -1745,7 +1642,6 @@ int Q3_GetFloat( int entID, int type, const char *name, float *value )
 	case SET_PLAYER_LOCKED://## %t="BOOL_TYPES" # Makes it so player cannot move
 		//[CoOp]
 		*value = player_locked;
-		//return 0;
 		//[/CoOp]
 		break;
 	case SET_LOCK_PLAYER_WEAPONS://## %t="BOOL_TYPES" # Makes it so player cannot switch weapons
@@ -1754,7 +1650,6 @@ int Q3_GetFloat( int entID, int type, const char *name, float *value )
 	case SET_NO_IMPACT_DAMAGE://## %t="BOOL_TYPES" # Makes it so player cannot take impact damage
 		//[CoOp]
 		*value = (ent->flags&FL_NO_IMPACT_DMG);
-		//return 0;
 		//[/CoOp]
 		break;
 	case SET_NO_KNOCKBACK://## %t="BOOL_TYPES" # Stops this ent from taking knockback from weapons
@@ -1797,8 +1692,7 @@ int Q3_GetFloat( int entID, int type, const char *name, float *value )
 		return 0;
 		break;
 	case SET_MORELIGHT: //## %t="BOOL_TYPES" # NPC will have a minlight of 96
-		//RACC - This old comment is just plain wrong.
-		//## %t="BOOL_TYPES" # NPCs will use their closest combat points, not try and find ones next to the player, or flank player
+		//RACC - Old comment was just plain wrong.
 		return 0;
 		break;
 	case SET_TREASONED://## %t="BOOL_TYPES" # Player has turned on his own- scripts will stop: NPCs will turn on him and level changes load the brig
@@ -1820,13 +1714,6 @@ int Q3_GetFloat( int entID, int type, const char *name, float *value )
 		//[CoOp]
 		//fixing all the varibledeclared stuff
 		return GetFloatDeclaredVariable( name, value );
-
-		/*
-		if ( trap_ICARUS_VariableDeclared( name ) != VTYPE_FLOAT )
-			return 0;
-
-		return trap_ICARUS_GetFloatVariable( name, value );
-		*/
 		//[CoOp]
 	}
 
@@ -1897,13 +1784,6 @@ int Q3_GetVector( int entID, int type, const char *name, vec3_t value )
 		//[CoOp]
 		//fixing all the varibledeclared stuff
 		return GetVectorDeclaredVariable( name, value );
-
-		/*
-		if ( trap_ICARUS_VariableDeclared( name ) != VTYPE_VECTOR )
-			return 0;
-
-		return trap_ICARUS_GetVectorVariable( name, value );
-		*/
 		//[/CoOp]
 	}
 
@@ -1983,7 +1863,6 @@ int Q3_GetString( int entID, int type, const char *name, char **value )
 		{
 			return qfalse;
 		}
-		//return 0;
 		//[/CoOp]
 		break;
 
@@ -2045,7 +1924,6 @@ int Q3_GetString( int entID, int type, const char *name, char **value )
 			return 0;
 
 		*value = ent->client->leader->targetname;
-		//return 0;
 //[/CoOp]
 //[/SuperDindon]
 		break;
@@ -2082,7 +1960,6 @@ int Q3_GetString( int entID, int type, const char *name, char **value )
 			else return qfalse;
 		}
 		break;
-		//G_DebugPrint( WL_WARNING, "Q3_GetString: SET_LOOK_TARGET, NOT SUPPORTED IN MULTIPLAYER\n" );
 		//[/CoOp]
 		break;
 	case SET_TARGET2://## %s="NULL" # Set/change your target2: on NPC's: this fires when they're knocked out by the red hypo
@@ -2119,8 +1996,6 @@ int Q3_GetString( int entID, int type, const char *name, char **value )
 			return 0;
 
 		*value = ent->NPC->goalEntity->targetname;
-		//G_DebugPrint( WL_WARNING, "Q3_GetString: SET_NAVGOAL not implemented\n" );
-		//return 0;
 //[/CoOp]
 //[/SuperDindon]
 		break;
@@ -2184,13 +2059,6 @@ int Q3_GetString( int entID, int type, const char *name, char **value )
 		//[CoOp]
 		//fixing all the varibledeclared stuff
 		return GetStringDeclaredVariable( name, value );
-
-		/*
-		if ( trap_ICARUS_VariableDeclared( name ) != VTYPE_STRING )
-			return 0;
-
-		return trap_ICARUS_GetStringVariable( name, (const char *) *value );
-		*/
 		//[/CoOp]
 	}
 
@@ -2614,7 +2482,6 @@ static void Q3_SetEnemy( int entID, const char *name )
 	//[CoOp]
 	//added extra sanity check to catch bad NPC entities.
 	if ( !ent || !ent->client )
-	//if ( !ent )
 	//[/CoOp]
 	{
 		G_DebugPrint( WL_WARNING, "Q3_SetEnemy: invalid entID %d\n", entID);
@@ -2742,7 +2609,6 @@ static void Q3_SetLeader( int entID, const char *name )
 			//[CoOp]
 			//no leader error
 			G_DebugPrint( WL_ERROR,"Q3_SetLeader: unable to locate Leader: '%s'\n", name );
-			//G_DebugPrint( WL_ERROR,"Q3_SetEnemy: unable to locate enemy: '%s'\n", name );
 			//[/CoOp]
 			return;
 		}
@@ -2961,8 +2827,6 @@ Q3_SetAnimHoldTime
 */
 static void Q3_SetAnimHoldTime( int entID, int int_data, qboolean lower )
 {
-	//G_DebugPrint( WL_WARNING, "Q3_SetAnimHoldTime is not currently supported in MP\n");
-	
 	gentity_t	*ent  = &g_entities[entID];
 
 //[CoOp]
@@ -3497,8 +3361,6 @@ static void Q3_SetWidth( int entID, int data )
 
 	ent->r.maxs[0] = ent->r.maxs[1] =  data;
 	ent->r.mins[0] = ent->r.mins[1] = -data;
-	//G_DebugPrint( WL_WARNING, "Q3_SetWidth: NOT SUPPORTED IN MP\n");
-	//return;
 	//[/CoOp]
 }
 
@@ -3528,7 +3390,6 @@ Q3_SetInvisible
 */
 //[CoOp] changed to nonstatic so we can use it in g_camera.c
 void Q3_SetInvisible( int entID, qboolean invisible )
-//static void Q3_SetInvisible( int entID, qboolean invisible )
 //[/CoOp]
 {
 	gentity_t	*self  = &g_entities[entID];
@@ -3656,10 +3517,6 @@ static void Q3_SetViewTarget (int entID, const char *name)
 	{
 		Q3_SetDPitch( entID, viewangles[PITCH] );
 	}
-	/*
-	G_DebugPrint( WL_WARNING, "Q3_SetViewTarget: NOT SUPPORTED IN MP\n");
-	return;
-	*/
 	//[/CoOp]
 }
 
@@ -3922,8 +3779,6 @@ static void Q3_SetWeapon (int entID, const char *wp_name)
 	}
 	
 	G_SetWeapon(ent, wp);
-	//ent->client->ps.stats[STAT_WEAPONS] = (1<<wp);
-	//ChangeWeapon( ent, wp );
 	//[/CoOp]
 }
 
@@ -4452,8 +4307,6 @@ static void Q3_SetMusicState( const char *dms )
 	{
 		SetDMSState(newDMS);
 	}
-	//G_DebugPrint( WL_WARNING, "Q3_SetMusicState: NOT SUPPORTED IN MP\n");
-	//return;
 	//[/dynamicMusic]
 }
 
@@ -4543,7 +4396,6 @@ static void Q3_SetCaptureGoal( int entID, const char *name )
 {
 //[CoOp]
 //[SuperDindon]
-	//G_DebugPrint( WL_WARNING, "Q3_SetCaptureGoal: NOT SUPPORTED IN MP\n");
 	gentity_t	*ent  = &g_entities[ entID ];
 	vec3_t		goalPos;
 
@@ -4666,18 +4518,7 @@ static void Q3_SetIgnoreEnemies( int entID, qboolean data)
 		ent->NPC->scriptFlags |= SCF_IGNORE_ENEMIES;
 	else
 		ent->NPC->scriptFlags &= ~SCF_IGNORE_ENEMIES;
-
-	//G_DebugPrint( WL_WARNING, "Q3_SetIgnoreEnemies0: NOT SUPPORTED IN MP\n");
 	//[/CoOp]
-
-
-	/*
-	if (data)
-		g_entities[entID].r.svFlags |= SVF_IGNORE_ENEMIES;
-	else
-		g_entities[entID].r.svFlags &= ~SVF_IGNORE_ENEMIES;
-	return;
-	*/
 }
 
 /*
@@ -4884,8 +4725,6 @@ static void Q3_SetCinematicSkipScript( char *scriptname )
 	{
 		Q_strncpyz(cinematicSkipScript,scriptname,sizeof(cinematicSkipScript));
 	}
-	//G_DebugPrint( WL_WARNING, "Q3_SetCinematicSkipScript: NOT SUPPORTED IN MP\n");
-	//return;
 	//[/CoOp]
 }
 
@@ -4900,7 +4739,6 @@ static void Q3_SetNoMindTrick( int entID, qboolean add)
 {
 //[CoOp]
 //[SuperDindon]
-	//G_DebugPrint( WL_WARNING, "Q3_SetNoMindTrick: NOT SUPPORTED IN MP\n");
 	gentity_t	*ent = &g_entities[entID];
 
 	if (!ent->NPC)
@@ -5487,7 +5325,6 @@ static void Q3_SetLockAngle( int entID, const char *lockAngle)
 			}
 		}
 	}
-	//G_DebugPrint( WL_WARNING, "Q3_SetLockAngle is not currently available. Ask if you really need it.\n");
 	//[/CoOp]
 	/*
 	if(Q_stricmp("off", lockAngle) == 0)
@@ -5531,11 +5368,6 @@ static void Q3_CameraGroup( int entID, char *camG)
 	}
 
 	ent->cameraGroup = camG;
-
-	/*
-	G_DebugPrint( WL_WARNING, "Q3_CameraGroup: NOT SUPPORTED IN MP\n");
-	return;
-	*/
 	//[/CoOp]
 }
 
@@ -5705,15 +5537,10 @@ Q3_SetPlayerLocked
   Argument		: qboolean locked
 ============
 */
-//[CoOp]
-//moved up
-//qboolean	player_locked = qfalse;
-//[/CoOp]
 static void Q3_SetPlayerLocked( int entID, qboolean locked )
 {
 	//[CoOp]
 	player_locked = locked;
-	//G_DebugPrint( WL_WARNING, "Q3_SetPlayerLocked: NOT SUPPORTED IN MP\n");
 	//[/CoOp]
 }
 
@@ -5757,7 +5584,6 @@ static void Q3_SetNoImpactDamage( int entID, qboolean noImp )
 	{
 		ent->flags |= FL_NO_IMPACT_DMG;
 	}
-	//G_DebugPrint( WL_WARNING, "Q3_SetNoImpactDamage: NOT SUPPORTED IN MP\n");
 	//[/CoOp]
 }
 
@@ -5933,7 +5759,6 @@ static void Q3_SetDisableShaderAnims( int entID, int disabled )
 	{
 		ent->s.eFlags &= ~EF_DISABLE_SHADER_ANIM;
 	}
-	//G_DebugPrint( WL_WARNING, "Q3_SetDisableShaderAnims: NOT SUPPORTED IN MP\n");
 	//[/CoOp]
 }
 
@@ -5965,7 +5790,6 @@ static void Q3_SetShaderAnim( int entID, int disabled )
 	{
 		ent->s.eFlags &= ~EF_SHADER_ANIM;
 	}
-	//G_DebugPrint( WL_WARNING, "Q3_SetShaderAnim: NOT SUPPORTED IN MP\n");
 	//[/CoOp]
 }
 
@@ -6000,7 +5824,6 @@ static void Q3_SetStartFrame( int entID, int startFrame )
 		ent->s.frame = startFrame;
 		ent->startFrame = startFrame;
 	}
-	//G_DebugPrint( WL_WARNING, "Q3_SetStartFrame: NOT SUPPORTED IN MP\n");
 	//[/CoOp]
 }
 
@@ -6035,7 +5858,6 @@ static void Q3_SetEndFrame( int entID, int endFrame )
 	{
 		ent->endFrame = endFrame;
 	}
-	//G_DebugPrint( WL_WARNING, "Q3_SetEndFrame: NOT SUPPORTED IN MP\n");
 	//[/CoOp]
 }
 
@@ -6079,7 +5901,6 @@ static void Q3_SetAnimFrame( int entID, int animFrame )
 		G_DebugPrint( WL_WARNING, "Q3_SetAnimFrame: value must be valid number between StartFrame and EndFrame.\n" );
 		return;
 	}
-	//G_DebugPrint( WL_WARNING, "Q3_SetAnimFrame: NOT SUPPORTED IN MP\n");
 	//[/CoOp]
 }
 
@@ -6174,7 +5995,6 @@ static void Q3_SetSaberActive( int entID, qboolean active )
 	//[CoOp]
 	//was reversed
 	if (!ent->client->ps.saberHolstered && !active)
-	//if (!ent->client->ps.saberHolstered && active)
 	//[/CoOp]
 	{
 		Cmd_ToggleSaber_f(ent);
@@ -6182,7 +6002,6 @@ static void Q3_SetSaberActive( int entID, qboolean active )
 	//[CoOp]
 	//was reversed
 	else if (BG_SabersOff( &ent->client->ps ) && active)
-	//else if (BG_SabersOff( &ent->client->ps ) && !active)
 	//[/CoOp]
 	{
 		Cmd_ToggleSaber_f(ent);
@@ -6502,7 +6321,6 @@ qboolean Q3_Set( int taskID, int entID, const char *type_name, const char *data 
 	case SET_PLAYER_TEAM:
 //[CoOp]
 //[SuperDindon]
-		//G_DebugPrint( WL_WARNING, "Q3_SetPlayerTeam: Not in MP ATM, let a programmer (ideally Rich) know if you need it\n");
 		Q3_SetPlayerTeam( entID, (char *) data );
 		return qfalse;
 //[/CoOp]
@@ -6512,7 +6330,6 @@ qboolean Q3_Set( int taskID, int entID, const char *type_name, const char *data 
 	case SET_ENEMY_TEAM:
 //[CoOp]
 //[SuperDindon]
-		//G_DebugPrint( WL_WARNING, "Q3_SetEnemyTeam: NOT SUPPORTED IN MP\n");
 		Q3_SetEnemyTeam( entID, (char *) data );
 		return qfalse;
 //[/CoOp]
@@ -7224,7 +7041,6 @@ qboolean Q3_Set( int taskID, int entID, const char *type_name, const char *data 
 		{
 			Q3_SetAdjustAreaPortals( entID, qfalse );
 		}
-		//G_DebugPrint( WL_WARNING, "Q3_SetAdjustAreaPortals: NOT SUPPORTED IN MP\n");
 	//[/CoOp]
 		break;
 	
@@ -7238,7 +7054,6 @@ qboolean Q3_Set( int taskID, int entID, const char *type_name, const char *data 
 		{
 			Q3_SetDmgByHeavyWeapOnly( entID, qfalse );
 		}
-		//G_DebugPrint( WL_WARNING, "Q3_SetDmgByHeavyWeapOnly: NOT SUPPORTED IN MP\n");
 	//[/CoOp]
 		break;
 
@@ -7252,7 +7067,6 @@ qboolean Q3_Set( int taskID, int entID, const char *type_name, const char *data 
 		{
 			Q3_SetShielded( entID, qfalse );
 		}
-		//G_DebugPrint( WL_WARNING, "Q3_SetShielded: NOT SUPPORTED IN MP\n");
 	//[/CoOp]
 		break;
 
@@ -7266,7 +7080,6 @@ qboolean Q3_Set( int taskID, int entID, const char *type_name, const char *data 
 		{
 			Q3_SetNoGroups( entID, qfalse );
 		}
-		//G_DebugPrint( WL_WARNING, "Q3_SetNoGroups: NOT SUPPORTED IN MP\n");
 	//[/CoOp]
 		break;
 
@@ -7350,11 +7163,9 @@ qboolean Q3_Set( int taskID, int entID, const char *type_name, const char *data 
 //		if ( g_timescale->value <= 1.0f )
 		{
 			//[ROQFILES]
-			//G_DebugPrint( WL_WARNING, "SET_VIDEO_PLAY: NOT SUPPORTED IN MP\n");
 			if(g_allowROQ.integer)
 			{
 				trap_SendServerCommand( -1, va("inGameCinematic %s", (char *)data) );
-				//trap_SendConsoleCommand( va("inGameCinematic %s\n", (char *)data) );
 				inGameCinematic = qtrue;
 			}
 			//[/ROQFILES]
@@ -7375,7 +7186,6 @@ qboolean Q3_Set( int taskID, int entID, const char *type_name, const char *data 
 		//uh for now we're just going to use the camera fade code.
 		vec4_t colorClear  = {0, 0, 0, 0};
 		ICam_Fade( colorBlack, colorClear, 2000);
-		//G_DebugPrint( WL_WARNING, "SET_VIDEO_FADE_OUT: NOT SUPPORTED IN MP\n");
 		//[/CoOp]
 		break;
 	case SET_REMOVE_TARGET:
@@ -7395,7 +7205,6 @@ qboolean Q3_Set( int taskID, int entID, const char *type_name, const char *data 
 		//[CoOp]
 		trap_SP_GetStringTextString( va("OBJECTIVES_%s", data), char_data, sizeof(char_data));
 		trap_SendServerCommand(-1, va("cp \""S_COLOR_BLUE"New Mission Objective:\n%s\"", char_data));
-		//G_DebugPrint( WL_WARNING, "SET_OBJECTIVE_SHOW: NOT SUPPORTED IN MP\n");
 		//[/CoOp]
 		break;
 	case SET_OBJECTIVE_HIDE:
@@ -7405,14 +7214,12 @@ qboolean Q3_Set( int taskID, int entID, const char *type_name, const char *data 
 		//[CoOp]
 		trap_SP_GetStringTextString( va("OBJECTIVES_%s", data), char_data, sizeof(char_data));
 		trap_SendServerCommand(-1, va("cp \""S_COLOR_BLUE"Mission Objective Complete:\n%s\"", char_data));
-		//G_DebugPrint( WL_WARNING, "SET_OBJECTIVE_SUCCEEDED: NOT SUPPORTED IN MP\n");
 		//[/CoOp]
 		break;
 	case SET_OBJECTIVE_FAILED:
 		//[CoOp]
 		trap_SP_GetStringTextString( va("OBJECTIVES_%s", data), char_data, sizeof(char_data));
 		trap_SendServerCommand(-1, va("cp \""S_COLOR_RED"Mission Objective Failed:\n%s\"", char_data));
-		//G_DebugPrint( WL_WARNING, "SET_OBJECTIVE_FAILED: NOT SUPPORTED IN MP\n");
 		//[/CoOp]
 		break;
 
@@ -7427,7 +7234,6 @@ qboolean Q3_Set( int taskID, int entID, const char *type_name, const char *data 
 		LogExit("Co-Op Mission Failed.");
 		//we want the intermission to activate a little slower than normal.
 		level.intermissionQueued = level.time + 5000;
-		//G_DebugPrint( WL_WARNING, "SET_MISSIONFAILED: NOT SUPPORTED IN MP\n");
 		//[/CoOp]
 		break;
 
@@ -7594,7 +7400,6 @@ qboolean Q3_Set( int taskID, int entID, const char *type_name, const char *data 
 		//[CoOp]
 		//Fixing the declared varible stuff.
 		SetVar( type_name, data );
-		//trap_ICARUS_SetVar( taskID, entID, type_name, data );
 		//[/CoOp]
 		break;
 	}

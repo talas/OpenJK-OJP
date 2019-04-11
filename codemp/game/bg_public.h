@@ -231,7 +231,6 @@ Ghoul2 Insert End
 //giving this a shot
 #define CS_CAMERA				(CS_BSP_MODELS + MAX_SUB_BSP)
 #define CS_MAX					(CS_CAMERA + 1)
-//#define CS_MAX					(CS_BSP_MODELS + MAX_SUB_BSP)
 //[/CoOp]
 
 #if (CS_MAX) > MAX_CONFIGSTRINGS
@@ -540,7 +539,6 @@ extern int forceMasteryPoints[NUM_FORCE_MASTERY_LEVELS];
 //#define SABER_DEFENSE_L1	4
 //[ExpSys]
 extern int bgForcePowerCost[NUM_TOTAL_SKILLS][NUM_FORCE_POWER_LEVELS];
-//extern int bgForcePowerCost[NUM_FORCE_POWERS][NUM_FORCE_POWER_LEVELS];
 //[/ExpSys]
 #include "../namespace_end.h"
 
@@ -684,7 +682,6 @@ typedef enum {
 	STAT_MAX_HEALTH,					// health / armor limit, changable by handicap
 	STAT_DODGE,			//number of Dodge Points the player has.  DP is used for evading/blocking attacks before they hurt you.
 	STAT_MAX_DODGE,		//maximum number of dodge points allowed.
-	//STAT_MAX_HEALTH					// health / armor limit, changable by handicap
 	//[/DodgeSys]
 	STAT_AMMOPOOL//[Reload]
 } statIndex_t;
@@ -743,21 +740,16 @@ typedef enum {
 
 //[CoOp]
 #define EF_DISABLE_SHADER_ANIM	(1<<12)		// Normally shader animation chugs along, but movers can force shader animation to be on frame 1
-//#define EF_NOT_USED_1			(1<<12)		// not used
 //[/CoOp]
 
 #define	EF_TALK					(1<<13)		// draw a talk balloon
 #define	EF_CONNECTION			(1<<14)		// draw a connection trouble sprite
-//#define	EF_NOT_USED_6			(1<<15)		// not used
 #define EF_WALK					(1<<15)
 //[CoOp]
 #define EF_ANIM_ONCE			(1<<16)		// cycle through all frames just once then stop
-//#define	EF_NOT_USED_2			(1<<16)		// not used
 #define EF_ANIM_ALLFAST			(1<<17)		// automatically cycle through all frames at 10hz
-//#define	EF_NOT_USED_3			(1<<17)		// not used
 //Could we do this some different way?
 #define EF_SPOTLIGHT			(1<<18)	// Your lights are on...
-//#define	EF_NOT_USED_4			(1<<18)		// not used
 //[/CoOp]
 
 #define	EF_BODYPUSH				(1<<19)		//rww - claiming this for fullbody push effect
@@ -778,7 +770,6 @@ typedef enum {
 
 //[CoOp]
 #define EF_FORCE_VISIBLE		(1<<31)		// Always visible with force sight
-//#define EF_NOT_USED_5			(1<<31)		// not used
 //[/CoOp]
 
 #define	EF_DUAL_WEAPONS			(1<<31) //[DualPistols]
@@ -938,7 +929,6 @@ typedef enum {
 	//[SaberLockSys]
 	//replaced EV_JUMP_PAD with EV_SABERLOCK
 	EV_SABERLOCK,				// Player is in saberlock (render sound/effects)
-	//EV_JUMP_PAD,			// boing sound at origin, jump sound on player
 	//[/SaberLockSys]
 
 	EV_GHOUL2_MARK,			//create a projectile impact mark on something with a client-side g2 instance.
@@ -1815,7 +1805,6 @@ qboolean BG_InWalk( int anim );
 //[FatigueSys]
 void BG_SaberStartTransAnim( int clientNum, int saberAnimLevel, int weapon, int anim, 
 							float *animSpeed, int broken, int fatigued );
-//void BG_SaberStartTransAnim( int clientNum, int saberAnimLevel, int weapon, int anim, float *animSpeed, int broken );
 //[/FatigueSys]
 
 void BG_ForcePowerDrain( playerState_t *ps, forcePowers_t forcePower, int overrideAmt );

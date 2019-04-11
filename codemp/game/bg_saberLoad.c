@@ -486,7 +486,7 @@ qboolean WP_UseFirstValidSaberStyle( saberInfo_t *saber1, saberInfo_t *saber2, i
 
 
 //[StanceSelection]
-/* NUAM
+#ifdef _DISABLED
 qboolean WP_SaberStyleValidForSaber( saberInfo_t *saber1, saberInfo_t *saber2, int saberHolstered, int saberAnimLevel )
 {
 	qboolean saber1Active;
@@ -599,7 +599,7 @@ qboolean WP_SaberStyleValidForSaber( saberInfo_t *saber1, saberInfo_t *saber2, i
 	}
 	return qtrue;
 }
-*/
+#endif //_DISABLED
 //[/StanceSelection]
 
 

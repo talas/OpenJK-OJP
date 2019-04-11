@@ -205,7 +205,6 @@ void NPC_BSSniper_Patrol( void )
 			//Is there danger nearby
 			//[CoOp]
 			int alertEvent = NPC_CheckAlertEvents( qtrue, qtrue, -1, qfalse, AEL_SUSPICIOUS, qfalse );
-			//int alertEvent = NPC_CheckAlertEvents( qtrue, qtrue, -1, qfalse, AEL_SUSPICIOUS );
 			//[/CoOp]
 			if ( NPC_CheckForDanger( alertEvent ) )
 			{
@@ -660,7 +659,6 @@ void NPC_BSSniper_Attack( void )
 
 	//[CoOp]
 	if ( TIMER_Done( NPC, "flee" ) && NPC_CheckForDanger( NPC_CheckAlertEvents( qtrue, qtrue, -1, qfalse, AEL_DANGER, qfalse ) ) )
-	//if ( TIMER_Done( NPC, "flee" ) && NPC_CheckForDanger( NPC_CheckAlertEvents( qtrue, qtrue, -1, qfalse, AEL_DANGER ) ) )
 	//[/CoOp]
 	{//going to run
 		NPC_UpdateAngles( qtrue, qtrue );

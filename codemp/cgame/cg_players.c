@@ -67,15 +67,6 @@ const char	*cg_customCombatSoundNames[MAX_CUSTOM_COMBAT_SOUNDS] =
 	"*confuse1",	//Say when confused
 	"*confuse2",
 	"*confuse3",
-	//[SaberSys]
-	//moved these sounds in the default combat sounds so that players can make grunt sounds when
-	//stunned, slow bounced, etc.
-	/*
-	"*pushed1",	//Say when force-pushed
-	"*pushed2",
-	"*pushed3",
-	*/
-	//[/SaberSys]
 	"*choke1",
 	"*choke2",
 	"*choke3",
@@ -303,7 +294,6 @@ sfxHandle_t	CG_CustomSound( int clientNum, const char *soundName ) {
 		}
 		//[ALLTAUNTS]
 		//Since duel taunts are now usable in any mode, the duel sounds must be used as well.
-		//else if ( (cgs.gametype == GT_DUEL || cgs.gametype == GT_POWERDUEL || cg_buildScript.integer) && i < numCDuelSounds && !strcmp( lSoundName, cg_customDuelSoundNames[i] ) )
 		else if ( i < numCDuelSounds && !strcmp( lSoundName, cg_customDuelSoundNames[i] ) )
 		//[/ALLTAUNTS]
 		{ //siege only
@@ -1198,7 +1188,6 @@ void CG_LoadClientInfo( clientInfo_t *ci ) {
 		cg_entities[clientNum].localAnimIndex = CG_G2SkelForModel(cg_entities[clientNum].ghoul2);
 		//[ANIMEVENTS]
 		cg_entities[clientNum].eventAnimIndex = BG_ParseAnimationEvtFile( va("models/players/%s/", ci->modelName), cg_entities[clientNum].localAnimIndex, bgNumAnimEvents );
-		//cg_entities[clientNum].eventAnimIndex = CG_G2EvIndexForModel(cg_entities[clientNum].ghoul2, cg_entities[clientNum].localAnimIndex);
 		//[/ANIMEVENTS]
 	}
 
@@ -2164,7 +2153,6 @@ void CG_NewClientInfo( int clientNum, qboolean entitiesInitialized ) {
 		//[ANIMEVENTS]
 		//This might cause slow down whenever someone with a new animevent.cfg joins the game.  Oh well.
 		cg_entities[clientNum].eventAnimIndex = BG_ParseAnimationEvtFile( va("models/players/%s/", ci->modelName), cg_entities[clientNum].localAnimIndex, bgNumAnimEvents );
-		//cg_entities[clientNum].eventAnimIndex = CG_G2EvIndexForModel(cg_entities[clientNum].ghoul2, cg_entities[clientNum].localAnimIndex);
 		//[/ANIMEVENTS]
 
 		if (cg_entities[clientNum].currentState.number != cg.predictedPlayerState.clientNum &&
@@ -3209,7 +3197,6 @@ static void CG_SetLerpFrameAnimation( centity_t *cent, clientInfo_t *ci, lerpFra
 		BG_SaberStartTransAnim(cent->currentState.number, cent->currentState.fireflag, 
 			cent->currentState.weapon, newAnimation, &animSpeed, 
 			cent->currentState.brokenLimbs, cent->currentState.userInt3);
-		//BG_SaberStartTransAnim(cent->currentState.number, cent->currentState.fireflag, cent->currentState.weapon, newAnimation, &animSpeed, cent->currentState.brokenLimbs);
 		//[/FatigueSys]
 
 		if (torsoOnly)
@@ -4719,10 +4706,6 @@ static void CG_PlayerFlag( centity_t *cent, qhandle_t hModel ) {
 	if (cent->currentState.number == cg.snap->ps.clientNum 
 		&& !cg.renderingThirdPerson && !cg_trueguns.integer 
 		&& cg.snap->ps.weapon != WP_SABER)
-	/*
-	if (cent->currentState.number == cg.snap->ps.clientNum &&
-		!cg.renderingThirdPerson)
-	*/
 	//[/TrueView]
 	{
 		return;
@@ -5792,7 +5775,6 @@ static void CG_RGBForSaberColor( saber_colors_t color, vec3_t rgb, int cnum, int
 //changed this from static so we can use it for rendering the saber blade for 
 //dropped/ballastics sabers.
 void CG_DoSaberLight( saberInfo_t *saber , int cnum, int bnum)
-//static void CG_DoSaberLight( saberInfo_t *saber , int cnum, int bnum)
 //[/SaberThrowSys]
 //[/RGBSabers]
 {
@@ -9860,12 +9842,6 @@ void CG_AddSaberBlade( centity_t *cent, centity_t *scent, refEntity_t *saber, in
 		cgs.gametype != GT_SIEGE &&
 		!cgs.jediVmerc &&
 		cent->currentState.eType != ET_NPC)
-	/*
-	if (cgs.gametype >= GT_TEAM &&
-		cgs.gametype != GT_SIEGE &&
-		!cgs.jediVmerc &&
-		cent->currentState.eType != ET_NPC)
-	*/
 	//[/RGBSabers]
 	{
 		if (client->team == TEAM_RED)
@@ -12357,7 +12333,6 @@ static CGAME_INLINE void CG_VehicleEffects(centity_t *cent)
 				//[CloakingVehicles]
 				//don't draw engine effects if the ship is cloaked
 				if ( doExhaust && cent->ghoul2 && !(cent->currentState.powerups & (1 <<PW_CLOAKED)) )
-				//if ( doExhaust && cent->ghoul2 )
 				//[/CloakingVehicles]
 				{
 					int i;
@@ -14340,7 +14315,6 @@ void CG_Player( centity_t *cent ) {
 			//skeleton's animevent instead of their actual models.  Fortunately, I don't
 			//think NPCs ever go thru here anyway.
 			cent->eventAnimIndex = BG_ParseAnimationEvtFile( va("models/players/%s/", ci->modelName), cent->localAnimIndex, bgNumAnimEvents );
-			//cent->eventAnimIndex = CG_G2EvIndexForModel(cent->ghoul2, cent->localAnimIndex);
 			//[/ANIMEVENTS]
 		}
 		return;
@@ -14444,7 +14418,6 @@ void CG_Player( centity_t *cent ) {
 	//[SaberThrowSys]
 	//had to change this to allow for the rendering of non-saber weapons while the player's saber is out.
 	if (!g2HasWeapon && !cent->currentState.saberInFlight)
-	//if (!g2HasWeapon)
 	//[/SaberThrowSys]
 	{ //force a redup of the weapon instance onto the client instance
 		cent->ghoul2weapon = NULL;
@@ -14542,13 +14515,6 @@ void CG_Player( centity_t *cent ) {
 				&& cg.predictedPlayerState.weapon != WP_MELEE) 
 				|| ( cg.predictedPlayerState.weapon == WP_SABER && cg_truesaberonly.integer )
 				|| cg.predictedPlayerState.zoomMode)
-			/*
-#if 0
-			if (!cg_fpls.integer || cent->currentState.weapon != WP_SABER)
-#else
-			if (cent->currentState.weapon != WP_SABER)
-#endif
-			*/
 			{
 				renderfx = RF_THIRD_PERSON;			// only draw in mirrors
 			}
@@ -14669,7 +14635,6 @@ void CG_Player( centity_t *cent ) {
 	//[SaberThrowSys]
 	//changed this to make sure that the saber draw/holster sounds still work right with the ability to switch weapons while your saber is out.
 	if (cent->saberWasInFlight && g2HasWeapon && cent->ghoul2weapon == CG_G2WeaponInstance(cent, WP_SABER))
-	//if (cent->saberWasInFlight && g2HasWeapon)
 	//[/SaberThrowSys]
 	{
 		 cent->saberWasInFlight = qfalse;
@@ -15037,8 +15002,7 @@ void CG_Player( centity_t *cent ) {
 	}
 
 SkipTrueView:
-
-	/*
+	//[/TrueView]
 #if 0
 	if (cg.renderingThirdPerson)
 	{
@@ -15083,7 +15047,6 @@ SkipTrueView:
 			trap_G2API_GetBoltMatrix(cent->ghoul2, 0, ci->bolt_head, &headMatrix, cent->turAngles, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale);
 			BG_GiveMeVectorFromMatrix(&headMatrix, ORIGIN, cg.refdef.vieworg);
 			*/
-			/*
 		}
 		else if (!cg_fpls.integer && cgFPLSState)
 		{
@@ -15096,8 +15059,6 @@ SkipTrueView:
 		}
 	}
 #endif
-	*/
-	//[/TrueView]
 
 	if (cent->currentState.eFlags & EF_DEAD)
 	{
@@ -15364,10 +15325,6 @@ SkipTrueView:
 			(cg.renderingThirdPerson || cent->currentState.number != cg.snap->ps.clientNum 
 			|| cg_trueguns.integer  || cg.predictedPlayerState.weapon == WP_SABER
 			|| cg.predictedPlayerState.weapon == WP_MELEE) )
-		/*
-		if ( (cent->currentState.forcePowersActive & (1 << FP_GRIP)) &&
-			(cg.renderingThirdPerson || cent->currentState.number != cg.snap->ps.clientNum) )
-		*/
 		{
 			vec3_t boltDir;
 			vec3_t origBolt;
@@ -15592,7 +15549,6 @@ SkipTrueView:
 		if (cgs.gametype == GT_HOLOCRON && cent->currentState.time2 && 
 		((cg.renderingThirdPerson || cg_trueguns.integer || cg.predictedPlayerState.weapon == WP_SABER || cg.predictedPlayerState.weapon == WP_MELEE) 
 		|| cg.snap->ps.clientNum != cent->currentState.number))
-	//if (cgs.gametype == GT_HOLOCRON && cent->currentState.time2 && (cg.renderingThirdPerson || cg.snap->ps.clientNum != cent->currentState.number))
 	//[/TrueView]
 	{
 		int i = 0;
@@ -15786,15 +15742,12 @@ stillDoSaber:
 	//[SaberThrowSys]
 	//rearranged this code a little because sabers can now be returning without being active.
 	else if ( cent->currentState.weapon == WP_SABER )
-	//else if (cent->currentState.weapon == WP_SABER 
-	//	&& cent->currentState.saberHolstered < 2 )
 	//[/SaberThrowSys]
 	{
 		//[SaberThrowSys]
 		//rearranged this code a little because sabers can now be returning without being active.
 		if( cent->currentState.saberHolstered < 2 &&
 			(!cent->currentState.saberInFlight //saber not in flight
-		//if ( (!cent->currentState.saberInFlight //saber not in flight
 		//[/SaberThrowSys]
 				|| ci->saber[1].soundLoop) //??? //racc - or we have dual sabers
 				//(since one stays in hand when tossed.)
@@ -16079,12 +16032,6 @@ stillDoSaber:
 							VectorCopy(owndir, saberEnt->lerpAngles);
 							VectorClear(saberEnt->currentState.apos.trDelta);
 						}
-
-						/* basejka code
-						VectorCopy(owndir, saberEnt->currentState.apos.trBase);
-						VectorCopy(owndir, saberEnt->lerpAngles);
-						VectorClear(saberEnt->currentState.apos.trDelta);
-						*/
 						//[/SaberThrowSys]
 					}
 				}
@@ -16115,19 +16062,6 @@ stillDoSaber:
 				{
 					BG_SI_SetDesiredLength(&ci->saber[0], 0, -1);
 				}
-
-				/* basejka code
-				if ( ci->saber[0].numBlades > 1//staff
-					&& cent->currentState.saberHolstered == 1 )//extra blades off
-				{//only first blade should be on
-					BG_SI_SetDesiredLength(&ci->saber[0], 0, -1);
-					BG_SI_SetDesiredLength(&ci->saber[0], -1, 0);
-				}
-				else
-				{
-					BG_SI_SetDesiredLength(&ci->saber[0], -1, -1);
-				}
-				*/
 				//[/SaberThrowSys]
 				if ( ci->saber[1].model	//dual sabers
 					&& cent->currentState.saberHolstered == 1 )//second one off
@@ -16179,45 +16113,6 @@ stillDoSaber:
 						l++;
 					}
 				}
-
-				/* basejka code
-				//while (l < MAX_SABERS)
-				//Only want to do for the first saber actually, it's the one in flight.
-				while (l < 1)
-				{
-					if (!ci->saber[l].model[0])
-					{
-						break;
-					}
-
-					k = 0;
-					while (k < ci->saber[l].numBlades)
-					{
-						if ( //cent->currentState.fireflag == SS_STAFF&& //in saberstaff style
-							l == 0//first saber
-							&& cent->currentState.saberHolstered == 1 //extra blades should be off
-							&& k > 0 )//this is an extra blade
-						{//extra blades off
-							//don't draw them
-							CG_AddSaberBlade(cent, saberEnt, NULL, 0, 0, l, k, saberEnt->lerpOrigin, bladeAngles, qtrue, qtrue);
-						}
-						else
-						{
-							CG_AddSaberBlade(cent, saberEnt, NULL, 0, 0, l, k, saberEnt->lerpOrigin, bladeAngles, qtrue, qfalse);
-						}
-
-						k++;
-					}
-					if ( ci->saber[l].numBlades > 2 )
-					{//add a single glow for the saber based on all the blade colors combined
-						//[RGBSabers]
-						CG_DoSaberLight( &ci->saber[l], cent->currentState.clientNum, l );
-						//[/RGBSabers]
-					}
-
-					l++;
-				}
-				*/
 				//[/SaberThrowSys]
 
 				//Make the player's hand glow while guiding the saber
@@ -16282,7 +16177,6 @@ stillDoSaber:
 					{
 						BG_SI_SetDesiredLength(&ci->saber[1], 0, -1);
 					}
-					//BG_SI_SetDesiredLength(&ci->saber[1], 0, -1);
 					//[/SaberThrowSys]
 					
 				}
@@ -16291,28 +16185,6 @@ stillDoSaber:
 					BG_SI_SetDesiredLength(&ci->saber[1], -1, -1);
 				}
 			}
-
-			/* basejka code
-			if ( ci->saber[0].numBlades > 1//staff
-				&& cent->currentState.saberHolstered == 1 )//extra blades off
-			{//only first blade should be on
-				BG_SI_SetDesiredLength(&ci->saber[0], 0, -1);
-				BG_SI_SetDesiredLength(&ci->saber[0], -1, 0);
-			}
-			else
-			{
-				BG_SI_SetDesiredLength(&ci->saber[0], -1, -1);
-			}
-			if ( ci->saber[1].model	//dual sabers
-				&& cent->currentState.saberHolstered == 1 )//second one off
-			{
-				BG_SI_SetDesiredLength(&ci->saber[1], 0, -1);
-			}
-			else
-			{
-				BG_SI_SetDesiredLength(&ci->saber[1], -1, -1);
-			}
-			*/
 			//[/SaberThrowSys]
 		}
 
@@ -16499,7 +16371,6 @@ stillDoSaber:
 		//[SaberThrowSys]
 		//had to change this to allow for the rendering of non-saber weapons while the player's saber is out.
 		if (g2HasWeapon && cent->ghoul2weapon == CG_G2WeaponInstance(cent, WP_SABER))
-		//if (g2HasWeapon)
 		//[/SaberThrowSys]
 		{ //and remember to kill the bolton model in case we didn't get a thrown saber update first
 			trap_G2API_RemoveGhoul2Model(&(cent->ghoul2), 1);
@@ -16833,8 +16704,6 @@ stillDoSaber:
 		(cg.renderingThirdPerson || cent->currentState.number != cg.snap->ps.clientNum
 		|| cg_trueguns.integer || cg.predictedPlayerState.weapon == WP_SABER
 		|| cg.predictedPlayerState.weapon == WP_MELEE))
-	//if ((cent->currentState.forcePowersActive & (1 << FP_RAGE)) &&
-	//	(cg.renderingThirdPerson || cent->currentState.number != cg.snap->ps.clientNum))
 	//[/TrueView]
 	{
 		//legs.customShader = cgs.media.rageShader;
@@ -17275,7 +17144,6 @@ void CG_ResetPlayerEntity( centity_t *cent )
 			//skeleton's animevent instead of their actual models.  Fortunately, I don't
 			//think NPCs ever go thru here anyway.
 			cent->eventAnimIndex = BG_ParseAnimationEvtFile( va("models/players/%s/", ci->modelName), cent->localAnimIndex, bgNumAnimEvents );
-			//cent->eventAnimIndex = CG_G2EvIndexForModel(cent->ghoul2, cent->localAnimIndex);
 			//[/ANIMEVENTS]
 
 			//CG_CopyG2WeaponInstance(cent->currentState.weapon, ci->ghoul2Model);

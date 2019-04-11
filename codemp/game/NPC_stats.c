@@ -18,8 +18,6 @@ stringID_table_t TeamTable[] =
 	//these were out of correct order
 	ENUM2STRING(NPCTEAM_ENEMY),
 	ENUM2STRING(NPCTEAM_PLAYER),
-	//ENUM2STRING(NPCTEAM_PLAYER),
-	//ENUM2STRING(NPCTEAM_ENEMY),
 	//[/CoOp]
 	ENUM2STRING(NPCTEAM_NEUTRAL),	// most droids are team_neutral, there are some exceptions like Probe,Seeker,Interrogator
 	"",	-1
@@ -737,8 +735,7 @@ void NPC_Precache ( gentity_t *spawner )
 			//[CoOp]
 			//SP md3 NPCs don't have playerModel settings so use the legs instead.
 			Q_strncpyz( playerModel, value, sizeof(playerModel));
-			//[/CoOp]
-			//Q_strncpyz( ri.legsModelName, value, sizeof(ri.legsModelName), qtrue);			
+			//[/CoOp]			
 			md3Model = qtrue;
 			continue;
 		}
@@ -898,26 +895,6 @@ void NPC_Precache ( gentity_t *spawner )
 			}
 			G_ModelIndex(modelName);
 		}
-		//G_ModelIndex(modelName);
-		/*
-		if ( md3Model )
-		{
-			Com_Printf("MD3 model using NPCs are not supported in MP\n");
-		}
-		else
-		{ //if we have a model/skin then index them so they'll be registered immediately
-			//when the client gets a configstring update.
-			char modelName[MAX_QPATH];
-
-			Com_sprintf(modelName, sizeof(modelName), "models/players/%s/model.glm", playerModel);
-			if (customSkin[0])
-			{ //append it after a *
-				strcat( modelName, va("*%s", customSkin) );
-			}
-
-			G_ModelIndex(modelName);
-		}
-		*/
 		//[/CoOp]
 	}
 
@@ -3366,8 +3343,6 @@ Ghoul2 Insert Start
 	{
 		//[CoOp]
 		NPC->s.modelindex = G_ModelIndex( va("models/players/%s/lower.md3", playerModel) );
-		//Com_Printf("MD3 MODEL NPC'S ARE NOT SUPPORTED IN MP!\n");
-		//return qfalse;
 		//[/CoOp]
 	}
 /*

@@ -207,11 +207,6 @@ void Remote_Hunt( qboolean visible, qboolean advance, qboolean retreat )
 		//[CoOp]
 		NPC_MoveToGoal(qtrue);
 		return;
-		/*
-		//Get our direction from the navigator if we can't see our target
-		if ( NPC_GetMoveDirection( forward, &distance ) == qfalse )
-			return;
-		*/
 		//[/CoOp]
 	}
 	else
@@ -253,7 +248,6 @@ void Remote_Fire (void)
 	vectoangles ( delta1, angleToEnemy1 );
 	//[SeekerItemNpc]
 	AngleVectors (angleToEnemy1, forward, NULL, NULL);
-	//AngleVectors (angleToEnemy1, forward, vright, up);
 	//[/SeekerItemNpc]
 
 	missile = CreateMissile( NPC->r.currentOrigin, forward, 1000, 10000, NPC, qfalse );
@@ -335,7 +329,6 @@ void Remote_Attack( void )
 	visible		= NPC_ClearLOS4( NPC->enemy );
 	//[CoOp]
 	idealDist	= MIN_DISTANCE_SQR+(MIN_DISTANCE_SQR*Q_flrand( 0, 1 ));
-	//idealDist	= MIN_DISTANCE_SQR+(MIN_DISTANCE_SQR*flrand( 0, 1 ));
 	//[/CoOp]
 	advance		= (qboolean)(distance > idealDist*1.25);
 	retreat		= (qboolean)(distance < idealDist*0.75);

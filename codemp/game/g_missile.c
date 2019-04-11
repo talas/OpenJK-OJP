@@ -374,7 +374,6 @@ extern qboolean G_DoDodge( gentity_t *self, gentity_t *shooter, vec3_t dmgOrigin
 //G_MissileImpact now returns qfalse if and only if the player physically dodged the damage.
 //this allows G_RunMissile to properly handle he 
 qboolean G_MissileImpact( gentity_t *ent, trace_t *trace ) {
-//void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 //[/DodgeSys]
 	gentity_t		*other;
 	qboolean		hitClient = qfalse;
@@ -389,7 +388,6 @@ qboolean G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 	//[WeaponSys]
 	//allow thermals to bounce off players and such.
 	if ( (!other->takedamage || ent->s.weapon == WP_THERMAL) &&
-	//if ( !other->takedamage &&
 	//[/WeaponSys]
 		(ent->bounceCount > 0 || ent->bounceCount == -5) &&
 		( ent->flags & ( FL_BOUNCE | FL_BOUNCE_HALF ) ) ) {
@@ -397,7 +395,6 @@ qboolean G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 		G_AddEvent( ent, EV_GRENADE_BOUNCE, 0 );
 		//[DodgeSys]
 		return qtrue;
-		//return;
 		//[/DodgeSys]
 	}
 	else if (ent->neverFree && ent->s.weapon == WP_SABER && (ent->flags & FL_BOUNCE_HALF))
@@ -408,7 +405,6 @@ qboolean G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 			G_AddEvent( ent, EV_GRENADE_BOUNCE, 0 );
 			//[DodgeSys]
 			return qtrue;
-			//return;
 			//[/DodgeSys]
 		}
 
@@ -426,7 +422,6 @@ qboolean G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 		}
 		//[DodgeSys]
 		return qtrue;
-		//return;
 		//[/DodgeSys]
 	}
 
@@ -496,7 +491,6 @@ qboolean G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 			G_MissileBounceEffect(ent, ent->r.currentOrigin, fwd);
 			//[DodgeSys]
 			return qtrue;
-			//return;
 			//[/DodgeSys]
 		}
 	}
@@ -536,7 +530,6 @@ qboolean G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 			G_MissileBounceEffect(ent, ent->r.currentOrigin, fwd);
 			//[DodgeSys]
 			return qtrue;
-			//return;
 			//[/DodgeSys]
 		}
 	}
@@ -627,7 +620,6 @@ qboolean G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 		*/
 		//[DodgeSys]
 		return qtrue;
-		//return;
 		//[/DodgeSys]
 		//[/BoltBlockSys]
 	}
@@ -724,7 +716,6 @@ qboolean G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 			//[/BoltBlockSys]
 			//[DodgeSys]
 			return qtrue;
-			//return;
 			//[/DodgeSys]
 		}
 	}
@@ -733,14 +724,12 @@ qboolean G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 	//[SaberThrowSys]
 	if ( !other->takedamage && ( ent->s.eFlags & EF_MISSILE_STICK ) 
 		&& ent->s.weapon != WP_SABER)
-	//if ( !other->takedamage && ( ent->s.eFlags & EF_MISSILE_STICK ) ) 
 	//[/SaberThrowSys]
 	{
 		laserTrapStick( ent, trace->endpos, trace->plane.normal );
 		G_AddEvent( ent, EV_MISSILE_STICK, 0 );
 		//[DodgeSys]
 		return qtrue;
-		//return;
 		//[/DodgeSys]
 	}
 
@@ -758,7 +747,6 @@ qboolean G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 		// FIXME: wrong damage direction?
 		//[DodgeSys]
 		if ( missileDmg ) {
-		//if ( ent->damage ) {
 		//[/DodgeSys]
 			vec3_t	velocity;
 			qboolean didDmg = qfalse;
@@ -784,7 +772,6 @@ qboolean G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 					G_Damage (other, ent, &g_entities[ent->r.ownerNum], velocity,
 						//[DodgeSys]
 						/*ent->s.origin*/ent->r.currentOrigin, missileDmg, 
-						/*ent->s.origin*///ent->r.currentOrigin, ent->damage, 
 						//[/DodgeSys]
 						DAMAGE_HALF_ABSORB, ent->methodOfDeath);
 					didDmg = qtrue;
@@ -822,25 +809,11 @@ qboolean G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 				G_Damage (other, ent, &g_entities[ent->r.ownerNum], velocity,
 					//[DodgeSys]
 					/*ent->s.origin*/ent->r.currentOrigin, missileDmg,
-					/*ent->s.origin*///ent->r.currentOrigin, ent->damage, 
 					//[/DodgeSys]
 					0, ent->methodOfDeath);
 				}
 				didDmg = qtrue;
 			}
-			//else
-			//{
-				
-				//G_Damage (other, ent, &g_entities[ent->r.ownerNum], velocity, //previous code
-					//[DodgeSys]
-					/*ent->s.origin*///ent->r.currentOrigin, missileDmg,
-					/*ent->s.origin*///ent->r.currentOrigin, ent->damage, 
-					//[/DodgeSys]
-					//0, ent->methodOfDeath);
-				//didDmg = qtrue;
-				
-			//}
-
 
 			if (didDmg && other && other->client)
 			{ //What I'm wondering is why this isn't in the NPC pain funcs. But this is what SP does, so whatever.
@@ -978,7 +951,6 @@ void G_RunMissile( gentity_t *ent ) {
 		{//only go into gravity mode if we're not stuck to something
 			ent->s.pos.trType = TR_GRAVITY;
 		}
-		//ent->s.pos.trType = TR_GRAVITY;
 		//[/SaberThrowSys]
 	}
 
@@ -1036,10 +1008,6 @@ void G_RunMissile( gentity_t *ent ) {
 
 	if ( tr.startsolid || tr.allsolid ) {
 		// make sure the tr.entityNum is set to the entity we're stuck in
-		//[RealTrace]
-		//trap_Trace( &tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, ent->r.currentOrigin, passent, ent->clipmask );
-		//tr.fraction = 0;
-		//[/RealTrace]
 	}
 	else {
 		VectorCopy( tr.endpos, ent->r.currentOrigin );
@@ -1153,7 +1121,6 @@ void G_RunMissile( gentity_t *ent ) {
 			trap_LinkEntity( ent );
 			return;
 		}
-		//G_MissileImpact( ent, &tr );
 		//[/DodgeSys]
 
 		if (tr.entityNum == ent->s.otherEntityNum)

@@ -967,7 +967,6 @@ static cvarTable_t cvarTable[] = { // bk001129
 	//[AdminSys]
 	//boosted the amount of time that center print messages stay on the screen.
 	{ &cg_centertime, "cg_centertime", "7", CVAR_CHEAT },
-	//{ &cg_centertime, "cg_centertime", "3", CVAR_CHEAT },
 	//[/AdminSys]
 	{ &cg_runpitch, "cg_runpitch", "0.002", CVAR_ARCHIVE},
 	{ &cg_runroll, "cg_runroll", "0.005", CVAR_ARCHIVE },
@@ -2788,7 +2787,6 @@ void CG_StartMusic( qboolean bForceStart ) {
 	{
 		trap_S_StartBackgroundTrack( parm1, parm2, !bForceStart );
 	}
-	//trap_S_StartBackgroundTrack( parm1, parm2, !bForceStart );
 	//[/dynamicMusic]
 }
 

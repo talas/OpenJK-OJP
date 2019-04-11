@@ -299,7 +299,6 @@ extern qboolean NPC_CheckCanAttackExt( void );
 
 //[CoOp]
 extern int NPC_CheckAlertEvents( qboolean checkSight, qboolean checkSound, int ignoreAlert, qboolean mustHaveOwner, int minAlertLevel, qboolean onGroundOnly );
-//extern int NPC_CheckAlertEvents( qboolean checkSight, qboolean checkSound, int ignoreAlert, qboolean mustHaveOwner, int minAlertLevel ); //ignoreAlert = -1, mustHaveOwner = qfalse, minAlertLevel = AEL_MINOR
 //[/CoOp]
 extern qboolean NPC_CheckForDanger( int alertEvent );
 extern void G_AlertTeam( gentity_t *victim, gentity_t *attacker, float radius, float soundDist );

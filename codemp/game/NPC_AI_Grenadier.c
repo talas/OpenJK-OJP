@@ -213,7 +213,6 @@ void NPC_BSGrenadier_Patrol( void )
 			//Is there danger nearby
 			//[CoOp]
 			int alertEvent = NPC_CheckAlertEvents( qtrue, qtrue, -1, qfalse, AEL_SUSPICIOUS, qfalse );
-			//int alertEvent = NPC_CheckAlertEvents( qtrue, qtrue, -1, qfalse, AEL_SUSPICIOUS );
 			//[/CoOp]
 			if ( NPC_CheckForDanger( alertEvent ) )
 			{
@@ -225,9 +224,7 @@ void NPC_BSGrenadier_Patrol( void )
 				//There is an event to look at
 				//[CoOp]
 				if ( alertEvent >= 0 )
-				//if ( alertEvent >= 0 && level.alertEvents[alertEvent].ID != NPCInfo->lastAlertID )
 				{
-					//NPCInfo->lastAlertID = level.alertEvents[alertEvent].ID;
 				//[/CoOp]
 					if ( level.alertEvents[alertEvent].level == AEL_DISCOVERED )
 					{
@@ -495,7 +492,6 @@ void NPC_BSGrenadier_Attack( void )
 
 	//[CoOp]
 	if ( TIMER_Done( NPC, "flee" ) && NPC_CheckForDanger( NPC_CheckAlertEvents( qtrue, qtrue, -1, qfalse, AEL_DANGER, qfalse ) ) )
-	//if ( TIMER_Done( NPC, "flee" ) && NPC_CheckForDanger( NPC_CheckAlertEvents( qtrue, qtrue, -1, qfalse, AEL_DANGER ) ) )
 	//[/CoOp]
 	{//going to run
 		NPC_UpdateAngles( qtrue, qtrue );
@@ -532,7 +528,6 @@ void NPC_BSGrenadier_Attack( void )
 				//[CoOp]
 				//stun baton?!  wtf?!
 				NPC_ChangeWeapon( WP_MELEE );
-				//NPC_ChangeWeapon( WP_STUN_BATON );
 				//[/CoOp]
 				if ( !(NPCInfo->scriptFlags&SCF_CHASE_ENEMIES) )//NPCInfo->behaviorState == BS_STAND_AND_SHOOT )
 				{//FIXME: should we be overriding scriptFlags?
@@ -545,7 +540,6 @@ void NPC_BSGrenadier_Attack( void )
 	{//enemy is far or using saber
 		//[CoOp]
 		if ( NPC->client->ps.weapon == WP_MELEE && (NPC->client->ps.stats[STAT_WEAPONS]&(1<<WP_THERMAL)) )
-		//if ( NPC->client->ps.weapon == WP_STUN_BATON && (NPC->client->ps.stats[STAT_WEAPONS]&(1<<WP_THERMAL)) )
 		//[C/oOp]
 		{//fisticuffs, make switch to thermal if have it
 			//reset fire-timing variables
@@ -561,7 +555,6 @@ void NPC_BSGrenadier_Attack( void )
 		
 		//[CoOp]
 		if ( NPC->client->ps.weapon == WP_MELEE )
-		//if ( NPC->client->ps.weapon == WP_STUN_BATON )
 		//[CoOp]
 		{
 			if ( enemyDist3 <= 4096 && InFOV3( NPC->enemy->r.currentOrigin, NPC->r.currentOrigin, NPC->client->ps.viewangles, 90, 45 ) )//within 64 & infront
@@ -620,8 +613,8 @@ void NPC_BSGrenadier_Attack( void )
 			move3 = qfalse;
 		}
 		//[CoOp]
+		//74145: Huh, Stun Baton okay now?
 		else if ( NPC->client->ps.weapon == WP_STUN_BATON && enemyDist3 < (NPC->r.maxs[0]+NPC->enemy->r.maxs[0]+16)*(NPC->r.maxs[0]+NPC->enemy->r.maxs[0]+16) )
-		//else if ( NPC->client->ps.weapon == WP_STUN_BATON && enemyDist3 < (NPC->r.maxs[0]+NPC->enemy->r.maxs[0]+16)*(NPC->r.maxs[0]+NPC->enemy->r.maxs[0]+16) )
 		//[/CoOp]
 		{//close enough
 			move3 = qfalse;

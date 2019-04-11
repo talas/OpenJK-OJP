@@ -155,7 +155,6 @@ qboolean BG_EnoughForcePowerForMove( int cost )
 //[SaberSys]
 //We probably shouldn't use SETANIM_FLAG_HOLD without SETANIM_FLAG_HOLDLESS because it doesn't account for animation speed differences.
 #define AFLAG_FINISH (SETANIM_FLAG_HOLD | SETANIM_FLAG_HOLDLESS)
-//#define AFLAG_FINISH (SETANIM_FLAG_HOLD)
 //[/SaberSys]
 
 //FIXME: add the alternate anims for each style?
@@ -1370,7 +1369,6 @@ void PM_SaberLockBreak( playerState_t *genemy, qboolean victory, int strength )
 	qboolean singleVsSingle = qtrue;
 	//[SaberLockSys]
 	qboolean superBreak = victory;
-	//qboolean superBreak = (strength+pm->ps->saberLockHits > Q_irand(2,4));
 
 	//remove the saber lock winner flag.
 	pm->ps->userInt3 &= ~( 1 << FLAG_SABERLOCK_ATTACKER );
@@ -1431,13 +1429,7 @@ void PM_SaberLockBreak( playerState_t *genemy, qboolean victory, int strength )
 #ifdef QAGAME
 				gentity_t *self = &g_entities[pm->ps->clientNum];
 				gentity_t *enemy = &g_entities[genemy->clientNum];
-				
 				G_Knockdown( enemy, self, oppDir, strength*40, qtrue );
-
-				// replaced with SP knockdown method.
-				//genemy->forceHandExtend = HANDEXTEND_KNOCKDOWN;
-				//genemy->forceHandExtendTime = pm->cmd.serverTime + 1100;
-				//genemy->forceDodgeAnim = 0; //this toggles between 1 and 0, when it's 1 we should play the get up anim
 				
 				genemy->otherKiller = pm->ps->clientNum;
 				genemy->otherKillerTime = pm->cmd.serverTime + 5000;
@@ -1467,7 +1459,6 @@ void PM_SaberLockBreak( playerState_t *genemy, qboolean victory, int strength )
 
 		//[SaberLockSys]
 		int strength = 10;
-		//int strength = 4;
 		//[/SaberLockSys]
 
 		VectorSubtract(genemy->origin, pm->ps->origin, oppDir);
@@ -1476,7 +1467,6 @@ void PM_SaberLockBreak( playerState_t *genemy, qboolean victory, int strength )
 		genemy->velocity[1] = oppDir[1]*(strength*40);
 		//[SaberLockSys]
 		genemy->velocity[2] = 0;
-		//genemy->velocity[2] = 150;
 		//[/SaberLockSys]
 
 		VectorSubtract(pm->ps->origin, genemy->origin, oppDir);
@@ -1485,7 +1475,6 @@ void PM_SaberLockBreak( playerState_t *genemy, qboolean victory, int strength )
 		pm->ps->velocity[1] = oppDir[1]*(strength*40);
 		//[SaberLockSys]
 		pm->ps->velocity[2] = 0;
-		//pm->ps->velocity[2] = 150;
 
 		//genemy->forceHandExtend = HANDEXTEND_WEAPONREADY;
 		//[/SaberLockSys]
@@ -2130,7 +2119,6 @@ saberMoveName_t PM_SaberLungeAttackMove( qboolean noSpecials )
 	//[SaberSys]
 	//all single saber styles can now do lunges.
 	if (pm->ps->fd.saberAnimLevel >= SS_FAST && pm->ps->fd.saberAnimLevel <= SS_TAVION)
-	//if (pm->ps->fd.saberAnimLevel == SS_FAST)
 	//[/SaberSys]
 	{
 		VectorCopy( pm->ps->viewangles, fwdAngles );
@@ -2503,10 +2491,8 @@ static qboolean PM_CheckEnemyPresence( int dir, float radius )
 
 #define SABER_ALT_ATTACK_POWER_LR	FATIGUE_CARTWHEEL
 #define SABER_ALT_ATTACK_POWER_LRA	FATIGUE_CARTWHEEL_ATARU
-//#define SABER_ALT_ATTACK_POWER_LR	10//30?
 
-//#define SABER_ALT_ATTACK_POWER_FB	3 NUAM
-//#define SABER_ALT_ATTACK_POWER_FB	25//30/50?
+//#define SABER_ALT_ATTACK_POWER_FB	3//25//30/50?
 //[/SaberSys]
 
 extern qboolean PM_SaberInReturn( int move ); //bg_panimate.c
@@ -2652,7 +2638,6 @@ saberMoveName_t PM_SaberAttackForMovement(saberMoveName_t curmove)
 	//[SaberSys]
 	//can't launch a special while in a cartwheel (prevents possible FP exploit)
 	qboolean noSpecials = PM_InSecondaryStyle() || PM_InCartwheel(pm->ps->legsAnim);
-	//qboolean noSpecials = PM_InSecondaryStyle();
 	//[/SaberSys]
 	qboolean allowCartwheels = qtrue;
 	saberMoveName_t overrideJumpRightAttackMove = LS_INVALID;
@@ -2879,7 +2864,6 @@ saberMoveName_t PM_SaberAttackForMovement(saberMoveName_t curmove)
 				(pm->cmd.buttons & BUTTON_ATTACK)&&
 				//[SaberSys]
 				BG_EnoughForcePowerForMove(FATIGUE_JUMPATTACK) )
-				//BG_EnoughForcePowerForMove(SABER_ALT_ATTACK_POWER_FB) )
 				//[/SaberSys]
 			{ //DUAL/STAFF JUMP ATTACK
 				newmove = PM_SaberJumpAttackMove2();
@@ -2888,7 +2872,6 @@ saberMoveName_t PM_SaberAttackForMovement(saberMoveName_t curmove)
 				{
 					//[SaberSys]
 					BG_ForcePowerDrain(pm->ps, FP_GRIP, FATIGUE_JUMPATTACK);
-					//BG_ForcePowerDrain(pm->ps, FP_GRIP, SABER_ALT_ATTACK_POWER_FB);
 					//[/SaberSys]
 				}
 			}
@@ -2897,7 +2880,6 @@ saberMoveName_t PM_SaberAttackForMovement(saberMoveName_t curmove)
 				//all single saber styles now have an overhead slash move
 				(pm->ps->fd.saberAnimLevel >= SS_FAST &&
 				pm->ps->fd.saberAnimLevel <= SS_TAVION) &&
-				//pm->ps->fd.saberAnimLevel == SS_MEDIUM &&
 				//[/SaberSys]
 				pm->ps->velocity[2] > 100 &&
 				PM_GroundDistance() < 32 &&
@@ -2905,7 +2887,6 @@ saberMoveName_t PM_SaberAttackForMovement(saberMoveName_t curmove)
 				!BG_SaberInSpecialAttack(pm->ps->torsoAnim)&&
 				//[SaberSys]
 				BG_EnoughForcePowerForMove(FATIGUE_JUMPATTACK))
-				//BG_EnoughForcePowerForMove(SABER_ALT_ATTACK_POWER_FB))
 				//[/SaberSys]
 			{ //FLIP AND DOWNWARD ATTACK
 				//trace_t tr;
@@ -2918,7 +2899,6 @@ saberMoveName_t PM_SaberAttackForMovement(saberMoveName_t curmove)
 					{
 						//[SaberSys]
 						BG_ForcePowerDrain(pm->ps, FP_GRIP, FATIGUE_JUMPATTACK);
-						//BG_ForcePowerDrain(pm->ps, FP_GRIP, SABER_ALT_ATTACK_POWER_FB);
 						//[/SaberSys]
 					}
 				}
@@ -2950,7 +2930,6 @@ saberMoveName_t PM_SaberAttackForMovement(saberMoveName_t curmove)
 			//[SaberSys]
 			//all single saber styles can now do lunges.
 			else if (
-			//else if ((pm->ps->fd.saberAnimLevel == SS_FAST || pm->ps->fd.saberAnimLevel == SS_DUAL || pm->ps->fd.saberAnimLevel == SS_STAFF) &&
 			//[/SaberSys]
 				pm->ps->groundEntityNum != ENTITYNUM_NONE &&
 				(pm->ps->pm_flags & PMF_DUCKED) &&
@@ -2959,7 +2938,6 @@ saberMoveName_t PM_SaberAttackForMovement(saberMoveName_t curmove)
 				//[SaberSys]
 				BG_EnoughForcePowerForMove(FATIGUE_GROUNDATTACK) &&
 				!PM_SaberInBounce(curmove)) //can't combo into a lunge move 
-				//BG_EnoughForcePowerForMove(SABER_ALT_ATTACK_POWER_FB))
 				//[/SaberSys]
 			{ //LUNGE (weak)
 				newmove = PM_SaberLungeAttackMove( noSpecials );
@@ -2968,7 +2946,6 @@ saberMoveName_t PM_SaberAttackForMovement(saberMoveName_t curmove)
 				{
 					//[SaberSys]
 					BG_ForcePowerDrain(pm->ps, FP_GRIP, FATIGUE_GROUNDATTACK);
-					//BG_ForcePowerDrain(pm->ps, FP_GRIP, SABER_ALT_ATTACK_POWER_FB);
 					//[/SaberSys]
 				}
 			}
@@ -2978,13 +2955,11 @@ saberMoveName_t PM_SaberAttackForMovement(saberMoveName_t curmove)
 				if (stabDownMove != LS_NONE 
 					//[SaberSys]
 					&& BG_EnoughForcePowerForMove(FATIGUE_GROUNDATTACK) )
-					//&& BG_EnoughForcePowerForMove(SABER_ALT_ATTACK_POWER_FB) )
 					//[/SaberSys]
 				{
 					newmove = stabDownMove;
 					//[SaberSys]
 					BG_ForcePowerDrain(pm->ps, FP_GRIP, FATIGUE_GROUNDATTACK);
-					//BG_ForcePowerDrain(pm->ps, FP_GRIP, SABER_ALT_ATTACK_POWER_FB);
 					//[/SaberSys]
 				}
 				else
@@ -3041,21 +3016,6 @@ saberMoveName_t PM_SaberAttackForMovement(saberMoveName_t curmove)
 		{//bounces, parries, etc return to the start position if a direction isn't given.
 			newmove = LS_READY;
 		}
-		/*
-		else if ( PM_SaberInBounce( curmove ) )
-		{//bounces should go to their default attack if you don't specify a direction but are attacking
-			newmove = saberMoveData[curmove].chain_attack;
-
-			if ( PM_SaberKataDone(curmove, newmove) )
-			{
-				newmove = saberMoveData[curmove].chain_idle;
-			}
-			else
-			{
-				newmove = saberMoveData[curmove].chain_attack;
-			}
-		}
-		*/
 		//[/SaberSys]
 		else if ( curmove == LS_READY )
 		{//Not moving at all, shouldn't have gotten here...?
@@ -3496,7 +3456,6 @@ qboolean PM_CanDoRollStab( void )
 	//[DodgeSys]
 	//Can't roll stab in a Dodge Roll.
 	if ( pm->ps->weapon == WP_SABER && !(pm->ps->userInt3 & (1 << FLAG_DODGEROLL)) )
-	//if ( pm->ps->weapon == WP_SABER )
 	{
 		saberInfo_t *saber = BG_MySaber( pm->ps->clientNum, 0 );
 		if ( saber
@@ -3863,7 +3822,6 @@ void PM_WeaponLightsaber(void)
 			{
 				//[SaberSys]
 				if ( BG_EnoughForcePowerForMove(FATIGUE_GROUNDATTACK) && !pm->ps->saberInFlight )
-				//if ( BG_EnoughForcePowerForMove(SABER_ALT_ATTACK_POWER_FB) && !pm->ps->saberInFlight )
 				//[SaberSys]
 				{
 					if ( PM_CanDoRollStab() )
@@ -3877,7 +3835,6 @@ void PM_WeaponLightsaber(void)
 						PM_SetSaberMove( LS_ROLL_STAB );
 						//[SaberSys]
 						BG_ForcePowerDrain(pm->ps, FP_GRIP, FATIGUE_GROUNDATTACK);
-						//BG_ForcePowerDrain(pm->ps, FP_GRIP, SABER_ALT_ATTACK_POWER_FB);
 						//[/SaberSys]
 					}
 				}
@@ -3979,10 +3936,8 @@ void PM_WeaponLightsaber(void)
 			//[MELEE]
 			//don't active saber on altattack.
 			&& (pm->cmd.buttons & BUTTON_ATTACK)
-			//&& ((pm->cmd.buttons & BUTTON_ALT_ATTACK) || (pm->cmd.buttons & BUTTON_ATTACK))
 			//[/MELEE]
 			&& !pm->ps->saberInFlight)
-		//if (pm->ps->weaponTime < 1 && ((pm->cmd.buttons & BUTTON_ALT_ATTACK) || (pm->cmd.buttons & BUTTON_ATTACK)))
 		//[/SaberThrowSys]
 		{
 			if (pm->ps->duelTime < pm->cmd.serverTime)
@@ -4035,7 +3990,6 @@ void PM_WeaponLightsaber(void)
 		{
 			//[SaberThrowSys]
 			if ( pm->ps->saberHolstered > 1 || !pm->ps->saberHolstered  )
-			//if ( pm->ps->saberHolstered > 1 )
 			{
 				pm->ps->saberHolstered = 1;
 			}
@@ -4060,14 +4014,12 @@ void PM_WeaponLightsaber(void)
 	
 	//Added additional ways of using saber throw.
 	if ( (pm->cmd.buttons & BUTTON_SABERTHROW) || ((pm->cmd.buttons & BUTTON_FORCEPOWER) && pm->ps->fd.forcePowerSelected == FP_SABERTHROW) )
-	//if ( (pm->cmd.buttons & BUTTON_ALT_ATTACK) )
 	//attempting to saber throw.  handle it.
 	//[/SaberSys]
 	{ //might as well just check for a saber throw right here
 		//[SaberSys]
 		//this really should be based on weither the saber is throwable or not.
 		if(!PM_SaberThrowable())
-		//if (pm->ps->fd.saberAnimLevel == SS_STAFF)
 		//[/SaberSys]
 		{ //kick instead of doing a throw 
 			//[Melee]
@@ -4149,35 +4101,6 @@ void PM_WeaponLightsaber(void)
 		}
 	}
 
-
-
-	//[SaberThrowSys]
-	//replaced by above code.
-	/* basejka code
-	if ( pm->ps->saberInFlight && pm->ps->saberEntityNum )
-	{//guiding saber
-		if ( (pm->ps->fd.saberAnimLevel != SS_DUAL //not using 2 sabers
-			  || pm->ps->saberHolstered //left one off - FIXME: saberHolstered 1 should be left one off, 0 should be both on, 2 should be both off
-			  || (!(pm->cmd.buttons&BUTTON_ATTACK)//not trying to start an attack AND...
-				  && (pm->ps->torsoAnim == BOTH_SABERDUAL_STANCE//not already attacking
-					  || pm->ps->torsoAnim == BOTH_SABERPULL//not already attacking
-					  || pm->ps->torsoAnim == BOTH_STAND1//not already attacking
-					  || PM_RunningAnim( pm->ps->torsoAnim ) //not already attacking
-					  || PM_WalkingAnim( pm->ps->torsoAnim ) //not already attacking
-					  || PM_JumpingAnim( pm->ps->torsoAnim )//not already attacking
-					  || PM_SwimmingAnim( pm->ps->torsoAnim ))//not already attacking
-				)
-			  )
-			)
-		{
-			PM_SetAnim(SETANIM_TORSO, BOTH_SABERPULL, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 100);
-			pm->ps->torsoTimer = 1;
-			return;
-		}
-	}
-	*/
-	//[/SaberThrowSys]
-
    // don't allow attack until all buttons are up
 	//This is bad. It freezes the attack state and the animations if you hold the button after respawning, and it looks strange.
 	/*
@@ -4250,7 +4173,6 @@ void PM_WeaponLightsaber(void)
 			//[SaberSys]
 			//make these blocks be consistent length
 			pm->ps->weaponTime = 350;
-			//pm->ps->weaponTime = bg_parryDebounce[pm->ps->fd.forcePowerLevel[FP_SABER_DEFENSE]]+200;
 			//[/SaberSys]
 		}
 		switch ( pm->ps->saberBlocked )
@@ -4292,7 +4214,6 @@ void PM_WeaponLightsaber(void)
 				//[SaberSys]
 				//only cancel an attack bounce if we're already in a bounce/return, which shouldn't really happen.
 				if ( PM_SaberInBounce(pm->ps->saberMove) || PM_SaberInReturn(pm->ps->saberMove) )
-				//if (pm->ps->saberMove >= LS_T1_BR__R)
 				//[/SaberSys]
 				{//an actual bounce?  Other bounces before this are actually transitions?
 					pm->ps->saberBlocked = BLOCKED_NONE;
@@ -4306,7 +4227,6 @@ void PM_WeaponLightsaber(void)
 					if ( (pm->ps->userInt3 & (1 << FLAG_SLOWBOUNCE) 
 						&& !(pm->ps->userInt3 & (1 << FLAG_OLDSLOWBOUNCE)))  //starting a new style slow bounce, always use a return
 						|| (!BG_SaberInAttack( pm->ps->saberMove ) && !PM_SaberInStart( pm->ps->saberMove )) )
-					//if ( PM_SaberInBounce( pm->ps->saberMove ) || !BG_SaberInAttack( pm->ps->saberMove ) )
 					//[/SaberSys]
 					{
 						//[SaberSys]
@@ -4471,21 +4391,6 @@ weapChecks:
 			PM_BeginWeaponChange( pm->cmd.weapon );
 		}
 	}
-
-	/* basejka code
-	if (pm->ps->saberEntityNum)
-	{ //only check if we have our saber with us
-		// check for weapon change
-		// can't change if weapon is firing, but can change again if lowering or raising
-		//if ( pm->ps->weaponTime <= 0 || pm->ps->weaponstate != WEAPON_FIRING ) {
-		if (pm->ps->weaponTime <= 0 && pm->ps->torsoTimer <= 0)
-		{
-			if ( pm->ps->weapon != pm->cmd.weapon ) {
-				PM_BeginWeaponChange( pm->cmd.weapon );
-			}
-		}
-	}
-	*/
 	//[/SaberThrowSys]
 
 
@@ -4778,7 +4683,6 @@ weapChecks:
 		//Cleaning up the faking code.  This section dictates want happens when you
 		//quit holding down attack.
 		else if ( !(pm->cmd.buttons & (BUTTON_ATTACK)) )
-		//else if ( !(pm->cmd.buttons & (BUTTON_ATTACK|BUTTON_ALT_ATTACK)) )
 		//[/SaberSys]
 		{//not attacking
 			//[SaberSys]
@@ -4814,7 +4718,6 @@ weapChecks:
 					//attack fakes now cost FP
 					BG_AddFatigue(pm->ps, 1);
 				}
-				//newmove = LS_A_TL2BR + (curmove-LS_S_TL2BR);
 			}
 			else if ( curmove >= LS_A_TL2BR && curmove <= LS_A_T2B )
 			{//finished an attack, must continue from here
@@ -4832,7 +4735,6 @@ weapChecks:
 				{//exit out of transition without attacking
 					newmove = PM_ReturnforQuad(saberMoveData[curmove].endQuad);
 				}
-				//newmove = saberMoveData[curmove].chain_attack;
 			//[/SaberSys]
 			}
 			else if ( PM_SaberInBounce( curmove ) )
@@ -4968,7 +4870,6 @@ weapChecks:
 						!BG_SaberInSpecialAttack(pm->ps->torsoAnim)&&
 						//[SaberSys]
 						BG_EnoughForcePowerForMove( FATIGUE_JUMPATTACK ))
- 						//BG_EnoughForcePowerForMove( SABER_ALT_ATTACK_POWER_FB ))
 						//[SaberSys]
 					{ //attempt to do a DFA
 						newmove = PM_SaberJumpAttackMove();
@@ -4977,7 +4878,6 @@ weapChecks:
 						{
 							//[SaberSys]
 							BG_ForcePowerDrain(pm->ps, FP_GRIP, FATIGUE_JUMPATTACK);
-							//BG_ForcePowerDrain(pm->ps, FP_GRIP, SABER_ALT_ATTACK_POWER_FB);
 							//[/SaberSys]
 						}
 					}
@@ -4985,7 +4885,6 @@ weapChecks:
 					{
 						newmove = LS_A_TL2BR + (curmove-LS_S_TL2BR);
 					}
-					//newmove = LS_A_TL2BR + (curmove-LS_S_TL2BR);
 					//[/SaberSys]
 				}
 				//[SaberSys]
@@ -5499,7 +5398,6 @@ void PM_SetSaberMove(short newMove)
 		//[MoveSys]
 		//override our leg animation if we're restricted from moving (like during a viewlock)
 		else if ( (!pm->cmd.forwardmove&&!pm->cmd.rightmove&&!pm->cmd.upmove) || pm->ps->speed == 0)
-		//else if ( (!pm->cmd.forwardmove&&!pm->cmd.rightmove&&!pm->cmd.upmove))
 		//[/MoveSys]
 		{//not trying to run, duck or jump
 			if ( !BG_FlippingAnim( pm->ps->legsAnim ) && 

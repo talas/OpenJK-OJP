@@ -71,7 +71,6 @@ const char *bgToggleableSurfaces[BG_NUM_TOGGLEABLE_SURFACES] =
 	//[CoOp]
 	//shield surface for the assassin droid
 	"force_shield"					//30
-	//NULL
 	//[/CoOp]
 };
 
@@ -173,7 +172,6 @@ int forceMasteryPoints[NUM_FORCE_MASTERY_LEVELS] =
 
 //[ExpSys]
 int bgForcePowerCost[NUM_TOTAL_SKILLS][NUM_FORCE_POWER_LEVELS] = //0 == neutral
-//int bgForcePowerCost[NUM_FORCE_POWERS][NUM_FORCE_POWER_LEVELS] = //0 == neutral
 //[/ExpSys]
 {
 	//[ExpSys]
@@ -195,26 +193,6 @@ int bgForcePowerCost[NUM_TOTAL_SKILLS][NUM_FORCE_POWER_LEVELS] = //0 == neutral
 	{	0,	SABER_OFFENSE_L1,	0,	0	},	// Saber Attack	//FP_SABER_OFFENSE,
 	{	0,	SABER_DEFENSE_L1,	2,	8	},	// Saber Defend	//FP_SABER_DEFENSE, -- lvl3 was 10
 	{	0,	2,	4,	8	},	// Saber Throw	//FP_SABERTHROW,
-	/* basejka values
-	{	0,	2,	4,	6	},	// Heal			// FP_HEAL
-	{	0,	0,	2,	6	},	// Jump			//FP_LEVITATION,//hold/duration
-	{	0,	2,	4,	6	},	// Speed		//FP_SPEED,//duration
-	{	0,	1,	3,	6	},	// Push			//FP_PUSH,//hold/duration
-	{	0,	1,	3,	6	},	// Pull			//FP_PULL,//hold/duration
-	{	0,	4,	6,	8	},	// Mind Trick	//FP_TELEPATHY,//instant
-	{	0,	1,	3,	6	},	// Grip			//FP_GRIP,//hold/duration
-	{	0,	2,	5,	8	},	// Lightning	//FP_LIGHTNING,//hold/duration
-	{	0,	4,	6,	8	},	// Dark Rage	//FP_RAGE,//duration
-	{	0,	2,	5,	8	},	// Protection	//FP_PROTECT,//duration
-	{	0,	4,	4,	4	},	// Absorb		//FP_ABSORB,//duration
-	{	0,	1,	3,	6	},	// Team Heal	//FP_TEAM_HEAL,//instant
-	{	0,	1,	3,	6	},	// Team Force	//FP_TEAM_FORCE,//instant
-	{	0,	2,	4,	6	},	// Drain		//FP_DRAIN,//hold/duration
-	{	0,	2,	5,	8	},	// Sight		//FP_SEE,//duration
-	{	0,	1,	5,	8	},	// Saber Attack	//FP_SABER_OFFENSE,
-	{	0,	1,	5,	8	},	// Saber Defend	//FP_SABER_DEFENSE,
-	{	0,	4,	6,	8	}	// Saber Throw	//FP_SABERTHROW,
-	*/
 	//NUM_FORCE_POWERS
 	//racc - additional skills
 	{	0,	8,	0,	0	},	//SK_JETPACK,		// Jetpack Skill	
@@ -554,7 +532,6 @@ qboolean BG_LegalizedForcePowers(char *powerOut, int maxRank, qboolean freeSaber
 	int final_Side;
 	//[ExpSys]
 	int final_Powers[NUM_TOTAL_SKILLS];
-	//int final_Powers[NUM_FORCE_POWERS];
 	//[/ExpSys]
 
 	if (powerLen >= 128)
@@ -609,7 +586,6 @@ qboolean BG_LegalizedForcePowers(char *powerOut, int maxRank, qboolean freeSaber
 	c = 0;
 	//[ExpSys]
 	while (i < 128 && powerBuf[i] && powerBuf[i] != '\n' && c < NUM_TOTAL_SKILLS)
-	//while (i < 128 && powerBuf[i] && powerBuf[i] != '\n' && c < NUM_FORCE_POWERS)
 	//[/ExpSys]
 	{
 		readBuf[0] = powerBuf[i];
@@ -623,7 +599,6 @@ qboolean BG_LegalizedForcePowers(char *powerOut, int maxRank, qboolean freeSaber
 	//final_Powers now contains all the stuff from the string
 	//Set the maximum allowed points used based on the max rank level, and count the points actually used.
 	allowedPoints = maxRank;
-	//allowedPoints = forceMasteryPoints[maxRank];
 	//[/ExpSys]
 
 	i = 0;
@@ -662,7 +637,6 @@ qboolean BG_LegalizedForcePowers(char *powerOut, int maxRank, qboolean freeSaber
 	i = 0;
 	//[ExpSys]
 	while (i < NUM_TOTAL_SKILLS)
-	//while (i < NUM_FORCE_POWERS)
 	//[/ExpSys]
 	{
 		countDown = 0;
@@ -676,8 +650,6 @@ qboolean BG_LegalizedForcePowers(char *powerOut, int maxRank, qboolean freeSaber
 			if ( countDown == 1 &&
 				//[ExpSys]
 				((i == FP_SABER_OFFENSE && freeSaber) ||
-				//((i == FP_LEVITATION) ||
-				// (i == FP_SABER_OFFENSE && freeSaber) ||
 				//[/ExpSys]
 				 (i == FP_SABER_DEFENSE && freeSaber)) )
 			{
@@ -711,7 +683,6 @@ qboolean BG_LegalizedForcePowers(char *powerOut, int maxRank, qboolean freeSaber
 
 			//[ExpSys]			
 			while (c < NUM_TOTAL_SKILLS && usedPoints > allowedPoints)
-			//while (c < NUM_FORCE_POWERS && usedPoints > allowedPoints)
 			//[ExpSys]
 			{
 				if (final_Powers[c] && final_Powers[c] < powerCycle)
@@ -727,7 +698,6 @@ qboolean BG_LegalizedForcePowers(char *powerOut, int maxRank, qboolean freeSaber
 							|| final_Powers[NUM_FORCE_POWERS+SK_DUALSTYLE] > 0
 							|| final_Powers[NUM_FORCE_POWERS+SK_STAFFSTYLE] > 0)
 						)
-						//(final_Powers[FP_SABER_DEFENSE] > minPow || final_Powers[FP_SABERTHROW] > 0))	
 						//[/StanceSelection]
 					{ //if we're on saber attack, only suck it down if we have no def or throw either
 						int whichOne = FP_SABERTHROW; //first try throw
@@ -813,8 +783,6 @@ qboolean BG_LegalizedForcePowers(char *powerOut, int maxRank, qboolean freeSaber
 								//[ExpSys]
 								//Force Jump level 1 no longer free.
 								((c != FP_SABER_OFFENSE || !freeSaber) &&
-								//((c != FP_LEVITATION) &&
-								//(c != FP_SABER_OFFENSE || !freeSaber) &&
 								//[/ExpSys]
 								(c != FP_SABER_DEFENSE || !freeSaber)) )
 							{
@@ -837,7 +805,6 @@ qboolean BG_LegalizedForcePowers(char *powerOut, int maxRank, qboolean freeSaber
 
 			//[ExpSys]
 			if (attemptedCycles > NUM_TOTAL_SKILLS)
-			//if (attemptedCycles > NUM_FORCE_POWERS)
 			//[/ExpSys]
 			{ //I think this should be impossible. But just in case.
 				break;
@@ -854,14 +821,11 @@ qboolean BG_LegalizedForcePowers(char *powerOut, int maxRank, qboolean freeSaber
 
 			//[ExpSys]
 			while (i < NUM_TOTAL_SKILLS)
-			//while (i < NUM_FORCE_POWERS)
 			//[/ExpSys]
 			{
 				final_Powers[i] = 0;
 				//[ExpSys]
 				if((i == FP_SABER_OFFENSE && freeSaber) ||
-				//if (i == FP_LEVITATION ||
-				//	(i == FP_SABER_OFFENSE && freeSaber) ||
 				//[/ExpSys]
 					(i == FP_SABER_DEFENSE && freeSaber))
 				{
@@ -896,7 +860,6 @@ qboolean BG_LegalizedForcePowers(char *powerOut, int maxRank, qboolean freeSaber
 	i = 0;
 	//[ExpSys]
 	while (i < NUM_TOTAL_SKILLS)
-	//while (i < NUM_FORCE_POWERS)
 	//[/ExpSys]
 	{
 		if (final_Powers[i] > FORCE_LEVEL_3)
@@ -973,7 +936,6 @@ qboolean BG_LegalizedForcePowers(char *powerOut, int maxRank, qboolean freeSaber
 	c = 0;
 	//[ExpSys]
 	while (c < NUM_TOTAL_SKILLS)
-	//while (c < NUM_FORCE_POWERS)
 	//[/ExpSys]
 	{
 		strcpy(readBuf, va("%i", final_Powers[c]));
@@ -2367,8 +2329,6 @@ void BG_CycleForce(playerState_t *ps, int direction)
 			//[SaberSys]
 			//Making Saber Throw a selectable power.
 				i != FP_SABER_DEFENSE)
-			//	i != FP_SABER_DEFENSE &&
-			//	i != FP_SABERTHROW)
 			//[/SaberSys]
 			{ //it's selectable
 				foundnext = i;
@@ -2581,11 +2541,6 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 				return qfalse;
 			}
 		}
-		/*if (!(ent->eFlags & EF_DROPPEDWEAPON) && (ps->stats[STAT_WEAPONS] & (1 << item->giTag)) &&
-			item->giTag != WP_THERMAL && item->giTag != WP_TRIP_MINE && item->giTag != WP_DET_PACK)
-		{ //weaponstay stuff.. if this isn't dropped, and you already have it, you don't get it.
-			return qfalse;
-		}*/
 		//[/CoOp]
 		if (item->giTag == WP_THERMAL || item->giTag == WP_TRIP_MINE || item->giTag == WP_DET_PACK)
 		{ //check to see if full on ammo for this, if so, then..
@@ -2593,7 +2548,6 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 			//[BugFix28]
 			//we only restrict pickups on full ammo if the player already has this weapon.
 			if (ps->ammo[ammoIndex] >= ammoData[ammoIndex].max && ps->stats[STAT_WEAPONS] & ( 1 << item->giTag ) )
-			//if (ps->ammo[ammoIndex] >= ammoData[ammoIndex].max)
 			//[/BugFix28]
 			{ //don't need it
 				return qfalse;
@@ -2828,7 +2782,6 @@ char *eventnames[] = {
 	//[SaberLockSys]
 	//replaced EV_JUMP_PAD with EV_SABERLOCK
 	"EV_SABERLOCK",				// Player is in saberlock (render sound/effects)
-	//"EV_JUMP_PAD",			// boing sound at origin", jump sound on player
 	//[/SaberLockSys]
 
 	"EV_GHOUL2_MARK",			//create a projectile impact mark on something with a client-side g2 instance.

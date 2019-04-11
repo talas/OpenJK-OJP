@@ -55,7 +55,6 @@ static char gParseObjectives[MAX_SIEGE_INFO_SIZE];
 //[TABBot]
 //used in ai_tab.c don't do static anymore.
 char gObjectiveCfgStr[1024];
-//static char gObjectiveCfgStr[1024];
 //[/TABBot]
 
 //go through all classes on a team and register their

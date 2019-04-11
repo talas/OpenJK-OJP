@@ -396,7 +396,6 @@ static cvarTable_t		gameCvarTable[] = {
 	//sets the initial skill points that players get.
 	{ &g_minForceRank, "g_minExpLevel", "15", CVAR_ARCHIVE, 0, qfalse  }, //Default was 16
 	{ &g_maxForceRank, "g_maxExpLevel", "250", CVAR_ARCHIVE, 0, qfalse  },//Default was 250
-	//{ &g_maxForceRank, "g_maxForceRank", "6", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_LATCH, 0, qfalse  },
 	//[/ExpSys]
 	{ &g_forceBasedTeams, "g_forceBasedTeams", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_LATCH, 0, qfalse  },
 	{ &g_privateDuel, "g_privateDuel", "1", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qtrue  },
@@ -462,16 +461,11 @@ static cvarTable_t		gameCvarTable[] = {
 
 	//[VARIOUSSERVERTWEAKS]
 	{ &g_saberDamageScale, "g_saberDamageScale", "1", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qtrue  },
-	//{ &g_saberDamageScale, "g_saberDamageScale", "1", CVAR_ARCHIVE, 0, qtrue  },
 	//[/VARIOUSSERVERTWEAKS]
 
 	//[SaberSys]
 	{ &g_saberanimspeed, "g_saberanimspeed", "1", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_SYSTEMINFO, 0, qtrue  },
 	//[/SaberSys]
-
-	//[ForceSys]
-	//{ &g_useWhileThrowing, "g_useWhileThrowing", "1", 0, 0, qtrue  },
-	//[/ForceSys]
 
 	{ &g_RMG, "RMG", "0", 0, 0, qtrue  },
 
@@ -479,7 +473,6 @@ static cvarTable_t		gameCvarTable[] = {
 	//Made sv_fps a archive / serverinfo cvar.  Note:  This cvar's default is controlled by the game engine, not this code.
 	//However, the archive flag does work after the cvar is set to something other than 20.
 	{ &g_svfps, "sv_fps", "20", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qtrue },
-	//{ &g_svfps, "sv_fps", "20", 0, 0, qtrue },
 	//[/SaberSys]
 	
 	//[PrivatePasswordFix]
@@ -488,7 +481,6 @@ static cvarTable_t		gameCvarTable[] = {
 
 	//[FatigueSys]
 	{ &g_forceRegenTime, "g_forceRegenTime", "50", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qtrue  },
-	//{ &g_forceRegenTime, "g_forceRegenTime", "200", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qtrue  },
 	//[/FatigueSys]
 
 	//[DodgeSys]
@@ -519,7 +511,6 @@ static cvarTable_t		gameCvarTable[] = {
 	//[SaberSys]
 	//turn on Super Duper Interpolation by default
 	{ &d_saberInterpolate, "d_saberInterpolate", "2", 0, 0, qtrue },
-	//{ &d_saberInterpolate, "d_saberInterpolate", "0", CVAR_CHEAT, 0, qtrue },
 	//[/SaberSys]
 
 	//[test]
@@ -662,7 +653,6 @@ static cvarTable_t		gameCvarTable[] = {
 	//[SaberSys]
 	//Yeah, this funks up my shit.  Turning it off for now.
 	{ &d_saberSPStyleDamage, "d_saberSPStyleDamage", "0", CVAR_CHEAT },
-	//{ &d_saberSPStyleDamage, "d_saberSPStyleDamage", "1", CVAR_CHEAT },
 	//[/SaberSys]
 
 	{ &debugNoRoam, "d_noroam", "0", CVAR_CHEAT },
@@ -675,7 +665,6 @@ static cvarTable_t		gameCvarTable[] = {
 	//[CoOp]
 	//adjusted to match SP default.
 	{ &d_asynchronousGroupAI, "d_asynchronousGroupAI", "1", CVAR_CHEAT },
-	//{ &d_asynchronousGroupAI, "d_asynchronousGroupAI", "0", CVAR_CHEAT },
 	//[/CoOp]
 	
 	//0 = never (BORING)
@@ -785,8 +774,6 @@ static int gameCvarTableSize = sizeof( gameCvarTable ) / sizeof( gameCvarTable[0
 
 void G_InitGame					( int levelTime, int randomSeed, int restart );
 void G_RunFrame					( int levelTime );
-//Raz: Moved prototype to g_local.h for use by the crash handler
-//void G_ShutdownGame				( int restart );
 void CheckExitRules				( void );
 void G_ROFF_NotetrackCallback	( gentity_t *cent, const char *notetrack);
 
@@ -4592,8 +4579,6 @@ void G_RunFrame( int levelTime ) {
 //[ExpSys]
 #define JETPACK_DEFUEL_RATE		300 //approx. 20 seconds of idle use from a fully charged fuel amt
 #define JETPACK_REFUEL_RATE		300 //seems fair
-//#define JETPACK_DEFUEL_RATE		200 //approx. 20 seconds of idle use from a fully charged fuel amt
-//#define JETPACK_REFUEL_RATE		150 //seems fair
 //[/ExpSys]
 			if (ent->client->jetPackOn)
 			{ //using jetpack, drain fuel
@@ -4604,17 +4589,6 @@ void G_RunFrame( int levelTime ) {
 					{ //only use fuel when actually boosting.
 						ent->client->ps.jetpackFuel -= 4;
 					}
-
-					/*
-					if (ent->client->pers.cmd.upmove > 0)
-					{ //take more if they're thrusting
-						ent->client->ps.jetpackFuel -= 2;
-					}
-					else
-					{
-						ent->client->ps.jetpackFuel--;
-					}
-					*/
 					//[/JetpackSys]
 					
 					if (ent->client->ps.jetpackFuel <= 0)

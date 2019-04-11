@@ -14,7 +14,6 @@ void InitTrigger( gentity_t *self ) {
 	{
 		trap_SetBrushModel( self, self->model );
 	}
-	//trap_SetBrushModel( self, self->model );
 	//[/CoOp]
 	self->r.contents = CONTENTS_TRIGGER;		// replaces the -1 from trap_SetBrushModel
 	self->r.svFlags = SVF_NOCLIENT;
@@ -1391,7 +1390,6 @@ void hurt_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 			//Mod FIXME?
 			if (!other->noFallDamage)
 				G_Damage(other, other, other, vDir, other->client->ps.origin, Q3_INFINITE, 0, MOD_FALLING);
-			//G_Damage(other, other, other, vDir, other->client->ps.origin, Q3_INFINITE, 0, MOD_FALLING);
 			//[/CoOp]			
 		}
 		else

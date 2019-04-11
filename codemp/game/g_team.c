@@ -4,20 +4,6 @@
 #include "g_local.h"
 #include "bg_saga.h"
 
-//[TABBots]
-//moved to g_local.h
-/*
-typedef struct teamgame_s {
-	float			last_flag_capture;
-	int				last_capture_team;
-	flagStatus_t	redStatus;	// CTF
-	flagStatus_t	blueStatus;	// CTF
-	flagStatus_t	flagStatus;	// One Flag CTF
-	int				redTakenTime;
-	int				blueTakenTime;
-} teamgame_t;
-*/
-//[/TABBots]
 
 teamgame_t teamgame;
 
@@ -231,7 +217,6 @@ qboolean OnSameTeam( gentity_t *ent1, gentity_t *ent2 ) {
 
 	//[CoOp]
 	if ( g_gametype.integer < GT_SINGLE_PLAYER ) {
-	//if ( g_gametype.integer < GT_TEAM ) {
 	//[/CoOp]
 		return qfalse;
 	}
@@ -1375,7 +1360,6 @@ void TeamplayInfoMessage( gentity_t *ent ) {
 	{//only transmit data if there are players with updated information
 		trap_SendServerCommand( ent-g_entities, va("tinfo %i %s", cnt, string) );
 	}
-	//trap_SendServerCommand( ent-g_entities, va("tinfo %i %s", cnt, string) );
 	//[/BugFix34]
 }
 

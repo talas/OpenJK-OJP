@@ -794,7 +794,6 @@ qboolean G_CallSpawn( gentity_t *ent ) {
 			{
 				G_SpawnItem( ent, item );
 			}
-			//G_SpawnItem( ent, item );
 			//[/ExpSys]
 			return qtrue;
 		}
@@ -1469,7 +1468,6 @@ void SP_worldspawn( void )
 		&& g_gametype.integer != GT_POWERDUEL
 		&& g_gametype.integer != GT_SINGLE_PLAYER ) 
 	{ // Turn it on
-	//else if ( g_doWarmup.integer && g_gametype.integer != GT_DUEL && g_gametype.integer != GT_POWERDUEL ) { // Turn it on
 	//[/CoOp]
 		level.warmupTime = -1;
 		trap_SetConfigstring( CS_WARMUP, va("%i", level.warmupTime) );

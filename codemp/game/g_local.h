@@ -34,9 +34,6 @@ extern vec3_t gPainPoint;
 #ifndef G_INFINITE
 #define G_INFINITE			1000000
 #endif
-/*#ifndef INFINITE
-#define INFINITE			1000000
-#endif*/
 //[/CrashLog]
 
 #define	FRAMETIME			100					// msec
@@ -968,7 +965,6 @@ typedef struct
 //[CoOp]
 //increasing the limit to account for all NPCs and players now making these events
 #define	MAX_ALERT_EVENTS	128
-//#define	MAX_ALERT_EVENTS	32
 //[/CoOp]
 
 typedef enum
@@ -1514,7 +1510,6 @@ team_t TeamCount( int ignoreClientNum, int team );
 int TeamLeader( int team );
 //[AdminSys]
 team_t PickTeam( int ignoreClientNum, qboolean isBot );
-//team_t PickTeam( int ignoreClientNum );
 //[/AdminSys]
 void SetClientViewAngle( gentity_t *ent, vec3_t angle );
 gentity_t *SelectSpawnPoint ( vec3_t avoidPoint, vec3_t origin, vec3_t angles, team_t team );
@@ -1624,7 +1619,6 @@ void G_ReadSessionData( gclient_t *client );
 //[ExpSys]
 //added firstTime input so we'll know if we need to reset our skill point totals or not.
 void G_InitSessionData( gclient_t *client, char *userinfo, qboolean isBot, qboolean firstTime);
-//void G_InitSessionData( gclient_t *client, char *userinfo, qboolean isBot );
 //[/ExpSys]
 
 void G_InitWorldSession( void );
@@ -1636,12 +1630,10 @@ void G_WriteSessionData( void );
 extern void AddSightEvent( gentity_t *owner, vec3_t position, float radius, alertEventLevel_e alertLevel, float addLight ); //addLight = 0.0f
 //[CoOp]
 extern void AddSoundEvent( gentity_t *owner, vec3_t position, float radius, alertEventLevel_e alertLevel, qboolean needLOS, qboolean onGround );
-//extern void AddSoundEvent( gentity_t *owner, vec3_t position, float radius, alertEventLevel_e alertLevel, qboolean needLOS ); //needLOS = qfalse
 //[/CoOp]
 extern qboolean G_CheckForDanger( gentity_t *self, int alertEvent );
 //[CoOp]
 extern int G_CheckAlertEvents( gentity_t *self, qboolean checkSight, qboolean checkSound, float maxSeeDist, float maxHearDist, int ignoreAlert, qboolean mustHaveOwner, int minAlertLevel, qboolean onGroundOnly );
-//extern int G_CheckAlertEvents( gentity_t *self, qboolean checkSight, qboolean checkSound, float maxSeeDist, float maxHearDist, int ignoreAlert, qboolean mustHaveOwner, int minAlertLevel ); //ignoreAlert = -1, mustHaveOwner = qfalse, minAlertLevel = AEL_MINOR
 //[/CoOp]
 extern qboolean G_CheckForDanger( gentity_t *self, int alertEvent );
 extern qboolean G_ClearLOS( gentity_t *self, const vec3_t start, const vec3_t end );

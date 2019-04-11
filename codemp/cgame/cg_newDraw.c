@@ -246,12 +246,6 @@ const char *CG_GameTypeString(void) {
 		return "Holocron FFA";
 	} else if ( cgs.gametype == GT_JEDIMASTER ) {
 		return "Jedi Master";
-	//[CoOp]
-	//I don't think this function is used by anything but I'm fixing it for CoOp anyway.
-	//thanks to redsaurus for pointing this out.
-	} else if ( cgs.gametype == GT_SINGLE_PLAYER ) {
-		return "Cooperative";
-	//[/CoOp]
 	} else if ( cgs.gametype == GT_TEAM ) {
 		return "Team FFA";
 	} else if ( cgs.gametype == GT_SIEGE ) {

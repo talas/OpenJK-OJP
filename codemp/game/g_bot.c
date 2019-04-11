@@ -586,7 +586,6 @@ void G_AddRandomBot( int team ) {
 	float	skill;
 	//[RandomBotNames]
 	char	*value, netname[36], *teamstr, fullname[36];
-	//char	*value, netname[36], *teamstr;
 	//[/RandomBotNames]
 	gclient_t	*cl;
 
@@ -658,13 +657,10 @@ void G_AddRandomBot( int team ) {
 				else if (team == TEAM_BLUE) teamstr = "blue";
 				else teamstr = "";
 				strncpy(netname, value, sizeof(netname)-1);
-				//[RandomBotNames]
-				strncpy(fullname, PickName(), sizeof(fullname)-1);
-				//[/RandomBotNames]
 				netname[sizeof(netname)-1] = '\0';
 				Q_CleanStr(netname);
 				//[RandomBotNames]
-				//trap_SendConsoleCommand( EXEC_INSERT, va("addbot \"%s\" %f %s %i\n", netname, skill, teamstr, 0) );
+				strncpy(fullname, PickName(), sizeof(fullname)-1);
 				//[TABBots]
 				//make random bots be TABBots.
 				trap_SendConsoleCommand( EXEC_INSERT, va("addbot \"%s\" %f \"%s\" %i \"%s\" %i\n", netname, skill, teamstr, 0, fullname, BOT_TAB) );
@@ -727,7 +723,6 @@ G_CountHumanPlayers
 */
 //[AdminSys]
 int G_CountHumanPlayers( int ignoreClientNum, int team ) {
-//int G_CountHumanPlayers( int team ) {
 //[/AdminSys]
 	int i, num;
 	gclient_t	*cl;
@@ -833,15 +828,6 @@ void G_CheckMinimumPlayers( void ) {
 
 	//[TABBot]
 	//We want the minimum players system to work in siege.
-	/*
-	if (g_gametype.integer == GT_SIEGE)
-	{
-		return;
-	}
-	*/
-	//[/TABBot]
-
-	//[TABBots]
 	if(level.time - level.startTime < 10000)
 	{//don't spawn in new bots for 10 seconds.  Otherwise we're going to be adding/removing
 		//bots before the original ones spawn in.
@@ -1091,39 +1077,10 @@ void G_CheckMinimumPlayers( void ) {
 						G_RemoveRandomBot(-1);
 					}
 				}
-
-				// just remove the bot that is playing
-				//G_RemoveRandomBot(-1);
 				//[/AdminSys]
 			}
 		}
 	}
-
-	/* basejka code
-	if (minplayers <= 0) return;
-
-	if (minplayers > g_maxclients.integer)
-	{
-		minplayers = g_maxclients.integer;
-	}
-
-	humanplayers = G_CountHumanPlayers( -1 );
-	botplayers = G_CountBotPlayers(	-1 );
-
-	if ((humanplayers+botplayers) < minplayers)
-	{
-		G_AddRandomBot(-1);
-	}
-	else if ((humanplayers+botplayers) > minplayers && botplayers)
-	{
-		// try to remove spectators first
-		if (!G_RemoveRandomBot(TEAM_SPECTATOR))
-		{
-			// just remove the bot that is playing
-			G_RemoveRandomBot(-1);
-		}
-	}
-	*/
 	//[/BotTweaks]
 
 	/*
@@ -1313,7 +1270,6 @@ G_AddBot
 //[TABBot]
 //added bot type varible
 static void G_AddBot( const char *name, float skill, const char *team, int delay, char *altname, int bottype) {
-//static void G_AddBot( const char *name, float skill, const char *team, int delay, char *altname) {
 //[/TABBot]
 	int				clientNum;
 	char			*botinfo;
@@ -1464,7 +1420,6 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 		if( g_gametype.integer >= GT_TEAM ) {
 			//[AdminSys]
 			if( PickTeam(clientNum, qtrue) == TEAM_RED) {
-			//if( PickTeam(clientNum) == TEAM_RED) {
 			//[/AdminSys]
 				team = "red";
 			}
@@ -1504,7 +1459,6 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 		{
 			//[AdminSys]
 			bot->client->sess.sessionTeam = PickTeam( -1, qtrue );
-			//bot->client->sess.sessionTeam = PickTeam( -1 );
 			//[/AdminSys]
 		}
 	}
@@ -1623,7 +1577,6 @@ void Svcmd_AddBot_f( void ) {
 	if ( !name[0] ) {
 		//[TABBots]
 		trap_Printf( "Usage: Addbot <botname> [skill 1-5] [team] [msec delay] [altname] [bottype]\n" );
-		//trap_Printf( "Usage: Addbot <botname> [skill 1-5] [team] [msec delay] [altname]\n" );
 		//[/TABBots]
 		return;
 	}
@@ -1663,7 +1616,6 @@ void Svcmd_AddBot_f( void ) {
 		bottype = atoi( string );
 	}
 	G_AddBot( name, skill, team, delay, altname, bottype );
-	//G_AddBot( name, skill, team, delay, altname );
 	//[/TABBot]
 
 	// if this was issued during gameplay and we are playing locally,

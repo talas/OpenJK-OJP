@@ -567,7 +567,6 @@ Ghoul2 Insert End
 	//[TrueView]
 	//Make the guns do their charging visual in True View.
 	if ( (ps || cg.renderingThirdPerson || cg.predictedPlayerState.clientNum != cent->currentState.number || cg_trueguns.integer) &&
-	//if ( (ps || cg.renderingThirdPerson || cg.predictedPlayerState.clientNum != cent->currentState.number) &&
 	//[/TrueView]
 		( ( cent->currentState.modelindex2 == WEAPON_CHARGING_ALT && cent->currentState.weapon == WP_BRYAR_PISTOL ) ||
 		  ( cent->currentState.modelindex2 == WEAPON_CHARGING_ALT && cent->currentState.weapon == WP_BRYAR_OLD ) ||
@@ -695,8 +694,6 @@ Ghoul2 Insert End
 	//[TrueView]
 	if ( ps || cg.renderingThirdPerson || cg_trueguns.integer 
 		|| cent->currentState.number != cg.predictedPlayerState.clientNum ) 
-	//if ( ps || cg.renderingThirdPerson ||
-	//		cent->currentState.number != cg.predictedPlayerState.clientNum ) 
 	//[/TrueView]
 	{	// Make sure we don't do the thirdperson model effects for the local player if we're in first person
 		vec3_t flashorigin, flashdir;
@@ -807,7 +804,6 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 	{
 		cgFov = cg_fov.value;
 	}
-	//float	cgFov = cg_fov.value;
 	//[TrueView]
 	
 
@@ -817,17 +813,17 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 	}
 
 	//[TrueView]
-	//Allow larger Fields of View
-	if (cgFov > 180)
-	{
-		cgFov = 180;
-	}
 	/*
 	if (cgFov > 97)
 	{
 		cgFov = 97;
 	}
 	*/
+	//Allow larger Fields of View
+	if (cgFov > 180)
+	{
+		cgFov = 180;
+	}
 	//[TrueView]
 
 	if ( ps->persistant[PERS_TEAM] == TEAM_SPECTATOR ) {
@@ -848,7 +844,6 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 	//[TrueView]
 	if ( !cg_drawGun.integer || cg.predictedPlayerState.zoomMode || cg_trueguns.integer
 		|| cg.predictedPlayerState.weapon == WP_SABER || cg.predictedPlayerState.weapon == WP_MELEE) {
-	//if ( !cg_drawGun.integer || cg.predictedPlayerState.zoomMode) {
 	//[TrueView]
 		vec3_t		origin;
 
@@ -931,7 +926,6 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 
 	// add everything onto the hand
 	//[DualPistols]
-	//CG_AddPlayerWeapon( &hand, ps, &cg_entities[cg.predictedPlayerState.clientNum], ps->persistant[PERS_TEAM], angles, qfalse );
 	CG_AddPlayerWeapon( &hand, ps, &cg_entities[cg.predictedPlayerState.clientNum], ps->persistant[PERS_TEAM], angles, qfalse,qfalse );
 	if((ps->eFlags & EF_DUAL_WEAPONS) && ps->weapon == WP_BRYAR_PISTOL)
 	{
@@ -1134,13 +1128,6 @@ void CG_DrawIconBackground(void)
 qboolean CG_WeaponCheck(int weap)
 {
 	//[Reload]
-	/*
-	if (cg.snap->ps.ammo[weaponData[weap].ammoIndex] < weaponData[weap].energyPerShot &&
-		cg.snap->ps.ammo[weaponData[weap].ammoIndex] < weaponData[weap].altEnergyPerShot)
-	{
-		return qfalse;
-	}
-	*/
 	if(cg.snap->ps.ammo[weaponData[weap].ammoIndex] == -10)
 		return qfalse;
 
@@ -1680,13 +1667,6 @@ void CG_Weapon_f( void ) {
 				trap_SendConsoleCommand("sv_saberswitch\n");
 			}
 		}
-		
-		/*
-		if (cg.snap->ps.weaponTime < 1)
-		{
-			trap_SendConsoleCommand("sv_saberswitch\n");
-		}
-		*/
 		//[/MELEE]
 		return;
 	}
@@ -1948,7 +1928,6 @@ WEAPON EVENTS
 ===================================================================================================
 */
 void CG_GetClientWeaponMuzzleBoltPoint(int clIndex, vec3_t to, qboolean leftweap)//[DualPistols]
-//void CG_GetClientWeaponMuzzleBoltPoint(int clIndex, vec3_t to)
 {
 	centity_t *cent;
 	mdxaBone_t	boltMatrix;
@@ -2004,11 +1983,7 @@ void CG_FireWeapon( centity_t *cent, qboolean altFire ) {
 	cent->muzzleFlashTime = cg.time;
 
 	if (cg.predictedPlayerState.clientNum == cent->currentState.number)
-	{/*
-		if ((ent->weapon == WP_BRYAR_PISTOL && altFire) ||
-			(ent->weapon == WP_BRYAR_OLD && altFire) ||
-			(ent->weapon == WP_BOWCASTER && !altFire) ||	
-			(ent->weapon == WP_DEMP2 && altFire))*/
+	{
 		if ((ent->weapon == WP_BRYAR_PISTOL && altFire) ||
 				(ent->weapon == WP_BRYAR_OLD && altFire) ||
 				(ent->weapon == WP_BOWCASTER && !altFire) ||	

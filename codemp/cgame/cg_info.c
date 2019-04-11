@@ -153,7 +153,6 @@ void CG_DrawInformation( void ) {
 		const char *psLoading = CG_GetStringEdString("MENUS", "LOADING_MAPNAME");
 		//[OverflowProtection]
 		UI_DrawProportionalString( 320, 128-32, va(/*"Loading... %s"*/ (char*) psLoading, cg.infoScreenText),
-		//UI_DrawProportionalString( 320, 128-32, va(/*"Loading... %s"*/ psLoading, cg.infoScreenText),
 		//[/OverflowProtection]
 			UI_CENTER|UI_INFOFONT|UI_DROPSHADOW, colorWhite );		
 	} else {
@@ -241,7 +240,6 @@ void CG_DrawInformation( void ) {
 	case GT_SINGLE_PLAYER:
 			//[CoOp]
 			s = CG_GetStringEdString("OJP_MENUS", "COOP");//"Cooperative";
-			//s = CG_GetStringEdString("MENUS", "SAGA");//"Team FFA";
 			//[/CoOp]
 
 		//s = "Single Player";
@@ -284,29 +282,16 @@ void CG_DrawInformation( void ) {
 		UI_CENTER|UI_INFOFONT|UI_DROPSHADOW, colorWhite );
 	y += iPropHeight;
 		
-	if (cgs.gametype != GT_SIEGE)
+	if (cgs.gametype != GT_SIEGE && cgs.gametype != GT_SINGLE_PLAYER)
 	{
-		//[CoOp]
-		if ( cgs.gametype != GT_SINGLE_PLAYER ) {
-			value = atoi( Info_ValueForKey( info, "timelimit" ) );
-			if ( value ) {
-				UI_DrawProportionalString( 320, y, va( "%s %i", CG_GetStringEdString("MP_INGAME", "TIMELIMIT"), value ),
-					UI_CENTER|UI_INFOFONT|UI_DROPSHADOW, colorWhite );
-				y += iPropHeight;
-			}
-		}
-		/*value = atoi( Info_ValueForKey( info, "timelimit" ) );
+		value = atoi( Info_ValueForKey( info, "timelimit" ) );
 		if ( value ) {
 			UI_DrawProportionalString( 320, y, va( "%s %i", CG_GetStringEdString("MP_INGAME", "TIMELIMIT"), value ),
 				UI_CENTER|UI_INFOFONT|UI_DROPSHADOW, colorWhite );
 			y += iPropHeight;
-		}*/
-		//[/CoOp]
+		}
 
-		//[CoOp]
-		if ( cgs.gametype < GT_CTF && cgs.gametype != GT_SINGLE_PLAYER ) {
-		//if (cgs.gametype < GT_CTF ) {
-		//[/CoOp]
+		if (cgs.gametype < GT_CTF ) {
 			value = atoi( Info_ValueForKey( info, "fraglimit" ) );
 			if ( value ) {
 				UI_DrawProportionalString( 320, y, va( "%s %i", CG_GetStringEdString("MP_INGAME", "FRAGLIMIT"), value ),
@@ -351,7 +336,6 @@ void CG_DrawInformation( void ) {
 
 		value = atoi( Info_ValueForKey( info, "g_maxForceRank" ) );
 		//[VARIOUSMENU]
-		//if ( value && !valueNOFP && (value < NUM_FORCE_MASTERY_LEVELS) ) {
 		if ( value && valueNOFP != FORCE_ALLOFF && (value < NUM_FORCE_MASTERY_LEVELS) ) {
 		//[/VARIOUSMENU]
 			char fmStr[1024]; 
@@ -363,7 +347,6 @@ void CG_DrawInformation( void ) {
 			y += iPropHeight;
 		}
 		//[VARIOUSMENU]
-		//else if (!valueNOFP)
 		else if (valueNOFP != FORCE_ALLOFF)
 		//[VARIOUSMENU]
 		{
@@ -411,7 +394,6 @@ void CG_DrawInformation( void ) {
 		}
 		//[MOREWEAPOPTIONS]
 		if ( cgs.gametype != GT_JEDIMASTER && value == WP_SABERSONLY ) {
-		//if ( cgs.gametype != GT_JEDIMASTER && value ) {
 			UI_DrawProportionalString( 320, y, va( "%s", (char *)CG_GetStringEdString("MP_INGAME", "SABERONLYSET") ),
 				UI_CENTER|UI_INFOFONT|UI_DROPSHADOW, colorWhite );
 			y += iPropHeight;
@@ -441,18 +423,6 @@ void CG_DrawInformation( void ) {
 			y += iPropHeight;
 		}
 		//[/MOREWEAPOPTIONS]
-
-		//[VARIOUSMENU]
-		//Moved this up to be under the Force Mastery Level.
-		/*
-		if ( valueNOFP ) {
-			UI_DrawProportionalString( 320, y, va( "%s", (char *)CG_GetStringEdString("MP_INGAME", "NOFPSET") ),
-				UI_CENTER|UI_INFOFONT|UI_DROPSHADOW, colorWhite );
-			y += iPropHeight;
-		}
-		*/
-		//[/VARIOUSMENU]
-		
 	}
 
 	// Display the rules based on type

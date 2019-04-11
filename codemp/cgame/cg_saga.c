@@ -288,7 +288,6 @@ void CG_InitSiegeMode(void)
 
 		//[SIEGECVARFIX]
 		siege_Cvar_VariableStringBuffer("cg_siegeTeam1", buf, 1024);
-		//trap_Cvar_VariableStringBuffer("cg_siegeTeam1", buf, 1024);
 		//[SIEGECVARFIX]
 		if (buf[0] && Q_stricmp(buf, "none"))
 		{
@@ -312,7 +311,6 @@ void CG_InitSiegeMode(void)
 
 		//[SIEGECVARFIX]
 		siege_Cvar_VariableStringBuffer("cg_siegeTeam2", buf, 1024);
-		//trap_Cvar_VariableStringBuffer("cg_siegeTeam2", buf, 1024);
 		//[/SIEGECVARFIX]
 		if (buf[0] && Q_stricmp(buf, "none"))
 		{
@@ -846,7 +844,6 @@ void CG_SiegeBriefingDisplay(int team, int dontshow)
 
 	//[SIEGECVARFIX]
 	siege_Cvar_Set(va("siege_primobj_inuse"), "0");
-	//trap_Cvar_Set(va("siege_primobj_inuse"), "0");
 	//[/SIEGECVARFIX]
 
 	while (i < 16)
@@ -863,14 +860,12 @@ void CG_SiegeBriefingDisplay(int team, int dontshow)
 		{
 			//[SIEGECVARFIX]
 			siege_Cvar_Set(va("siege_primobj"), properValue);
-			//trap_Cvar_Set(va("siege_primobj"), properValue);
 			//[/SIEGECVARFIX]
 		}
 		else
 		{
 			//[SIEGECVARFIX]
 			siege_Cvar_Set(va("siege_objective%i", i), properValue);
-			//trap_Cvar_Set(va("siege_objective%i", i), properValue);
 			//[/SIEGECVARFIX]
 		}
 
@@ -881,14 +876,12 @@ void CG_SiegeBriefingDisplay(int team, int dontshow)
 		{
 			//[SIEGECVARFIX]
 			siege_Cvar_Set(va("siege_primobj_longdesc"), properValue);
-			//trap_Cvar_Set(va("siege_primobj_longdesc"), properValue);
 			//[/SIEGECVARFIX]
 		}
 		else
 		{
 			//[SIEGECVARFIX]
 			siege_Cvar_Set(va("siege_objective%i_longdesc", i), properValue);
-			//trap_Cvar_Set(va("siege_objective%i_longdesc", i), properValue);
 			//[/SIEGECVARFIX]
 		}
 
@@ -899,14 +892,12 @@ void CG_SiegeBriefingDisplay(int team, int dontshow)
 		{
 			//[SIEGECVARFIX]
 			siege_Cvar_Set(va("siege_primobj_gfx"), properValue);
-			//trap_Cvar_Set(va("siege_primobj_gfx"), properValue);
 			//[/SIEGECVARFIX]
 		}
 		else
 		{
 			//[SIEGECVARFIX]
 			siege_Cvar_Set(va("siege_objective%i_gfx", i), properValue);
-			//trap_Cvar_Set(va("siege_objective%i_gfx", i), properValue);
 			//[/SIEGECVARFIX]
 		}
 
@@ -917,14 +908,12 @@ void CG_SiegeBriefingDisplay(int team, int dontshow)
 		{
 			//[SIEGECVARFIX]
 			siege_Cvar_Set(va("siege_primobj_mapicon"), properValue);
-			//trap_Cvar_Set(va("siege_primobj_mapicon"), properValue);
 			//[/SIEGECVARFIX]
 		}
 		else
 		{
 			//[SIEGECVARFIX]
 			siege_Cvar_Set(va("siege_objective%i_mapicon", i), properValue);
-			//trap_Cvar_Set(va("siege_objective%i_mapicon", i), properValue);
 			//[/SIEGECVARFIX]
 		}
 
@@ -935,14 +924,12 @@ void CG_SiegeBriefingDisplay(int team, int dontshow)
 		{
 			//[SIEGECVARFIX]
 			siege_Cvar_Set(va("siege_primobj_mappos"), properValue);
-			//trap_Cvar_Set(va("siege_primobj_mappos"), properValue);
 			//[/SIEGECVARFIX]
 		}
 		else
 		{
 			//[SIEGECVARFIX]
 			siege_Cvar_Set(va("siege_objective%i_mappos", i), properValue);
-			//trap_Cvar_Set(va("siege_objective%i_mappos", i), properValue);
 			//[/SIEGECVARFIX]
 		}
 
@@ -958,10 +945,6 @@ void CG_SiegeBriefingDisplay(int team, int dontshow)
 				//this one is marked not in use because it gets primobj
 				siege_Cvar_Set(va("siege_objective%i_inuse", i), "0");
 				siege_Cvar_Set(va("siege_primobj_inuse"), "1");
-				//trap_Cvar_Set(va("siege_primobj_desc"), objectiveDesc);
-				////this one is marked not in use because it gets primobj
-				//trap_Cvar_Set(va("siege_objective%i_inuse", i), "0");
-				//trap_Cvar_Set(va("siege_primobj_inuse"), "1");
 				//[/SIEGECVARFIX]
 
 				trap_Cvar_Set(va("team%i_objective%i_inuse", useTeam, i), "1");
@@ -972,8 +955,6 @@ void CG_SiegeBriefingDisplay(int team, int dontshow)
 				//[SIEGECVARFIX]
 				siege_Cvar_Set(va("siege_objective%i_desc", i), objectiveDesc);
 				siege_Cvar_Set(va("siege_objective%i_inuse", i), "2");
-				//trap_Cvar_Set(va("siege_objective%i_desc", i), objectiveDesc);
-				//trap_Cvar_Set(va("siege_objective%i_inuse", i), "2");
 				//[/SIEGECVARFIX]
 				trap_Cvar_Set(va("team%i_objective%i_inuse", useTeam, i), "2");
 
@@ -998,20 +979,6 @@ void CG_SiegeBriefingDisplay(int team, int dontshow)
 				trap_Cvar_Set(va("team%i_objective%i_mapicon", useTeam, i), "");
 			} else break;
 		}
-		/*else
-		{ //didn't find one, so set the "inuse" cvar to 0 for the objective and mark it non-complete.
-			trap_Cvar_Set(va("siege_objective%i_inuse", i), "0");
-			trap_Cvar_Set(va("siege_objective%i", i), "0");
-			trap_Cvar_Set(va("team%i_objective%i_inuse", useTeam, i), "0");
-			trap_Cvar_Set(va("team%i_objective%i", useTeam, i), "0");
-
-			trap_Cvar_Set(va("siege_objective%i_mappos", i), "");
-			trap_Cvar_Set(va("team%i_objective%i_mappos", useTeam, i), "");
-			trap_Cvar_Set(va("siege_objective%i_gfx", i), "");
-			trap_Cvar_Set(va("team%i_objective%i_gfx", useTeam, i), "");
-			trap_Cvar_Set(va("siege_objective%i_mapicon", i), "");
-			trap_Cvar_Set(va("team%i_objective%i_mapicon", useTeam, i), "");
-		}*/
 		//[/SIEGECVARFIX]
 
 		i++;
@@ -1248,7 +1215,6 @@ void CG_SetSiegeTimerCvar ( int msec )
 
 	//[SIEGECVARFIX]
 	siege_Cvar_Set("ui_siegeTimer", va( "%i:%i%i", mins, tens, seconds ) );
-	//trap_Cvar_Set("ui_siegeTimer", va( "%i:%i%i", mins, tens, seconds ) );
 	//[SIEGECVARFIX]
 }
 

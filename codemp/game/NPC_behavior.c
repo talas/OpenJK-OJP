@@ -818,158 +818,6 @@ void NPC_BSFollowLeader (void)
 	{
 		NPC_BSFollowLeader_LookAtLeader();
 	}
-
-	/* Replaced all this stuff with easier to follow function calls
-	if ( !NPC->client->leader )
-	{//ok, stand guard until we find an enemy
-		if( NPCInfo->tempBehavior == BS_HUNT_AND_KILL )
-		{
-			NPCInfo->tempBehavior = BS_DEFAULT;
-		}
-		else
-		{
-			NPCInfo->tempBehavior = BS_STAND_GUARD;
-			NPC_BSStandGuard();
-		}
-		return;
-	}
-
-	if ( !NPC->enemy  )
-	{//no enemy, find one
-		NPC_CheckEnemy( NPCInfo->confusionTime<level.time, qfalse, qtrue );//don't find new enemy if this is tempbehav
-		if ( NPC->enemy )
-		{//just found one
-			NPCInfo->enemyCheckDebounceTime = level.time + Q_irand( 3000, 10000 );
-		}
-		else
-		{
-			if ( !(NPCInfo->scriptFlags&SCF_IGNORE_ALERTS) )
-			{
-				int eventID = NPC_CheckAlertEvents( qtrue, qtrue, -1, qfalse, AEL_MINOR );
-				//[CoOp]
-				//don't do anything if nothing happened.
-				if ( eventID >= 0 && level.alertEvents[eventID].level >= AEL_SUSPICIOUS && (NPCInfo->scriptFlags&SCF_LOOK_FOR_ENEMIES) )
-				//if ( level.alertEvents[eventID].level >= AEL_SUSPICIOUS && (NPCInfo->scriptFlags&SCF_LOOK_FOR_ENEMIES) )
-				//[/CoOp]
-				{
-					NPCInfo->lastAlertID = level.alertEvents[eventID].ID;
-					if ( !level.alertEvents[eventID].owner || 
-						!level.alertEvents[eventID].owner->client || 
-						level.alertEvents[eventID].owner->health <= 0 ||
-						level.alertEvents[eventID].owner->client->playerTeam != NPC->client->enemyTeam )
-					{//not an enemy
-					}
-					else
-					{
-						//FIXME: what if can't actually see enemy, don't know where he is... should we make them just become very alert and start looking for him?  Or just let combat AI handle this... (act as if you lost him)
-						G_SetEnemy( NPC, level.alertEvents[eventID].owner );
-						NPCInfo->enemyCheckDebounceTime = level.time + Q_irand( 3000, 10000 );
-						NPCInfo->enemyLastSeenTime = level.time;
-						TIMER_Set( NPC, "attackDelay", Q_irand( 500, 1000 ) );
-					}
-				}
-
-			}
-		}
-		if ( !NPC->enemy )
-		{
-			if ( NPC->client->leader 
-				&& NPC->client->leader->enemy 
-				&& NPC->client->leader->enemy != NPC
-				&& ( (NPC->client->leader->enemy->client&&NPC->client->leader->enemy->client->playerTeam==NPC->client->enemyTeam)
-					||(*//*NPC->client->leader->enemy->r.svFlags&SVF_NONNPC_ENEMY*//*0&&NPC->client->leader->enemy->alliedTeam==NPC->client->enemyTeam) )
-				&& NPC->client->leader->enemy->health > 0 )
-			{ //rwwFIXMEFIXME: use SVF_NONNPC_ENEMY?
-				G_SetEnemy( NPC, NPC->client->leader->enemy );
-				NPCInfo->enemyCheckDebounceTime = level.time + Q_irand( 3000, 10000 );
-				NPCInfo->enemyLastSeenTime = level.time;
-			}
-		}
-	}
-	else 
-	{
-		if ( NPC->enemy->health <= 0 || (NPC->enemy->flags&FL_NOTARGET) )
-		{
-			G_ClearEnemy( NPC );
-			if ( NPCInfo->enemyCheckDebounceTime > level.time + 1000 )
-			{
-				NPCInfo->enemyCheckDebounceTime = level.time + Q_irand( 1000, 2000 );
-			}
-		}
-		else if ( NPC->client->ps.weapon && NPCInfo->enemyCheckDebounceTime < level.time )
-		{
-			NPC_CheckEnemy( (NPCInfo->confusionTime<level.time||NPCInfo->tempBehavior!=BS_FOLLOW_LEADER), qfalse, qtrue );//don't find new enemy if this is tempbehav
-		}
-	}
-	
-	if ( NPC->enemy && NPC->client->ps.weapon )
-	{//If have an enemy, face him and fire
-		if ( NPC->client->ps.weapon == WP_SABER )//|| NPCInfo->confusionTime>level.time )
-		{//lightsaber user or charmed enemy
-			if ( NPCInfo->tempBehavior != BS_FOLLOW_LEADER )
-			{//not already in a temp bState
-				//go after the guy
-				NPCInfo->tempBehavior = BS_HUNT_AND_KILL;
-				NPC_UpdateAngles(qtrue, qtrue);
-				return;
-			}
-		}
-
-		enemyVisibility = NPC_CheckVisibility ( NPC->enemy, CHECK_FOV|CHECK_SHOOT );//CHECK_360|CHECK_PVS|
-		if ( enemyVisibility > VIS_PVS )
-		{//face
-			vec3_t	enemy_org, muzzle, delta, angleToEnemy;
-			float	distanceToEnemy;
-
-			CalcEntitySpot( NPC->enemy, SPOT_HEAD, enemy_org );
-			NPC_AimWiggle( enemy_org );
-
-			CalcEntitySpot( NPC, SPOT_WEAPON, muzzle );
-			
-			VectorSubtract( enemy_org, muzzle, delta);
-			vectoangles( delta, angleToEnemy );
-			distanceToEnemy = VectorNormalize( delta );
-
-			NPCInfo->desiredYaw = angleToEnemy[YAW];
-			NPCInfo->desiredPitch = angleToEnemy[PITCH];
-			NPC_UpdateFiringAngles( qtrue, qtrue );
-
-			if ( enemyVisibility >= VIS_SHOOT )
-			{//shoot
-				NPC_AimAdjust( 2 );
-				if ( NPC_GetHFOVPercentage( NPC->enemy->r.currentOrigin, NPC->r.currentOrigin, NPC->client->ps.viewangles, NPCInfo->stats.hfov ) > 0.6f 
-					&& NPC_GetHFOVPercentage( NPC->enemy->r.currentOrigin, NPC->r.currentOrigin, NPC->client->ps.viewangles, NPCInfo->stats.vfov ) > 0.5f )
-				{//actually withing our front cone
-					WeaponThink( qtrue );
-				}
-			}
-			else
-			{
-				NPC_AimAdjust( 1 );
-			}
-			
-			//NPC_CheckCanAttack(1.0, qfalse);
-		}
-		else
-		{
-			NPC_AimAdjust( -1 );
-		}
-	}
-	else
-	{//FIXME: combine with vector calc below
-		vec3_t	head, leaderHead, delta, angleToLeader;
-
-		CalcEntitySpot( NPC->client->leader, SPOT_HEAD, leaderHead );
-		CalcEntitySpot( NPC, SPOT_HEAD, head );
-		VectorSubtract (leaderHead, head, delta);
-		vectoangles ( delta, angleToLeader );
-		VectorNormalize(delta);
-		NPC->NPC->desiredYaw = angleToLeader[YAW];
-		NPC->NPC->desiredPitch = angleToLeader[PITCH];
-		
-		NPC_UpdateAngles(qtrue, qtrue);
-	}
-	*/
 	//[/CoOp]
 
 	//[RAFIXME] - Replace the below with SP Navigation code!
@@ -979,16 +827,10 @@ void NPC_BSFollowLeader (void)
 
 
 	//Follow leader, stay within visibility and a certain distance, maintain a distance from.
-	//[CoOp]
-	//this check is done earlier.
-	//curAnim = NPC->client->ps.legsAnim;
-	//if ( curAnim != BOTH_ATTACK1 && curAnim != BOTH_ATTACK2 && curAnim != BOTH_ATTACK3 && curAnim != BOTH_MELEE1 && curAnim != BOTH_MELEE2 )
-	//[/CoOp]
 	{//Don't move toward leader if we're in a full-body attack anim
 		//FIXME, use IdealDistance to determine if we need to close distance
 		//[CoOp]
 		float	followDist = (NPCInfo->followDist)?(NPCInfo->followDist):(110.0f);
-		//float	followDist = 96.0f;//FIXME:  If there are enmies, make this larger?
 		//[/CoOp]
 		float	backupdist, walkdist, minrundist;
 		float	leaderHDist;
@@ -1210,17 +1052,6 @@ void NPC_BSJump (void)
 				//Return that the goal was reached
 				trap_ICARUS_TaskIDComplete( NPC, TID_MOVE_NAV );
 			}
-
-			/*
-			//task complete no matter what...  
-			NPC_ClearGoal();
-			NPCInfo->goalTime = level.time;
-			NPCInfo->aiFlags &= ~NPCAI_MOVING;
-			ucmd.forwardmove = 0;
-			NPC->flags &= ~FL_NO_KNOCKBACK;
-			//Return that the goal was reached
-			trap_ICARUS_TaskIDComplete( NPC, TID_MOVE_NAV );
-			*/
 			//[/CoOp]
 
 			//Or should we keep jumping until reached goal?
@@ -1252,7 +1083,6 @@ void NPC_BSRemove (void)
 	NPC_UpdateAngles ( qtrue, qtrue );
 	//[CoOp]
 	if( !InPlayersPVS( NPC->r.currentOrigin ) )
-	//if( !trap_InPVS( NPC->r.currentOrigin, g_entities[0].r.currentOrigin ) )//FIXME: use cg.vieworg?
 	//[/CoOp]
 	{ //rwwFIXMEFIXME: Care about all clients instead of just 0?
 		G_UseTargets2( NPC, NPC, NPC->target3 );
@@ -1298,23 +1128,6 @@ void NPC_BSSearch (void)
 			return;
 		}
 	}
-	/*
-	NPC_CheckEnemy(qtrue, qfalse, qtrue);
-	//Look for enemies, if find one:
-	if ( NPC->enemy )
-	{
-		if( NPCInfo->tempBehavior == BS_SEARCH )
-		{//if tempbehavior, set tempbehavior to default
-			NPCInfo->tempBehavior = BS_DEFAULT;
-		}
-		else
-		{//if bState, change to run and shoot
-			NPCInfo->behaviorState = BS_HUNT_AND_KILL;
-			NPC_BSRunAndShoot();
-		}
-		return;
-	}
-	*/
 	//[/CoOp]
 
 	//FIXME: what if our goalEntity is not NULL and NOT our tempGoal - they must
@@ -1977,7 +1790,6 @@ void NPC_Surrender( void )
 	if ( NPC->s.weapon != WP_NONE && 
 		//[CoOp]
 		NPC->s.weapon != WP_MELEE &&
-		//NPC->s.weapon != WP_STUN_BATON &&
 		//[/CoOp]
 		NPC->s.weapon != WP_SABER )
 	{
@@ -2046,7 +1858,6 @@ void NPC_Surrender( void )
 
 //	NPC_SetAnim( NPC, SETANIM_TORSO, TORSO_SURRENDER_START, SETANIM_FLAG_HOLD|SETANIM_FLAG_OVERRIDE );
 //	NPC->client->ps.torsoTimer = 1000;
-	//NPCInfo->surrenderTime = level.time + 1000;//stay surrendered for at least 1 second
 	//FIXME: while surrendering, make a big sight/sound alert? Or G_AlertTeam?
 	//[/CoOp]
 }
@@ -2075,7 +1886,6 @@ qboolean NPC_CheckSurrender( void )
 				//don't give up unless low on health
 				//[CoOp] SP Code
 				if ( NPC->health > 25 || NPC->health >= NPC->client->pers.maxHealth )
-				//if ( NPC->health > 25 /*|| NPC->health >= NPC->max_health*/ )
 				//[/CoOp]
 				{ //rwwFIXMEFIXME: Keep max health not a ps state?
 					return qfalse;
@@ -2105,7 +1915,6 @@ qboolean NPC_CheckSurrender( void )
 			//fixme: this logic keeps making npc's randomly surrender
 			//[CoOp]
 			if ( !NPCInfo->group || (NPCInfo->group && NPCInfo->group->numGroup <= 1) )
-			//if ( NPCInfo->group && NPCInfo->group->numGroup <= 1 )
 			//[/CoOp]
 			{//I'm alone but I was in a group//FIXME: surrender anyway if just melee or no weap?
 				if ( NPC->s.weapon == WP_NONE 
@@ -2114,7 +1923,6 @@ qboolean NPC_CheckSurrender( void )
 					//[CoOp]
 					//accounting for partially lit sabers
 					|| (NPC->enemy->s.weapon == WP_SABER&&NPC->enemy->client&&NPC->enemy->client->ps.saberHolstered < 2) //racc - a jedi
-					//|| (NPC->enemy->s.weapon == WP_SABER&&NPC->enemy->client&&!NPC->enemy->client->ps.saberHolstered)
 					|| (NPC->enemy->NPC && NPC->enemy->NPC->group && NPC->enemy->NPC->group->numGroup > 2) )
 				{//surrender only if have no weapon or fighting a player or jedi or if we are outnumbered at least 3 to 1
 					if ( (NPC->enemy && NPC->enemy->s.number < MAX_CLIENTS) )
@@ -2151,7 +1959,6 @@ qboolean NPC_CheckSurrender( void )
 							float maxDist = (64+(NPC->r.maxs[0]*1.5)+(NPC->enemy->r.maxs[0]*1.5));
 							maxDist *= maxDist;
 							if ( DistanceSquared( NPC->r.currentOrigin, NPC->enemy->r.currentOrigin ) < maxDist )
-							//if ( DistanceSquared( NPC->r.currentOrigin, NPC->enemy->r.currentOrigin ) < 4096 )
 							//[/CoOp]
 							{//they're close
 								if ( trap_InPVS( NPC->r.currentOrigin, NPC->enemy->r.currentOrigin ) )

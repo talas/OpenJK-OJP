@@ -1529,9 +1529,6 @@ void Menus_CloseByName ( const char *p )
 	menu->window.flags &= ~(WINDOW_VISIBLE | WINDOW_HASFOCUS);
 }
 
-//[UITweaks]
-//int FPMessageTime = 0;
-//[/UITweaks]
 
 void Menus_CloseAll() 
 {
@@ -1548,9 +1545,6 @@ void Menus_CloseAll()
 	// Clear the menu stack
 	openMenuCount = 0;
 
-	//[UITweaks]
-	//FPMessageTime = 0;
-	//[/UITweaks]
 }
 
 qboolean Script_Show(itemDef_t *item, char **args) 
@@ -2130,7 +2124,6 @@ qboolean Script_Exec(itemDef_t *item, char **args) {
 	//[CoOp]
 	//This needs to be changeable now.
 	char *val;
-	//const char *val;
 	//[/CoOp]
 	if (String_Parse(args, &val)) {
 		//[CoOp]
@@ -2386,7 +2379,6 @@ qboolean Item_EnableShowViaCvar(itemDef_t *item, int flag)
 				//adding cvarSubString support
 				if( ( (item->cvarFlags & CVAR_SUBSTRING) && strstr(buff, val) )
 					|| (Q_stricmp(buff, val) == 0) )
-				//if (Q_stricmp(buff, val) == 0) 
 				//[/CoOp]
 				{
 					return qtrue;
@@ -2399,7 +2391,6 @@ qboolean Item_EnableShowViaCvar(itemDef_t *item, int flag)
 				//adding cvarSubString support
 				if( ( (item->cvarFlags & CVAR_SUBSTRING) && strstr(buff, val) )
 					|| (Q_stricmp(buff, val) == 0) )
-				//if (Q_stricmp(buff, val) == 0) 
 				//[/CoOp]
 				{
 					return qfalse;
@@ -3916,7 +3907,6 @@ static void Scroll_Slider_ThumbFunc(void *p) {
 	} else {
 		DC->setCVar(si->item->cvar, va("%f", value));
 	}
-	//DC->setCVar(si->item->cvar, va("%f", value));
 	//[/INTSLIDER]
 }
 
@@ -4038,7 +4028,6 @@ qboolean Item_Slider_HandleKey(itemDef_t *item, int key, qboolean down) {
 					} else {
 						DC->setCVar(item->cvar, va("%f", value));
 					}
-					//DC->setCVar(item->cvar, va2("%f", value));
 					//[/INTSLIDER]
 					return qtrue;
 				}
@@ -4452,7 +4441,6 @@ void Menu_HandleKey(menuDef_t *menu, int key, qboolean down) {
 //JLFACCEPT MPMOVED
 				//[INTSLIDER]
 				else if ( item->type == ITEM_TYPE_MULTI || item->type == ITEM_TYPE_YESNO || item->type == ITEM_TYPE_SLIDER || item->type == ITEM_TYPE_INTSLIDER)
-				//else if ( item->type == ITEM_TYPE_MULTI || item->type == ITEM_TYPE_YESNO || item->type == ITEM_TYPE_SLIDER)
 				//[/INTSLIDER]
 				{
 					if (Item_HandleAccept(item))
@@ -7012,7 +7000,6 @@ void Item_ValidateTypeData(itemDef_t *item)
 	}
 	//[INTSLIDER]
 	else if (item->type == ITEM_TYPE_EDITFIELD || item->type == ITEM_TYPE_NUMERICFIELD || item->type == ITEM_TYPE_YESNO || item->type == ITEM_TYPE_BIND || item->type == ITEM_TYPE_SLIDER || item->type == ITEM_TYPE_INTSLIDER || item->type == ITEM_TYPE_TEXT) 
-	//else if (item->type == ITEM_TYPE_EDITFIELD || item->type == ITEM_TYPE_NUMERICFIELD || item->type == ITEM_TYPE_YESNO || item->type == ITEM_TYPE_BIND || item->type == ITEM_TYPE_SLIDER || item->type == ITEM_TYPE_TEXT) 
 	//[/INTSLIDER]
 	{
 		item->typeData = UI_Alloc(sizeof(editFieldDef_t));

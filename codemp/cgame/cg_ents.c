@@ -272,7 +272,6 @@ static void CG_EntityEffects( centity_t *cent ) {
 	//don't play loop sounds while in briefing menus or watching a ROQ
 	if ( (cent->currentState.loopSound || (cent->currentState.loopIsSoundset && cent->currentState.number >= MAX_CLIENTS)) 
 		&& !InCinematic && !InBriefing ) {
-	//if ( cent->currentState.loopSound || (cent->currentState.loopIsSoundset && cent->currentState.number >= MAX_CLIENTS) ) {
 	//[/CoOp]	
 		sfxHandle_t realSoundIndex = -1;
 			
@@ -2740,7 +2739,6 @@ Ghoul2 Insert End
 	//don't apply this weird spin stuff to the sabers because they don't rotate on the 
 	//same axis.
 	if ( s1->apos.trType != TR_INTERPOLATE && s1->weapon != WP_SABER)
-	//if ( s1->apos.trType != TR_INTERPOLATE )
 	//[/SaberThrowSys]
 	{
 		// convert direction of travel into axis
@@ -2839,7 +2837,6 @@ Ghoul2 Insert End
 	if (s1->weapon == WP_SABER 
 		&& (cgs.gametype == GT_JEDIMASTER || //playing JediMaster
 		(s1->owner == cg.snap->ps.clientNum)))//or it's our saber and we've dropped it.
-	//if (s1->weapon == WP_SABER && cgs.gametype == GT_JEDIMASTER)
 	//[/SaberThrowSys]
 	{ //in jedimaster always make the saber glow when on the ground
 		vec3_t org;

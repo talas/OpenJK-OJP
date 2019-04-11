@@ -714,7 +714,6 @@ void BotUpdateInput(bot_state_t *bs, int time, int elapsed_time) {
 	{
 		BotChangeViewAngles(bs, (float) elapsed_time / 1000);
 	}
-	//BotChangeViewAngles(bs, (float) elapsed_time / 1000);
 	//[/TABBot]
 
 	//retrieve the bot input
@@ -924,7 +923,6 @@ int BotAI(int client, float thinktime) {
 	{
 		StandardBotAI(bs, thinktime);
 	}
-	//StandardBotAI(bs, thinktime);
 	//[/TABBot]
 #ifdef _DEBUG
 	end = trap_Milliseconds();
@@ -2032,7 +2030,6 @@ int PassStandardEnemyChecks(bot_state_t *bs, gentity_t *en)
 	//[BotTweaks]
 	//bots should attack other players if the JM saber has been dropped in the jedimaster gametype.
 	if (g_gametype.integer == GT_JEDIMASTER && !en->client->ps.isJediMaster && !bs->cur_ps.isJediMaster && G_ThereIsAMaster())
-	//if (g_gametype.integer == GT_JEDIMASTER && !en->client->ps.isJediMaster && !bs->cur_ps.isJediMaster)
 	//[/BotTweaks]
 	{ //rules for attacking non-JM in JM mode
 		vec3_t vs;
@@ -2326,11 +2323,6 @@ int PassLovedOneCheck(bot_state_t *bs, gentity_t *ent)
 	return 1;
 }
 
-//[BotTweaks]
-//moved this up so we can use it earlier in PassStandardEnemyChecks to make the bots attack other players while there isn't
-//a jedimaster in the JM gametype.
-//qboolean G_ThereIsAMaster(void);
-//[/BotTweaks]
 
 //standard check to find a new enemy.
 int ScanForEnemies(bot_state_t *bs)
@@ -2488,7 +2480,6 @@ int BotGetWeaponRange(bot_state_t *bs)
 	{
 		return BWEAPONRANGE_LONG;
 	}
-	//return BWEAPONRANGE_LONG;
 	//[/AotCAI]
 	case WP_REPEATER:
 		return BWEAPONRANGE_MID;
@@ -2502,7 +2493,6 @@ int BotGetWeaponRange(bot_state_t *bs)
 	{
 		return BWEAPONRANGE_LONG;
 	}
-	//return BWEAPONRANGE_LONG;
 	//[/AotCAI]
 	case WP_FLECHETTE:
 	//[AotCAI]
@@ -2513,8 +2503,7 @@ int BotGetWeaponRange(bot_state_t *bs)
 	else
 	{
 		return BWEAPONRANGE_LONG;
-	}
-	//return BWEAPONRANGE_LONG;	
+	}	
 	//[/AotCAI]
 	case WP_ROCKET_LAUNCHER:
 		return BWEAPONRANGE_LONG;
@@ -2528,7 +2517,6 @@ int BotGetWeaponRange(bot_state_t *bs)
 	{
 		return BWEAPONRANGE_LONG;
 	}
-	//return BWEAPONRANGE_LONG;
 	//[/AotCAI]
 	case WP_TRIP_MINE:
 	//[AotCAI]
@@ -2540,7 +2528,6 @@ int BotGetWeaponRange(bot_state_t *bs)
 	{
 		return BWEAPONRANGE_MID;
 	}
-	//return BWEAPONRANGE_MID;
 	//[/AotCAI]
 
 	case WP_DET_PACK:
@@ -2553,7 +2540,6 @@ int BotGetWeaponRange(bot_state_t *bs)
 	{
 		return BWEAPONRANGE_LONG;
 	}
-	//return BWEAPONRANGE_LONG;
 	//[/AotCAI]
 	default:
 		return BWEAPONRANGE_MID;
@@ -4872,7 +4858,6 @@ void BotAimLeading(bot_state_t *bs, vec3_t headlevel, float leadAmount)
 	//[BotTweaks]
 	//Cleans up a bunch of type cast warnings and makes this more accurate at the same time.
 	float x;
-	//int x;
 	//[/BotTweaks]
 	vec3_t predictedSpot;
 	vec3_t movementVector;
@@ -5492,7 +5477,6 @@ int BotSelectChoiceWeapon(bot_state_t *bs, int weapon, int doselection)
 		//[TABBot]
 		//Fixing this so you can select zero ammo weapons (like the saber and melee weapons)
 		if (bs->cur_ps.ammo[weaponData[i].ammoIndex] >= weaponData[i].energyPerShot &&
-		//if (bs->cur_ps.ammo[weaponData[i].ammoIndex] > weaponData[i].energyPerShot &&
 		//[TABBot]		
 			i == weapon &&
 			(bs->cur_ps.stats[STAT_WEAPONS] & (1 << i)))
@@ -5794,19 +5778,6 @@ int AltFiring(bot_state_t *bs)
 	{
 		return 1;
 	}
-	/*
-	if (bs->cur_ps.weaponstate != WEAPON_CHARGING_ALT &&
-		bs->doAltAttack)
-	{
-		return 1;
-	}
-
-	if (bs->cur_ps.weaponstate == WEAPON_CHARGING_ALT &&
-		!bs->doAltAttack)
-	{
-		return 1;
-	}
-	*/
 	//[/SaberSys]
 
 	return 0;
@@ -5829,19 +5800,6 @@ int KeepAltFromFiring(bot_state_t *bs)
 	{
 		bs->doAltAttack = 1;
 	}
-	/*
-	if (bs->cur_ps.weaponstate != WEAPON_CHARGING_ALT &&
-		bs->doAltAttack)
-	{
-		bs->doAltAttack = 0;
-	}
-
-	if (bs->cur_ps.weaponstate == WEAPON_CHARGING_ALT &&
-		!bs->doAltAttack)
-	{
-		bs->doAltAttack = 1;
-	}
-	*/
 	//[/SaberSys]
 
 	return 0;
@@ -6784,7 +6742,6 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 			//[BotTweaks]
 			//sabers should have to be fully holstered to have this work.
 			bs->currentEnemy->client->ps.saberHolstered == 2)
-			//bs->currentEnemy->client->ps.saberHolstered)
 			//[/BotTweaks]
 		{
 			vec3_t e_ang_vec;
@@ -7360,7 +7317,6 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 				//[SaberSys]
 				bs->doSaberThrow = 1;
 				bs->doAltAttack = 0;
-				//bs->doAltAttack = 1;
 				//[/SaberSys]
 				bs->doAttack = 0;
 			}
@@ -7369,7 +7325,6 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 				//[SaberSys]
 				bs->doSaberThrow = 1;
 				bs->doAltAttack = 0;
-				//bs->doAltAttack = 1;
 				//[/SaberSys]
 				bs->doAttack = 0;
 			}
@@ -7463,7 +7418,6 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 	else if (bs->currentEnemy && bs->lastVisibleEnemyIndex == bs->currentEnemy->s.number && !bs->frame_Enemy_Vis && bs->plantTime < level.time &&
 		//[SaberSys]
 		!bs->doAttack && !bs->doAltAttack && !bs->doSaberThrow)
-		//!bs->doAttack && !bs->doAltAttack)
 		//[/SaberSys]
 	{
 		VectorSubtract(bs->origin, bs->hereWhenSpotted, a);
@@ -7573,22 +7527,6 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 				}
 			}
 		}
-
-		/*
-		if (meleestrafe)
-		{
-			StrafeTracing(bs);
-		}
-
-		if (bs->meleeStrafeDir && meleestrafe && bs->meleeStrafeDisable < level.time)
-		{
-			trap_EA_MoveRight(bs->client);
-		}
-		else if (meleestrafe && bs->meleeStrafeDisable < level.time)
-		{
-			trap_EA_MoveLeft(bs->client);
-		}
-		*/
 		//[/BotTweaks]
 
 		if (BotTrace_Jump(bs, bs->goalPosition))
@@ -7783,7 +7721,6 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 	//prevent bot's from kicking your ass in saber locks when
 	//sv_fps is higher
 	if (bs->cur_ps.saberLockTime > level.time && bs->saberLockDebounce < level.time)
-	//if (bs->cur_ps.saberLockTime > level.time)
 	{
 		if (rand()%10 < 5)
 		{
@@ -7981,8 +7918,6 @@ int BotAISetup( int restart ) {
 	//turned off the auto correction stuff because it sucks.
 	trap_Cvar_Register(&bot_wp_distconnect, "bot_wp_distconnect", "0", 0);
 	trap_Cvar_Register(&bot_wp_visconnect, "bot_wp_visconnect", "0", 0);
-	//trap_Cvar_Register(&bot_wp_distconnect, "bot_wp_distconnect", "1", 0);
-	//trap_Cvar_Register(&bot_wp_visconnect, "bot_wp_visconnect", "1", 0);
 
 	//frame rate for Bot AI updates
 	trap_Cvar_Register(&bot_fps, "bot_fps", "20", CVAR_ARCHIVE);

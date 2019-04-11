@@ -598,7 +598,6 @@ typedef struct {
 //[UITweaks]
 //Doubled the model icon max
 #define MAX_Q3PLAYERMODELS 512
-//#define MAX_Q3PLAYERMODELS 256
 //[/UITweaks]
 #define MAX_PLAYERMODELS 32
 

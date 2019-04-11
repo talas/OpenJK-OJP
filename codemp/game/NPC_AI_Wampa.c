@@ -171,7 +171,6 @@ void Wampa_Move( qboolean visible )
 //---------------------------------------------------------
 //[KnockdownSys]
 extern void G_Knockdown( gentity_t *self, gentity_t *attacker, const vec3_t pushDir, float strength, qboolean breakSaberLock );
-//extern void G_Knockdown( gentity_t *victim );
 //[/KnockdownSys]
 extern void G_Dismember( gentity_t *ent, gentity_t *enemy, vec3_t point, int limbType, float limbRollBase, float limbPitchBase, int deathAnim, qboolean postDeath );
 extern int NPC_GetEntsNearBolt( int *radiusEnts, float radius, int boltIndex, vec3_t boltOrg );
@@ -261,7 +260,6 @@ void Wampa_Slash( int boltIndex, qboolean backhand )
 				//[KnockdownSys]
 				//ported multi-direction knockdowns from SP.
 				G_Knockdown( radiusEnt, NPC, pushDir, 35, qtrue );
-				//G_Knockdown( radiusEnt );
 				//[/KnockdownSys]
 			}
 			G_Sound( radiusEnt, CHAN_WEAPON, G_SoundIndex( "sound/chars/rancor/swipehit.wav" ) );

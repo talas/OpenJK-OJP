@@ -1561,45 +1561,6 @@ qboolean PM_InKnockDown( playerState_t *ps )
 		break;
 	}
 	return qfalse;
-
-	/* basejka code
-	switch ( (ps->legsAnim) )
-	{
-	case BOTH_KNOCKDOWN1:
-	case BOTH_KNOCKDOWN2:
-	case BOTH_KNOCKDOWN3:
-	case BOTH_KNOCKDOWN4:
-	case BOTH_KNOCKDOWN5:
-		return qtrue;
-		break;
-	case BOTH_GETUP1:
-	case BOTH_GETUP2:
-	case BOTH_GETUP3:
-	case BOTH_GETUP4:
-	case BOTH_GETUP5:
-	case BOTH_FORCE_GETUP_F1:
-	case BOTH_FORCE_GETUP_F2:
-	case BOTH_FORCE_GETUP_B1:
-	case BOTH_FORCE_GETUP_B2:
-	case BOTH_FORCE_GETUP_B3:
-	case BOTH_FORCE_GETUP_B4:
-	case BOTH_FORCE_GETUP_B5:
-	case BOTH_GETUP_BROLL_B:
-	case BOTH_GETUP_BROLL_F:
-	case BOTH_GETUP_BROLL_L:
-	case BOTH_GETUP_BROLL_R:
-	case BOTH_GETUP_FROLL_B:
-	case BOTH_GETUP_FROLL_F:
-	case BOTH_GETUP_FROLL_L:
-	case BOTH_GETUP_FROLL_R:
-		if ( ps->legsTimer )
-		{
-			return qtrue;
-		}
-		break;
-	}
-	return qfalse;
-	*/
 	//[/KnockdownSys]
 }
 
@@ -2204,7 +2165,6 @@ int CheckAnimFrameForEventType( animevent_t *animEvents, int keyFrame, animEvent
 				return i;
 		}
 		else if ( animEvents[i].keyFrame == keyFrame )
-		//if ( animEvents[i].keyFrame == keyFrame )
 		//[AMBIENTEV]
 		{//there is an animevent on this frame already
 			if ( animEvents[i].eventType == eventType )
@@ -3273,7 +3233,6 @@ void PM_ContinueLegsAnim( int anim ) {
 	//[CoOp]
 	//dont override perm animations with this function.
 	//This is nessisary for cutscene animations to run properly.
-	//if ( pm->ps->legsTimer > 0 ) {
 	if ( pm->ps->legsTimer > 0 || pm->ps->legsTimer == -1 ) {
 	//[/CoOp]
 		return;		// a high priority animation is running
@@ -3440,7 +3399,6 @@ qboolean PM_SaberReturnAnim( int anim );
 //Made it so saber moves go slower if your fatigued
 void BG_SaberStartTransAnim( int clientNum, int saberAnimLevel, int weapon, int anim, float *animSpeed, 
 							int broken, int fatigued )
-//void BG_SaberStartTransAnim( int clientNum, int saberAnimLevel, int weapon, int anim, float *animSpeed, int broken )
 //[/FatigueSys]
 {
 	//[SaberSys]
@@ -3620,7 +3578,6 @@ void BG_SetAnimFinal(playerState_t *ps, animation_t *animations,
 
 	//[FatigueSys]
 	BG_SaberStartTransAnim(ps->clientNum, ps->fd.saberAnimLevel, ps->weapon, anim, &editAnimSpeed, ps->brokenLimbs, ps->userInt3);
-	//BG_SaberStartTransAnim(ps->clientNum, ps->fd.saberAnimLevel, ps->weapon, anim, &editAnimSpeed, ps->brokenLimbs);
 	//[/FatigueSys]
 
 	// Set torso anim
@@ -3630,7 +3587,6 @@ void BG_SetAnimFinal(playerState_t *ps, animation_t *animations,
 		//[AnimationSys]
 		//added SETANIM_FLAG_PACE flag
 		if( (ps->torsoAnim) == anim && !(setAnimFlags & SETANIM_FLAG_RESTART) && !(setAnimFlags & SETANIM_FLAG_PACE) )
-		//if( !(setAnimFlags & SETANIM_FLAG_RESTART) && (ps->torsoAnim) == anim )
 		//[/AnimationSys]
 		{
 			goto setAnimLegs;
@@ -3640,7 +3596,6 @@ void BG_SetAnimFinal(playerState_t *ps, animation_t *animations,
 		if( ((ps->torsoTimer > 0)||(ps->torsoTimer == -1)) && 
 			( ((setAnimFlags & SETANIM_FLAG_PACE) && (ps->torsoAnim) == anim ) 
 			|| !(setAnimFlags & SETANIM_FLAG_OVERRIDE)) )
-		//if( !(setAnimFlags & SETANIM_FLAG_OVERRIDE) && ((ps->torsoTimer > 0)||(ps->torsoTimer == -1)) )
 		//[/AnimationSys]
 		{	
 			goto setAnimLegs;
@@ -3668,8 +3623,6 @@ void BG_SetAnimFinal(playerState_t *ps, animation_t *animations,
 
 				//[BugFix2]
 				//Yeah, I don't think this was working correctly before
-				//int dur;
-				//int speedDif;
 				if( editAnimSpeed > 0 )
 				{
 					if(animations[anim].numFrames < 2)
@@ -3687,20 +3640,6 @@ void BG_SetAnimFinal(playerState_t *ps, animation_t *animations,
 						ps->torsoTimer--;
 					}
 				}
-				
-				/*
-				dur = (animations[anim].numFrames-1) * fabs((float)(animations[anim].frameLerp));
-				speedDif = dur - (dur * editAnimSpeed);
-				dur += speedDif;
-				if (dur > 1)
-				{
-					ps->torsoTimer = dur-1;
-				}
-				else
-				{
-					ps->torsoTimer = fabs((float)(animations[anim].frameLerp));
-				}
-				*/
 				//[/BugFix2]
 			}
 			else
@@ -3723,7 +3662,6 @@ setAnimLegs:
 		//[AnimationSys]
 				//added SETANIM_FLAG_PACE flag
 		if( (ps->legsAnim) == anim && !(setAnimFlags & SETANIM_FLAG_RESTART) && !(setAnimFlags & SETANIM_FLAG_PACE) )
-		//if( !(setAnimFlags & SETANIM_FLAG_RESTART) && (ps->legsAnim) == anim )
 		//[/AnimationSys]
 		{
 			goto setAnimDone;
@@ -3734,8 +3672,6 @@ setAnimLegs:
 		if( ((ps->legsTimer > 0)||(ps->legsTimer == -1)) && 
 			( ((setAnimFlags & SETANIM_FLAG_PACE) && (ps->legsAnim) == anim ) 
 			|| !(setAnimFlags & SETANIM_FLAG_OVERRIDE)) )
-		//if( !(setAnimFlags & SETANIM_FLAG_OVERRIDE) && ((ps->legsTimer > 0)||(ps->legsTimer == -1)) )
-
 		{	
 			goto setAnimDone;
 		}
@@ -3750,8 +3686,6 @@ setAnimLegs:
 
 				//[BugFix2]
 				//Yeah, I don't think this was working correctly before
-				//int dur;
-				//int speedDif;
 				
 				if( editAnimSpeed > 0 )
 				{
@@ -3770,20 +3704,6 @@ setAnimLegs:
 						ps->legsTimer--;
 					}
 				}
-
-				/*
-				dur = (animations[anim].numFrames-1) * fabs((float)(animations[anim].frameLerp));
-				speedDif = dur - (dur * editAnimSpeed);
-				dur += speedDif;
-				if (dur > 1)
-				{
-					ps->legsTimer = dur-1;
-				}
-				else
-				{
-					ps->legsTimer = fabs((float)(animations[anim].frameLerp));
-				}
-				*/
 				//[/BugFix2]
 
 			}

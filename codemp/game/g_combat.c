@@ -540,17 +540,6 @@ void TossClientWeapon(gentity_t *self, vec3_t direction, float speed)
 	launched->count = self->client->ps.ammo[weaponData[weapon].ammoIndex];
 
 	self->client->ps.ammo[weaponData[weapon].ammoIndex] = 0;
-	/*
-	launched->count = bg_itemlist[BG_GetItemIndexByTag(weapon, IT_WEAPON)].quantity;
-
-	self->client->ps.ammo[weaponData[weapon].ammoIndex] -= bg_itemlist[BG_GetItemIndexByTag(weapon, IT_WEAPON)].quantity;
-
-	if (self->client->ps.ammo[weaponData[weapon].ammoIndex] < 0)
-	{
-		launched->count -= (-self->client->ps.ammo[weaponData[weapon].ammoIndex]);
-		self->client->ps.ammo[weaponData[weapon].ammoIndex] = 0;
-	}
-	*/
 	//[/WeaponSys]
 
 	if ((self->client->ps.ammo[weaponData[weapon].ammoIndex] < 1 && weapon != WP_DET_PACK) ||
@@ -821,26 +810,6 @@ void TossClientItems( gentity_t *self ) {
 		}
 		Drop_Item( self, item, 0 );
 	}
-
-	/* old code.
-	if ( weapon > WP_BRYAR_PISTOL && 
-		weapon != WP_EMPLACED_GUN &&
-		weapon != WP_TURRET &&
-		self->client->ps.ammo[ weaponData[weapon].ammoIndex ] ) {
-		gentity_t *te;
-
-		// find the item type for this weapon
-		item = BG_FindItemForWeapon( weapon );
-
-		// tell all clients to remove the weapon model on this guy until he respawns
-		te = G_TempEntity( vec3_origin, EV_DESTROY_WEAPON_MODEL );
-		te->r.svFlags |= SVF_BROADCAST;
-		te->s.eventParm = self->s.number;
-
-		// spawn the item
-		Drop_Item( self, item, 0 );
-	}
-	*/
 	//[/CoOp]
 
 	// drop all the powerups if not in teamplay
@@ -2802,7 +2771,6 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 		}
 		//[NPCSandCreature]
 		if ( self->s.NPC_class == CLASS_RANCOR || self->s.NPC_class == CLASS_WAMPA || self->s.NPC_class == CLASS_SAND_CREATURE)
-		//if ( self->s.NPC_class == CLASS_RANCOR )
 		//[/NPCSandCreature]
 		{
 			Rancor_DropVictim( self );
@@ -3187,7 +3155,6 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 	if ( !( contents & CONTENTS_NODROP ) && !self->client->ps.fallingToDeath) {
 		//[CoOp]
 		//we want NPCs to drop weapons as well.
-		//if (self->s.eType != ET_NPC)
 		{
 			TossClientItems( self );
 		}
@@ -3311,7 +3278,6 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 			//[FullDismemberment]
 			//weapon dismemberment so saber isn't the only one :)
 			if (meansOfDeath == MOD_SABER || (meansOfDeath == MOD_TURBLAST) || (meansOfDeath == MOD_FLECHETTE) || (meansOfDeath == MOD_FLECHETTE_ALT_SPLASH) || (meansOfDeath == MOD_CONC_ALT) || (meansOfDeath == MOD_THERMAL_SPLASH) || (meansOfDeath == MOD_TRIP_MINE_SPLASH) || (meansOfDeath == MOD_TIMED_MINE_SPLASH) || (meansOfDeath == MOD_TELEFRAG) || (meansOfDeath == MOD_CRUSH) || (meansOfDeath == MOD_MELEE && G_HeavyMelee( attacker )) )//saber or heavy melee (claws)
-			//if (meansOfDeath == MOD_SABER || (meansOfDeath == MOD_MELEE && G_HeavyMelee( attacker )) )//saber or heavy melee (claws)
 			{ //update the anim on the actual skeleton (so bolt point will reflect the correct position) and then check for dismem
 				G_UpdateClientAnims(self, 1.0f);
 				G_CheckForDismemberment(self, attacker, self->pos1, damage, anim, qfalse);
@@ -3405,16 +3371,6 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 
 	trap_LinkEntity (self);
 
-	//[NOBODYQUE]
-	//need to set this earlier since some of the previous function calls depend on this being
-	//set for the g_spawn stuff.
-	/*
-	if ( self->NPC )
-	{
-		self->NPC->timeOfDeath = level.time;//this will change - used for debouncing post-death events
-	}
-	*/
-	//[/NOBODYQUE]
 
 	// Start any necessary death fx for this entity
 	DeathFX( self );
@@ -3468,7 +3424,6 @@ CheckArmor
 //[CoOp]
 //added mod for use by assassin droid shield management.
 int CheckArmor (gentity_t *ent, int damage, int dflags, int mod)
-//int CheckArmor (gentity_t *ent, int damage, int dflags)
 //[/CoOp]
 {
 	gclient_t	*client;
@@ -4829,7 +4784,6 @@ void G_CheckForDismemberment(gentity_t *ent, gentity_t *enemy, vec3_t point, int
 		if (d_saberGhoul2Collision.integer && ent->client 
 			&& ent->client->g2LastSurfaceTime == level.time
 			&& ent->client->g2LastSurfaceModel == G2MODEL_PLAYER)
-		//if (d_saberGhoul2Collision.integer && ent->client && ent->client->g2LastSurfaceTime == level.time)
 		//[/BUGFIX12]
 		{
 			char hitSurface[MAX_QPATH];
@@ -5006,8 +4960,6 @@ void G_LocationBasedDamageModifier(gentity_t *ent, vec3_t point, int mod, int df
 		(d_projectileGhoul2Collision.integer 
 		&& ent->client && ent->client->g2LastSurfaceModel == G2MODEL_PLAYER
 		&& ent->client->g2LastSurfaceTime == level.time)) //It's safe to assume we died from the projectile that just set our surface index. So, go ahead and use that as the surf I guess.
-	//if ((d_saberGhoul2Collision.integer && ent->client && ent->client->g2LastSurfaceTime == level.time && mod == MOD_SABER) || //using ghoul2 collision? Then if the mod is a saber we should have surface data from the last hit (unless thrown).
-	//	(d_projectileGhoul2Collision.integer && ent->client && ent->client->g2LastSurfaceTime == level.time)) //It's safe to assume we died from the projectile that just set our surface index. So, go ahead and use that as the surf I guess.
 	//[/BugFix12]
 	{
 		char hitSurface[MAX_QPATH];
@@ -5222,55 +5174,6 @@ void G_Knockdown( gentity_t *self, gentity_t *attacker, const vec3_t pushDir, fl
 		}
 	}
 }
-
-/* basejka version
-void G_Knockdown( gentity_t *victim )
-{
-	//[CoOp]
-	//RAFIXME:  This is a hack to get this to work.  We really need to go back and
-	//make knockdown directional again.  for now, assume that the knockdown is always 
-	//trying to knock them backwards.
-	vec3_t ang, fwd;
-	VectorSet(ang, 0, victim->r.currentAngles[YAW], 0);
-	AngleVectors( ang, fwd, NULL, NULL );
-	VectorScale(ang, -1, ang);
-
-	if ( !victim || !victim->client )
-	{
-		return;
-	}
-
-	if ( victim->client->NPC_class == CLASS_ROCKETTROOPER )
-	{
-		return;
-	}
-
-	if ( Boba_StopKnockdown( victim, NULL, fwd, qfalse ) )
-	{//Boba Fett handles knockdown specially
-		return;
-	}
-	else if ( Jedi_StopKnockdown( victim, NULL, fwd ) )
-	{//Jedi can sometimes backflip instead of be knocked down
-		return;
-	}
-	else if ( PM_LockedAnim( victim->client->ps.legsAnim ) )
-	{//stuck doing something else
-		return;
-	}
-	else if ( Rosh_BeingHealed( victim ) )
-	{//rosh in heal mode can't be knocked down.
-		return;
-	}
-	//[/CoOp]
-	if ( victim && victim->client && BG_KnockDownable(&victim->client->ps) )
-	{
-		victim->client->ps.forceHandExtend = HANDEXTEND_KNOCKDOWN;
-		victim->client->ps.forceDodgeAnim = 0;
-		victim->client->ps.forceHandExtendTime = level.time + 1100;
-		victim->client->ps.quickerGetup = qfalse;
-	}
-}
-*/
 //[/KnockdownSys]
 
 
@@ -5498,7 +5401,6 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	if ( ((targ->flags&FL_SHIELDED) || (targ->s.NPC_class == CLASS_VEHICLE && targ->m_pVehicle 
 		&& !targ->m_pVehicle->m_pVehicleInfo->AllWeaponsDoDamageToShields
 		&& targ->client->ps.stats[STAT_ARMOR] > 0) ) && mod != MOD_SABER  && !targ->client)
-	//if ( (targ->flags&FL_SHIELDED) && mod != MOD_SABER  && !targ->client)
 	{//magnetically protected, this thing can only be damaged by lightsabers
 		return;
 	}
@@ -6000,7 +5902,6 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	//[CoOp]
 	//needed MOD for assassin droid shield handling
 	asave = CheckArmor (targ, take, dflags, mod);
-	//asave = CheckArmor (targ, take, dflags);
 	//[/CoOp]
 
 	if (asave)
@@ -6049,7 +5950,6 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 				//model attached (like a pilot or something
 				if ( targ->client && targ->client->g2LastSurfaceModel == G2MODEL_PLAYER
 					&& targ->client->g2LastSurfaceTime == level.time )
-				//if ( targ->client && targ->client->g2LastSurfaceTime == level.time)
 				//[/BugFix12]
 				{
 					char hitSurface[MAX_QPATH];
@@ -6533,7 +6433,6 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		//[BugFix12]
 		if (targ->client && targ->ghoul2 && targ->client->g2LastSurfaceModel == G2MODEL_PLAYER
 			&& targ->client->g2LastSurfaceTime == level.time)
-		//if (targ->client && targ->ghoul2 && targ->client->g2LastSurfaceTime == level.time)
 		//[/BugFix12]
 		{ //We updated the hit surface this frame, so it's valid.
 			char hitSurface[MAX_QPATH];
@@ -6851,7 +6750,6 @@ qboolean G_RadiusDamage ( vec3_t origin, gentity_t *attacker, float damage, floa
 		//added dodge for splash damage.
 		dodgeDmg = (int) points;
 		if( CanDamage (ent, origin) && !G_DoDodge(ent, attacker, origin, -1, &dodgeDmg, mod) ) {
-		//if( CanDamage (ent, origin) ) {
 			//we might have reduced the damage by doing a partial dodge
 			points = (float) dodgeDmg;
 		//[/DodgeSys]

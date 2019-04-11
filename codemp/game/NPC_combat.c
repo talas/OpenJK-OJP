@@ -323,7 +323,6 @@ void G_AttackDelay( gentity_t *self, gentity_t *enemy )
 			break;
 		//[CoOp]
 		case WP_MELEE:			// Any ol' melee attack
-		//case WP_STUN_BATON:			// Any ol' melee attack
 		//[/CoOp]
 			return;
 			break;
@@ -527,13 +526,6 @@ void G_SetEnemy( gentity_t *self, gentity_t *enemy )
 			enemy->client->enemyTeam = TEAM_FREE;
 			enemy->client->playerTeam = TEAM_FREE;
 		}
-
-		/*
-		if ( self->client->playerTeam == NPCTEAM_PLAYER && enemy->s.number == 0 )
-		{
-			self->client->enemyTeam = NPCTEAM_PLAYER;
-		}
-		*/
 		//[/CoOp]
 
 		//If have an anger script, run that instead of yelling
@@ -590,17 +582,6 @@ void G_SetEnemy( gentity_t *self, gentity_t *enemy )
 					}
 				}
 			}
-			
-			/*
-			//if ( self->forcePushTime < level.time ) // not currently being pushed
-			if (1) //rwwFIXMEFIXME: Set forcePushTime
-			{
-				if ( !G_TeamEnemy( self ) )
-				{//team did not have an enemy previously
-					event = Q_irand(EV_ANGER1, EV_ANGER3);
-				}
-			}
-			*/
 			//[/CoOp]
 			
 			if ( event )
@@ -942,10 +923,8 @@ void ChangeWeapon( gentity_t *ent, int newWeapon )
 		if ( g_spskill.integer == 0 )
 			//[CoOp]
 			ent->NPC->burstSpacing = 4500;//attack debounce
-			//ent->NPC->burstSpacing = 3000;//attack debounce
 		else if ( g_spskill.integer == 1 )
 			ent->NPC->burstSpacing = 3000;//attack debounce
-			//ent->NPC->burstSpacing = 2500;//attack debounce
 			//[/CoOp]
 		else 
 			ent->NPC->burstSpacing = 2000;//attack debounce
@@ -1259,7 +1238,6 @@ void ShootThink( void )
 			{
 				//[CoOp]
 				delay = NPCInfo->burstSpacing + Q_irand(-150, 150);
-				//delay = NPCInfo->burstSpacing;
 				//[/CoOp]
 			}
 			else 
@@ -1310,7 +1288,6 @@ void ShootThink( void )
 	{
 		//[CoOp]
 		delay = NPCInfo->burstSpacing + Q_irand(-150, 150);
-		//delay = NPCInfo->burstSpacing;
 		//[/CoOp]
 	}
 
@@ -1359,15 +1336,6 @@ void WeaponThink( qboolean inCombat )
 	{
 		Add_Ammo( NPC, client->ps.weapon, weaponData[client->ps.weapon].altEnergyPerShot*5 );
 	}
-/*
-//MCG - Begin
-	//For now, no-one runs out of ammo	
-	if(NPC->client->ps.ammo[ weaponData[client->ps.weapon].ammoIndex ] < 10)	// checkme	
-//	if(NPC->client->ps.ammo[ client->ps.weapon ] < 10)
-	{
-		Add_Ammo (NPC, client->ps.weapon, 100);
-	}
-*/
 //[/CoOp]
 
 	/*if ( NPC->playerTeam == TEAM_BORG )
@@ -1639,11 +1607,6 @@ int NPC_AttackDebounceForWeapon (void)
 			return 0;
 		}
 		break;
-	/*
-	case WP_SABER:
-		return 0;
-		break;
-		*/
 	//[/Coop]
 
 		/*
@@ -1662,7 +1625,6 @@ int NPC_AttackDebounceForWeapon (void)
 	default:
 		//[CoOp]
 		return NPCInfo->burstSpacing + Q_irand(-100, 100);//was 100 by default
-		//return NPCInfo->burstSpacing;//was 100 by default
 		//[/CoOp]
 		break;
 	}
@@ -1822,76 +1784,6 @@ qboolean ValidEnemy( gentity_t *ent )
 {
 	return G_ValidEnemy( NPC, ent );
 } 
-
-//Replaced by G_ValidEnemy and NPC_ValidEnemy
-/*
--------------------------
-ValidEnemy
--------------------------
-*/
-/*
-qboolean ValidEnemy(gentity_t *ent)
-{
-	if ( ent == NULL )
-		return qfalse;
-
-	if ( ent == NPC )
-		return qfalse;
-
-	//if team_free, maybe everyone is an enemy?
-	//if ( !NPC->client->enemyTeam )
-	//	return qfalse;
-
-	if ( !(ent->flags & FL_NOTARGET) )
-	{
-		if( ent->health > 0 )
-		{
-			if( !ent->client )
-			{
-				return qtrue;
-			}
-			else if ( ent->client->sess.sessionTeam == TEAM_SPECTATOR )
-			{//don't go after spectators
-				return qfalse;
-			}
-			else
-			{
-				int entTeam = TEAM_FREE;
-				if ( ent->NPC && ent->client )
-				{
-					entTeam = ent->client->playerTeam;
-				}
-				else if ( ent->client )
-				{
-					if ( ent->client->sess.sessionTeam == TEAM_BLUE )
-					{
-						entTeam = NPCTEAM_PLAYER;
-					}
-					else if ( ent->client->sess.sessionTeam == TEAM_RED )
-					{
-						entTeam = NPCTEAM_ENEMY;
-					}
-					else
-					{
-						entTeam = NPCTEAM_NEUTRAL;
-					}
-				}
-				if( entTeam == NPCTEAM_FREE 
-					|| NPC->client->enemyTeam == NPCTEAM_FREE 
-					|| entTeam == NPC->client->enemyTeam )
-				{
-					if ( entTeam != NPC->client->playerTeam )
-					{
-						return qtrue;
-					}
-				}
-			}
-		}
-	}
-
-	return qfalse;
-}
-*/
 //[/CoOp]
 
 qboolean NPC_EnemyTooFar(gentity_t *enemy, float dist, qboolean toShoot)
@@ -1974,7 +1866,6 @@ gentity_t *NPC_PickEnemy( gentity_t *closestTo, int enemyTeam, qboolean checkVis
 		for(i = 0; i < MAX_CLIENTS; i++)
 		{
 			newenemy = &g_entities[i];
-			//newenemy = &g_entities[0];
 			if( newenemy->client && !(newenemy->flags & FL_NOTARGET) && !(newenemy->s.eFlags & EF_NODRAW))
 			{
 				if( newenemy->health > 0 )
@@ -2111,7 +2002,6 @@ gentity_t *NPC_PickEnemy( gentity_t *closestTo, int enemyTeam, qboolean checkVis
 		//[CoOp]
 		//made this include players in the check.
 		if ( (newenemy->client /*|| newenemy->svFlags & SVF_NONNPC_ENEMY*/) && !(newenemy->flags & FL_NOTARGET) && !(newenemy->s.eFlags & EF_NODRAW))
-		//if ( newenemy != NPC && (newenemy->client /*|| newenemy->svFlags & SVF_NONNPC_ENEMY*/) && !(newenemy->flags & FL_NOTARGET) && !(newenemy->s.eFlags & EF_NODRAW))
 		//[/CoOp]
 		{
 			if ( newenemy->health > 0 )
@@ -2370,8 +2260,6 @@ gentity_t *NPC_CheckEnemy( qboolean findNew, qboolean tooFarOk, qboolean setEnem
 	//[CoOp]
 	//reenabling the IGNORE_ENEMIES flag
 	if ( NPC->NPC->scriptFlags & SCF_IGNORE_ENEMIES )
-	//if ( NPC->svFlags & SVF_IGNORE_ENEMIES )
-	//if (0) //rwwFIXMEFIXME: support for this flag
 	//[/CoOp]
 	{//We're ignoring all enemies for now
 		if ( setEnemy )
@@ -2564,7 +2452,6 @@ gentity_t *NPC_CheckEnemy( qboolean findNew, qboolean tooFarOk, qboolean setEnem
 			if( NPC->client->playerTeam != NPC->enemy->client->playerTeam 
 				&& NPC->client->enemyTeam != TEAM_FREE 
 				&& NPC->client->enemyTeam != NPC->enemy->client->playerTeam )
-			//if( NPC->client->playerTeam != NPC->enemy->client->playerTeam )
 			//[/CoOp]
 			{
 				NPC->client->enemyTeam = NPC->enemy->client->playerTeam;
@@ -3698,7 +3585,6 @@ void NPC_CheckGetNewWeapon( void )
 			//[CoOp]
 			NPC_ClearGoal();
 			trap_ICARUS_TaskIDComplete( NPC, TID_MOVE_NAV );
-			//NPCInfo->goalEntity = NULL;
 			//[/CoOp]
 		}
 		if ( TIMER_Done( NPC, "panic" ) && NPCInfo->goalEntity == NULL )

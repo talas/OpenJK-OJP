@@ -2198,7 +2198,6 @@ void SP_func_rotating (gentity_t *ent) {
 		}
 		ent->s.apos.trType = TR_LINEAR;
 	}
-	//ent->s.apos.trType = TR_LINEAR;
 	//[CoOp]
 
 	if (!ent->damage) {
@@ -2338,7 +2337,6 @@ BREAKABLE BRUSH
 //[CoOp]
 //used by g_breakable.c now.
 void CacheChunkEffects( material_t material )
-//static void CacheChunkEffects( material_t material )
 //[/CoOp]
 {
 	switch( material )

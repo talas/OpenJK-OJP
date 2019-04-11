@@ -93,10 +93,8 @@ static void CG_ParseTeamInfo( void ) {
 	int		x;
 
 	transNumber = atoi( CG_Argv( 1 ) );
-	//numSortedTeamPlayers = atoi( CG_Argv( 1 ) );
 
 	for ( i = 0 ; i < transNumber ; i++ ) {
-	//for ( i = 0 ; i < numSortedTeamPlayers ; i++ ) {
 	//[/BugFix34]
 		client = atoi( CG_Argv( i * 6 + 2 ) );
 
@@ -114,7 +112,6 @@ static void CG_ParseTeamInfo( void ) {
 			sortedTeamPlayers[x] = client;
 			numSortedTeamPlayers++;
 		}
-		//sortedTeamPlayers[i] = client;
 		//[BugFix34]
 
 		cgs.clientinfo[ client ].location = atoi( CG_Argv( i * 6 + 3 ) );
@@ -197,8 +194,6 @@ void CG_ParseServerinfo( void ) {
 	//[SIEGECVARFIX]
 	siege_Cvar_Set("cg_siegeTeam1", Info_ValueForKey(info, "g_siegeTeam1"));
 	siege_Cvar_Set("cg_siegeTeam2", Info_ValueForKey(info, "g_siegeTeam2"));
-	//trap_Cvar_Set("cg_siegeTeam1", Info_ValueForKey(info, "g_siegeTeam1"));
-	//trap_Cvar_Set("cg_siegeTeam2", Info_ValueForKey(info, "g_siegeTeam2"));
 	//[/SIEGECVARFIX]
 
 	tinfo = CG_ConfigString( CS_TERRAINS + 1 );

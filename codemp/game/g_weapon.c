@@ -23,12 +23,9 @@ static  vec3_t  muzzle2;//[DualPistols]
 #define BRYAR_PISTOL_VEL			4000
 //Pistol damage used to be 10.  Very piddly, all things considered.  We all know what blasters are SUPPOSED to do.
 #define BRYAR_PISTOL_DAMAGE			97
-//#define BRYAR_PISTOL_VEL			1600
-//#define BRYAR_PISTOL_DAMAGE			10
 //[/WeaponSys]
 //[BryarSecondary]
-#define BRYAR_CHARGE_UNIT		300.0f	// bryar charging gives us one more unit
-//#define BRYAR_CHARGE_UNIT			200.0f	// bryar charging gives us one more unit every 200ms--if you change this, you'll have to do the same in bg_pmove
+#define BRYAR_CHARGE_UNIT		300.0f
 //[/BryarSecondary]
 #define BRYAR_ALT_SIZE				1.0f
 
@@ -41,8 +38,6 @@ static  vec3_t  muzzle2;//[DualPistols]
 #define BLASTER_VELOCITY			3650  //Used to be 2300.  Again, way too slow.  You can almost outrun them.
 //Better gun, better stopping power.  Kills in two hits if you don't have full shields.
 #define BLASTER_DAMAGE				50
-//#define BLASTER_VELOCITY			2300
-//#define BLASTER_DAMAGE				20
 //[/WeaponSys]
 
 // Tenloss Disruptor
@@ -50,15 +45,12 @@ static  vec3_t  muzzle2;//[DualPistols]
 //[WeaponSys]
 #define DISRUPTOR_MAIN_DAMAGE			25 //was 30
 #define DISRUPTOR_MAIN_DAMAGE_SIEGE		90 //was 50
-//#define DISRUPTOR_MAIN_DAMAGE			30 //40
-//#define DISRUPTOR_MAIN_DAMAGE_SIEGE		50
 //[/WeaponSys]
 #define DISRUPTOR_NPC_MAIN_DAMAGE_CUT	0.25f
 
 //[WeaponSys]
 //was 100.  Way I see it, a sniper rifle should be just that.  One shot kills, unless the Jedi does a dodge.  I'll leave that in more capable hands.
 #define DISRUPTOR_ALT_DAMAGE			200
-//#define DISRUPTOR_ALT_DAMAGE			100 //125
 //[/WeaponSys]
 #define DISRUPTOR_NPC_ALT_DAMAGE_CUT	0.2f
 #define DISRUPTOR_ALT_TRACES			3		// can go through a max of 3 damageable(sp?) entities
@@ -73,8 +65,6 @@ static  vec3_t  muzzle2;//[DualPistols]
 //[WeaponSys]
 #define	BOWCASTER_DAMAGE			150  //was 50 -- Was 80 [Bowcaster]
 #define	BOWCASTER_VELOCITY			3000 //was 1300
-//#define	BOWCASTER_DAMAGE			50
-//#define	BOWCASTER_VELOCITY			1300
 //[/WeaponSys]
 #define BOWCASTER_SPLASH_DAMAGE		0
 #define BOWCASTER_SPLASH_RADIUS		0
@@ -90,14 +80,11 @@ static  vec3_t  muzzle2;//[DualPistols]
 //[WeaponSys]
 #define	REPEATER_DAMAGE				7  //was 14
 #define	REPEATER_VELOCITY			3400 //was 1600
-//#define	REPEATER_DAMAGE				14
-//#define	REPEATER_VELOCITY			1600
 //[/WeaponSys]
 
 #define REPEATER_ALT_SIZE				3	// half of bbox size
 //[WeaponSys]
 #define	REPEATER_ALT_DAMAGE				120 //was 60.  You've seen the explosion.  You think anyone's going to survive a direct hit?
-//#define	REPEATER_ALT_DAMAGE				60
 //[/WeaponSys]
 #define REPEATER_ALT_SPLASH_DAMAGE		60
 #define REPEATER_ALT_SPLASH_RADIUS		128
@@ -109,7 +96,6 @@ static  vec3_t  muzzle2;//[DualPistols]
 #define	DEMP2_DAMAGE				35
 //[WeaponSys]
 #define	DEMP2_VELOCITY				4000
-//#define	DEMP2_VELOCITY				1800
 //[/WeaponSys]
 #define	DEMP2_SIZE					2		// half of bbox size
 
@@ -134,13 +120,9 @@ static  vec3_t  muzzle2;//[DualPistols]
 //---------
 //[WeaponSys]
 #define	ROCKET_VELOCITY				2500  //was 900...  and again, could be outrun, just about. - Was 3500 DD
-//#define	ROCKET_VELOCITY				900 
 #define	ROCKET_DAMAGE				400
 #define	ROCKET_SPLASH_DAMAGE		250
 #define	ROCKET_SPLASH_RADIUS		210
-//#define	ROCKET_DAMAGE				100
-//#define	ROCKET_SPLASH_DAMAGE		100
-//#define	ROCKET_SPLASH_RADIUS		160
 //[/WeaponSys]
 #define ROCKET_SIZE					3
 #define ROCKET_ALT_THINK_TIME		100
@@ -299,25 +281,10 @@ static void WP_FireBryarPistolMain(gentity_t*ent)
 	}
 	else
 		missile = CreateMissile( muzzle, forward, BRYAR_PISTOL_VEL, 10000, ent, qfalse );
-	//gentity_t	*missile = CreateMissile( muzzle, forward, BRYAR_PISTOL_VEL, 10000, ent, altFire );
-	//gentity_t   *missile2;
-
-	//[DualPistols]
-	//if((ent->client->ps.eFlags & EF_DUAL_WEAPONS))
-	//	missile2 = CreateMissile(muzzle2,forward,BRYAR_PISTOL_VEL,10000,ent,altFire);
-	//[/DualPistols]
 
 	missile->classname = "bryar_proj";
 	missile->s.weapon = WP_BRYAR_PISTOL;
 
-	//[DualPistols]
-	/*
-	if((ent->client->ps.eFlags & EF_DUAL_WEAPONS))
-	{
-		missile2->classname = "bryar_proj";
-		missile2->s.weapon = WP_BRYAR_PISTOL;
-	}*/
-	//[/DualPistols]
 
 	missile->damage = damage;
 	missile->dflags = DAMAGE_DEATH_KNOCKBACK;
@@ -326,20 +293,6 @@ static void WP_FireBryarPistolMain(gentity_t*ent)
 
 	// we don't want it to bounce forever
 	missile->bounceCount = 8;
-
-	//[DualPistols]
-	/*
-	if((ent->client->ps.eFlags & EF_DUAL_WEAPONS))
-	{
-		missile2->damage = damage;
-		missile2->dflags = DAMAGE_DEATH_KNOCKBACK;
-		missile2->methodOfDeath = MOD_BRYAR_PISTOL;
-		missile2->clipmask = MASK_SHOT | CONTENTS_LIGHTSABER;
-
-		// we don't want it to bounce forever
-		missile2->bounceCount = 8;
-	}*/
-	//[/DualPistols]
 }
 
 static void WP_FireBryarPistolAlt(gentity_t*ent)
@@ -512,7 +465,6 @@ void WP_FireBlasterMissile( gentity_t *ent, vec3_t start, vec3_t dir, qboolean a
 	{ //animent
 		//[WeaponSys]
 		damage = 90;
-		//damage = 10;
 		//[/WeaponSys]
 	}
 
@@ -682,14 +634,12 @@ static void WP_DisruptorMainFire( gentity_t *ent )
 		{
 			//[WeaponSys]
 			trap_G2Trace( &tr, start, shotMins, shotMaxs, end, ignore, MASK_SHOT, G2TRFLAG_DOGHOULTRACE|G2TRFLAG_GETSURFINDEX|G2TRFLAG_THICK|G2TRFLAG_HITCORPSES, g_g2TraceLod.integer );
-			//trap_G2Trace( &tr, start, NULL, NULL, end, ignore, MASK_SHOT, G2TRFLAG_DOGHOULTRACE|G2TRFLAG_GETSURFINDEX|G2TRFLAG_THICK|G2TRFLAG_HITCORPSES, g_g2TraceLod.integer );
 			//[/WeaponSys]
 		}
 		else
 		{
 			//[WeaponSys]
 			trap_Trace( &tr, start, shotMins, shotMaxs, end, ignore, MASK_SHOT );
-			//trap_Trace( &tr, start, NULL, NULL, end, ignore, MASK_SHOT );
 			//[/WeaponSys]
 		}
 
@@ -910,7 +860,6 @@ void WP_DisruptorAltFire( gentity_t *ent )
 	int			i;
 	//[DodgeSys]
 	int			count;
-	//int			count, maxCount = 60;
 	//[/DodgeSys]
 	int			traces = DISRUPTOR_ALT_TRACES;
 	qboolean	fullCharge = qfalse;
@@ -969,7 +918,6 @@ void WP_DisruptorAltFire( gentity_t *ent )
 		{
 			//[WeaponSys]
 			trap_G2Trace( &tr, start, shotMins, shotMaxs, end, skip, MASK_SHOT, G2TRFLAG_DOGHOULTRACE|G2TRFLAG_GETSURFINDEX|G2TRFLAG_THICK|G2TRFLAG_HITCORPSES, g_g2TraceLod.integer );
-			//trap_G2Trace( &tr, start, NULL, NULL, end, skip, MASK_SHOT, G2TRFLAG_DOGHOULTRACE|G2TRFLAG_GETSURFINDEX|G2TRFLAG_THICK|G2TRFLAG_HITCORPSES, g_g2TraceLod.integer );
 			//[/WeaponSys]
 		}
 		else
@@ -1651,7 +1599,6 @@ static void WP_FlechetteMainFire( gentity_t *ent,qboolean altFire )
 	{ //animent
 		//[WeaponSys]
 		damage = 90;
-		//damage = 10;
 		//[/WeaponSys]
 	}
 
@@ -2138,16 +2085,7 @@ THERMAL DETONATOR
 #define TD_DAMAGE			500 //only on a direct impact
 #define TD_SPLASH_DAM		500
 #define TD_SPLASH_RAD		245
-/*
-#define TD_DAMAGE			70 //only do 70 on a direct impact
-#define TD_SPLASH_RAD		128
-#define TD_SPLASH_DAM		90
-*/
 //[/WeaponSys]
-//[SnapThrow]
-//moved
-//#define TD_VELOCITY			900
-//[/SnapThrow]
 #define TD_MIN_CHARGE		0.15f
 #define TD_TIME				1500//6000
 #define TD_ALT_TIME			3000
@@ -4938,7 +4876,6 @@ void FireWeapon( gentity_t *ent, qboolean altFire )
 		case WP_BRYAR_OLD:
 			//[WeaponSys]
 			WP_FireBryarPistol( ent, qfalse );
-			//WP_FireBryarPistol( ent, altFire );
 			//[/WeaponSys]
 			break;
 
@@ -4978,7 +4915,6 @@ void FireWeapon( gentity_t *ent, qboolean altFire )
 		case WP_THERMAL:
 			//[WeaponSys]
 			WP_FireThermalDetonator( ent, qfalse );
-			//WP_FireThermalDetonator( ent, altFire );
 			//[/WeaponSys]
 			break;
 

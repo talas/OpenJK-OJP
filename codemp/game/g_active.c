@@ -347,7 +347,6 @@ void DoImpact( gentity_t *self, gentity_t *other, qboolean damageSelf )
 		//[CoOp]
 		//added FL_NO_IMPACT_DMG
 		if ( damageSelf && self->takedamage && !(self->flags&FL_NO_IMPACT_DMG))
-		//if ( damageSelf && self->takedamage )
 		//[/CoOp]
 		{
 			//Now damage me
@@ -2830,7 +2829,6 @@ void ClientThink_real( gentity_t *ent ) {
 	//NPCs on the NPCTEAM_NEUTRAL (vehicles and bots) use the same team number as the TEAM_SPECTATOR.  
 	//As such, this was causing those NPCs to act like they were spectating while in CoOp!
 	if ( client->ps.clientNum < MAX_CLIENTS && (client->sess.sessionTeam == TEAM_SPECTATOR || client->tempSpectate > level.time) ) {
-	//if ( client->sess.sessionTeam == TEAM_SPECTATOR || client->tempSpectate > level.time ) {
 	//[/CoOp]
 		if ( client->sess.spectatorState == SPECTATOR_SCOREBOARD ) {
 			return;
@@ -3110,7 +3108,6 @@ void ClientThink_real( gentity_t *ent ) {
 		//[CoOp]
 		//add case to prevent NPCs from getting their ucmds halved
 		if (ucmd->buttons & BUTTON_WALKING && ent->s.eType != ET_NPC)
-		//if (ucmd->buttons & BUTTON_WALKING)
 		//[/CoOp]
 		{ //sort of a hack I guess since MP handles walking differently from SP (has some proxy cheat prevention methods)
 			/*
@@ -3207,7 +3204,6 @@ void ClientThink_real( gentity_t *ent ) {
 		//to engage again right after he's done fighting and someone else is waiting.
 		//[DuelSys]
 		ent->client->ps.fd.privateDuelTime = level.time + ( g_duelTimer.integer * 1000 );//10000;
-		//ent->client->ps.fd.privateDuelTime = level.time + 10000;
 		//[/DuelSys]
 
 		if (ent->client->ps.duelTime < level.time)
@@ -3707,7 +3703,6 @@ void ClientThink_real( gentity_t *ent ) {
 		//[SuperDindon]
 		(level.time - FALL_FADE_TIME) > ent->client->ps.fallingToDeath &&
 		!ent->noFallDamage)
-		//(level.time - FALL_FADE_TIME) > ent->client->ps.fallingToDeath)
 		//[/CoOp]
 	{ //die!
 		if (ent->health > 0)
@@ -3893,7 +3888,6 @@ void ClientThink_real( gentity_t *ent ) {
 			G_DodgeDrain(ent, blockOpp, DODGE_SABERLOCK_BREAK);
 		}
 		else if ( ent->client->ps.saberLockHitCheckTime < level.time )
-		//if ( ent->client->ps.saberLockHitCheckTime < level.time )
 		//[/SaberLockSys]
 		{//have moved to next frame since last lock push
 			ent->client->ps.saberLockHitCheckTime = level.time;//so we don't push more than once per server frame
@@ -3952,8 +3946,6 @@ void ClientThink_real( gentity_t *ent ) {
 			if( ent->client->ps.userInt3 & (1 << FLAG_SABERLOCK_ATTACKER) 
 				&& !(ent->client->ps.userInt3 & (1 << FLAG_SABERLOCK_OLD_DIR))
 				&& ent->client->ps.userInt3 & SABERLOCK_DIR_FLAG_MASK )
-			//if(SabBeh_ButtonforSaberLock(ent))
-			//if ( ( ent->client->buttons & BUTTON_ATTACK ) && ! ( ent->client->oldbuttons & BUTTON_ATTACK ) )
 			//[/SaberLockSys]
 			{
 				if ( ent->client->ps.saberLockHitIncrementTime < level.time )
@@ -4204,12 +4196,10 @@ void ClientThink_real( gentity_t *ent ) {
 			ent->client->lastGenCmdTime = level.time + 100;
 		}
 		else if (pm.cmd.generic_cmd != GENCMD_FORCE_THROW &&
-		//if (pm.cmd.generic_cmd != GENCMD_FORCE_THROW &&
 		//[/SaberSys]
 			//[ForceSys]
 			pm.cmd.generic_cmd != GENCMD_FORCE_PULL &&
 			pm.cmd.generic_cmd != GENCMD_FORCE_SPEED)
-			//pm.cmd.generic_cmd != GENCMD_FORCE_PULL)
 			//[/ForceSys]
 		{ //these are the only two where you wouldn't care about a delay between
 			ent->client->lastGenCmdTime = level.time + 300; //default 100ms debounce between issuing the same command.

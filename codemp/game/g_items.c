@@ -589,7 +589,7 @@ void pas_fire( gentity_t *ent )
 	}
 	else if (PM_InKnockDown(ent->enemy->playerState ) )
 	{
-
+		// .. h-hello?
 	}
 	else
 	{
@@ -1318,36 +1318,6 @@ void ItemUse_Seeker(gentity_t *ent)
 			//remote->NPC->behaviorState = BS_FOLLOW_LEADER;
 		}	
 	}
-
-	/*
-	if ( g_gametype.integer == GT_SIEGE && d_siegeSeekerNPC.integer )
-	{//actualy spawn a remote NPC
-		gentity_t *remote = NPC_SpawnType( ent, "remote", NULL, qfalse );
-		if ( remote && remote->client )
-		{//set it to my team
-			remote->s.owner = remote->r.ownerNum = ent->s.number;
-			remote->activator = ent;
-			if ( ent->client->sess.sessionTeam == TEAM_BLUE )
-			{
-				remote->client->playerTeam = NPCTEAM_PLAYER;
-			}
-			else if ( ent->client->sess.sessionTeam == TEAM_RED )
-			{
-				remote->client->playerTeam = NPCTEAM_ENEMY;
-			}
-			else
-			{
-				remote->client->playerTeam = NPCTEAM_NEUTRAL;
-			}
-		}	
-	}
-	else
-	{
-		ent->client->ps.eFlags |= EF_SEEKERDRONE;
-		ent->client->ps.droneExistTime = level.time + 30000;
-		ent->client->ps.droneFireTime = level.time + 1500;
-	}
-	*/
 	//[/SeekerItemNpc]
 }
 
@@ -2590,7 +2560,7 @@ int Pickup_Ammo (gentity_t *ent, gentity_t *other)
 int Pickup_Weapon (gentity_t *ent, gentity_t *other) {
 	int		quantity=10;
 
-	/*
+#ifdef _DISABLED
 	if ( ent->count < 0 ) {
 		quantity = 0; // None for you, sir!
 	} else {
@@ -2614,7 +2584,7 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other) {
 			}
 
 			// Old method:  If the player has less than the minimum, give them the minimum, else just add 1.
-*//*
+/*
 			// drop the quantity if the already have over the minimum
 			if ( other->client->ps.ammo[ ent->item->giTag ] < quantity ) {
 				quantity = quantity - other->client->ps.ammo[ ent->item->giTag ];
@@ -2622,9 +2592,9 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other) {
 				quantity = 1;		// only add a single shot
 			}
 			*/
-		//}	
-	//}
-
+		}
+	}
+#endif //_DISABLED
 	// add the weapon
 	other->client->ps.stats[STAT_WEAPONS] |= ( 1 << ent->item->giTag );
 
@@ -3264,7 +3234,6 @@ void FinishSpawningItem( gentity_t *ent ) {
 	}
 
 	//[MOREFORCEOPTIONS]
-	//if (g_forcePowerDisable.integer)
 	if (AllForceDisabled(g_forcePowerDisable.integer))
 	//[/MOREFORCEOPTIONS]
 	{ //if force powers disabled, don't add force powerups

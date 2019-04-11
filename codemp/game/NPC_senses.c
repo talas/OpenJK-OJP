@@ -232,7 +232,6 @@ qboolean InFOV ( gentity_t *ent, gentity_t *from, int hFOV, int vFOV )
 		if( from->client->NPC_class != CLASS_RANCOR 
 			&& from->client->NPC_class != CLASS_WAMPA
 			&& !VectorCompare( from->client->renderInfo.eyeAngles, vec3_origin ) )
-		//if( !VectorCompare( from->client->renderInfo.eyeAngles, vec3_origin ) )
 		//[/CoOp]
 		{//Actual facing of tag_head!
 			//NOTE: Stasis aliens may have a problem with this?
@@ -408,7 +407,6 @@ NPC_CheckSoundEvents
 */
 //[CoOp]
 static int G_CheckSoundEvents( gentity_t *self, float maxHearDist, int ignoreAlert, qboolean mustHaveOwner, int minAlertLevel, qboolean onGroundOnly )
-//static int G_CheckSoundEvents( gentity_t *self, float maxHearDist, int ignoreAlert, qboolean mustHaveOwner, int minAlertLevel )
 //[/CoOp]
 {
 	int	bestEvent = -1;
@@ -425,7 +423,6 @@ static int G_CheckSoundEvents( gentity_t *self, float maxHearDist, int ignoreAle
 		//[CoOp]
 		//ignoreAlert is supposed to be ID based
 		if ( level.alertEvents[i].ID == ignoreAlert )
-		//if ( i == ignoreAlert )
 		//[/CoOp]
 			continue;
 		//We're only concerned about sounds
@@ -465,19 +462,6 @@ static int G_CheckSoundEvents( gentity_t *self, float maxHearDist, int ignoreAle
 				}
 			}
 		}
-		/*
-		radius = level.alertEvents[i].radius * level.alertEvents[i].radius;
-		if ( dist > radius )
-			continue;
-
-		if ( level.alertEvents[i].addLight )
-		{//a quiet sound, must have LOS to hear it
-			if ( G_ClearLOS5( self, level.alertEvents[i].position ) == qfalse )
-			{//no LOS, didn't hear it
-				continue;
-			}
-		}
-		*/
 		//[/CoOp]
 
 		//See if this one takes precedence over the previous one
@@ -529,7 +513,6 @@ static int G_CheckSightEvents( gentity_t *self, int hFOV, int vFOV, float maxSee
 		//[CoOp]
 		//ignoreAlert is supposed to be ID based
 		if ( level.alertEvents[i].ID == ignoreAlert )
-		//if ( i == ignoreAlert )
 		//[/CoOp]
 			continue;
 		//We're only concerned about sounds
@@ -643,7 +626,6 @@ NPC_CheckAlertEvents
 */
 //[CoOp]
 int G_CheckAlertEvents( gentity_t *self, qboolean checkSight, qboolean checkSound, float maxSeeDist, float maxHearDist, int ignoreAlert, qboolean mustHaveOwner, int minAlertLevel, qboolean onGroundOnly )
-//int G_CheckAlertEvents( gentity_t *self, qboolean checkSight, qboolean checkSound, float maxSeeDist, float maxHearDist, int ignoreAlert, qboolean mustHaveOwner, int minAlertLevel )
 //[/CoOp]
 {
 	int bestSoundEvent = -1;
@@ -713,48 +695,6 @@ int G_CheckAlertEvents( gentity_t *self, qboolean checkSight, qboolean checkSoun
 	}
 	//no event or no new event
 	return -1;
-
-	/* basejka
-	//get sound event
-	bestSoundEvent = G_CheckSoundEvents( self, maxHearDist, ignoreAlert, mustHaveOwner, minAlertLevel );
-	//get sound event alert level
-	if ( bestSoundEvent >= 0 )
-	{
-		bestSoundAlert = level.alertEvents[bestSoundEvent].level;
-	}
-
-	//get sight event
-	if ( self->NPC )
-	{
-		bestSightEvent = G_CheckSightEvents( self, self->NPC->stats.hfov, self->NPC->stats.vfov, maxSeeDist, ignoreAlert, mustHaveOwner, minAlertLevel );
-	}
-	else
-	{
-		bestSightEvent = G_CheckSightEvents( self, 80, 80, maxSeeDist, ignoreAlert, mustHaveOwner, minAlertLevel );//FIXME: look at cg_view to get more accurate numbers?
-	}
-	//get sight event alert level
-	if ( bestSightEvent >= 0 )
-	{
-		bestSightAlert = level.alertEvents[bestSightEvent].level;
-	}
-
-	//return the one that has a higher alert (or sound if equal)
-	//FIXME:	This doesn't take the distance of the event into account
-
-	if ( bestSightEvent >= 0 && bestSightAlert > bestSoundAlert )
-	{//valid best sight event, more important than the sound event
-		//get the light level of the alert event for this checker
-		vec3_t	eyePoint, sightDir;
-		//get eye point
-		CalcEntitySpot( self, SPOT_HEAD_LEAN, eyePoint );
-		VectorSubtract( level.alertEvents[bestSightEvent].position, eyePoint, sightDir );
-		level.alertEvents[bestSightEvent].light = level.alertEvents[bestSightEvent].addLight + G_GetLightLevel( level.alertEvents[bestSightEvent].position, sightDir );
-		//return the sight event
-		return bestSightEvent;
-	}
-	//return the sound event
-	return bestSoundEvent;
-	*/
 	//[/CoOp]
 }
 
@@ -764,12 +704,6 @@ int NPC_CheckAlertEvents( qboolean checkSight, qboolean checkSound, int ignoreAl
 {
 	return G_CheckAlertEvents( NPC, checkSight, checkSound, NPCInfo->stats.visrange, NPCInfo->stats.earshot, ignoreAlert, mustHaveOwner, minAlertLevel, onGroundOnly );
 }
-/*
-int NPC_CheckAlertEvents( qboolean checkSight, qboolean checkSound, int ignoreAlert, qboolean mustHaveOwner, int minAlertLevel )
-{
-	return G_CheckAlertEvents( NPC, checkSight, checkSound, NPCInfo->stats.visrange, NPCInfo->stats.earshot, ignoreAlert, mustHaveOwner, minAlertLevel );
-}
-*/
 //[/CoOp]
 
 
@@ -807,7 +741,6 @@ qboolean G_CheckForDanger( gentity_t *self, int alertEvent )
 						TIMER_Set( NPC, "duck", 2000);	// something dangerous going on...
 						return qfalse;
 					}
-					//NPC_StartFlee( level.alertEvents[alertEvent].owner, level.alertEvents[alertEvent].position, level.alertEvents[alertEvent].level, 3000, 6000 );
 					//[/CoOp]
 					return qtrue;
 				}
@@ -833,7 +766,6 @@ AddSoundEvent
 qboolean RemoveOldestAlert( void );
 //[CoOp]
 void AddSoundEvent( gentity_t *owner, vec3_t position, float radius, alertEventLevel_e alertLevel, qboolean needLOS, qboolean onGround )
-//void AddSoundEvent( gentity_t *owner, vec3_t position, float radius, alertEventLevel_e alertLevel, qboolean needLOS )
 //[/CoOp]
 {
 	//FIXME: Handle this in another manner?

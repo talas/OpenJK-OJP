@@ -709,7 +709,6 @@ void G_InitGentity( gentity_t *e ) {
 //[CoOp] - unstaticed this function to be able to do some testing to see what entities
 //are causing map crashes.
 void G_SpewEntList(void)
-//static void G_SpewEntList(void)
 //[/CoOp]
 {
 	int i = 0;
@@ -2072,7 +2071,6 @@ void G_SetOrigin( gentity_t *ent, vec3_t origin ) {
 	{
 		ent->s.pos.trType = TR_STATIONARY;
 	}
-	//ent->s.pos.trType = TR_STATIONARY;
 	//[/CoOp]
 	ent->s.pos.trTime = 0;
 	ent->s.pos.trDuration = 0;
@@ -2267,7 +2265,8 @@ qboolean G_ExpandPointToBBox( vec3_t point, const vec3_t mins, const vec3_t maxs
 
 
 //[SaberLockSys]
-/* moved this to q_math.c so that it could be used for the new saber lock effects on the client side.
+// moved this to q_math.c so that it could be used for the new saber lock effects on the client side.
+#ifdef _DISABLED
 extern qboolean G_FindClosestPointOnLineSegment( const vec3_t start, const vec3_t end, const vec3_t from, vec3_t result );
 float ShortestLineSegBewteen2LineSegs( vec3_t start1, vec3_t end1, vec3_t start2, vec3_t end2, vec3_t close_pnt1, vec3_t close_pnt2 )
 {
@@ -2349,12 +2348,12 @@ float ShortestLineSegBewteen2LineSegs( vec3_t start1, vec3_t end1, vec3_t start2
 	}
 	else
 	{
-		// ******start here for paralell lines with current_dist = infinity****
+		//******start here for paralell lines with current_dist = infinity****
 		current_dist = Q3_INFINITE;
 	}
 
 	//test 2 close_pnts first
-	*//*
+	/*
 	G_FindClosestPointOnLineSegment( start1, end1, close_pnt2, new_pnt );
 	new_dist = Distance( close_pnt2, new_pnt );
 	if ( new_dist < current_dist )
@@ -2372,7 +2371,7 @@ float ShortestLineSegBewteen2LineSegs( vec3_t start1, vec3_t end1, vec3_t start2
 		VectorCopy( new_pnt, close_pnt2 );
 		current_dist = new_dist;
 	}
-	*//*
+	*/
 	//test all the endpoints
 	new_dist = Distance( start1, start2 );
 	if ( new_dist < current_dist )
@@ -2446,9 +2445,8 @@ float ShortestLineSegBewteen2LineSegs( vec3_t start1, vec3_t end1, vec3_t start2
 
 	return current_dist;
 }
-*/
+#endif //_DISABLED
 //[/SaberLockSys]
-
 
 void GetAnglesForDirection( const vec3_t p1, const vec3_t p2, vec3_t out )
 {

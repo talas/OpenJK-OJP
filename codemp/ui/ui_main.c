@@ -704,8 +704,6 @@ static const serverFilter_t serverFilters[] = {
 	//[SERVERFILTERS]
 	//since OJP Enhanced only works with OJP Enhanced servers, only show them.
 	{"OJP_MENUS_OJP_ENHANCED", "ojpenhanced"},
-	//{"MENUS_ALL", "" },
-	//{"MENUS_JEDI_ACADEMY", "" },
 	//[/SERVERFILTERS]
 };
 static const int numServerFilters = sizeof(serverFilters) / sizeof(serverFilter_t);
@@ -1049,15 +1047,6 @@ int startTime;
 
 vmCvar_t	ui_rankChange;
 static void UI_BuildPlayerList();
-//[UITweaks]
-/* not used in basejka code
-//char parsedFPMessage[1024];
-
-#include "../namespace_begin.h"
-extern int FPMessageTime;
-#include "../namespace_end.h"
-*/
-//[/UITweaks]
 
 void Text_PaintCenter(float x, float y, float scale, vec4_t color, const char *text, float adjust, int iMenuFont);
 
@@ -1137,40 +1126,9 @@ void _UI_Refresh( int realtime )
 	//[ExpSys]
 	//only do this stuff when the your point total has changed.
 	if (ui_rankChange.integer != uiMaxRank)
-	//if (ui_rankChange.integer)
 	//[/ExpSys]
 	{
-		//[UITweaks]
-		//not used in basejka code
-		/*
-		FPMessageTime = realtime + 3000;
 
-		if (!parsedFPMessage[0] /*&& uiMaxRank > ui_rankChange.integer*//*)
-		{
-			const char *printMessage = UI_GetStringEdString("MP_INGAME", "SET_NEW_RANK");
-
-			int i = 0;
-			int p = 0;
-			int linecount = 0;
-
-			while (printMessage[i] && p < 1024)
-			{
-				parsedFPMessage[p] = printMessage[i];
-				p++;
-				i++;
-				linecount++;
-
-				if (linecount > 64 && printMessage[i] == ' ')
-				{
-					parsedFPMessage[p] = '\n';
-					p++;
-					linecount = 0;
-				}
-			}
-			parsedFPMessage[p] = '\0';
-		}
-		*/
-		//[/UITweaks]
 
 		//if (uiMaxRank > ui_rankChange.integer)
 		{
@@ -1200,10 +1158,6 @@ void _UI_Refresh( int realtime )
 		{
 			uiRank[FP_SABER_DEFENSE].uiForcePowersRank = 1;
 		}
-		//[ExpSys]
-		//ui_rankChange is now treated like a variable rather than a message sender
-		//trap_Cvar_Set("ui_rankChange", "0");
-		//[/ExpSys]
 
 		//remember to update the force power count after changing the max rank
 		UpdateForceUsed();
@@ -1220,8 +1174,6 @@ void _UI_Refresh( int realtime )
 		//use defines since we're tweaking these values for the experience system.
 		bgForcePowerCost[FP_SABER_OFFENSE][FORCE_LEVEL_1] = SABER_OFFENSE_L1;
 		bgForcePowerCost[FP_SABER_DEFENSE][FORCE_LEVEL_1] = SABER_DEFENSE_L1;
-		//bgForcePowerCost[FP_SABER_OFFENSE][FORCE_LEVEL_1] = 1;
-		//bgForcePowerCost[FP_SABER_DEFENSE][FORCE_LEVEL_1] = 1;
 		//[/ExpSys]
 	}
 
@@ -1782,7 +1734,6 @@ static const char* UI_GetGameTypeName(int gtEnum)
 	case GT_SINGLE_PLAYER:
 		//[CoOp]
 		return UI_GetStringEdString("OJP_MENUS", "COOP");
-		//return UI_GetStringEdString("MENUS", "SAGA");//"Team FFA";
 		//[/CoOp]
 	case GT_DUEL:
 		return UI_GetStringEdString("MENUS", "DUEL");//"Team FFA";
@@ -1981,15 +1932,6 @@ static void UI_DrawForceMastery(rectDef_t *rect, float scale, vec4_t color, int 
 			break;
 		}
 	}
-
-	/* basejka code
-	if (i > max)
-	{
-		i = max;
-	}
-
-	s = (char *)UI_GetStringEdString("MP_INGAME", forceMasteryLevels[i]);
-	*/
 	//[/ExpSys]
 	Text_Paint(rect->x, rect->y, scale, color, s, 0, 0, textStyle, iMenuFont);
 }
@@ -2261,18 +2203,6 @@ static void UI_DrawTeamMember(rectDef_t *rect, float scale, vec4_t color, qboole
 		value = -1;
 	}
 
-	//[UITweaks]
-	//allow players to use the addbots menu for the bots.
-	/*
-	if (uiInfo.gameTypes[ui_netGameType.integer].gtEnum == GT_SIEGE)
-	{
-		if (value > 1 )
-		{
-			value = 1;
-		}
-	}
-	*/
-	//[/UITweaks]
 
 	if (value <= 1) {
 		if (value == -1)
@@ -2388,7 +2318,6 @@ static void UI_SetForceDisabled(int force)
 				//[ExpSys]
 				//don't force Force Jump on players when that power is disabled.
 				if (i != FP_SABER_OFFENSE && i != FP_SABER_DEFENSE)
-				//if (i != FP_LEVITATION && i != FP_SABER_OFFENSE && i != FP_SABER_DEFENSE)
 				//[/ExpSys]
 				{
 					uiRank[i].uiForcePowersRank = 0;
@@ -2539,20 +2468,6 @@ void UpdateForceStatus()
 				Menu_ShowItemByName(menu, "yessaber", qfalse);
 			}
 		}
-
-		/* basejka code
-		//Moved this to happen after it's done with force power disabling stuff
-		if (uiRank[FP_SABER_OFFENSE].uiForcePowersRank > 0 || ui_freeSaber.integer)
-		{	// Show lightsaber stuff.
-			Menu_ShowItemByName(menu, "nosaber", qfalse);
-			Menu_ShowItemByName(menu, "yessaber", qtrue);
-		}
-		else
-		{
-			Menu_ShowItemByName(menu, "nosaber", qtrue);
-			Menu_ShowItemByName(menu, "yessaber", qfalse);
-		}
-		*/
 		//[/ExpSys]
 
 		// The leftmost button should be "apply" unless you are in spectator, where you can join any team.
@@ -2634,10 +2549,8 @@ void UpdateForceStatus()
 				uiInfo.effectsColor = SABER_BLUE;
 				break;
 			default:
-				//trap_GetConfigString( CS_SERVERINFO, info, sizeof(info) );
 
 				if(gametype >= GT_TEAM)
-				//if (atoi(Info_ValueForKey(info, "g_gametype")) >= GT_TEAM)
 				{
 					uiSkinColor = TEAM_FREE;
 				}
@@ -2648,32 +2561,6 @@ void UpdateForceStatus()
 				break;
 			}
 		}
-
-		/* basejka code
-		switch((int)(trap_Cvar_VariableValue("ui_myteam")))
-		{
-		case TEAM_RED:
-			uiSkinColor = TEAM_RED;
-			uiInfo.effectsColor = SABER_RED;
-			break;
-		case TEAM_BLUE:
-			uiSkinColor = TEAM_BLUE;
-			uiInfo.effectsColor = SABER_BLUE;
-			break;
-		default:
-			trap_GetConfigString( CS_SERVERINFO, info, sizeof(info) );
-
-			if (atoi(Info_ValueForKey(info, "g_gametype")) >= GT_TEAM)
-			{
-				uiSkinColor = TEAM_FREE;
-			}
-			else	// A bit of a hack so non-team games will remember which skin set you chose in the player menu
-			{
-				uiSkinColor = uiHoldSkinColor;
-			}
-			break;
-		}
-		*/
 		//[/CoOp]
 	}
 }
@@ -2977,7 +2864,6 @@ static int UI_OwnerDrawWidth(int ownerDraw, float scale) {
 		{//use a different index shift for the addition skills
 			findex = (ownerDraw - UI_FORCE_RANK_JETPACK)+(UI_FORCE_RANK_SABERTHROW-UI_FORCE_RANK);
 		}
-		//findex = (ownerDraw - UI_FORCE_RANK)-1;
 	//[/ExpSys]
 		//this will give us the index as long as UI_FORCE_RANK is always one below the first force rank index
 		i = uiRank[findex].uiForcePowersRank;
@@ -3063,13 +2949,6 @@ static int UI_OwnerDrawWidth(int ownerDraw, float scale) {
 				break;
 			}
 		}
-		/* basejka code
-		if (i < 1 || i > MAX_FORCE_RANK) {
-			i = 1;
-		}
-
-		s = (char *)UI_GetStringEdString("MP_INGAME", forceMasteryLevels[i]);
-		*/
 		//[/ExpSys]
 		break;
 
@@ -3232,7 +3111,6 @@ static void UI_DrawRedBlue(rectDef_t *rect, float scale, vec4_t color, int textS
 	{
 	Text_Paint(rect->x, rect->y, scale, color, (uiInfo.redBlue == 0) ? UI_GetStringEdString("MP_INGAME","RED") : UI_GetStringEdString("MP_INGAME","BLUE"), 0, 0, textStyle,iMenuFont);
 	}
-	//Text_Paint(rect->x, rect->y, scale, color, (uiInfo.redBlue == 0) ? UI_GetStringEdString("MP_INGAME","RED") : UI_GetStringEdString("MP_INGAME","BLUE"), 0, 0, textStyle,iMenuFont);
 	//[/CoOp]
 }
 
@@ -3507,27 +3385,17 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float
 		{//use a different index shift for the addition skills
 			findex = (ownerDraw - UI_FORCE_RANK_JETPACK)+(UI_FORCE_RANK_SABERTHROW-UI_FORCE_RANK);
 		}
-		//findex = (ownerDraw - UI_FORCE_RANK)-1;
 		//[/ExpSys]
 		//this will give us the index as long as UI_FORCE_RANK is always one below the first force rank index
 		//[ForceSys]
 		//allow dark/light powers at the same time.
 		if (uiRank[findex].forceSide)
-		//if (uiForcePowerDarkLight[findex] && uiForceSide != uiForcePowerDarkLight[findex])
 		//[/ForceSys]
 		{
 			color[0] *= 0.5;
 			color[1] *= 0.5;
 			color[2] *= 0.5;
 		}
-		/*
-		else if (uiForceRank < UI_ForceColorMinRank[bgForcePowerCost[findex][FORCE_LEVEL_1]])
-		{
-			color[0] *= 0.5;
-			color[1] *= 0.5;
-			color[2] *= 0.5;
-		}
-		*/
 	drawRank = uiRank[findex].uiForcePowersRank;
 
 		UI_DrawForceStars(&rect, scale, color, textStyle, findex, drawRank, 0, NUM_FORCE_POWER_LEVELS-1);
@@ -5571,7 +5439,6 @@ void UI_SetSiegeObjectiveGraphicPos(menuDef_t *menu,const char *itemName,const c
 		// get cvar data
 		//[SIEGECVARFIX]
 		siege_Cvar_VariableStringBuffer((char *)cvarName, cvarBuf, sizeof((char *)cvarBuf));
-		//trap_Cvar_VariableStringBuffer(cvarName, cvarBuf, sizeof(cvarBuf));
 		//[/SIEGECVARFIX]
 		
 		holdBuf = cvarBuf;
@@ -5642,7 +5509,6 @@ void UI_FindCurrentSiegeTeamClass( void )
 
 	//[SIEGECVARFIX]
 	baseClass = (int)siege_Cvar_VariableValue("ui_siege_class");
-	//baseClass = (int)trap_Cvar_VariableValue("ui_siege_class");
 	//[/SIEGECVARFIX]
 
 	// Find correct class button and activate it.
@@ -5957,22 +5823,6 @@ static void UI_GetSaberCvars ( void )
 	trap_Cvar_Set("ui_sab2_r", va("%f",c2[0]));
 	trap_Cvar_Set("ui_sab2_g", va("%f",c2[1]));
 	trap_Cvar_Set("ui_sab2_b", va("%f",c2[2]));
-
-	/*
-	fs(set,"%f",c1[0]);
-	trap_Cvar_Set("ui_sab1_r",set);
-	fs(set,"%f",c1[1]);
-	trap_Cvar_Set("ui_sab1_g",set);
-	fs(set,"%f",c1[2]);
-	trap_Cvar_Set("ui_sab1_b",set);
-
-	fs(set,"%f",c2[0]);
-	trap_Cvar_Set("ui_sab2_r",set);
-	fs(set,"%f",c2[1]);
-	trap_Cvar_Set("ui_sab2_g",set);
-	fs(set,"%f",c2[2]);
-	trap_Cvar_Set("ui_sab2_b",set);
-	*/
 
 	strncpy(scr1, UI_Cvar_VariableString("rgb_script1"),sizeof(scr1));
 	strncpy(scr2, UI_Cvar_VariableString("rgb_script2"),sizeof(scr2));
@@ -6483,14 +6333,11 @@ static void UI_RunMenuScript(char **args)
 			//[CoOp]
 			//allow team bot selection in CoOp Games.
 			if (trap_Cvar_VariableValue("g_gametype") >= GT_SINGLE_PLAYER) {
-			//if (trap_Cvar_VariableValue("g_gametype") >= GT_TEAM) {
 			//[/CoOp]
 				
 				trap_Cmd_ExecuteText( EXEC_APPEND, va("addbot \"%s\" %i %s 0 \"%s\" %i\n", UI_GetBotNameByNumber(uiInfo.botIndex), uiInfo.skillIndex+1, (uiInfo.redBlue == 0) ? "Red" : "Blue", UI_GetBotNameByNumber(uiInfo.botIndex), bottype) );
-				//trap_Cmd_ExecuteText( EXEC_APPEND, va("addbot \"%s\" %i %s\n", UI_GetBotNameByNumber(uiInfo.botIndex), uiInfo.skillIndex+1, (uiInfo.redBlue == 0) ? "Red" : "Blue") );
 			} else {
 				trap_Cmd_ExecuteText( EXEC_APPEND, va("addbot \"%s\" %i %s 0 \"%s\" %i\n", UI_GetBotNameByNumber(uiInfo.botIndex), uiInfo.skillIndex+1, (uiInfo.redBlue == 0) ? "Red" : "Blue", UI_GetBotNameByNumber(uiInfo.botIndex), bottype) );
-				//trap_Cmd_ExecuteText( EXEC_APPEND, va("addbot \"%s\" %i %s\n", UI_GetBotNameByNumber(uiInfo.botIndex), uiInfo.skillIndex+1, (uiInfo.redBlue == 0) ? "Red" : "Blue") );
 			//[/TABBot]
 			}
 		} else if (Q_stricmp(name, "addFavorite") == 0) 
@@ -6676,8 +6523,6 @@ static void UI_RunMenuScript(char **args)
 			//[SIEGECVARFIX]
 			int team = (int)siege_Cvar_VariableValue("ui_holdteam");
 			int oldteam = (int)siege_Cvar_VariableValue("ui_startsiegeteam");
-//			int team = (int)trap_Cvar_VariableValue("ui_holdteam");
-//			int oldteam = (int)trap_Cvar_VariableValue("ui_startsiegeteam");
 			//[/SIEGECVARFIX]
 			qboolean	goTeam = qtrue;
 			char	newclassString[512];
@@ -6686,8 +6531,6 @@ static void UI_RunMenuScript(char **args)
 			//[SIEGECVARFIX]
 			siege_Cvar_VariableStringBuffer( "ui_mySiegeClass", newclassString, sizeof(newclassString) );
 			siege_Cvar_VariableStringBuffer( "ui_startsiegeclass", startclassString, sizeof(startclassString) );
-			//trap_Cvar_VariableStringBuffer( "ui_mySiegeClass", newclassString, sizeof(newclassString) );
-			//trap_Cvar_VariableStringBuffer( "ui_startsiegeclass", startclassString, sizeof(startclassString) );
 			//[/SIEGECVARFIX]
 
 			// Was just a spectator - is still just a spectator
@@ -7150,7 +6993,6 @@ static void UI_RunMenuScript(char **args)
 					// Set the old button to it's original background
 					//[SIEGECVARFIX]
 					siege_Cvar_VariableStringBuffer( "currentObjMapIconItem", string, sizeof(string) );
-					//trap_Cvar_VariableStringBuffer( "currentObjMapIconItem", string, sizeof(string) );
 					//[/SIEGECVARFIX]
 					item = (itemDef_t *) Menu_FindItemByName((menuDef_t *) menu, string);
 					if (item)
@@ -7159,8 +7001,6 @@ static void UI_RunMenuScript(char **args)
 							//[SIEGECVARFIX]
 							siege_Cvar_VariableStringBuffer( "currentObjMapIconBackground", string, sizeof(string) );
 							siege_Cvar_VariableStringBuffer( string, string2, sizeof(string2) );
-							//trap_Cvar_VariableStringBuffer( "currentObjMapIconBackground", string, sizeof(string) );
-							//trap_Cvar_VariableStringBuffer( string, string2, sizeof(string2) );
 							//[/SIEGECVARFIX]
 							Menu_SetItemBackground(menu, item->window.name, string2);
 
@@ -7174,20 +7014,17 @@ static void UI_RunMenuScript(char **args)
 					{	// store item name
 						//[SIEGECVARFIX]
 						siege_Cvar_Set("currentObjMapIconItem",	item->window.name);
-						//trap_Cvar_Set("currentObjMapIconItem",	 item->window.name);
 						//[/SIEGECVARFIX]
 						if (String_Parse(args, &cvarNormalArg))
 						{	// Store normal background
 							//[SIEGECVARFIX]
 							siege_Cvar_Set("currentObjMapIconBackground", (char *)cvarNormalArg);
-							//trap_Cvar_Set("currentObjMapIconBackground", cvarNormalArg);
 							//[/SIEGECVARFIX]
 							// Get higlight background
 							if (String_Parse(args, &cvarLitArg))
 							{	// set hightlight background
 								//[SIEGECVARFIX]
 								siege_Cvar_VariableStringBuffer( (char *)cvarLitArg, string, sizeof(string) );
-								//trap_Cvar_VariableStringBuffer( cvarLitArg, string, sizeof(string) );
 								//[/SIEGECVARFIX]
 								Menu_SetItemBackground(menu, item->window.name, string);
 								// Disable button
@@ -7216,7 +7053,6 @@ static void UI_RunMenuScript(char **args)
 			team = (int)trap_Cvar_VariableValue("ui_holdteam");
 			//[SIEGECVARFIX]
 			baseClass = (int)siege_Cvar_VariableValue("ui_siege_class");
-			//baseClass = (int)trap_Cvar_VariableValue("ui_siege_class");
 			//[/SIEGECVARFIX]
 
 			UI_UpdateCvarsForClass(team, baseClass, 0);
@@ -7232,11 +7068,7 @@ static void UI_RunMenuScript(char **args)
 			siege_Cvar_VariableStringBuffer( "ui_mySiegeClass", classString, sizeof(classString) );
 
 			siege_Cvar_Set("ui_startsiegeteam", va("%d", team));
-		 	siege_Cvar_Set( "ui_startsiegeclass", classString);	
-			//trap_Cvar_VariableStringBuffer( "ui_mySiegeClass", classString, sizeof(classString) );
-
-			//trap_Cvar_Set("ui_startsiegeteam", va("%d", team));
-		 	//trap_Cvar_Set( "ui_startsiegeclass", classString);
+		 	siege_Cvar_Set( "ui_startsiegeclass", classString);
 			//[/SIEGECVARFIX]
 
 			// If player is already on a team, set up icons to show it.
@@ -7257,7 +7089,6 @@ static void UI_RunMenuScript(char **args)
 					char	info[MAX_INFO_VALUE];
 					//[SIEGECVARFIX]
 					siege_Cvar_VariableStringBuffer( va("ui_class_weapondesc%i", item->cursorPos), info, sizeof(info) );
-					//trap_Cvar_VariableStringBuffer( va("ui_class_weapondesc%i", item->cursorPos), info, sizeof(info) );
 					//[/SIEGECVARFIX]
 					trap_Cvar_Set( "ui_itemforceinvdesc", info );
 				}
@@ -7277,7 +7108,6 @@ static void UI_RunMenuScript(char **args)
 					char info[MAX_INFO_VALUE];
 					//[SIEGECVARFIX]
 					siege_Cvar_VariableStringBuffer( va("ui_class_itemdesc%i", item->cursorPos), info, sizeof(info) );
-					//trap_Cvar_VariableStringBuffer( va("ui_class_itemdesc%i", item->cursorPos), info, sizeof(info) );
 					//[/SIEGECVARFIX]
 					trap_Cvar_Set( "ui_itemforceinvdesc", info );
 				}
@@ -7299,7 +7129,6 @@ static void UI_RunMenuScript(char **args)
 
 					//[SIEGECVARFIX]
 					siege_Cvar_VariableStringBuffer( va("ui_class_power%i", item->cursorPos), info, sizeof(info) );
-					//trap_Cvar_VariableStringBuffer( va("ui_class_power%i", item->cursorPos), info, sizeof(info) );
 					//[SIEGECVARFIX]
 
 					//count them up
@@ -7473,12 +7302,6 @@ static void UI_SiegeClassCnt( const int team )
 	siege_Cvar_Set("ui_jedi_cnt", va("%d", BG_SiegeCountBaseClass(team,3)));
 	siege_Cvar_Set("ui_demo_cnt", va("%d", BG_SiegeCountBaseClass(team,4)));
 	siege_Cvar_Set("ui_heavy_cnt", va("%d", BG_SiegeCountBaseClass(team,5)));
-	/*trap_Cvar_Set("ui_infantry_cnt", va("%d", BG_SiegeCountBaseClass(team,0)));
-	trap_Cvar_Set("ui_vanguard_cnt", va("%d", BG_SiegeCountBaseClass(team,1)));
-	trap_Cvar_Set("ui_support_cnt", va("%d", BG_SiegeCountBaseClass(team,2)));
-	trap_Cvar_Set("ui_jedi_cnt", va("%d", BG_SiegeCountBaseClass(team,3)));
-	trap_Cvar_Set("ui_demo_cnt", va("%d", BG_SiegeCountBaseClass(team,4)));
-	trap_Cvar_Set("ui_heavy_cnt", va("%d", BG_SiegeCountBaseClass(team,5)));*/
 	//[/SIEGECVARFIX]
 
 }
@@ -7815,14 +7638,6 @@ static void UI_BuildServerDisplayList(qboolean force) {
 				trap_LAN_MarkServerVisible(ui_netSource.integer, i, qfalse);
 				continue;
 			}
-			/*	
-			if (ui_serverFilterType.integer > 0) {
-				if (Q_stricmp(Info_ValueForKey(info, "game"), serverFilters[ui_serverFilterType.integer].basedir) != 0) {
-					trap_LAN_MarkServerVisible(ui_netSource.integer, i, qfalse);
-					continue;
-				}
-			}
-			*/
 			//[/SERVERFILTERS]
 
 			// make sure we never add a favorite server twice
@@ -8376,7 +8191,6 @@ void UI_SetSiegeTeams(void)
 
 		//[SIEGECVARFIX]
 		siege_Cvar_VariableStringBuffer("cg_siegeTeam1", buf, 1024);
-		//trap_Cvar_VariableStringBuffer("cg_siegeTeam1", buf, 1024);
 		//[/SIEGECVARFIX]
 		if (buf[0] && Q_stricmp(buf, "none"))
 		{
@@ -8389,7 +8203,6 @@ void UI_SetSiegeTeams(void)
 
 		//[SIEGECVARFIX]
 		siege_Cvar_VariableStringBuffer("cg_siegeTeam2", buf, 1024);
-		//trap_Cvar_VariableStringBuffer("cg_siegeTeam2", buf, 1024);
 		//[/SIEGECVARFIX]
 		if (buf[0] && Q_stricmp(buf, "none"))
 		{
@@ -8585,7 +8398,6 @@ static int UI_FeederCount(float feederID)
 			
 			//[SIEGECVARFIX]
 			baseClass = (int)siege_Cvar_VariableValue("ui_siege_class");
-			//baseClass = (int)trap_Cvar_VariableValue("ui_siege_class");
 			//[/SIEGECVARFIX]
 
 			if ((team == SIEGETEAM_TEAM1) || 
@@ -8606,7 +8418,6 @@ static int UI_FeederCount(float feederID)
 			{
 				//[SIEGECVARFIX]
 				siege_Cvar_VariableStringBuffer( va("ui_class_weapon%i", i), info, sizeof(info) );
-				//trap_Cvar_VariableStringBuffer( va("ui_class_weapon%i", i), info, sizeof(info) );
 				//[/SIEGECVARFIX]
 				if (stricmp(info,"gfx/2d/select")!=0)
 				{
@@ -8623,7 +8434,6 @@ static int UI_FeederCount(float feederID)
 			{
 				//[SIEGECVARFIX]
 				siege_Cvar_VariableStringBuffer( va("ui_class_item%i", i), info, sizeof(info) );
-				//trap_Cvar_VariableStringBuffer( va("ui_class_item%i", i), info, sizeof(info) );
 				//[/SIEGECVARFIX]
 				// A hack so health and ammo dispenser icons don't show up.
 				if ((stricmp(info,"gfx/2d/select")!=0) && (stricmp(info,"gfx/hud/i_icon_healthdisp")!=0) &&
@@ -8641,7 +8451,6 @@ static int UI_FeederCount(float feederID)
 			{
 				//[SIEGECVARFIX]
 				siege_Cvar_VariableStringBuffer( va("ui_class_power%i", i), info, sizeof(info) );
-				//trap_Cvar_VariableStringBuffer( va("ui_class_power%i", i), info, sizeof(info) );
 				//[/SIEGECVARFIX]
 				if (stricmp(info,"gfx/2d/select")!=0)
 				{
@@ -9230,7 +9039,6 @@ static qhandle_t UI_FeederItemImage(float feederID, int index) {
 		team = (int)trap_Cvar_VariableValue("ui_team");
 		//[SIEGECVARFIX]
 		baseClass = (int)siege_Cvar_VariableValue("ui_siege_class");
-		//baseClass = (int)trap_Cvar_VariableValue("ui_siege_class");
 		//[/SIEGECVARFIX]
 
 		if ((team == SIEGETEAM_TEAM1) || 
@@ -9254,7 +9062,6 @@ static qhandle_t UI_FeederItemImage(float feederID, int index) {
 		{
 			//[SIEGECVARFIX]
 			siege_Cvar_VariableStringBuffer( va("ui_class_weapon%i", i), info, sizeof(info) );
-			//trap_Cvar_VariableStringBuffer( va("ui_class_weapon%i", i), info, sizeof(info) );
 			//[/SIEGECVARFIX]
 			if (stricmp(info,"gfx/2d/select")!=0)
 			{
@@ -9274,7 +9081,6 @@ static qhandle_t UI_FeederItemImage(float feederID, int index) {
 		{
 			//[SIEGECVARFIX]
 			siege_Cvar_VariableStringBuffer( va("ui_class_item%i", i), info, sizeof(info) );
-			//trap_Cvar_VariableStringBuffer( va("ui_class_item%i", i), info, sizeof(info) );
 			//[/SIEGECVARFIX]
 			// A hack so health and ammo dispenser icons don't show up.
 			if ((stricmp(info,"gfx/2d/select")!=0) && (stricmp(info,"gfx/hud/i_icon_healthdisp")!=0) &&
@@ -9318,7 +9124,6 @@ static qhandle_t UI_FeederItemImage(float feederID, int index) {
 		{
 			//[SIEGECVARFIX]
 			siege_Cvar_VariableStringBuffer( va("ui_class_power%i", i), info, sizeof(info) );
-			//trap_Cvar_VariableStringBuffer( va("ui_class_power%i", i), info, sizeof(info) );
 			//[/SIEGECVARFIX]
 			if (stricmp(info,"gfx/2d/select")!=0)
 			{
@@ -9326,10 +9131,8 @@ static qhandle_t UI_FeederItemImage(float feederID, int index) {
 				{
 					//[SIEGECVARFIX]
 					siege_Cvar_VariableStringBuffer( va("ui_class_powerlevel%i", validCnt), info2, sizeof(info2) );
-					//trap_Cvar_VariableStringBuffer( va("ui_class_powerlevel%i", validCnt), info2, sizeof(info2) );
 
 					siege_Cvar_Set(va("ui_class_powerlevelslot%i", index-slotI), info2);
-					//trap_Cvar_Set(va("ui_class_powerlevelslot%i", index-slotI), info2);
 					//[/SIEGECVARFIX]
 					return(trap_R_RegisterShaderNoMip(info));
 				}
@@ -9357,7 +9160,6 @@ void UI_SiegeSetCvarsForClass(siegeClass_t *scl)
 	{
 		//[SIEGECVARFIX]
 		siege_Cvar_Set(va("ui_class_weapon%i", i), "gfx/2d/select");
-		//trap_Cvar_Set(va("ui_class_weapon%i", i), "gfx/2d/select");
 		//[/SIEGECVARFIX]
 		i++;
 	}
@@ -9367,7 +9169,6 @@ void UI_SiegeSetCvarsForClass(siegeClass_t *scl)
 	{
 		//[SIEGECVARFIX]
 		siege_Cvar_Set(va("ui_class_item%i", i), "gfx/2d/select");
-		//trap_Cvar_Set(va("ui_class_item%i", i), "gfx/2d/select");
 		//[/SIEGECVARFIX]
 		i++;
 	}
@@ -9377,7 +9178,6 @@ void UI_SiegeSetCvarsForClass(siegeClass_t *scl)
 	{
 		//[SIEGECVARFIX]
 		siege_Cvar_Set(va("ui_class_force%i", i), "gfx/2d/select");
-		//trap_Cvar_Set(va("ui_class_power%i", i), "gfx/2d/select");
 		//[/SIEGECVARFIX]
 		i++;
 	}
@@ -9397,7 +9197,6 @@ void UI_SiegeSetCvarsForClass(siegeClass_t *scl)
 	i = 0;
 	//[SIEGECVARFIX]
 	siege_Cvar_Set(va("ui_class_weapondesc%i", count), " ");	// Blank it out to start with
-	//trap_Cvar_Set(va("ui_class_weapondesc%i", count), " ");	// Blank it out to start with
 	//[/SIEGECVARFIX]
 	while (i < WP_NUM_WEAPONS)
 	{
@@ -9437,13 +9236,10 @@ void UI_SiegeSetCvarsForClass(siegeClass_t *scl)
 				//[SIEGECVARFIX]
 				siege_Cvar_Set(va("ui_class_weapon%i", count), saberType);
 				siege_Cvar_Set(va("ui_class_weapondesc%i", count), "@MENUS_AN_ELEGANT_WEAPON_FOR");
-				//trap_Cvar_Set(va("ui_class_weapon%i", count), saberType);
-				//trap_Cvar_Set(va("ui_class_weapondesc%i", count), "@MENUS_AN_ELEGANT_WEAPON_FOR");
 				//[/SIEGECVARFIX]
 				count++;
 				//[SIEGECVARFIX]
 				siege_Cvar_Set(va("ui_class_weapondesc%i", count), " ");	// Blank it out to start with
-				//trap_Cvar_Set(va("ui_class_weapondesc%i", count), " ");	// Blank it out to start with
 				//[SIEGECVARFIX]
 			}
 			else
@@ -9452,13 +9248,10 @@ void UI_SiegeSetCvarsForClass(siegeClass_t *scl)
 				//[SIEGECVARFIX]
 				siege_Cvar_Set(va("ui_class_weapon%i", count), item->icon);
 				siege_Cvar_Set(va("ui_class_weapondesc%i", count), item->description);
-				//trap_Cvar_Set(va("ui_class_weapon%i", count), item->icon);
-				//trap_Cvar_Set(va("ui_class_weapondesc%i", count), item->description);
 				//[/SIEGECVARFIX]
 				count++;
 				//[SIEGECVARFIX]
 				siege_Cvar_Set(va("ui_class_weapondesc%i", count), " ");	// Blank it out to start with
-				//trap_Cvar_Set(va("ui_class_weapondesc%i", count), " ");	// Blank it out to start with
 				//[/SIEGECVARFIX]
 			}
 		}
@@ -9478,8 +9271,6 @@ void UI_SiegeSetCvarsForClass(siegeClass_t *scl)
 			//[SIEGECVARFIX]
 			siege_Cvar_Set(va("ui_class_item%i", count), item->icon);
 			siege_Cvar_Set(va("ui_class_itemdesc%i", count), item->description);
-			//trap_Cvar_Set(va("ui_class_item%i", count), item->icon);
-			//trap_Cvar_Set(va("ui_class_itemdesc%i", count), item->description);
 			//[/SIEGECVARFIX]
 			count++;
 		}
@@ -9487,7 +9278,6 @@ void UI_SiegeSetCvarsForClass(siegeClass_t *scl)
 		{
 			//[SIEGECVARFIX]
 			siege_Cvar_Set(va("ui_class_itemdesc%i", count), " ");
-			//trap_Cvar_Set(va("ui_class_itemdesc%i", count), " ");
 			//[/SIEGECVARFIX]
 		}
 		i++;
@@ -9501,13 +9291,11 @@ void UI_SiegeSetCvarsForClass(siegeClass_t *scl)
 	{
 		//[SIEGECVARFIX]
 		siege_Cvar_Set(va("ui_class_powerlevel%i", i), "0");	// Zero this out to start.
-		//trap_Cvar_Set(va("ui_class_powerlevel%i", i), "0");	// Zero this out to start.
 		//[/SIEGECVARFIX]
 		if (i<9)
 		{
 			//[SIEGECVARFIX]
 			siege_Cvar_Set(va("ui_class_powerlevelslot%i", i), "0");	// Zero this out to start.
-			//trap_Cvar_Set(va("ui_class_powerlevelslot%i", i), "0");	// Zero this out to start.
 			//[/SIEGECVARFIX]
 		}
 
@@ -9516,8 +9304,6 @@ void UI_SiegeSetCvarsForClass(siegeClass_t *scl)
 			//[SIEGECVARFIX]
 			siege_Cvar_Set(va("ui_class_powerlevel%i", count), va("%i",scl->forcePowerLevels[i]));
 			siege_Cvar_Set(va("ui_class_power%i", count), HolocronIcons[i]);
-			//trap_Cvar_Set(va("ui_class_powerlevel%i", count), va("%i",scl->forcePowerLevels[i]));
-			//trap_Cvar_Set(va("ui_class_power%i", count), HolocronIcons[i]);
 			//[/SIEGECVARFIX]
 			count++;
 		}
@@ -9894,7 +9680,6 @@ qboolean UI_FeederSelection(float feederFloat, int index, itemDef_t *item)
 		team = (int)trap_Cvar_VariableValue("ui_team");
 		//[SIEGECVARFIX]
 		baseClass = (int)siege_Cvar_VariableValue("ui_siege_class");
-		//baseClass = (int)trap_Cvar_VariableValue("ui_siege_class");
 		//[/SIEGECVARFIX]
 
 		UI_UpdateCvarsForClass(team, baseClass, index);
@@ -9916,7 +9701,6 @@ qboolean UI_FeederSelection(float feederFloat, int index, itemDef_t *item)
 
 		//[SIEGECVARFIX]
 		siege_Cvar_VariableStringBuffer( va("ui_class_power%i", index), info, sizeof(info) );
-		//trap_Cvar_VariableStringBuffer( va("ui_class_power%i", index), info, sizeof(info) );
 		//[/SIEGECVARFIX]
 
 		//count them up
@@ -10605,9 +10389,6 @@ UI_Init
 void _UI_Init( qboolean inGameLoad ) {
 	const char *menuSet;
 	int start;
-	//[CompileFix]
-	//int i=0;
-	//[/CompileFix]
 
 	//register this freakin thing now
 	vmCvar_t siegeTeamSwitch;
@@ -10735,7 +10516,6 @@ void _UI_Init( qboolean inGameLoad ) {
 		//[CoOp]
 		//load the SP menu files as well.
 		UI_LoadMenus("ui/menutest.txt", qfalse);
-		//UI_LoadMenus("ui/ingame.txt", qfalse);
 		//[/CoOp]
 	}
 	else if (!ui_bypassMainMenuLoad.integer)

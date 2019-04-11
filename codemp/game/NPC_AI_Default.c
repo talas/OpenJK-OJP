@@ -746,7 +746,6 @@ void NPC_BSDefault( void )
 			//FIXME: Check Alert events, see if we should investigate or just look at it
 			//[CoOp]
 			int alertEvent = NPC_CheckAlertEvents( qtrue, qtrue, -1, qtrue, AEL_DISCOVERED, qfalse );
-			//int alertEvent = NPC_CheckAlertEvents( qtrue, qtrue, -1, qtrue, AEL_DISCOVERED );
 			//[/CoOp]
 
 			//There is an event to look at

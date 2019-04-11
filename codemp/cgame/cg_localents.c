@@ -667,17 +667,6 @@ void CG_AddScorePlum( localEntity_t *le ) {
 		} else if (score >= 50) {
 			re->shaderRGBA[0] = re->shaderRGBA[2] = 0;
 		}
-		/*
-		if (score >= 50) {
-			re->shaderRGBA[1] = 0;
-		} else if (score >= 20) {
-			re->shaderRGBA[0] = re->shaderRGBA[1] = 0;
-		} else if (score >= 10) {
-			re->shaderRGBA[2] = 0;
-		} else if (score >= 2) {
-			re->shaderRGBA[0] = re->shaderRGBA[2] = 0;
-		}
-		*/
 		//[/BotTweaks]
 
 	}

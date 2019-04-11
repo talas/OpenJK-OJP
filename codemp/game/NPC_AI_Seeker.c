@@ -40,7 +40,6 @@ void NPC_Seeker_Pain(gentity_t *self, gentity_t *attacker, int damage)
 		//I assume this means the seeker dies if it doesn't have it's custom gravity.
 		//changed this to look like the SP version of this call
 		G_Damage( self, NULL, NULL, vec3_origin, (float*)vec3_origin, 999, 0, MOD_FALLING );
-		//G_Damage( self, NULL, NULL, (float*)vec3_origin, (float*)vec3_origin, 999, 0, MOD_FALLING );
 		//[/CoOp]
 	}
 
@@ -85,7 +84,6 @@ void Seeker_MaintainHeight( void )
 			//[CoOp]
 			//changed to use same function call as SP.
 			dif = (NPC->enemy->r.currentOrigin[2] +  Q_flrand( NPC->enemy->r.maxs[2]/2, NPC->enemy->r.maxs[2]+8 )) - NPC->r.currentOrigin[2]; 
-			//dif = (NPC->enemy->r.currentOrigin[2] +  flrand( NPC->enemy->r.maxs[2]/2, NPC->enemy->r.maxs[2]+8 )) - NPC->r.currentOrigin[2]; 
 			//[/CoOp]
 
 			difFactor = 1.0f;
@@ -112,7 +110,6 @@ void Seeker_MaintainHeight( void )
 				//[CoOp]
 				//changed to use same function call as SP.
 				NPC->client->ps.velocity[2] *= Q_flrand( 0.85f, 3.0f );
-				//NPC->client->ps.velocity[2] *= flrand( 0.85f, 3.0f );
 				//[/CoOp]
 			}
 		}
@@ -316,13 +313,6 @@ void Seeker_Hunt( qboolean visible, qboolean advance )
 		//[CoOp]
 		NPC_MoveToGoal(qtrue);
 		return;
-		/*
-		// Get our direction from the navigator if we can't see our target
-		if ( NPC_GetMoveDirection( forward, &distance ) == qfalse )
-		{
-			return;
-		}
-		*/
 		//[/CoOp]
 	}
 	else
@@ -336,13 +326,9 @@ void Seeker_Hunt( qboolean visible, qboolean advance )
 }
 
 //------------------------------------
+//[SeekerItemNpc]
 qboolean Seeker_Fire( void )
 {
-
-	//[SeekerItemNpc]
-#if 1
-
-
 	vec3_t		dir, enemy_org, muzzle;
 	gentity_t	*missile;
 	trace_t tr;
@@ -400,8 +386,6 @@ qboolean Seeker_Fire( void )
 	//else
 		missile = CreateMissile( muzzle, dir, 1000, 10000, NPC, qfalse );
 
-	//missile = CreateMissile( muzzle, dir, 1000, 10000, NPC, qfalse );
-
 	G_PlayEffectID( G_EffectIndex("blaster/muzzle_flash"), muzzle, dir );
 
 	missile->classname = "blaster";
@@ -422,7 +406,6 @@ qboolean Seeker_Fire( void )
 	{
 		missile->methodOfDeath = MOD_BLASTER;
 	}
-	//missile->methodOfDeath = MOD_BLASTER;
 	//[/SeekerItemNPC]
 	missile->clipmask = MASK_SHOT | CONTENTS_LIGHTSABER;
 	//[CoOp]
@@ -444,38 +427,6 @@ qboolean Seeker_Fire( void )
 
 
 	return qtrue;
-
-#else
-	vec3_t		dir, enemy_org, muzzle;
-	gentity_t	*missile;
-
-	CalcEntitySpot( NPC->enemy, SPOT_HEAD, enemy_org );
-	VectorSubtract( enemy_org, NPC->r.currentOrigin, dir );
-	VectorNormalize( dir );
-
-	// move a bit forward in the direction we shall shoot in so that the bolt doesn't poke out the other side of the seeker
-	VectorMA( NPC->r.currentOrigin, 15, dir, muzzle );
-
-	missile = CreateMissile( muzzle, dir, 1000, 10000, NPC, qfalse );
-
-	G_PlayEffectID( G_EffectIndex("blaster/muzzle_flash"), NPC->r.currentOrigin, dir );
-
-	missile->classname = "blaster";
-	missile->s.weapon = WP_BLASTER;
-
-	missile->damage = 5;
-	missile->dflags = DAMAGE_DEATH_KNOCKBACK;
-	missile->methodOfDeath = MOD_BLASTER;
-	missile->clipmask = MASK_SHOT | CONTENTS_LIGHTSABER;
-	//[CoOp]
-	/* Not in SP version of code.
-	if ( NPC->r.ownerNum < ENTITYNUM_NONE )
-	{
-		missile->r.ownerNum = NPC->r.ownerNum;
-	}
-	*/
-	//[/CoOp]
-#endif
 }
 
 //------------------------------------
@@ -497,14 +448,6 @@ void Seeker_Ranged( qboolean visible, qboolean advance )
 				if(NPC->count != -1)
 					NPC->count--;
 			}
-			/*
-			if ( TIMER_Done( NPC, "attackDelay" ))	// Attack?
-			{
-				TIMER_Set( NPC, "attackDelay", Q_irand( 250, 2500 ));
-				Seeker_Fire();
-				NPC->count--;
-			}
-			*/
 			//[/SeekerItemNpc]
 		}
 		else
@@ -695,9 +638,7 @@ void Seeker_FindEnemy( void )
 //------------------------------------
 void Seeker_FollowPlayer( void )
 {//hover around the closest player
-
 	//[SeekerItemNpc]
-#if 1
 	vec3_t	pt, dir;
 	float	dis;
 	float	minDistSqr = MIN_DISTANCE_SQR;
@@ -803,175 +744,8 @@ void Seeker_FollowPlayer( void )
 
 
 	NPC_UpdateAngles( qtrue, qtrue );
-
-#else
-		vec3_t	pt, dir;
-	float	dis;
-	float	minDistSqr = MIN_DISTANCE_SQR;
-	gentity_t *closestPlayer = NULL;
-
-	Seeker_MaintainHeight();
-
-	closestPlayer = FindClosestPlayer(NPC->r.currentOrigin, NPC->client->playerTeam);
-
-	if(!closestPlayer)
-	{//in MP it's actually possible that there's no players on our team at the moment.
-		return;
-	}
-
-
-	dis	= DistanceHorizontalSquared( NPC->r.currentOrigin, closestPlayer->r.currentOrigin );
-
-	if ( NPC->client->NPC_class == CLASS_BOBAFETT )
-	{
-		if ( TIMER_Done( NPC, "flameTime" ) )
-		{
-			minDistSqr = 200*200;
-		}
-	}
-
-	if ( dis < minDistSqr )
-	{
-		// generally circle the player closely till we take an enemy..this is our target point
-		if ( NPC->client->NPC_class == CLASS_BOBAFETT )
-		{
-			pt[0] = closestPlayer->r.currentOrigin[0] + cos( level.time * 0.001f + NPC->random ) * 250;
-			pt[1] = closestPlayer->r.currentOrigin[1] + sin( level.time * 0.001f + NPC->random ) * 250;
-			if ( NPC->client->jetPackTime < level.time )
-			{
-				pt[2] = closestPlayer->r.currentOrigin[2] - 64;
-			}
-			else
-			{
-				pt[2] = closestPlayer->r.currentOrigin[2] + 200;
-			}
-		}
-		else
-		{
-			pt[0] = closestPlayer->r.currentOrigin[0] + cos( level.time * 0.001f + NPC->random ) * 56;
-			pt[1] = closestPlayer->r.currentOrigin[1] + sin( level.time * 0.001f + NPC->random ) * 56;
-			pt[2] = closestPlayer->r.currentOrigin[2] + 40;
-		}
-
-		VectorSubtract( pt, NPC->r.currentOrigin, dir );
-		VectorMA( NPC->client->ps.velocity, 0.8f, dir, NPC->client->ps.velocity );
-	}
-	else
-	{
-		if ( NPC->client->NPC_class != CLASS_BOBAFETT )
-		{
-			if ( TIMER_Done( NPC, "seekerhiss" ))
-			{
-				TIMER_Set( NPC, "seekerhiss", 1000 + random() * 1000 );
-				G_Sound( NPC, CHAN_AUTO, G_SoundIndex( "sound/chars/seeker/misc/hiss" ));
-			}
-		}
-
-		// Hey come back!
-		NPCInfo->goalEntity = closestPlayer;
-		NPCInfo->goalRadius = 32;
-		NPC_MoveToGoal( qtrue );
-		NPC->s.owner = closestPlayer->s.number;
-	}
-
-	if ( NPCInfo->enemyCheckDebounceTime < level.time )
-	{
-		// check twice a second to find a new enemy
-		Seeker_FindEnemy();
-		NPCInfo->enemyCheckDebounceTime = level.time + 500;
-	}
-
-	NPC_UpdateAngles( qtrue, qtrue );
-#endif
 	//[/SeekerItemNpc]
 }
-
-
-/* This is equivilent to void Seeker_FollowPlayer( void ) but isn't set up to work right
-//------------------------------------
-void Seeker_FollowOwner( void )
-{
-	float	dis, minDistSqr;
-	vec3_t	pt, dir;
-	gentity_t	*owner = &g_entities[NPC->s.owner];
-
-	Seeker_MaintainHeight();
-
-	if ( NPC->client->NPC_class == CLASS_BOBAFETT )
-	{
-		owner = NPC->enemy;
-	}
-	if ( !owner || owner == NPC || !owner->client )
-	{
-		return;
-	}
-	//rwwFIXMEFIXME: Care about all clients not just 0
-	dis	= DistanceHorizontalSquared( NPC->r.currentOrigin, owner->r.currentOrigin );
-	
-	minDistSqr = MIN_DISTANCE_SQR;
-
-	if ( NPC->client->NPC_class == CLASS_BOBAFETT )
-	{
-		if ( TIMER_Done( NPC, "flameTime" ) )
-		{
-			minDistSqr = 200*200;
-		}
-	}
-
-	if ( dis < minDistSqr )
-	{
-		// generally circle the player closely till we take an enemy..this is our target point
-		if ( NPC->client->NPC_class == CLASS_BOBAFETT )
-		{
-			pt[0] = owner->r.currentOrigin[0] + cos( level.time * 0.001f + NPC->random ) * 250;
-			pt[1] = owner->r.currentOrigin[1] + sin( level.time * 0.001f + NPC->random ) * 250;
-			if ( NPC->client->jetPackTime < level.time )
-			{
-				pt[2] = NPC->r.currentOrigin[2] - 64;
-			}
-			else
-			{
-				pt[2] = owner->r.currentOrigin[2] + 200;
-			}
-		}
-		else
-		{
-			pt[0] = owner->r.currentOrigin[0] + cos( level.time * 0.001f + NPC->random ) * 56;
-			pt[1] = owner->r.currentOrigin[1] + sin( level.time * 0.001f + NPC->random ) * 56;
-			pt[2] = owner->r.currentOrigin[2] + 40;
-		}
-
-		VectorSubtract( pt, NPC->r.currentOrigin, dir );
-		VectorMA( NPC->client->ps.velocity, 0.8f, dir, NPC->client->ps.velocity );
-	}
-	else
-	{
-		if ( NPC->client->NPC_class != CLASS_BOBAFETT )
-		{
-			if ( TIMER_Done( NPC, "seekerhiss" ))
-			{
-				TIMER_Set( NPC, "seekerhiss", 1000 + random() * 1000 );
-				G_Sound( NPC, CHAN_AUTO, G_SoundIndex( "sound/chars/seeker/misc/hiss" ));
-			}
-		}
-
-		// Hey come back!
-		NPCInfo->goalEntity = owner;
-		NPCInfo->goalRadius = 32;
-		NPC_MoveToGoal( qtrue );
-		NPC->parent = owner;
-	}
-
-	if ( NPCInfo->enemyCheckDebounceTime < level.time )
-	{
-		// check twice a second to find a new enemy
-		Seeker_FindEnemy();
-		NPCInfo->enemyCheckDebounceTime = level.time + 500;
-	}
-
-	NPC_UpdateAngles( qtrue, qtrue );
-}
-*/
 //[/CoOp]
 
 //[CoOp]
@@ -1034,9 +808,7 @@ void NPC_BSSeeker_Default( void )
 			//[SeekerItemNpc] - dont attack our owner or leader, and dont shoot at dead people
 			&& ( NPC->enemy == NPC->activator || NPC->enemy == NPC->client->leader || !NPC->enemy->inuse || NPC->health <= 0 ||
 			( NPC->enemy->client && NPC->enemy->client->NPC_class == CLASS_SEEKER )) )
-			//&& ( NPC->enemy->s.number < MAX_CLIENTS || ( NPC->enemy->client && NPC->enemy->client->NPC_class == CLASS_SEEKER )) )
 			//[/SeekerItemNpc]
-			//&& ( NPC->enemy->s.number == 0 || ( NPC->enemy->client && NPC->enemy->client->NPC_class == CLASS_SEEKER )) )
 			//[/CoOp]
 		{
 			//hacked to never take the player as an enemy, even if the player shoots at it
@@ -1067,6 +839,5 @@ void NPC_BSSeeker_Default( void )
 	//[CoOp]
 	// In all other cases, follow the player and look for enemies to take on
 	Seeker_FollowPlayer();
-	//Seeker_FollowOwner();
 	//[/CoOp]
 }

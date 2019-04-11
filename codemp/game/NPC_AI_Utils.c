@@ -591,7 +591,6 @@ void AI_DeleteGroupMember( AIGroupInfo_t *group, int memberNum )
 	//[OverflowProtection]
 	//adding overflow protection since something already appears to be screwing the level.groups code up.
 	for ( i = memberNum; i < (group->numGroup-1) && i < (MAX_GROUP_MEMBERS-1); i++ )
-	//for ( i = memberNum; i < (group->numGroup-1); i++ )
 	//[/OverflowProtection]
 	{
 		memcpy( &group->member[i], &group->member[i+1], sizeof( group->member[i] ) );

@@ -121,7 +121,6 @@ extern ammoData_t ammoPool[4][WP_NUM_WEAPONS];
 #define FIRST_WEAPON		WP_BRYAR_PISTOL		// this is the first weapon for next and prev weapon switching
 //[CoOp]
 #define MAX_PLAYER_WEAPONS	WP_BRYAR_OLD		// this is the max you can switch to and get with the give all.
-//#define MAX_PLAYER_WEAPONS	WP_NUM_WEAPONS-1	// this is the max you can switch to and get with the give all.
 //[/CoOp]
 
 

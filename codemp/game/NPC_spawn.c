@@ -565,7 +565,6 @@ void NPC_SetMiscDefaultData( gentity_t *ent )
 		{//normal NPC seeker
 			ent->count = 30; // SEEKER shot ammo count
 		}
-		//ent->count = 30; // SEEKER shot ammo count
 		//[/SeekerItemNPC]
 	}
 	//***I'm not sure whether I should leave this as a TEAM_ switch, I think NPC_class may be more appropriate - dmv
@@ -877,7 +876,6 @@ int NPC_WeaponsForTeam( team_t team, int spawnflags, const char *NPC_type )
 			//[CoOp]
 			//we should be using melee instead of stun batons.
 			return ( 1 << WP_MELEE);
-			//return ( 1 << WP_STUN_BATON);
 			//[/CoOp]
 		}
 		if ( Q_strncmp( "gran", NPC_type, 4 ) == 0 )
@@ -885,7 +883,6 @@ int NPC_WeaponsForTeam( team_t team, int spawnflags, const char *NPC_type )
 			//[CoOp]
 			//we should be using melee instead of stun batons.
 			return (( 1 << WP_THERMAL)|( 1 << WP_MELEE));
-			//return (( 1 << WP_THERMAL)|( 1 << WP_STUN_BATON));
 			//[/CoOp]
 		}
 		if ( Q_stricmp( "rodian", NPC_type ) == 0 )
@@ -2126,7 +2123,6 @@ gentity_t *NPC_Spawn_Do( gentity_t *ent )
 	{
 		newent->s.teamowner = ent->s.teamowner;
 	}
-	//newent->s.teamowner = ent->s.teamowner;
 
 	if (!newent->message && newent->client->NPC_class == CLASS_IMPERIAL)
 	{//the imperial model has a key by default, remove it since we don't have a key
@@ -3191,7 +3187,6 @@ void SP_NPC_Cultist_Destroyer( gentity_t *self)
 {
 	//[CoOp]
 	self->NPC_type = "cultist_destroyer";
-	//self->NPC_type = "cultist";//"cultist_explode";
 	//[/CoOp]
 	SP_NPC_spawner( self );
 }
@@ -3958,11 +3953,6 @@ void SP_NPC_ShadowTrooper( gentity_t *self)
 			self->NPC_type = "ShadowTrooper2";
 		}
 	}
-
-	//[CoOp]
-	//moved all the special precashing into SP_NPC_spawner();
-	//NPC_ShadowTrooper_Precache();
-	//[/CoOp]
 	WP_SetSaberModel( NULL, CLASS_SHADOWTROOPER );
 
 	SP_NPC_spawner( self );
@@ -4025,10 +4015,6 @@ void SP_NPC_MineMonster( gentity_t *self)
 	self->NPC_type = "minemonster";
 
 	SP_NPC_spawner( self );
-	//[CoOp]
-	//moved all the special precashing into SP_NPC_spawner();
-	//NPC_MineMonster_Precache();
-	//[/CoOp]
 }
 
 /*QUAKED NPC_Monster_Claw (1 0 0) (-12 -12 -24) (12 12 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
@@ -4113,10 +4099,7 @@ SHY - Spawner is shy
 void SP_NPC_Monster_Wampa( gentity_t *self)
 {
 	self->NPC_type = "wampa";
-	//[CoOp]
-	//moved all the special precashing into SP_NPC_spawner();
-	//NPC_Wampa_Precache();
-	//[/CoOp]
+
 
 	SP_NPC_spawner( self );
 }
@@ -4178,10 +4161,7 @@ void SP_NPC_Droid_Interrogator( gentity_t *self)
 	self->NPC_type = "interrogator";
 
 	SP_NPC_spawner( self );
-	//[CoOp]
-	//moved all the special precashing into SP_NPC_spawner();
-	//NPC_Interrogator_Precache(self);
-	//[/CoOp]
+
 }
 
 /*QUAKED NPC_Droid_Probe (1 0 0) (-12 -12 -24) (12 12 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
@@ -4198,10 +4178,7 @@ void SP_NPC_Droid_Probe( gentity_t *self)
 	self->NPC_type = "probe";
 
 	SP_NPC_spawner( self );
-	//[CoOp]
-	//moved all the special precashing into SP_NPC_spawner();
-	//NPC_Probe_Precache();
-	//[/CoOp]
+
 }
 
 /*QUAKED NPC_Droid_Mark1 (1 0 0) (-36 -36 -24) (36 36 80) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
@@ -4219,11 +4196,7 @@ void SP_NPC_Droid_Mark1( gentity_t *self)
 	self->NPC_type = "mark1";
 
 	SP_NPC_spawner( self );
-	
-	//[CoOp]
-	//moved all the special precashing into SP_NPC_spawner();
-	//NPC_Mark1_Precache();
-	//[/CoOp]
+
 }
 
 /*QUAKED NPC_Droid_Mark2 (1 0 0) (-12 -12 -24) (12 12 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
@@ -4241,10 +4214,7 @@ void SP_NPC_Droid_Mark2( gentity_t *self)
 	self->NPC_type = "mark2";
 
 	SP_NPC_spawner( self );
-	//[CoOp]
-	//moved all the special precashing into SP_NPC_spawner();
-	//NPC_Mark2_Precache();
-	//[/CoOp]
+
 }
 
 /*QUAKED NPC_Droid_ATST (1 0 0) (-40 -40 -24) (40 40 248) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
@@ -4267,10 +4237,6 @@ void SP_NPC_Droid_ATST( gentity_t *self)
 
 	SP_NPC_spawner( self );
 
-	//[CoOp]
-	//moved the special class precashers into SP_NPC_spawner()
-	//NPC_ATST_Precache();
-	//[/CoOp]
 }
 
 /*QUAKED NPC_Droid_Remote (1 0 0) (-12 -12 -24) (12 12 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
@@ -4296,10 +4262,7 @@ void SP_NPC_Droid_Remote( gentity_t *self)
 	//[/CoOp]
 
 	SP_NPC_spawner( self );
-	//[CoOp]
-	//moved all the special precashing into SP_NPC_spawner();
-	//NPC_Remote_Precache();
-	//[/CoOp]
+
 }
 
 /*QUAKED NPC_Droid_Seeker (1 0 0) (-12 -12 -24) (12 12 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
@@ -4316,10 +4279,7 @@ void SP_NPC_Droid_Seeker( gentity_t *self)
 	self->NPC_type = "seeker";
 
 	SP_NPC_spawner( self );
-	//[CoOp]
-	//moved all the special precashing into SP_NPC_spawner();
-	//NPC_Seeker_Precache();
-	//[/CoOp]
+
 }
 
 /*QUAKED NPC_Droid_Sentry (1 0 0) (-24 -24 -24) (24 24 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
@@ -4336,10 +4296,7 @@ void SP_NPC_Droid_Sentry( gentity_t *self)
 	self->NPC_type = "sentry";
 
 	SP_NPC_spawner( self );
-	//[CoOp]
-	//moved all the special precashing into SP_NPC_spawner();
-	//NPC_Sentry_Precache();
-	//[/CoOp]
+
 }
 
 /*QUAKED NPC_Droid_Gonk (1 0 0) (-12 -12 -24) (12 12 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
@@ -4359,11 +4316,6 @@ void SP_NPC_Droid_Gonk( gentity_t *self)
 
 	SP_NPC_spawner( self );
 
-	//[CoOp]
-	//moved all the special precashing into SP_NPC_spawner(); 
-	//precache the Gonk sounds
-	//NPC_Gonk_Precache();
-	//[/CoOp]
 }
 
 /*QUAKED NPC_Droid_Mouse (1 0 0) (-12 -12 -24) (12 12 40) x x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
@@ -4383,11 +4335,6 @@ void SP_NPC_Droid_Mouse( gentity_t *self)
 
 	SP_NPC_spawner( self );
 
-	//[CoOp]
-	//moved all the special precashing into SP_NPC_spawner(); 
-	//precache the Mouse sounds
-	//NPC_Mouse_Precache();
-	//[/CoOp]
 
 }
 
@@ -4415,10 +4362,6 @@ void SP_NPC_Droid_R2D2( gentity_t *self)
 
 	SP_NPC_spawner( self );
 
-	//[CoOp]
-	//moved all the special precashing into SP_NPC_spawner(); 
-	//NPC_R2D2_Precache();
-	//[/CoOp]
 }
 
 /*QUAKED NPC_Droid_R5D2 (1 0 0) (-12 -12 -24) (12 12 40) IMPERIAL ALWAYSDIE x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
@@ -4445,11 +4388,7 @@ void SP_NPC_Droid_R5D2( gentity_t *self)
 	}
 
 	SP_NPC_spawner( self );
-	
-	//[CoOp]
-	//moved all the special precashing into SP_NPC_spawner();
-	//NPC_R5D2_Precache();
-	//[/CoOp]
+
 }
 
 /*QUAKED NPC_Droid_Protocol (1 0 0) (-12 -12 -24) (12 12 40) IMPERIAL x x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
@@ -4473,10 +4412,6 @@ void SP_NPC_Droid_Protocol( gentity_t *self)
 	}
 
 	SP_NPC_spawner( self );
-	//[CoOp]
-	//moved all the special precashing into SP_NPC_spawner();
-	//NPC_Protocol_Precache();
-	//[/CoOp]
 }
 
 

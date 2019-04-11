@@ -74,7 +74,6 @@ void G_WriteClientSessionData( gclient_t *client ) {
 
 	//[ExpSys]
 	s = va("%i %i %i %i %i %i %i %i %i %i %i %i %s %s %s %f",
-	//s = va("%i %i %i %i %i %i %i %i %i %i %i %i %s %s %s",
 	//[/ExpSys]
 		client->sess.sessionTeam,
 		client->sess.spectatorTime,
@@ -93,7 +92,6 @@ void G_WriteClientSessionData( gclient_t *client ) {
 		//[ExpSys]
 		saber2Type,
 		client->sess.skillPoints
-		//saber2Type
 		//[/ExpSys]
 		);
 
@@ -123,7 +121,6 @@ void G_ReadSessionData( gclient_t *client ) {
 	trap_Cvar_VariableStringBuffer( var, s, sizeof(s) );
 	//[ExpSys]
 	sscanf( s, "%i %i %i %i %i %i %i %i %i %i %i %i %s %s %s %f",
-	//sscanf( s, "%i %i %i %i %i %i %i %i %i %i %i %i %s %s %s",
 	//[ExpSys]
 		&sessionTeam,                 // bk010221 - format
 		&client->sess.spectatorTime,
@@ -199,7 +196,6 @@ Called on a first-time connect
 //[ExpSys]
 //added firsttime input so we'll know if we need to reset our skill point totals or not.
 void G_InitSessionData( gclient_t *client, char *userinfo, qboolean isBot, qboolean firstTime) {
-//void G_InitSessionData( gclient_t *client, char *userinfo, qboolean isBot ) {
 //[/ExpSys]
 	clientSession_t	*sess;
 	const char		*value;
@@ -212,13 +208,11 @@ void G_InitSessionData( gclient_t *client, char *userinfo, qboolean isBot, qbool
 	//[CoOp]
 	//CoOp counts as a multi-team game.
 	if ( g_gametype.integer >= GT_SINGLE_PLAYER) {
-	//if ( g_gametype.integer >= GT_TEAM ) {
 	//[/CoOp]
 		if ( g_teamAutoJoin.integer ) 
 		{
 			//[AdminSys]
 			sess->sessionTeam = PickTeam( -1, isBot );
-			//sess->sessionTeam = PickTeam( -1 );
 			//[/AdminSys]
 			BroadcastTeamChange( client, -1 );
 		} 
@@ -244,7 +238,6 @@ void G_InitSessionData( gclient_t *client, char *userinfo, qboolean isBot, qbool
 				{
 					//[AdminSys]
 					sess->sessionTeam = PickTeam( -1, isBot );
-					//sess->sessionTeam = PickTeam( -1 );
 					//[/AdminSys]
 				}
 				BroadcastTeamChange( client, -1 );

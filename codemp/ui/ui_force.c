@@ -123,17 +123,6 @@ void UI_DrawForceStars(rectDef_t *rect, float scale, vec4_t color, int textStyle
 					UI_DrawHandlePic( xPos, rect->y+6, width, width, uiForceStarShaders[starcolor][0] );
 				}
 			}
-
-			/*
-			if (val >= i)
-			{	// Draw a star.
-				UI_DrawHandlePic( xPos, rect->y+6, width, width, uiForceStarShaders[starcolor][1] );
-			}
-			else
-			{	// Draw a circle.
-				UI_DrawHandlePic( xPos, rect->y+6, width, width, uiForceStarShaders[starcolor][0] );
-			}
-			*/
 			//[/ExpSys]
 
 			if(uiRank[forceindex].disabled)
@@ -165,14 +154,12 @@ void UI_UpdateClientForcePowers(const char *teamArg)
 		{
 			//[ExpSys]
 			trap_Cmd_ExecuteText( EXEC_APPEND, va("forcechanged \"%s\" %s\n", teamArg, newForceString ) );
-			//trap_Cmd_ExecuteText( EXEC_APPEND, va("forcechanged \"%s\"\n", teamArg) );
 			//[/ExpSys]
 		}
 		else
 		{
 			//[ExpSys]
 			trap_Cmd_ExecuteText( EXEC_APPEND, va("forcechanged x %s\n", newForceString) );
-			//trap_Cmd_ExecuteText( EXEC_APPEND, "forcechanged\n" );
 			//[/ExpSys]
 		}
 
@@ -282,7 +269,6 @@ void UpdateForceUsed()
 	uiForceUsed = 0;
 	//[ExpSys]
 	uiForceAvailable = uiMaxRank;
-	//uiForceAvailable = forceMasteryPoints[uiForceRank];
 	//[/ExpSys]
 
 	//[ExpSys]
@@ -387,8 +373,6 @@ void UpdateForceUsed()
 		//use defines since we're tweaking these values for the experience system.
 		bgForcePowerCost[FP_SABER_OFFENSE][FORCE_LEVEL_1] = SABER_OFFENSE_L1;
 		bgForcePowerCost[FP_SABER_DEFENSE][FORCE_LEVEL_1] = SABER_DEFENSE_L1;
-		//bgForcePowerCost[FP_SABER_OFFENSE][FORCE_LEVEL_1] = 1;
-		//bgForcePowerCost[FP_SABER_DEFENSE][FORCE_LEVEL_1] = 1;	
 
 		//Made Force Seeing Level 1 a pre-req to taking any additional force powers, except in the case of free sabers.
 		if(uiRank[FP_SEE].uiForcePowersRank <= FORCE_LEVEL_0)
@@ -424,7 +408,6 @@ void UpdateForceUsed()
 		}
 		// Also, check if there is no saberattack.  If there isn't, there had better not be any defense or throw!
 		else if (uiRank[FP_SABER_OFFENSE].uiForcePowersRank<1)
-		//if (uiRank[FP_SABER_OFFENSE].uiForcePowersRank<1)
 		{
 			Menu_ShowItemByName(menu, "setfp_saberattack", qtrue);
 			//[/ExpSys]
@@ -680,7 +663,6 @@ void UpdateForceUsed()
 
 	// Make sure that we're still legal.
 	for (curpower=0;curpower<NUM_TOTAL_SKILLS;curpower++)
-	//for (curpower=0;curpower<NUM_FORCE_POWERS;curpower++)
 	//[/ExpSys]
 	{	// Make sure that our ranks are within legal limits.
 		if (uiRank[curpower].uiForcePowersRank<0)
@@ -688,8 +670,6 @@ void UpdateForceUsed()
 		//[ExpSys]
 		else if (uiRank[curpower].uiForcePowersRank>=NumberOfSkillRanks(curpower)+1)
 			uiRank[curpower].uiForcePowersRank=NumberOfSkillRanks(curpower);
-		//else if (uiRank[curpower].uiForcePowersRank>=NUM_FORCE_POWER_LEVELS)
-		//	uiRank[curpower].uiForcePowersRank=(NUM_FORCE_POWER_LEVELS-1);
 		//[/ExpSys]
 
 		for (currank=FORCE_LEVEL_1;currank<=uiRank[curpower].uiForcePowersRank;currank++)
@@ -753,7 +733,6 @@ void UI_ReadLegalForce(void)
 	//[ExpSys]
 	//added sanity check so we don't overflow fcfString.
 	while (forcePlace < NUM_TOTAL_SKILLS && strPlace < 512)
-	//while (forcePlace < NUM_FORCE_POWERS)
 	//[/ExpSys]
 	{
 		Com_sprintf(forceStringValue, sizeof(forceStringValue), "%i", uiRank[forcePlace].uiForcePowersRank);
@@ -839,13 +818,11 @@ void UI_ReadLegalForce(void)
 	uiForceUsed = 0;
 	//[ExpSys]
 	uiForceAvailable = uiMaxRank;
-	//uiForceAvailable = forceMasteryPoints[uiForceRank];
 	//[/ExpSys]
 	gTouchedForce = qtrue;
 
 	//[ExpSys]
 	for (c=0; fcfString[i] && c < NUM_TOTAL_SKILLS;c++,i++)
-	//for (c=0;fcfString[i]&&c<NUM_FORCE_POWERS;c++,i++)
 	//[/ExpSys]
 	{
 		singleBuf[0] = fcfString[i];
@@ -1291,8 +1268,6 @@ qboolean UI_ForcePowerRank_HandleKey(int flags, float *special, int key, int num
 			forcepower = (type - UI_FORCE_RANK_JETPACK)+(UI_FORCE_RANK_SABERTHROW-UI_FORCE_RANK);
 		}
 		//this will give us the index as long as UI_FORCE_RANK is always one below the first force rank index
-		//forcepower = (type-UI_FORCE_RANK)-1;
-
 		//we now have a really maximum because some skills have less than 3 levels to them.
 		max = NumberOfSkillRanks(forcepower);
 		//[ExpSys]
@@ -1343,7 +1318,6 @@ qboolean UI_ForcePowerRank_HandleKey(int flags, float *special, int key, int num
 			|| forcepower == NUM_FORCE_POWERS+SK_GREENSTYLE
 			|| forcepower == NUM_FORCE_POWERS+SK_DUALSTYLE
 			|| forcepower == NUM_FORCE_POWERS+SK_STAFFSTYLE)
-		//if (forcepower == FP_SABER_DEFENSE || forcepower == FP_SABERTHROW)
 		//[/StanceSelection]
 		//[/ForceSys]
 		{	// Saberdefend and saberthrow can't be bought if there is no saberattack
@@ -1631,7 +1605,6 @@ void UI_ForceConfigHandle( int oldindex, int newindex )
 	uiForceUsed = 0;
 	//[ExpSys]
 	uiForceAvailable = uiMaxRank;
-	//uiForceAvailable = forceMasteryPoints[uiForceRank];
 	//[/ExpSys]
 	gTouchedForce = qtrue;
 

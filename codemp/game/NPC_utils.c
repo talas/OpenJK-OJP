@@ -899,7 +899,6 @@ qboolean G_ActivateBehavior (gentity_t *self, int bset )
 		{
 			trap_ICARUS_RunScript( self, va( "%s/%s", Q3_SCRIPT_DIR, bs_name ) );
 		}
-		//trap_ICARUS_RunScript( self, va( "%s/%s", Q3_SCRIPT_DIR, bs_name ) );
 		//[/CoOp]	
 	}
 	return qtrue;
@@ -1332,7 +1331,6 @@ gentity_t *NPC_PickEnemyExt( qboolean checkAlerts )
 	{
 		//[CoOp]
 		int alertEvent = NPC_CheckAlertEvents( qtrue, qtrue, -1, qtrue, AEL_DISCOVERED, qfalse );
-		//int alertEvent = NPC_CheckAlertEvents( qtrue, qtrue, -1, qtrue, AEL_DISCOVERED );
 		//[/CoOp]
 
 		//There is an event to look at
@@ -1350,7 +1348,6 @@ gentity_t *NPC_PickEnemyExt( qboolean checkAlerts )
 				//[CoOp]
 				//account for all players
 				if ( event->owner->s.number < MAX_CLIENTS )
-				//if ( event->owner == &g_entities[0] )
 					return event->owner;
 
 				//If it's on our team, then take its enemy as well
@@ -1385,7 +1382,6 @@ static qboolean NPC_CheckPlayerDistance( void )
 	//[CoOp] added SP Code
 	//also set it up to work for multiple players.
 
-	//return qfalse;//MOOT in MP
 	int i; //counter
 
 	//closest current distance
@@ -1476,10 +1472,8 @@ qboolean NPC_FindEnemy( qboolean checkAlerts )
 
 	//[CoOp] SP Code
 	//reenabling the IGNORE_ENEMIES flag
-	if( NPC->NPC->scriptFlags & SCF_IGNORE_ENEMIES )
 	//We're ignoring all enemies for now
-	//if( NPC->svFlags & SVF_IGNORE_ENEMIES )
-	//if (0) //rwwFIXMEFIXME: support for flag
+	if( NPC->NPC->scriptFlags & SCF_IGNORE_ENEMIES )
 	//[/CoOp]
 	{
 		G_ClearEnemy( NPC );
@@ -1508,27 +1502,9 @@ qboolean NPC_FindEnemy( qboolean checkAlerts )
 	{//rancors, wampas & sand creatures don't care if player is closer, they always go with closest
 		return qtrue;
 	}
-	/* This shouldn't be here. SP Code
-	//See if the player is closer than our current enemy
-	if ( NPC_CheckPlayerDistance() )
-	{
-		return qtrue;
-	}*/
-	
 
 	//Otherwise, turn off the flag
 	NPC->NPC->aiFlags &= ~NPCAI_LOCKEDENEMY;
-//	NPC->svFlags &= ~SVF_LOCKEDENEMY;
-	/* Moved up.  SP Code
-	//See if the player is closer than our current enemy
-	if ( NPC->client->NPC_class != CLASS_RANCOR 
-		&& NPC->client->NPC_class != CLASS_WAMPA
-		//&& NPC->client->NPC_class != CLASS_SAND_CREATURE
-		&& NPC_CheckPlayerDistance() )
-	{//rancors, wampas & sand creatures don't care if player is closer, they always go with closest
-		return qtrue;
-	}
-	*/
 	//[/CoOp]
 
 	//If we've gotten here alright, then our target it still valid
@@ -1803,27 +1779,6 @@ void G_CheckCharmed( gentity_t *self )
 	}
 
 }
-/* replaced by SP code equilivent G_CheckCharmed()
-void NPC_CheckCharmed( void )
-{
-	if ( NPCInfo->charmedTime && NPCInfo->charmedTime < level.time && NPC->client )
-	{//we were charmed, set us back!
-		NPC->client->playerTeam = NPC->genericValue1;
-		NPC->client->enemyTeam = NPC->genericValue2;
-		NPC->s.teamowner = NPC->genericValue3;
-
-		NPC->client->leader = NULL;
-		if ( NPCInfo->tempBehavior == BS_FOLLOW_LEADER )
-		{
-			NPCInfo->tempBehavior = BS_DEFAULT;
-		}
-		G_ClearEnemy( NPC );
-		NPCInfo->charmedTime = 0;
-		//say something to let player know you've snapped out of it
-		G_AddVoiceEvent( NPC, Q_irand(EV_CONFUSE1, EV_CONFUSE3), 2000 );
-	}
-}
-*/
 //[/CoOp]
 
 void G_GetBoltPosition( gentity_t *self, int boltIndex, vec3_t pos, int modelIndex )

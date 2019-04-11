@@ -1129,7 +1129,6 @@ static qboolean CopyToBodyQue( gentity_t *ent ) {
 		//[NOBODYQUE]
 		//actually we shouldn't use have any weapon at all if we died like this.
 		body->s.weapon = WP_MELEE;
-		//body->s.weapon = WP_BLASTER; //lie to keep from putting a saber on the corpse, because it was thrown at death
 		//[/NOBODYQUE]
 	}
 
@@ -1302,7 +1301,6 @@ void respawn( gentity_t *ent ) {
 		//[/LastManStanding]
 	}
 	else if (g_gametype.integer == GT_SIEGE)
-	//if (g_gametype.integer == GT_SIEGE)
 	//[/LastManStanding]
 	{
 		if (g_siegeRespawn.integer)
@@ -1411,7 +1409,6 @@ PickTeam
 //[AdminSys]
 int G_CountHumanPlayers( int ignoreClientNum, int team );
 team_t PickTeam( int ignoreClientNum, qboolean isBot ) {
-//team_t PickTeam( int ignoreClientNum ) {
 //[/AdminSys]
 	int		counts[TEAM_NUM_TEAMS];
 
@@ -2639,7 +2636,6 @@ void ClientBegin( int clientNum, qboolean allowTeamReset ) {
 			//SetTeam(ent, "");
 			//[AdminSys]
 			ent->client->sess.sessionTeam = PickTeam(-1, qtrue);
-			//ent->client->sess.sessionTeam = PickTeam(-1);
 			//[/AdminSys]
 			trap_GetUserinfo(clientNum, userinfo, MAX_INFO_STRING);
 
@@ -2829,8 +2825,6 @@ void ClientBegin( int clientNum, qboolean allowTeamReset ) {
 			tent = G_TempEntity( ent->client->ps.origin, EV_PLAYER_TELEPORT_IN );
 			tent->s.clientNum = ent->s.clientNum;
 		}
-		//tent = G_TempEntity( ent->client->ps.origin, EV_PLAYER_TELEPORT_IN );
-		//tent->s.clientNum = ent->s.clientNum;
 		//[/LastManStanding]
 
 		if ( g_gametype.integer != GT_DUEL || g_gametype.integer == GT_POWERDUEL ) {
@@ -2854,7 +2848,6 @@ void ClientBegin( int clientNum, qboolean allowTeamReset ) {
 
 //[MOREFORCEOPTIONS]
 qboolean AllForceDisabled(int force)
-//static qboolean AllForceDisabled(int force)
 //[/MOREFORCEOPTIONS]
 {
 	int i;
@@ -3031,7 +3024,6 @@ tryTorso:
 
 		//[FatigueSys]
 		BG_SaberStartTransAnim(self->s.number, self->client->ps.fd.saberAnimLevel, self->client->ps.weapon, f, &animSpeedScale, self->client->ps.brokenLimbs, self->client->ps.userInt3);
-		//BG_SaberStartTransAnim(self->s.number, self->client->ps.fd.saberAnimLevel, self->client->ps.weapon, f, &animSpeedScale, self->client->ps.brokenLimbs);
 		//[/FatigueSys]
 
 		animSpeed = 50.0f / bgAllAnims[self->localAnimIndex].anims[f].frameLerp;
@@ -3422,7 +3414,7 @@ void ClientSpawn(gentity_t *ent) {
 		}
 
 		//[StanceSelection]
-		/*
+#ifdef _DISABLED
 		if (ent->client->saber[0].model[0] &&
 			ent->client->saber[1].model[0])
 		{ //dual
@@ -3444,24 +3436,18 @@ void ClientSpawn(gentity_t *ent) {
 			{
 				ent->client->sess.saberLevel = SS_TAVION;
 			}
-			*//*
-			else if (ent->client->sess.saberLevel > SS_STRONG)
-			{
-				ent->client->sess.saberLevel = SS_STRONG;
-			}
-			*//*
 			//[/SaberSys]
 			ent->client->ps.fd.saberAnimLevelBase = ent->client->ps.fd.saberAnimLevel = ent->client->ps.fd.saberDrawAnimLevel = ent->client->sess.saberLevel;
 
 			//[SaberSys]
 			//don't want this anymore since we have more styles than saber offense powers at the moment with the hidden styles.
-			*//*
+			/*
 			if (g_gametype.integer != GT_SIEGE &&
 				ent->client->ps.fd.saberAnimLevel > ent->client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE])
 			{
 				ent->client->ps.fd.saberAnimLevelBase = ent->client->ps.fd.saberAnimLevel = ent->client->ps.fd.saberDrawAnimLevel = ent->client->sess.saberLevel = ent->client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE];
 			}
-			*//*
+			*/
 			//[/SaberSys]
 		}
 		if ( g_gametype.integer != GT_SIEGE )
@@ -3473,7 +3459,7 @@ void ClientSpawn(gentity_t *ent) {
 				ent->client->ps.fd.saberAnimLevelBase = ent->client->saberCycleQueue = ent->client->ps.fd.saberAnimLevel;
 			}
 		}
-		*/
+#endif //_DISABLED
 		//[/StanceSelection]
 	}
 	l = 0;
@@ -3481,7 +3467,6 @@ void ClientSpawn(gentity_t *ent) {
 	//[ExpSys]
 	//always reinit force powers for bots since they're stupid and don't change their skill points when they gain experience.
 	if (client->ps.fd.forceDoInit || ent->r.svFlags & SVF_BOT)
-	//if (client->ps.fd.forceDoInit)
 	//[/ExpSys]
 	{ //force a reread of force powers
 		WP_InitForcePowers( ent );
@@ -3525,7 +3510,7 @@ void ClientSpawn(gentity_t *ent) {
 	//[/TABBots]
 
 	//[StanceSelection]
-	/*
+#ifdef _DISABLED
 	if (ent->client->ps.fd.saberAnimLevel != SS_STAFF &&
 		ent->client->ps.fd.saberAnimLevel != SS_DUAL &&
 		ent->client->ps.fd.saberAnimLevel == ent->client->ps.fd.saberDrawAnimLevel &&
@@ -3541,27 +3526,21 @@ void ClientSpawn(gentity_t *ent) {
 		{
 			ent->client->sess.saberLevel = SS_TAVION;
 		}
-		*//*
-		else if (ent->client->sess.saberLevel > SS_STRONG)
-		{
-			ent->client->sess.saberLevel = SS_STRONG;
-		}
-		*//*
 		//[/SaberSys]
 		ent->client->ps.fd.saberAnimLevel = ent->client->ps.fd.saberDrawAnimLevel = ent->client->sess.saberLevel;
 
 		//[SaberSys]
 		//don't want this anymore since we have more styles than saber offense powers at the moment with the hidden styles.
-		*//*
+		/*
 		if (g_gametype.integer != GT_SIEGE &&
 			ent->client->ps.fd.saberAnimLevel > ent->client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE])
 		{
 			ent->client->ps.fd.saberAnimLevel = ent->client->ps.fd.saberDrawAnimLevel = ent->client->sess.saberLevel = ent->client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE];
 		}
-		*//*
+		*/
 		//[/SaberSys]
 	}
-	*/
+#endif //_DISABLED
 
 	ent->client->ps.fd.saberAnimLevel = ent->client->ps.fd.saberDrawAnimLevel = ent->client->sess.saberLevel;
 	if ( g_gametype.integer != GT_SIEGE )
@@ -3975,12 +3954,11 @@ void ClientSpawn(gentity_t *ent) {
 		if (g_gametype.integer == GT_HOLOCRON)
 		{
 			//[/MOREWEAPOPTIONS]
+			//always get free saber level 1 in holocron
 			if (!wDisable || !(wDisable & (1 << WP_SABER)))
 			{
 				client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_SABER );
 			}
-			//always get free saber level 1 in holocron
-			//client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_SABER );	//these are precached in g_items, ClearRegisteredItems()
 			//[/MOREWEAPOPTIONS]
 		}
 		//[ExpSys]
@@ -4005,7 +3983,6 @@ void ClientSpawn(gentity_t *ent) {
 				{
 					client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_SABER );	//these are precached in g_items, ClearRegisteredItems()
 				}
-				//client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_SABER );	//these are precached in g_items, ClearRegisteredItems()
 				
 			}
 			//[ExpSys]
@@ -4133,9 +4110,9 @@ void ClientSpawn(gentity_t *ent) {
 			else
 			{
 				trap_Cvar_Set( "g_weaponDisable", va("%i", WP_MELEEONLY) );
-		//[/MOREWEAPOPTIONS]
 			}
 		}
+		//[/MOREWEAPOPTIONS]
 	
 		if (g_gametype.integer == GT_JEDIMASTER)
 		{
@@ -4145,7 +4122,6 @@ void ClientSpawn(gentity_t *ent) {
 			{
 				client->ps.stats[STAT_WEAPONS] |= (1 << WP_MELEE);
 			}
-			//client->ps.stats[STAT_WEAPONS] |= (1 << WP_MELEE);
 			//[/MOREWEAPOPTIONS]
 		}
 
@@ -4311,8 +4287,6 @@ void ClientSpawn(gentity_t *ent) {
 		{
 			client->ps.stats[STAT_HOLDABLE_ITEMS] |= (1 << HI_SENTRY_GUN);
 		}
-
-		//client->ps.stats[STAT_HOLDABLE_ITEMS] = 0;
 		//[/ExpSys]
 		client->ps.stats[STAT_HOLDABLE_ITEM] = 0;
 
@@ -4351,11 +4325,8 @@ void ClientSpawn(gentity_t *ent) {
 	if ( inSiegeWithClass == qfalse )
 	{
 		//[ExpSys][Reload]
-		//client->ps.ammo[AMMO_POWERCELL] = ammoData[AMMO_POWERCELL].max * (float) (client->skillLevel[SK_BOWCASTER] < client->skillLevel[SK_DISRUPTOR] ? client->skillLevel[SK_DISRUPTOR] : client->skillLevel[SK_BOWCASTER])/FORCE_LEVEL_3;
 		client->ps.ammo[AMMO_POWERCELL] = ClipSize(AMMO_POWERCELL,ent);
-		//client->ps.ammo[AMMO_METAL_BOLTS] = ammoData[AMMO_METAL_BOLTS].max * (float) client->skillLevel[SK_REPEATER]/FORCE_LEVEL_3;
 		client->ps.ammo[AMMO_METAL_BOLTS] = ClipSize(AMMO_METAL_BOLTS,ent);
-		//client->ps.ammo[AMMO_BLASTER] = ammoData[AMMO_BLASTER].max * (float) client->skillLevel[SK_BLASTER]/FORCE_LEVEL_3;
 		client->ps.ammo[AMMO_BLASTER] = ClipSize(AMMO_BLASTER,ent);
 
 		client->ps.ammo[AMMO_ROCKETS] = ClipSize(AMMO_ROCKETS,ent);
@@ -4363,7 +4334,6 @@ void ClientSpawn(gentity_t *ent) {
 		client->ps.ammo[AMMO_THERMAL] = ammoData[AMMO_THERMAL].max * (float) client->skillLevel[SK_THERMAL]/FORCE_LEVEL_3;
 
 		client->ps.ammo[AMMO_DETPACK] = ammoData[AMMO_DETPACK].max * (float) client->skillLevel[SK_DETPACK]/FORCE_LEVEL_2;
-		//client->ps.ammo[AMMO_BLASTER] = 100; //ammoData[AMMO_BLASTER].max; //100 seems fair.
 		//[/ExpSys]
 	}
 //	client->ps.ammo[AMMO_POWERCELL] = ammoData[AMMO_POWERCELL].max;

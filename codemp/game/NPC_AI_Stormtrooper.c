@@ -526,7 +526,6 @@ void NPC_BSST_Sleep( void )
 {
 	//[CoOp]
 	int alertEvent = NPC_CheckAlertEvents( qfalse, qtrue, -1, qfalse, AEL_MINOR, qfalse );//only check sounds since we're alseep!
-	//int alertEvent = NPC_CheckAlertEvents( qfalse, qtrue, -1, qfalse, AEL_MINOR );//only check sounds since we're alseep!
 	//[/CoOp]
 
 	//There is an event we heard
@@ -539,10 +538,8 @@ void NPC_BSST_Sleep( void )
 			//find closest live player to attack.
 			gentity_t * closestPlayer = FindClosestPlayer(NPC->client->ps.origin, NPC->client->enemyTeam);
 			if(closestPlayer)
-			//if ( &g_entities[0] && g_entities[0].health > 0 )
 			{
 				G_SetEnemy( NPC, closestPlayer );
-				//G_SetEnemy( NPC, &g_entities[0] );
 			//[/CoOp]
 				return;
 			}
@@ -599,9 +596,6 @@ qboolean NPC_CheckEnemyStealth( gentity_t *target )
 
 	maxViewDist			= MAX_VIEW_DIST;
 
-	//[CoOp]
-	//if ( NPCInfo->stats.visrange > maxViewDist )
-	//[/CoOp]
 	{//FIXME: should we always just set maxViewDist to this?
 		maxViewDist = NPCInfo->stats.visrange;
 	}
@@ -672,8 +666,7 @@ qboolean NPC_CheckEnemyStealth( gentity_t *target )
 		//[CoOp]
 		//instead of worrying about implimenting the turn rate for very entity, I'm just 
 		//going to remove the factor for turning. ...for now.
-		turning_rating		= 0.0f;
-		//turning_rating		= 5.0f;//AngleDelta( target->client->ps.viewangles[PITCH], target->lastAngles[PITCH] )/180.0f + AngleDelta( target->client->ps.viewangles[YAW], target->lastAngles[YAW] )/180.0f;
+		turning_rating		= 0.0f;//AngleDelta( target->client->ps.viewangles[PITCH], target->lastAngles[PITCH] )/180.0f + AngleDelta( target->client->ps.viewangles[YAW], target->lastAngles[YAW] )/180.0f;
 		//RAFIXME - impliment lightlevels?  since we can't check for that stuff server side.
 		//I'm removing all this for now.
 		//light_level			= (255/MAX_LIGHT_INTENSITY); //( target->lightLevel / MAX_LIGHT_INTENSITY );
@@ -984,9 +977,6 @@ static qboolean NPC_ST_InvestigateEvent( int eventID, qboolean extraSuspicious )
 	{
 		if ( level.alertEvents[eventID].level == AEL_DISCOVERED && (NPCInfo->scriptFlags&SCF_LOOK_FOR_ENEMIES) )
 		{
-			//[CoOp]
-			//NPCInfo->lastAlertID = level.alertEvents[eventID].ID;
-			//[/CoOp]
 			if ( !level.alertEvents[eventID].owner || 
 				!level.alertEvents[eventID].owner->client || 
 				level.alertEvents[eventID].owner->health <= 0 ||
@@ -1236,7 +1226,6 @@ void NPC_BSST_Investigate( void )
 	{
 		//[CoOp]
 		int alertEvent = NPC_CheckAlertEvents( qtrue, qtrue, NPCInfo->lastAlertID, qfalse, AEL_MINOR, qfalse );
-		//int alertEvent = NPC_CheckAlertEvents( qtrue, qtrue, NPCInfo->lastAlertID, qfalse, AEL_MINOR );
 		//[/CoOp]
 
 		//There is an event to look at
@@ -1250,9 +1239,7 @@ void NPC_BSST_Investigate( void )
 					return;
 				}
 			}
-			//[CoOp]
-			//if ( level.alertEvents[alertEvent].ID != NPCInfo->lastAlertID )
-			//[/CoOp]
+
 			{
 				NPC_ST_InvestigateEvent( alertEvent, qtrue );
 			}
@@ -1376,7 +1363,6 @@ void NPC_BSST_Patrol( void )
 	{
 		//[CoOp]
 		int alertEvent = NPC_CheckAlertEvents( qtrue, qtrue, -1, qfalse, AEL_MINOR, qfalse );
-		//int alertEvent = NPC_CheckAlertEvents( qtrue, qtrue, -1, qfalse, AEL_MINOR );
 		//[/CoOp]
 
 		//There is an event to look at
@@ -1405,7 +1391,6 @@ void NPC_BSST_Patrol( void )
 				return;
 			}
 			else if ( NPC_ST_InvestigateEvent( alertEvent, qfalse ) )
-			//if ( NPC_ST_InvestigateEvent( alertEvent, qfalse ) )
 			//[/CoOp]
 			{//actually going to investigate it
 				NPC_UpdateAngles( qtrue, qtrue );
@@ -1452,7 +1437,6 @@ void NPC_BSST_Patrol( void )
 			{//moving
 				//[CoOp]
 				if( (!NPC->client->ps.torsoTimer) || (NPC->client->ps.torsoAnim == BOTH_STAND4) ) 			
-				//if( (NPC->client->ps.torsoTimer <= 0) || (NPC->client->ps.torsoAnim == BOTH_STAND4) ) 			
 				//[/CoOp]
 				{
 					if ( (ucmd.buttons&BUTTON_WALKING) && !(NPCInfo->scriptFlags&SCF_RUNNING) )
@@ -1469,8 +1453,6 @@ void NPC_BSST_Patrol( void )
 				//[CoOp]
 				if( ( !NPC->client->ps.torsoTimer || (NPC->client->ps.torsoAnim == BOTH_STAND4) ) &&
 					( !NPC->client->ps.legsTimer  || (NPC->client->ps.legsAnim == BOTH_STAND4) ) )
-				//if( ( NPC->client->ps.torsoTimer <= 0 || (NPC->client->ps.torsoAnim == BOTH_STAND4) ) &&
-				//	( NPC->client->ps.legsTimer <= 0  || (NPC->client->ps.legsAnim == BOTH_STAND4) ) )
 				//[/CoOp]
 				{
 					NPC_SetAnim( NPC, SETANIM_BOTH, BOTH_STAND4, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
@@ -1543,7 +1525,7 @@ static void ST_CheckMoveState( void )
 
 	move = qtrue;
 	//This gunk isn't in SP.
-	/*
+#ifdef _DISABLED
 	//See if we're a scout
 	else if ( NPCInfo->squadState == SQUAD_SCOUT )
 	{
@@ -1574,7 +1556,7 @@ static void ST_CheckMoveState( void )
 			faceEnemy = qfalse;
 		}
 
-		*//*
+		/*
 		if ( TIMER_Done( NPC, "scoutTime" ) )
 		{//we can't scout to him, someone else give it a try
 			AI_GroupUpdateSquadstates( NPCInfo->group, NPC, SQUAD_STAND_AND_SHOOT );
@@ -1582,7 +1564,7 @@ static void ST_CheckMoveState( void )
 			move = qfalse;
 			return;
 		}
-		*//*
+		*/
 
 		//ucmd.buttons |= BUTTON_CAREFUL;
 	}
@@ -1645,7 +1627,7 @@ static void ST_CheckMoveState( void )
 	else
 	{//invalid squadState!
 	}
-	*/
+#endif //_DISABLED
 	//[/CoOp]
 
 	//See if we're moving towards a goal, not the enemy
@@ -1657,8 +1639,6 @@ static void ST_CheckMoveState( void )
 		if ( NAV_HitNavGoal( NPC->r.currentOrigin, NPC->r.mins, NPC->r.maxs, 
 			NPCInfo->goalEntity->r.currentOrigin, 16, FlyingCreature( NPC ) ) ||
 			(enemyLOS && (NPCInfo->aiFlags&NPCAI_STOP_AT_LOS) && !trap_ICARUS_TaskIDPending(NPC, TID_MOVE_NAV)))
-		//if ( NAV_HitNavGoal( NPC->r.currentOrigin, NPC->r.mins, NPC->r.maxs, NPCInfo->goalEntity->r.currentOrigin, 16, FlyingCreature( NPC ) ) || 
-		//	( !trap_ICARUS_TaskIDPending( NPC, TID_MOVE_NAV ) && NPCInfo->squadState == SQUAD_SCOUT && enemyLOS && enemyDist <= 10000 ) )
 		//[/CoOp]
 		{//either hit our navgoal or our navgoal was not a crucial (scripted) one (maybe a combat point) and we're scouting and found our enemy
 			int	newSquadState = SQUAD_STAND_AND_SHOOT;
@@ -1693,7 +1673,6 @@ static void ST_CheckMoveState( void )
 			{
 				TIMER_Set( NPC, "duck", Q_irand(5000, 10000) );		// just reached our goal, chance of ducking now
 			}
-			//TIMER_Set( NPC, "roamTime", Q_irand( 1000, 4000 ) );
 			//[/CoOp]
 			return;
 		}
@@ -1702,7 +1681,6 @@ static void ST_CheckMoveState( void )
 		//[CoOp]
 		//keep going, hold of roamTimer until we get there
 		TIMER_Set( NPC, "roamTime", Q_irand( 8000, 9000 ) );
-		//TIMER_Set( NPC, "roamTime", Q_irand( 4000, 8000 ) );
 		//[/CoOp]
 	}
 }
@@ -1916,7 +1894,6 @@ void ST_TrackEnemy( gentity_t *self, vec3_t enemyPos )
 	{
 		NPCInfo->aiFlags |= NPCAI_STOP_AT_LOS;
 	}
-	//NPC_SetMoveGoal( self, enemyPos, 16, qfalse, -1, NULL );
 	//[/CoOp]
 }
 
@@ -1956,7 +1933,6 @@ void ST_TransferTimers( gentity_t *self, gentity_t *other )
 	TIMER_Set( other, "stick", TIMER_Get( self, "stick" )-level.time );
 	//[CoOp]
 	TIMER_Set( other, "scoutTime", TIMER_Get( self, "scoutTime" )-level.time );
-	//TIMER_Set( other, "scoutTime", TIMER_Get( self, "scout" )-level.time );
 	//[/CoOp]
 	TIMER_Set( other, "roamTime", TIMER_Get( self, "roamTime" )-level.time );
 	TIMER_Set( other, "stand", TIMER_Get( self, "stand" )-level.time );
@@ -2235,7 +2211,6 @@ void ST_Commander( void )
 
 	//[CoOp]
 	if ( group->lastSeenEnemyTime < level.time - 7000 )
-	//if ( group->lastSeenEnemyTime < level.time - 10000 )
 	//[/CoOp]
 	{//no-one has seen the enemy for at least 10 seconds!  Should send a scout
 		enemyLost = qtrue;
@@ -2299,8 +2274,6 @@ void ST_Commander( void )
 			&& NPCInfo->goalEntity == NPCInfo->tempGoal
 			//[CoOp]
 			&& NPCInfo->goalEntity->s.eType == ET_ITEM )
-			//&& NPCInfo->goalEntity->enemy
-			//&& NPCInfo->goalEntity->enemy->s.eType == ET_ITEM )
 			//[/CoOp]
 		{//running to pick up a gun, don't do other logic
 			continue;
@@ -2475,7 +2448,8 @@ void ST_Commander( void )
 			}
 		}
 
-		/* Not in SP code.
+		//[CoOp] Not in SP code.
+#ifdef _DISABLED
 		//check the local state
 		if ( NPCInfo->squadState != SQUAD_RETREAT )
 		{//not already retreating
@@ -2726,13 +2700,13 @@ void ST_Commander( void )
 					if ( !cpFlags )
 					{//still not moving
 						//see if we should say something?
-						*//*
+						/*
 						if ( NPC->attackDebounceTime < level.time - 2000 )
 						{//we, personally, haven't shot for 2 seconds
 							//maybe yell at the enemy?
 							ST_Speech( NPC, SPEECH_CHARGE, 0.9f );
 						}
-						*//*
+						*/
 
 						//see if we should do other fun stuff
 						//toy with ducking
@@ -2754,20 +2728,13 @@ void ST_Commander( void )
 				}
 			}
 		}
-		*/
+#endif //_DISABLED
 		//[/CoOp]
 
 		//clear the local state
 		NPCInfo->localState = LSTATE_NONE;
 		//[CoOp]
 		cpFlags &= ~CP_NEAREST;
-		/*
-		if ( NPCInfo->scriptFlags&SCF_USE_CP_NEAREST )
-		{
-			cpFlags &= ~(CP_FLANK|CP_APPROACH_ENEMY|CP_CLOSEST);
-			cpFlags |= CP_NEAREST;
-		}
-		*/
 		//[/CoOp]
 
 		//Assign combat points
@@ -2793,8 +2760,8 @@ void ST_Commander( void )
 			*/
 
 			//[CoOp]
-			/*
-			if ( group->enemy->client->ps.weapon == WP_SABER && *//*group->enemy->client->ps.SaberLength() > 0*//*!group->enemy->client->ps.saberHolstered )
+#ifdef _DISABLED
+			if ( group->enemy->client->ps.weapon == WP_SABER && /*group->enemy->client->ps.SaberLength() > 0*/!group->enemy->client->ps.saberHolstered )
 			{//we obviously want to avoid the enemy if he has a saber
 				cpFlags |= CP_AVOID_ENEMY;
 				avoidDist = 256;
@@ -2879,7 +2846,7 @@ void ST_Commander( void )
 				//now try again
 				cp = NPC_FindCombatPoint( NPC->r.currentOrigin, NPC->r.currentOrigin, group->enemy->r.currentOrigin, cpFlags|CP_HAS_ROUTE, avoidDist, -1 );
 			}
-			*/
+#endif //_DISABLED
 			//[/CoOp]
 			//see if we got a valid one
 			if ( cp != -1 )
@@ -2931,7 +2898,7 @@ void ST_Commander( void )
 					}
 				}
 			}
-				/* Not in line with SP code.
+#ifdef _DISABLED // Not in line with SP code.
 				//if ( ST_Move() )
 				{//we actually can get to it, so okay to say you're going there.
 					//FIXME: Hmm... any way we can store this move info so we don't have to do it again
@@ -2957,7 +2924,7 @@ void ST_Commander( void )
 						//ucmd.buttons |= BUTTON_CAREFUL;
 					}
 
-					*//*
+					/*
 					if ( scouting )
 					{//successfully chasing enemy
 						ST_Speech( NPC, SPEECH_CHASE, 0.0f );
@@ -2965,7 +2932,7 @@ void ST_Commander( void )
 						//group->speechDebounceTime = level.time + 5000;
 					}
 					//flanking:
-					else *//*if ( cpFlags & CP_FLANK )
+					else */if ( cpFlags & CP_FLANK )
 					{
 						if ( group->numGroup > 1 )
 						{
@@ -3000,7 +2967,7 @@ void ST_Commander( void )
 							}
 						}
 					}
-					*//*
+					/*
 					else if ( cpFlags & CP_CLOSEST || cpFlags & CP_APPROACH_ENEMY )
 					{
 						if ( group->numGroup > 1 )
@@ -3008,7 +2975,7 @@ void ST_Commander( void )
 							NPC_ST_StoreMovementSpeech( SPEECH_CHASE, 0.4f );
 						}
 					}
-					*//*
+					*/
 				}//else: nothing, a failed move should clear the combatPoint and you can try again next frame
 			}
 			else if ( NPCInfo->squadState == SQUAD_SCOUT )
@@ -3018,7 +2985,7 @@ void ST_Commander( void )
 				AI_GroupUpdateSquadstates( group, NPC, SQUAD_SCOUT );
 				//AI should take care of rest
 			}
-			*/
+#endif //_DISABLED
 			//[/CoOp]
 		}
 	}
@@ -3170,7 +3137,6 @@ void NPC_BSST_Attack( void )
 	}
 	//[CoOp]
 	else if ( TIMER_Done( NPC, "flee" ) && NPC_CheckForDanger( NPC_CheckAlertEvents( qtrue, qtrue, -1, qfalse, AEL_DANGER, qfalse ) ) )
-	//else if ( TIMER_Done( NPC, "flee" ) && NPC_CheckForDanger( NPC_CheckAlertEvents( qtrue, qtrue, -1, qfalse, AEL_DANGER ) ) )
 	//[/CoOp]
 	{//not already fleeing, and going to run
 		ST_Speech( NPC, SPEECH_COVER, 0 );
@@ -3227,7 +3193,6 @@ void NPC_BSST_Attack( void )
 				//reset fire-timing variables
 				//[CoOp]
 				NPC_ChangeWeapon( NPC->client->ps.weapon );
-				//NPC_ChangeWeapon( WP_DISRUPTOR );
 				//[/CoOp]
 				NPC_UpdateAngles( qtrue, qtrue );
 				return;
@@ -3257,7 +3222,6 @@ void NPC_BSST_Attack( void )
 				(NPC->client->ps.weapon == WP_ROCKET_LAUNCHER 
 				|| (NPC->client->ps.weapon == WP_CONCUSSION && !(NPCInfo->scriptFlags&SCF_ALT_FIRE))
 				|| (NPC->client->ps.weapon == WP_FLECHETTE && (NPCInfo->scriptFlags&SCF_ALT_FIRE)))))
-			//if ( (NPC->client->ps.weapon == WP_ROCKET_LAUNCHER || (NPC->client->ps.weapon == WP_FLECHETTE && (NPCInfo->scriptFlags&SCF_ALT_FIRE))) && enemyDist < MIN_ROCKET_DIST_SQUARED )//128*128
 			//[/CoOp]
 			{
 				enemyCS = qfalse;//not true, but should stop us from firing
@@ -3462,7 +3426,6 @@ void NPC_BSST_Attack( void )
 
 	//[CoOp]
 	if(move&&!TIMER_Done( NPC, "runBackwardsDebounce" ))
-	//if ( !TIMER_Done( NPC, "flee" ) )
 	//[/CoOp]
 	{//running away
 		faceEnemy = qfalse;
@@ -3494,7 +3457,6 @@ void NPC_BSST_Attack( void )
 	//we ecountered a crash where the enemy->enemy was locked onto a tempEntity!  This probably shouldn't be possible, 
 	//but it showed that we needed more sanity checks for this.
 	if ( NPC->enemy && NPC->enemy->enemy && NPC->enemy->enemy->client )
-	//if ( NPC->enemy && NPC->enemy->enemy )
 	//[/CoOp]
 	{
 		//[CoOp]
@@ -3503,7 +3465,6 @@ void NPC_BSST_Attack( void )
 		//our friend. :)
 		if ( NPC->enemy->s.weapon == WP_SABER && NPC->enemy->enemy->s.weapon == WP_SABER
 			&& NPC->enemy->enemy->client->playerTeam == NPC->client->playerTeam )
-		//if ( NPC->enemy->s.weapon == WP_SABER && NPC->enemy->enemy->s.weapon == WP_SABER )
 		//[/CoOp]
 		{//don't shoot at an enemy jedi who is fighting another jedi, for fear of injuring one or causing rogue blaster deflections (a la Obi Wan/Vader duel at end of ANH)
 			shoot = qfalse;
@@ -3520,7 +3481,6 @@ void NPC_BSST_Attack( void )
 		}
 		if ( NPC->s.weapon == WP_ROCKET_LAUNCHER 
 			|| (NPC->s.weapon==WP_CONCUSSION&&!(NPCInfo->scriptFlags&SCF_ALT_FIRE)) )
-		//if ( NPC->s.weapon == WP_ROCKET_LAUNCHER )
 		{
 			if ( !enemyLOS || !enemyCS )
 			{//cancel it
@@ -3605,21 +3565,6 @@ void NPC_BSST_Attack( void )
 			}
 		}
 	}
-	/*
-			//NASTY
-			if ( NPC->s.weapon == WP_ROCKET_LAUNCHER 
-				&& (ucmd.buttons&BUTTON_ATTACK) 
-				&& !move
-				&& g_spskill.integer > 1 
-				&& !Q_irand( 0, 3 ) )
-			{//every now and then, shoot a homing rocket
-				ucmd.buttons &= ~BUTTON_ATTACK;
-				ucmd.buttons |= BUTTON_ALT_ATTACK;
-				NPC->client->ps.weaponTime = Q_irand( 1000, 2500 );
-			}
-		}
-	}
-	*/
 	//[/CoOp]
 }
 

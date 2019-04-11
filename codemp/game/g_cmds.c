@@ -82,7 +82,6 @@ void DeathmatchScoreboardMessage( gentity_t *ent ) {
 		Com_sprintf (entry, sizeof(entry),
 			//[ExpSys]
 			" %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i ", level.sortedClients[i],
-			//" %i %i %i %i %i %i %i %i %i %i %i %i %i %i", level.sortedClients[i],
 			//[/ExpSys]
 			cl->ps.persistant[PERS_SCORE], ping, (level.time - cl->pers.enterTime)/60000,
 			scoreFlags, g_entities[level.sortedClients[i]].s.powerups, accuracy, 
@@ -94,7 +93,6 @@ void DeathmatchScoreboardMessage( gentity_t *ent ) {
 			perfect,
 			//[ExpSys]
 			cl->ps.persistant[PERS_CAPTURES],
-			//cl->ps.persistant[PERS_CAPTURES]);
 			(int) cl->sess.skillPoints);
 			//[/ExpSys]
 		j = strlen(entry);
@@ -903,7 +901,6 @@ void SetTeam( gentity_t *ent, char *s ) {
 			*/
 				//[AdminSys]
 				team = PickTeam( clientNum, (ent->r.svFlags & SVF_BOT) );
-				//team = PickTeam( clientNum );
 				//[/AdminSys]
 			//}
 		}
@@ -1225,7 +1222,6 @@ void Cmd_Team_f( gentity_t *ent ) {
 	//[ExpSys]
 	//changed this so that we can link to this function thru the "forcechanged" behavior with its new design.
 	if ( trap_Argc() < 2 ) {
-	//if ( trap_Argc() != 2 ) {
 	//[/ExpSys]
 		oldTeam = ent->client->sess.sessionTeam;
 		//[CoOp]
@@ -1603,7 +1599,6 @@ argCheck:
 
 //[StanceSelection]
 qboolean G_ValidSaberStyle(gentity_t *ent, int saberStyle);
-//extern qboolean WP_SaberStyleValidForSaber( saberInfo_t *saber1, saberInfo_t *saber2, int saberHolstered, int saberAnimLevel );
 //[/StanceSelection]
 extern qboolean WP_UseFirstValidSaberStyle( saberInfo_t *saber1, saberInfo_t *saber2, int saberHolstered, int *saberAnimLevel );
 qboolean G_SetSaber(gentity_t *ent, int saberNum, char *saberName, qboolean siegeOverride)
@@ -1664,14 +1659,6 @@ qboolean G_SetSaber(gentity_t *ent, int saberNum, char *saberName, qboolean sieg
 		ent->client->ps.fd.saberAnimLevel = SS_MEDIUM;
 		ent->client->saberCycleQueue = ent->client->ps.fd.saberAnimLevel;
 	}
-
-	/*
-	if ( !WP_SaberStyleValidForSaber( &ent->client->saber[0], &ent->client->saber[1], ent->client->ps.saberHolstered, ent->client->ps.fd.saberAnimLevel ) )
-	{
-		WP_UseFirstValidSaberStyle( &ent->client->saber[0], &ent->client->saber[1], ent->client->ps.saberHolstered, &ent->client->ps.fd.saberAnimLevel );
-		ent->client->ps.fd.saberAnimLevelBase = ent->client->saberCycleQueue = ent->client->ps.fd.saberAnimLevel;
-	}
-	*/
 	//[/StanceSelection]
 
 	return qtrue;
@@ -2388,7 +2375,6 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 		{
 			trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOVOTE")) );
 		}
-		//trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOVOTE")) );
 		//[/AdminSys]
 		return;
 	}
@@ -3090,15 +3076,6 @@ void Cmd_ToggleSaber_f(gentity_t *ent)
 		return;
 	}
 
-	//[TAUNTFIX]
-	/* ensiform - moved this up to the top of function
-	if (ent->client->ps.weapon != WP_SABER)
-	{
-		return;
-	}
-	*/
-	//[/TAUNTFIX]
-
 //	if (ent->client->ps.duelInProgress && !ent->client->ps.saberHolstered)
 //	{
 //		return;
@@ -3230,7 +3207,6 @@ void Cmd_SaberAttackCycle_f(gentity_t *ent)
 			//[SaberThrowSys]
 			//can't toggle the other saber while the other saber is in flight.
 			if ( ent->client->ps.saberHolstered == 1 && !ent->client->ps.saberInFlight)
-			//if ( ent->client->ps.saberHolstered == 1 )
 			//[/SaberThrowSys]
 			{//have one holstered
 				//unholster it
@@ -3418,17 +3394,6 @@ void Cmd_SaberAttackCycle_f(gentity_t *ent)
 					ent->client->ps.saberHolstered = 0;
 			}
 		}
-		/*
-		//[HiddenStances]
-		if ( selectLevel > ent->client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE] 
-		&& ent->client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE] < FORCE_LEVEL_3
-			|| selectLevel > SS_TAVION)
-		//if ( selectLevel > ent->client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE] )
-		//[/HiddenStances]
-		{
-			selectLevel = FORCE_LEVEL_1;
-		}
-		*/
 		if (d_saberStanceDebug.integer)
 		{
 			trap_SendServerCommand( ent-g_entities, va("print \"SABERSTANCEDEBUG: Attempted to cycle stance normally.\n\"") );
@@ -3561,7 +3526,6 @@ void Cmd_EngageDuel_f(gentity_t *ent)
 	//[DuelSys]
 	// MJN - cvar g_multiDuel allows more than 1 private duel at a time.
 	if (!g_multiDuel.integer && G_OtherPlayersDueling())
-	//if (G_OtherPlayersDueling())
 	//[/DuelSys]
 	{
 		trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "CANTDUEL_BUSY")) );
@@ -3590,7 +3554,6 @@ void Cmd_EngageDuel_f(gentity_t *ent)
 		//[DuelSys]
 		// MJN - added friendly fire check. Allows private duels in team games where friendly fire is on.
 		if (!g_friendlyFire.integer && (g_gametype.integer >= GT_TEAM && OnSameTeam(ent, challenged)))
-		//if (g_gametype.integer >= GT_TEAM && OnSameTeam(ent, challenged))
 		//[/DuelSys]
 		{
 			return;
@@ -3867,12 +3830,8 @@ extern void G_Knockdown( gentity_t *self, gentity_t *attacker, const vec3_t push
 //[/KnockdownSys]
 void ClientCommand( int clientNum ) {
 	gentity_t *ent;
-//	gentity_t *targetplayer;
 	char	cmd[MAX_TOKEN_CHARS];
 	char	cmd2[MAX_TOKEN_CHARS];
-	//char	cmd3[MAX_TOKEN_CHARS];
-//	float		bounty;
-//	int clientid = 0;
 
 	ent = g_entities + clientNum;
 	if ( !ent->client ) {
@@ -4563,23 +4522,6 @@ void ClientCommand( int clientNum ) {
 	{
 		//[KnockdownSys]
 		G_Knockdown(ent, NULL, vec3_origin, 300, qtrue);
-		/*
-		if (BG_KnockDownable(&ent->client->ps))
-		{
-			ent->client->ps.forceHandExtend = HANDEXTEND_KNOCKDOWN;
-			ent->client->ps.forceDodgeAnim = 0;
-			if (trap_Argc() > 1)
-			{
-				ent->client->ps.forceHandExtendTime = level.time + 1100;
-				ent->client->ps.quickerGetup = qfalse;
-			}
-			else
-			{
-				ent->client->ps.forceHandExtendTime = level.time + 700;
-				ent->client->ps.quickerGetup = qtrue;
-			}
-		}
-		*/
 		//[/KnockdownSys]
 	}
 	else if (Q_stricmp(cmd, "debugSaberSwitch") == 0)

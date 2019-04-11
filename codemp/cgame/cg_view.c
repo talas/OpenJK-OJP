@@ -174,7 +174,6 @@ Sets the coordinates of the rendered window
 //[CoOp]
 //this can't be static anymore.
 void CG_CalcVrect (void) {
-//static void CG_CalcVrect (void) {
 //[/CoOp]
 
 	int		size;
@@ -1202,7 +1201,6 @@ static int CG_CalcFov( void ) {
 	int		inwater;
 	//[TrueView]
 	float cgFov;
-	//float	cgFov = cg_fov.value;
 
 	if(!cg.renderingThirdPerson && (cg_trueguns.integer || cg.predictedPlayerState.weapon == WP_SABER
 		|| cg.predictedPlayerState.weapon == WP_MELEE) && cg_truefov.value
@@ -1222,17 +1220,17 @@ static int CG_CalcFov( void ) {
 		cgFov = 1;
 	}
 	//[TrueView]
-	//Allow larger Fields of View
-	if (cgFov > 180)
-	{
-		cgFov = 180;
-	}
 	/*
 	if (cgFov > 97)
 	{
 		cgFov = 97;
 	}
 	*/
+	//Allow larger Fields of View
+	if (cgFov > 180)
+	{
+		cgFov = 180;
+	}
 	//[/TrueView]
 
 	if ( cg.predictedPlayerState.pm_type == PM_INTERMISSION ) {
@@ -1843,7 +1841,6 @@ void CG_DrawSkyBoxPortal(const char *cstr)
 		{
 			fov_x = cg_fov.value;
 		}
-		//fov_x = cg_fov.value;
 		//[TrueView]
 	}
 
@@ -1917,7 +1914,6 @@ void CG_DrawSkyBoxPortal(const char *cstr)
 		{
 			fov_x = cg_fov.value;
 		}
-		//fov_x = cg_fov.value;
 		//[TrueView]
 	}
 	else
@@ -1934,7 +1930,6 @@ void CG_DrawSkyBoxPortal(const char *cstr)
 		{
 			fov_x = cg_fov.value;
 		}
-		//fov_x = cg_fov.value;
 		//[TrueView]
 		if ( fov_x < 1 ) 
 		{
@@ -2533,10 +2528,6 @@ extern qboolean InCinematic;
 extern int CinematicNum;
 //[/ROQFILES]
 void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demoPlayback ) {
-	//[CoOp]
-	//moved down and changed to qboolean.
-	//int		inwater;
-	//[/CoOp]
 	const char *cstr;
 	float mSensitivity = cg.zoomSensitivity;
 	float mPitchOverride = 0.0f;
@@ -2794,7 +2785,6 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 		inwater = CG_CalcViewValues();
 	}
 	// build cg.refdef
-	//inwater = CG_CalcViewValues();
 	//[/CoOp]
 
 	if (cg_linearFogOverride)
@@ -2835,14 +2825,12 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 		CG_AddLocalEntities();
 		CG_DrawMiscEnts();
 	}
-
 	//[CoOp]
 	//don't draw first person weapons while in camera
 	if(!in_camera)
 	{
 		CG_AddViewWeapon( &cg.predictedPlayerState );
 	}
-	//CG_AddViewWeapon( &cg.predictedPlayerState );
 	//[/CoOp]
 
 	if ( !cg.hyperspace) 

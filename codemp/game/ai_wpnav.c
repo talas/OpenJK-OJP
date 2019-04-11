@@ -362,7 +362,6 @@ checkprint:
 	//[BotTweaks]
 	//display the bot editor information to whoever is set to doing the waypoint editting.
 	viewent = &g_entities[bot_wp_editornumber.integer];
-	//viewent = &g_entities[0]; //only show info to the first client
 	//[/BotTweaks]
 
 	if (!viewent || !viewent->client)
@@ -400,7 +399,6 @@ checkprint:
 		//[BotTweaks]
 		//this needs to be send to the approprate client instead of the server.
 		trap_SendServerCommand( bot_wp_editornumber.integer, va("print \" %s Waypoint %i\nFlags - %i (%s) (w%f)\nOrigin - (%i %i %i)\n", S_COLOR_YELLOW, (int)(gWPArray[bestindex]->index), (int)(gWPArray[bestindex]->flags), flagstr, gWPArray[bestindex]->weight, (int)(gWPArray[bestindex]->origin[0]), (int)(gWPArray[bestindex]->origin[1]), (int)(gWPArray[bestindex]->origin[2])));
-		//G_Printf(S_COLOR_YELLOW "Waypoint %i\nFlags - %i (%s) (w%f)\nOrigin - (%i %i %i)\n", (int)(gWPArray[bestindex]->index), (int)(gWPArray[bestindex]->flags), flagstr, gWPArray[bestindex]->weight, (int)(gWPArray[bestindex]->origin[0]), (int)(gWPArray[bestindex]->origin[1]), (int)(gWPArray[bestindex]->origin[2]));
 		//[/BotTweaks]
 		//GetFlagStr allocates 128 bytes for this, if it's changed then obviously this must be as well
 		B_TempFree(128); //flagstr
@@ -1750,7 +1748,6 @@ void CalculatePaths(void)
 					//I'm removing this part of the neighbor detection code since it's allowing neighbors 
 					//between waypoints that can't see each other.
 					forceJumpable = 0;
-					//forceJumpable = CanForceJumpTo(i, c, nLDist);
 					//[/BotTweaks]
 
 					if ((nLDist < maxNeighborDist || forceJumpable) &&
@@ -2082,13 +2079,11 @@ int LoadPathData(const char *filename)
 	fileHandle_t f;
 	//[DynamicMemoryTweaks]
 	char fileString[WPARRAY_BUFFER_SIZE];
-	//char *fileString;
 	//[/DynamicMemoryTweaks]
 	char *currentVar;
 	//[DynamicMemoryTweaks]
 	//using dynamic memory is bad.  BAD!
 	char routePath[MAX_QPATH];
-	//char *routePath;
 	//[/DynamicMemoryTweaks]
 	wpobject_t thiswp;
 	int len;
@@ -2100,16 +2095,10 @@ int LoadPathData(const char *filename)
 
 	//[DynamicMemoryTweaks]
 	Com_sprintf(routePath, sizeof(routePath), "botroutes/%s.wnt", filename);
-	//routePath = (char *)B_TempAlloc(1024);
-
-	//Com_sprintf(routePath, 1024, "botroutes/%s.wnt\0", filename);
 	//[/DynamicMemoryTweaks]
 
 	len = trap_FS_FOpenFile(routePath, &f, FS_READ);
 
-	//[DynamicMemoryTweaks]
-	//B_TempFree(1024); //routePath
-	//[/DynamicMemoryTweaks]
 
 	if (!f)
 	{
@@ -2119,17 +2108,12 @@ int LoadPathData(const char *filename)
 	
 	//[DynamicMemoryTweaks]
 	if (len >= WPARRAY_BUFFER_SIZE)
-	//if (len >= 524288)
 	//[/DynamicMemoryTweaks]
 	{
 		G_Printf(S_COLOR_RED "Route file exceeds maximum length\n");
 		return 0;
 	}
 
-	//[DynamicMemoryTweaks]
-	//not using dynamic memory for this anymore.
-	//fileString = (char *)B_TempAlloc(524288);
-	//[/DynamicMemoryTweaks]
 	currentVar = (char *)B_TempAlloc(2048);
 
 	trap_FS_Read(fileString, len, f);
@@ -2318,11 +2302,7 @@ int LoadPathData(const char *filename)
 		CreateNewWP_FromObject(&thiswp);
 		i++;
 	}
-	
-	//[DynamicMemoryTweaks]
-	//using static memory for this now.
-	//B_TempFree(524288); //fileString
-	//[/DynamicMemoryTweaks]
+
 	B_TempFree(2048); //currentVar
 
 	trap_FS_FCloseFile(f);
@@ -2467,7 +2447,6 @@ int SavePathData(const char *filename)
 	fileHandle_t f;
 	//[DynamicMemoryTweaks]
 	char fileString[WPARRAY_BUFFER_SIZE];
-	//char *fileString;
 	//[/DynamicMemoryTweaks]
 	char *storeString;
 	char *routePath;
@@ -2475,10 +2454,6 @@ int SavePathData(const char *filename)
 	float flLen;
 	int i, s, n;
 
-	//[DynamicMemoryTweaks]
-	//using static memory for this now.
-	//fileString = NULL;
-	//[/DynamicMemoryTweaks]
 	i = 0;
 	s = 0;
 
@@ -2490,15 +2465,10 @@ int SavePathData(const char *filename)
 	//[DynamicMemoryTweaks]
 	//added save message and cleaned up the code so this 
 	//doesn't have to use temp memory stuff.
-
-	//routePath = (char *)B_TempAlloc(1024);
-
-	//Com_sprintf(routePath, 1024, "botroutes/%s.wnt\0", filename);
-
 	routePath = va("botroutes/%s.wnt\0", filename);
-	trap_FS_FOpenFile(routePath, &f, FS_WRITE);
 
-	//B_TempFree(1024); //routePath
+
+	trap_FS_FOpenFile(routePath, &f, FS_WRITE);
 	//[/DynamicMemoryTweaks]
 
 	if (!f)
@@ -2517,15 +2487,10 @@ int SavePathData(const char *filename)
 
 	FlagObjects(); //currently only used for flagging waypoints nearest CTF flags
 
-	//[DynamicMemoryTweaks]
-	//using static memory for this now.
-	//fileString = (char *)B_TempAlloc(524288);
-	//[/DynamicMemoryTweaks]
 	storeString = (char *)B_TempAlloc(4096);
 
 	//[DynamicMemoryTweaks]
 	Com_sprintf(fileString, WPARRAY_BUFFER_SIZE, "%i %i %f (%f %f %f) { ", gWPArray[i]->index, gWPArray[i]->flags, gWPArray[i]->weight, gWPArray[i]->origin[0], gWPArray[i]->origin[1], gWPArray[i]->origin[2]);
-	//Com_sprintf(fileString, 524288, "%i %i %f (%f %f %f) { ", gWPArray[i]->index, gWPArray[i]->flags, gWPArray[i]->weight, gWPArray[i]->origin[0], gWPArray[i]->origin[1], gWPArray[i]->origin[2]);
 	//[/DynamicMemoryTweaks]
 
 	n = 0;
@@ -2557,7 +2522,6 @@ int SavePathData(const char *filename)
 
 	//[DynamicMemoryTweaks]
 	Com_sprintf(fileString, WPARRAY_BUFFER_SIZE, "%s} %f\n", fileString, flLen);
-	//Com_sprintf(fileString, 524288, "%s} %f\n", fileString, flLen);
 	//[/DynamicMemoryTweaks]
 
 	i++;
@@ -2597,7 +2561,6 @@ int SavePathData(const char *filename)
 		Com_sprintf(storeString, 4096, "%s} %f\n", storeString, flLen);
 
 		//[OverflowProtection]
-		//strcat(fileString, storeString);
 		Q_strcat(fileString, WPARRAY_BUFFER_SIZE, storeString);
 		//[/OverflowProtection]
 
@@ -2608,10 +2571,6 @@ int SavePathData(const char *filename)
 
 	trap_FS_Write(fileString, strlen(fileString), f);
 
-	//[DynamicMemoryTweaks]
-	//using static memory for this now.
-	//B_TempFree(524288); //fileString
-	//[/DynamicMemoryTweaks]
 	B_TempFree(4096); //storeString
 
 	trap_FS_FCloseFile(f);
@@ -2619,7 +2578,6 @@ int SavePathData(const char *filename)
 	//[BotTweaks]
 	//send bot editor mesages to the approprate client.
 	trap_SendServerCommand( bot_wp_editornumber.integer, va("print \"%sPath data has been saved and updated. You may need to restart the level for some things to be properly calculated.\n", S_COLOR_YELLOW));		
-	//G_Printf("Path data has been saved and updated. You may need to restart the level for some things to be properly calculated.\n");
 	//[/BotTweaks]
 
 	return 1;
@@ -2826,7 +2784,6 @@ void G_DebugNodeFile()
 	while (i < nodenum)
 	{
 		//[OverflowProtection]
-		//strcat(fileString, va("%i-%f ", i, nodetable[i].weight));
 		Q_strcat(fileString, sizeof(fileString), va("%i-%f ", i, nodetable[i].weight));
 		//[/OverflowProtection]
 		placeX += DEFAULT_GRID_SPACING;
@@ -2834,7 +2791,6 @@ void G_DebugNodeFile()
 		if (placeX >= terrain->r.absmax[0])
 		{
 			//[OverflowProtection]
-			//strcat(fileString, "\n");
 			Q_strcat(fileString, sizeof(fileString), "\n");
 			//[/OverflowProtection]
 			placeX = terrain->r.absmin[0];
@@ -3502,19 +3458,14 @@ void LoadPath_ThisLevel(void)
 	trap_Cvar_Update(&bot_wp_edit);
 
 	//[BotTweaks]
-	if (bot_wp_edit.integer) {
-		gBotEdit = 1;
-	} else {
-		gBotEdit = 0;
-	}
-	/*if (bot_wp_edit.value)
+	if (bot_wp_edit.integer)
 	{
 		gBotEdit = 1;
 	}
 	else
 	{
 		gBotEdit = 0;
-	}*/
+	}
 	//[/BotTweaks]
 
 	//set the flag entities
@@ -3660,7 +3611,6 @@ int AcceptBotCommand(char *cmd, gentity_t *pl)
 	trap_Cvar_Update(&bot_wp_editornumber);
 
 	if (!pl || !pl->client || pl->s.number != bot_wp_editornumber.integer)
-	//if (!pl || !pl->client)
 	//[/BotTweaks]
 	{
 		return 0;
@@ -3677,13 +3627,6 @@ int AcceptBotCommand(char *cmd, gentity_t *pl)
 		trap_SendServerCommand( bot_wp_editornumber.integer, va("print \"%sbot_wp_tele%s - Teleport yourself to the specified waypoint's location\n\n", S_COLOR_YELLOW, S_COLOR_WHITE));
 		trap_SendServerCommand( bot_wp_editornumber.integer, va("print \"%sbot_wp_killoneways%s - Removes oneway (backward and forward) flags on all waypoints in the level\n\n", S_COLOR_YELLOW, S_COLOR_WHITE));
 		trap_SendServerCommand( bot_wp_editornumber.integer, va("print \"%sbot_wp_save%s - Saves all waypoint data into a file for later use\n", S_COLOR_YELLOW, S_COLOR_WHITE));
-		//G_Printf(S_COLOR_YELLOW "bot_wp_add" S_COLOR_WHITE " - Add a waypoint (optional int parameter will insert the point after the specified waypoint index in a trail)\n\n");
-		//G_Printf(S_COLOR_YELLOW "bot_wp_rem" S_COLOR_WHITE " - Remove a waypoint (removes last unless waypoint index is specified as a parameter)\n\n");
-		//G_Printf(S_COLOR_YELLOW "bot_wp_addflagged" S_COLOR_WHITE " - Same as wp_add, but adds a flagged point (type bot_wp_addflagged for help)\n\n");
-		//G_Printf(S_COLOR_YELLOW "bot_wp_switchflags" S_COLOR_WHITE " - Switches flags on an existing waypoint (type bot_wp_switchflags for help)\n\n");
-		//G_Printf(S_COLOR_YELLOW "bot_wp_tele" S_COLOR_WHITE " - Teleport yourself to the specified waypoint's location\n");
-		//G_Printf(S_COLOR_YELLOW "bot_wp_killoneways" S_COLOR_WHITE " - Removes oneway (backward and forward) flags on all waypoints in the level\n\n");
-		//G_Printf(S_COLOR_YELLOW "bot_wp_save" S_COLOR_WHITE " - Saves all waypoint data into a file for later use\n");
 		//[/BotTweaks]
 
 		return 1;
@@ -3751,7 +3694,6 @@ int AcceptBotCommand(char *cmd, gentity_t *pl)
 		{	//[BotTweaks]
 			//send bot editor mesages to the approprate client.
 			trap_SendServerCommand( bot_wp_editornumber.integer, va("print \"%sYou didn't specify an index. Assuming last.\n", S_COLOR_YELLOW));
-			//G_Printf(S_COLOR_YELLOW "You didn't specify an index. Assuming last.\n");
 			//[/BotTweaks]
 			TeleportToWP(pl, gWPNum-1);
 		}
@@ -3787,7 +3729,6 @@ int AcceptBotCommand(char *cmd, gentity_t *pl)
 			//[BotTweaks]
 			//send bot editor mesages to the approprate client.
 			trap_SendServerCommand( bot_wp_editornumber.integer, va("print \"%sFlag string needed for bot_wp_addflagged\nj - Jump point\nd - Duck point\nc - Snipe or camp standing\nf - Wait for func\nm - Do not move to when func is under\ns - Snipe or camp\nx - Oneway, forward\ny - Oneway, back\ng - Mission goal\nn - No visibility\nExample (for a point the bot would jump at, and reverse on when traveling a trail backwards):\nq - Destory Func Point\nr - Red Team Only Point\nb - Blue Team Only Point\np - Force Push Point\no - Force Pull Point\nbot_wp_addflagged jx\n", S_COLOR_YELLOW));
-			//G_Printf(S_COLOR_YELLOW "Flag string needed for bot_wp_addflagged\nj - Jump point\nd - Duck point\nc - Snipe or camp standing\nf - Wait for func\nm - Do not move to when func is under\ns - Snipe or camp\nx - Oneway, forward\ny - Oneway, back\ng - Mission goal\nn - No visibility\nExample (for a point the bot would jump at, and reverse on when traveling a trail backwards):\nbot_wp_addflagged jx\n");
 			//[/BotTweaks]
 			return 1;
 		}
@@ -3889,7 +3830,6 @@ int AcceptBotCommand(char *cmd, gentity_t *pl)
 			//[BotTweaks]
 			//send bot editor mesages to the approprate client.
 			trap_SendServerCommand( bot_wp_editornumber.integer, va("print \"%sFlag string needed for bot_wp_switchflags\nType bot_wp_addflagged for a list of flags and their corresponding characters, or use 0 for no flags.\nSyntax: bot_wp_switchflags <flags> <n>\n", S_COLOR_YELLOW));
-			//G_Printf(S_COLOR_YELLOW "Flag string needed for bot_wp_switchflags\nType bot_wp_addflagged for a list of flags and their corresponding characters, or use 0 for no flags.\nSyntax: bot_wp_switchflags <flags> <n>\n");
 			//[/BotTweaks]
 			return 1;
 		}
@@ -3978,7 +3918,6 @@ int AcceptBotCommand(char *cmd, gentity_t *pl)
 			//[BotTweaks]
 			//send bot editor mesages to the approprate client.
 			trap_SendServerCommand( bot_wp_editornumber.integer, va("print \"%sWaypoint number (to modify) needed for bot_wp_switchflags\nSyntax: bot_wp_switchflags <flags> <n>\n", S_COLOR_YELLOW));
-			//G_Printf(S_COLOR_YELLOW "Waypoint number (to modify) needed for bot_wp_switchflags\nSyntax: bot_wp_switchflags <flags> <n>\n");
 			//[/BotTweaks]
 		}
 		return 1;

@@ -646,14 +646,11 @@ void NPC_Touch(gentity_t *self, gentity_t *other, trace_t *trace)
 				{
 					// ensiform TODO - Add name of 'other' (who picked up key) text = va("cp \"%s^7 %s\n\"", other->client->pers.netname, G_GetStringEdString("SP_INGAME", "TOOK_IMPERIAL_GOODIE_KEY2"));
 					text = va("cp \"%s\n\"", G_GetStringEdString("SP_INGAME", "TOOK_IMPERIAL_GOODIE_KEY"));
-					//text = "cp @SP_INGAME_TOOK_IMPERIAL_GOODIE_KEY";
-					//G_AddEvent( other, EV_ITEM_PICKUP, (FindItemForInventory( INV_GOODIE_KEY )-bg_itemlist) );
 				}
 				else
 				{
 					sendnum = other->s.number;
 					text = va("cp \"%s\n\"", G_GetStringEdString("SP_INGAME", "CANT_CARRY_GOODIE_KEY"));
-					//text = "cp @SP_INGAME_CANT_CARRY_GOODIE_KEY";
 				}
 			}
 			else
@@ -662,20 +659,16 @@ void NPC_Touch(gentity_t *self, gentity_t *other, trace_t *trace)
 				{
 					// ensiform TODO - Add name of 'other' (who picked up key) text = va("cp \"%s^7 %s\n\"", other->client->pers.netname, G_GetStringEdString("SP_INGAME", "TOOK_IMPERIAL_SECURITY_KEY2"));
 					text = va("cp \"%s\n\"", G_GetStringEdString("SP_INGAME", "TOOK_IMPERIAL_SECURITY_KEY"));
-					//text = "cp @SP_INGAME_TOOK_IMPERIAL_SECURITY_KEY";
-					//G_AddEvent( other, EV_ITEM_PICKUP, (FindItemForInventory( INV_SECURITY_KEY )-bg_itemlist) );
 				}
 				else
 				{
 					sendnum = other->s.number;
 					text = va("cp \"%s\n\"", G_GetStringEdString("SP_INGAME", "CANT_CARRY_SECURITY_KEY"));
-					//text = "cp @SP_INGAME_CANT_CARRY_SECURITY_KEY";
 				}
 			}
 			if ( keyTaken )
 			{//remove my key
 				NPC_SetSurfaceOnOff( self, "l_arm_key", TURN_OFF );
-				//NPC_SetSurfaceOnOff( self, "l_arm_key", 0x00000002 );
 				self->message = NULL;
 				//FIXME: temp pickup sound
 				G_Sound( other, CHAN_AUTO, G_SoundIndex( "sound/weapons/key_pkup.wav" ) );
@@ -683,7 +676,6 @@ void NPC_Touch(gentity_t *self, gentity_t *other, trace_t *trace)
 			}
 			//FIXME: temp message
 			trap_SendServerCommand( sendnum, text );
-			//trap_SendServerCommand( -1, text );
 			//[/CoOp]
 		}
 	}
@@ -704,7 +696,6 @@ void NPC_Touch(gentity_t *self, gentity_t *other, trace_t *trace)
 		//[CoOp]
 		//reenabling the IGNORE_ENEMIES flag
 		if( /*!(self->svFlags&SVF_LOCKEDENEMY) && */!(self->NPC->scriptFlags&SCF_IGNORE_ENEMIES) && !(other->flags & FL_NOTARGET) )
-		//if( /*!(self->svFlags&SVF_LOCKEDENEMY) && !(self->svFlags&SVF_IGNORE_ENEMIES) &&*/ !(other->flags & FL_NOTARGET) )
 		//[/CoOp]
 		{
 			if ( self->client->enemyTeam )
@@ -892,11 +883,6 @@ void NPC_Respond( gentity_t *self, int userNum )
 			//reenabling the IGNORE_ENEMIES flag
 			if ( !(self->NPC->scriptFlags&SCF_IGNORE_ENEMIES) 
 				&& (self->NPC->scriptFlags&SCF_LOOK_FOR_ENEMIES))
-			/*if ( !(self->svFlags&SVF_IGNORE_ENEMIES) 
-				&& (self->NPC->scriptFlags&SCF_LOOK_FOR_ENEMIES)
-				&& self->client->enemyTeam == TEAM_ENEMY )
-				*/
-			//if (0) //rwwFIXMEFIXME: support flags!
 			//[/CoOp]
 			{
 				event = Q_irand( EV_ANGER1, EV_ANGER3 );

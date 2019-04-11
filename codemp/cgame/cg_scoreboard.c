@@ -41,12 +41,6 @@
 #define SB_PING_X			(SB_SCORELINE_X + .60 * SB_SCORELINE_WIDTH)
 #define SB_TIME_X			(SB_SCORELINE_X + .75 * SB_SCORELINE_WIDTH)
 #define SB_SKILL_X			(SB_SCORELINE_X + .90 * SB_SCORELINE_WIDTH)
-
-/* basejka values
-#define SB_SCORE_X			(SB_SCORELINE_X + .55 * SB_SCORELINE_WIDTH)
-#define SB_PING_X			(SB_SCORELINE_X + .70 * SB_SCORELINE_WIDTH)
-#define SB_TIME_X			(SB_SCORELINE_X + .85 * SB_SCORELINE_WIDTH)
-*/
 //[/ExpSys]
 
 // The new and improved score board
@@ -562,7 +556,6 @@ qboolean CG_DrawOldScoreboard( void ) {
 	//[CoOp]
 	//treat CoOp as a team game for the scoreboard
 	if ( cgs.gametype >= GT_SINGLE_PLAYER ) {
-	//if ( cgs.gametype >= GT_TEAM ) {
 	//[/CoOp]
 		//
 		// teamplay scoreboard

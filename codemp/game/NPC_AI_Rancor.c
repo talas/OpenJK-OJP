@@ -132,7 +132,6 @@ void Rancor_Move( qboolean visible )
 //---------------------------------------------------------
 //[KnockdownSys]
 extern void G_Knockdown( gentity_t *self, gentity_t *attacker, const vec3_t pushDir, float strength, qboolean breakSaberLock );
-//extern void G_Knockdown( gentity_t *victim );
 //[/KnockdownSys]
 extern void G_Dismember( gentity_t *ent, gentity_t *enemy, vec3_t point, int limbType, float limbRollBase, float limbPitchBase, int deathAnim, qboolean postDeath );
 //extern qboolean G_DoDismemberment( gentity_t *self, vec3_t point, int mod, int damage, int hitLoc, qboolean force );
@@ -302,7 +301,6 @@ void Rancor_Swing( qboolean tryGrab )
 						//[KnockdownSys]
 						//reenabled multi-direction knockdowns.
 						G_Knockdown( radiusEnt, NPC, pushDir, 100, qtrue );
-						//G_Knockdown( radiusEnt );//, NPC, pushDir, 100, qtrue );
 						//[/KnockdownSys]
 					}
 				}
@@ -325,7 +323,6 @@ void Rancor_Smash( void )
 	//[CoOp] SP Code
 	//Added sight/sound event based on SP code.
 	AddSoundEvent( NPC, NPC->r.currentOrigin, 512, AEL_DANGER, qfalse, qtrue );
-	//AddSoundEvent( NPC, NPC->r.currentOrigin, 512, AEL_DANGER, qfalse );//, qtrue );
 	//[/CoOp]
 
 	numEnts = NPC_GetEntsNearBolt( radiusEntNums, radius, NPC->client->renderInfo.handLBolt, boltOrg );
@@ -372,7 +369,6 @@ void Rancor_Smash( void )
 					//[KnockdownSys]
 					//ported multi-direction knockdowns from SP.
 					G_Knockdown( radiusEnt, NPC, vec3_origin, 100, qtrue );
-					//G_Knockdown( radiusEnt );//, NPC, vec3_origin, 100, qtrue );
 					//[/KnockdownSys]
 				}
 			}
@@ -744,18 +740,15 @@ void NPC_Rancor_Pain( gentity_t *self, gentity_t *attacker, int damage )
 			//[CoOp]
 			//adjusting for more than one player
 			if ( (attacker->s.number < MAX_CLIENTS &&!Q_irand(0,3))
-			//if ( (!attacker->s.number&&!Q_irand(0,3))
 			//[/CoOp]
 				|| !self->enemy
 				//[CoOp]
 				//can be dead below 0 in MP
 				|| self->enemy->health <= 0
-				//|| self->enemy->health == 0
 				//[/CoOp]
 				|| (self->enemy->client&&self->enemy->client->NPC_class == CLASS_RANCOR)
 				//[CoOp] SP Code
 				|| (!Q_irand(0, 4 ) && DistanceSquared( attacker->r.currentOrigin, self->r.currentOrigin ) < DistanceSquared( self->enemy->r.currentOrigin, self->r.currentOrigin )) )
-				//|| (self->NPC && self->NPC->consecutiveBlockedMoves>=10 && DistanceSquared( attacker->r.currentOrigin, self->r.currentOrigin ) < DistanceSquared( self->enemy->r.currentOrigin, self->r.currentOrigin )) ) 
 				///[CoOp]
 			{//if my enemy is dead (or attacked by player) and I'm not still holding/eating someone, turn on the attacker
 				//FIXME: if can't nav to my enemy, take this guy if I can nav to him
@@ -796,7 +789,6 @@ void NPC_Rancor_Pain( gentity_t *self, gentity_t *attacker, int damage )
 				&& self->client->ps.legsAnim != BOTH_ATTACK2
 				&& self->client->ps.legsAnim != BOTH_ATTACK10
 				&& self->client->ps.legsAnim != BOTH_ATTACK11 )
-				//&& self->client->ps.legsAnim != BOTH_ATTACK2 )
 				//[/CoOp]
 			{//cant interrupt one of the big attack anims
 				/*
@@ -822,7 +814,6 @@ void NPC_Rancor_Pain( gentity_t *self, gentity_t *attacker, int damage )
 						
 						//[CoOp] SP Code
 						TIMER_Set( self, "takingPain", self->client->ps.legsTimer+Q_irand(0, 500*(2-g_spskill.integer)) );
-						//TIMER_Set( self, "takingPain", self->client->ps.legsTimer+Q_irand(0, 500) );
 						//[CoOp]
 
 						if ( self->NPC )
@@ -925,7 +916,6 @@ void NPC_BSRancor_Default( void )
 		//[CoOp]
 		//Added sight/sound event based on SP code.
 		AddSoundEvent( NPC, NPC->r.currentOrigin, 1024, AEL_DANGER_GREAT, qfalse, qfalse );
-		//AddSoundEvent( NPC, NPC->r.currentOrigin, 1024, AEL_DANGER_GREAT, qfalse );//, qfalse );
 		//[/CoOp]
 		NPC_FaceEnemy( qtrue );
 		return;
@@ -952,7 +942,6 @@ void NPC_BSRancor_Default( void )
 			//[CoOp]
 			//Added sight/sound event based on SP code.
 			AddSoundEvent( NPC, NPC->r.currentOrigin, 512, AEL_DANGER_GREAT, qfalse, qfalse );
-			//AddSoundEvent( NPC, NPC->r.currentOrigin, 512, AEL_DANGER_GREAT, qfalse );//, qfalse );
 			//[/CoOp]
 		}
 		if ( NPC->count == 2 && NPC->client->ps.legsAnim == BOTH_ATTACK3 )
@@ -1012,7 +1001,6 @@ void NPC_BSRancor_Default( void )
 			//[CoOp]
 			//snorts warn NPCs of the danger of Da Rancor.
 			AddSoundEvent( NPC, NPC->r.currentOrigin, 384, AEL_DANGER, qfalse, qfalse );
-			//AddSoundEvent( NPC, NPC->r.currentOrigin, 384, AEL_DANGER, qfalse );//, qfalse );
 			//[/CoOp]
 		}
 		if ( NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES )

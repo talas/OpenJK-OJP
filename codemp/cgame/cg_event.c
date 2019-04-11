@@ -458,7 +458,6 @@ clientkilled:
 
 		//[ImprovedObituary]
 		strcpy(attackerName, GetStringForID( NPCClasses, cg_entities[attacker].currentState.NPC_class ));
-		//strcpy( attackerName, "noname" );		
 		//[/ImprovedObituary]
 	} else {
 		Q_strncpyz( attackerName, Info_ValueForKey( attackerInfo, "n" ), sizeof(attackerName) - 2);
@@ -828,7 +827,6 @@ static void CG_UseItem( centity_t *cent ) {
 		//[Flamethrower]
 		itemNum != HI_JETPACK && itemNum != HI_HEALTHDISP && itemNum != HI_AMMODISP && itemNum != HI_CLOAK && itemNum != HI_EWEB 
 		&& itemNum != HI_FLAMETHROWER && itemNum != HI_SEEKER)
-		//itemNum != HI_JETPACK && itemNum != HI_HEALTHDISP && itemNum != HI_AMMODISP && itemNum != HI_CLOAK && itemNum != HI_EWEB)
 		//[/Flamethrower]
 	{ //if not using binoculars/jetpack/dispensers/cloak, we just used that item up, so switch
 		BG_CycleInven(&cg.snap->ps, 1);
@@ -2278,7 +2276,6 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 				//[SaberSys]
 				//Added Saber Throw to the HUD menu.
 				if (index != FP_SABER_OFFENSE && index != FP_SABER_DEFENSE &&
-				//if (index != FP_SABER_OFFENSE && index != FP_SABER_DEFENSE && index != FP_SABERTHROW &&
 				//[/SaberSys]
 					index != FP_LEVITATION &&
 					es->number == cg.snap->ps.clientNum &&
@@ -2931,7 +2928,6 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 			//[TrueView]
 			cg.renderingThirdPerson || cg_trueguns.integer 
 			|| cg.predictedPlayerState.weapon == WP_SABER || cg.predictedPlayerState.weapon == WP_MELEE)
-			//cg.renderingThirdPerson)
 			//[/TrueView]
 		{ //h4q3ry
 			//[DualPistols]

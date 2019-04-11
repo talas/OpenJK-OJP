@@ -791,7 +791,6 @@ static qboolean turretG2_find_enemies( gentity_t *self )
 				//fixed problem with this code preventing the turret from firing.  
 				//We should have this happen ONLY when we didn't have an enemy previously.
 				if ( self->attackDebounceTime < level.time && !self->enemy )
-				//if ( self->attackDebounceTime < level.time )
 				//[/CoOp]
 				{
 					// We haven't fired or acquired an enemy in the last 2 seconds-start-up sound
@@ -1225,7 +1224,6 @@ void finish_spawning_turretG2( gentity_t *base )
 			//[CoOp]
 			//setting to SP version.
 			base->wait = 150;
-			//base->wait = 150 + random() * 55;
 			//[/CoOp]
 		}
 

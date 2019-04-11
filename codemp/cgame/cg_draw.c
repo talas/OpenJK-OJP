@@ -41,7 +41,6 @@ int cg_siegeDeathTime = 0;
 
 //[NewHud]
 #define MAX_HUD_TICS 8
-//#define MAX_HUD_TICS 4
 //[/NewHud]
 const char *armorTicName[MAX_HUD_TICS] = 
 
@@ -1504,7 +1503,6 @@ void CG_DrawForcePower( menuDef_t *menuHUD )
 	aColor[3] = 0.8f;
 
 	if (cg.forceHUDTotalFlashTime > cg.time || (cg_entities[cg.snap->ps.clientNum].currentState.userInt3 &  ( 1 << FLAG_FATIGUED_HEAVY)))
-	//if (cg.forceHUDTotalFlashTime > cg.time )
 	//[/FatigueSys]
 	{
 		//color of the bar
@@ -1555,7 +1553,6 @@ void CG_DrawForcePower( menuDef_t *menuHUD )
 	//[FatigueSys]
 	//make the hud flash when fatigued.
 	if (cg.forceHUDTotalFlashTime > cg.time || (cg_entities[cg.snap->ps.clientNum].currentState.userInt3 &  ( 1 << FLAG_FATIGUED)))
-	//if (cg.forceHUDTotalFlashTime > cg.time )
 	//[/FatigueSys]
 	{
 		flash = qtrue;
@@ -1914,8 +1911,6 @@ qboolean ForcePower_Valid(int i)
 	if (i == FP_LEVITATION ||
 		i == FP_SABER_OFFENSE ||
 		i == FP_SABER_DEFENSE)
-	//	i == FP_SABER_DEFENSE ||
-	//	i == FP_SABERTHROW)
 	//[/SaberSys]
 	{
 		return qfalse;
@@ -2239,7 +2234,6 @@ void CG_DrawInvenSelect( void )
 			//[Flamethrower]
 			if ( trap_SP_GetStringTextString( va("SP_INGAME_%s",Q_strupr(upperKey)), text, sizeof( text )) 
 				|| trap_SP_GetStringTextString( va("OJP_MENUS_%s",Q_strupr(upperKey)), text, sizeof( text )))
-			//if ( trap_SP_GetStringTextString( va("SP_INGAME_%s",Q_strupr(upperKey)), text, sizeof( text )))
 			//[/Flamethrower]
 			{
 				UI_DrawProportionalString(320, y+45, text, UI_CENTER | UI_SMALLFONT, textColor);
@@ -4500,7 +4494,6 @@ static void CG_DrawUpperRight( void ) {
 	//[CoOp]
 	//allow overlays in CoOp.
 	if ( cgs.gametype >= GT_SINGLE_PLAYER && cg_drawTeamOverlay.integer == 1 ) {
-	//if ( cgs.gametype >= GT_TEAM && cg_drawTeamOverlay.integer == 1 ) {
 	//[/CoOp]
 		y = CG_DrawTeamOverlay( y, qtrue, qtrue );
 	} 
@@ -5383,7 +5376,6 @@ static void CG_DrawCrosshair( vec3_t worldPoint, int chEntValid ) {
 		}
 		//set color based on what kind of ent is under crosshair
 		else if ( cg.crosshairClientNum >= ENTITYNUM_WORLD )
-		//if ( cg.crosshairClientNum >= ENTITYNUM_WORLD )
 		//[//SaberLockSys]
 		{
 			trap_R_SetColor( NULL );
@@ -5409,7 +5401,6 @@ static void CG_DrawCrosshair( vec3_t worldPoint, int chEntValid ) {
 			{
 				//[CoOp]
 				//make other players show as allies in CoOp
-				//if (cgs.gametype >= GT_TEAM &&
 				if (cgs.gametype >= GT_SINGLE_PLAYER &&
 				//[/CoOp]
 					cgs.clientinfo[crossEnt->currentState.number].team == cgs.clientinfo[cg.snap->ps.clientNum].team )
@@ -6901,7 +6892,6 @@ static void CG_DrawCrosshairNames( void ) {
 
 	//[CoOp]
 	//make other players show as allies in CoOp
-	//if (cgs.gametype >= GT_TEAM)
 	if (cgs.gametype >= GT_SINGLE_PLAYER)
 	//[/CoOp]
 	{
@@ -7674,7 +7664,6 @@ void CG_DrawFlagStatus()
 //[NewHud]
 //moved the jetpack fuel bar a little since the new hud overlapped it.
 #define JPFUELBAR_Y			240.0f
-//#define JPFUELBAR_Y			260.0f
 //[/NewHud]
 void CG_DrawJetpackFuel(void)
 {
@@ -7730,7 +7719,6 @@ void CG_DrawJetpackFuel(void)
 //[NewHud]
 //moved to prevent overlap with new hud.
 #define EWEBHEALTH_Y			240.0f
-//#define EWEBHEALTH_Y			290.0f
 //[/NewHud]
 void CG_DrawEWebHealth(void)
 {
@@ -7797,7 +7785,6 @@ void CG_DrawEWebHealth(void)
 //[NewHud]
 //moved to prevent overlap with new hud.
 #define CLFUELBAR_Y			240.0f
-//#define CLFUELBAR_Y			260.0f
 //[/NewHud]
 void CG_DrawCloakFuel(void)
 {

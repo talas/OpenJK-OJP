@@ -1647,185 +1647,6 @@ void ammo_generic_power_converter_use( gentity_t *self, gentity_t *other, gentit
 		}
 	}
 }
-
-//dispense generic ammo
-#if 0
-void ammo_generic_power_converter_use( gentity_t *self, gentity_t *other, gentity_t *activator)
-{
-	int /*dif,*/ add;
-	//int ammoType;
-	int stop = 1;
-
-	if (!activator || !activator->client)
-	{
-		return;
-	}
-
-	if (self->setTime < level.time)
-	{
-		qboolean gaveSome = qfalse;
-		/*
-		while (i < 3)
-		{
-			if (!self->s.loopSound)
-			{
-				self->s.loopSound = G_SoundIndex("sound/interface/ammocon_run");
-				self->s.loopIsSoundset = qfalse;
-			}
-			self->setTime = level.time + 100;
-
-			//dif = activator->client->ps.stats[STAT_MAX_HEALTH] - activator->client->ps.stats[STAT_ARMOR];
-			switch (i)
-			{ //don't give rockets I guess
-			case 0:
-				ammoType = AMMO_BLASTER;
-				break;
-			case 1:
-				ammoType = AMMO_POWERCELL;
-				break;
-			case 2:
-				ammoType = AMMO_METAL_BOLTS;
-				break;
-			default:
-				ammoType = -1;
-				break;
-			}
-
-			if (ammoType != -1)
-			{
-				dif = ammoData[ammoType].max - activator->client->ps.ammo[ammoType];
-			}
-			else
-			{
-				dif = 0;
-			}
-
-			if (dif > 0)
-			{ //only give if not full
-				if (dif > MAX_AMMO_GIVE)
-				{
-					add = MAX_AMMO_GIVE;
-				}
-				else
-				{
-					add = dif;
-				}
-
-				if (self->count<add)
-				{
-					add = self->count;
-				}
-
-				self->count -= add;
-				if (self->count <= 0)
-				{
-					self->setTime = 0;
-					break;
-				}
-				stop = 0;
-
-				self->fly_sound_debounce_time = level.time + 500;
-				self->activator = activator;
-
-				activator->client->ps.ammo[ammoType] += add;
-			}
-
-			i++;
-		}
-		*/
-		int i = AMMO_BLASTER;
-		if (!self->s.loopSound)
-		{
-			self->s.loopSound = G_SoundIndex("sound/interface/ammocon_run");
-			self->s.loopIsSoundset = qfalse;
-		}
-		//self->setTime = level.time + 100;
-		self->fly_sound_debounce_time = level.time + 500;
-		self->activator = activator;
-		while (i < AMMO_MAX)
-		{
-			add = ammoData[i].max*0.05;
-			if (add < 1)
-			{
-				add = 1;
-			}
-			if ( ( (activator->client->ps.eFlags & EF_DOUBLE_AMMO) && (activator->client->ps.ammo[i] < ammoData[i].max*2)) ||
-				( activator->client->ps.ammo[i] < ammoData[i].max ) )
-			{
-				gaveSome = qtrue;
-				if ( g_gametype.integer == GT_SIEGE  && i == AMMO_ROCKETS && activator->client->ps.ammo[i] >= 10 )
-				{ //this stuff is already a freaking mess, so..
-					gaveSome = qfalse;
-				}
-				activator->client->ps.ammo[i] += add;
-				if ( g_gametype.integer == GT_SIEGE  && i == AMMO_ROCKETS && activator->client->ps.ammo[i] >= 10 )
-				{	// fixme - this should SERIOUSLY be externed.
-					activator->client->ps.ammo[i] = 10;
-				}
-				else if ( activator->client->ps.eFlags & EF_DOUBLE_AMMO )
-				{
-					if (activator->client->ps.ammo[i] >= ammoData[i].max * 2)
-					{	// yuck.
-						activator->client->ps.ammo[i] = ammoData[i].max * 2;
-					}
-					else
-					{
-						stop = 0;
-					}
-				}
-				else
-				{
-					if (activator->client->ps.ammo[i] >= ammoData[i].max)
-					{
-						activator->client->ps.ammo[i] = ammoData[i].max;
-					}
-					else
-					{
-						stop = 0;
-					}
-				}
-			}
-			i++;
-			if (!self->genericValue12 && gaveSome)
-			{
-				int sub = (add*0.2);
-				if (sub < 1)
-				{
-					sub = 1;
-				}
-				self->count -= sub;
-				if (self->count <= 0)
-				{
-					self->count = 0;
-					stop = 1;
-					break;
-				}
-			}
-		}
-	}
-
-	if (stop || self->count <= 0)
-	{
-		if (self->s.loopSound && self->setTime < level.time)
-		{
-			if (self->count <= 0)
-			{
-				G_Sound(self, CHAN_AUTO, G_SoundIndex("sound/interface/ammocon_empty"));
-			}
-			else
-			{
-				G_Sound(self, CHAN_AUTO, self->genericValue7);
-			}
-		}
-		self->s.loopSound = 0;
-		self->s.loopIsSoundset = qfalse;
-		if (self->setTime < level.time)
-		{
-			self->setTime = level.time + self->genericValue5+100;
-		}
-	}
-}
-#endif
 //[/AmmoSys]
 
 /*QUAKED misc_ammo_floor_unit (1 0 0) (-16 -16 0) (16 16 40)
@@ -1941,7 +1762,6 @@ void SP_misc_shield_floor_unit( gentity_t *ent )
 		//[CoOp]
 		g_gametype.integer != GT_SIEGE &&
 		g_gametype.integer != GT_SINGLE_PLAYER)
-		//g_gametype.intger != GT_SIEGE)
 		//[/CoOp]
 	{
 		G_FreeEntity( ent );
@@ -2153,109 +1973,6 @@ void ammo_power_converter_use( gentity_t *self, gentity_t *other, gentity_t *act
 	}
 }
 
-#if 0
-void ammo_power_converter_use( gentity_t *self, gentity_t *other, gentity_t *activator)
-{
-	int			add = 0.0f;//,highest;
-	qboolean	overcharge;
-//	int			difBlaster,difPowerCell,difMetalBolts;
-	int			stop = 1;
-
-	if (!activator || !activator->client)
-	{
-		return;
-	}
-
-	if (self->setTime < level.time)
-	{
-		overcharge = qfalse;
-
-		if (!self->s.loopSound)
-		{
-			self->s.loopSound = G_SoundIndex("sound/player/pickupshield.wav");
-		}
-
-		self->setTime = level.time + 100;
-
-		if (self->count)	// Has it got any power left?
-		{
-			int i = AMMO_BLASTER;
-			while (i < AMMO_MAX)
-			{
-				add = ammoData[i].max*0.1;
-				if (add < 1)
-				{
-					add = 1;
-				}
-				if (activator->client->ps.ammo[i] < ammoData[i].max)
-				{
-					activator->client->ps.ammo[i] += add;
-					if (activator->client->ps.ammo[i] > ammoData[i].max)
-					{
-						activator->client->ps.ammo[i] = ammoData[i].max;
-					}
-				}
-				i++;
-			}
-			if (!self->genericValue12)
-			{
-				self->count -= add;
-			}
-			stop = 0;
-
-			self->fly_sound_debounce_time = level.time + 500;
-			self->activator = activator;
-
-			/*
-			if (self->count > MAX_AMMO_GIVE)
-			{
-				add = MAX_AMMO_GIVE;
-			}
-			else if (self->count<0)
-			{
-				add = 0;
-			}
-			else
-			{
-				add = self->count;
-			}
-
-			activator->client->ps.ammo[AMMO_BLASTER] += add;
-			activator->client->ps.ammo[AMMO_POWERCELL] += add;
-			activator->client->ps.ammo[AMMO_METAL_BOLTS] += add;
-
-			self->count -= add;
-			stop = 0;
-
-			self->fly_sound_debounce_time = level.time + 500;
-			self->activator = activator;
-
-			difBlaster = activator->client->ps.ammo[AMMO_BLASTER] - ammoData[AMMO_BLASTER].max;
-			difPowerCell = activator->client->ps.ammo[AMMO_POWERCELL] - ammoData[AMMO_POWERCELL].max;
-			difMetalBolts = activator->client->ps.ammo[AMMO_METAL_BOLTS] - ammoData[AMMO_METAL_BOLTS].max;
-
-			// Find the highest one
-			highest = difBlaster;
-			if (difPowerCell>difBlaster)
-			{
-				highest = difPowerCell;
-			}
-
-			if (difMetalBolts > highest)
-			{
-				highest = difMetalBolts;
-			}
-			*/
-		}
-	}
-
-	if (stop)
-	{
-		self->s.loopSound = 0;
-		self->s.loopIsSoundset = qfalse;
-	}
-}
-#endif
 //[/AmmoSys]
 
 /*QUAKED misc_model_ammo_power_converter (1 0 0) (-16 -16 -16) (16 16 16)
@@ -3813,7 +3530,6 @@ void misc_weapon_shooter_fire( gentity_t *self )
 		{
 			self->nextthink = level.time + self->wait;
 		}
-		//self->nextthink = level.time + self->wait;
 		//[/CoOp]
 	}
 }
@@ -3850,11 +3566,6 @@ void misc_weapon_shooter_aim( gentity_t *self )
 			VectorSubtract( targ->r.currentOrigin, self->r.currentOrigin, self->client->renderInfo.muzzleDir );
 			VectorCopy( targ->r.currentOrigin, self->pos1 );
 			vectoangles( self->client->renderInfo.muzzleDir, self->client->ps.viewangles );
-			/*
-			VectorSubtract( targ->r.currentOrigin, self->r.currentOrigin, self->pos1 );
-			VectorCopy( targ->r.currentOrigin, self->pos1 );
-			vectoangles( self->pos1, self->client->ps.viewangles );
-			*/
 			//[/CoOp]
 			SetClientViewAngle( self, self->client->ps.viewangles );
 			//FIXME: don't keep doing this unless target is a moving target?
@@ -3893,7 +3604,6 @@ void SP_misc_weapon_shooter( gentity_t *self )
 		{
 			self->s.weapon = self->client->ps.weapon = newWeap;
 		}
-		//self->s.weapon = self->client->ps.weapon = GetIDForString( WPTable, s );
 		//[/CoOp]
 	}
 
@@ -3915,7 +3625,6 @@ void SP_misc_weapon_shooter( gentity_t *self )
 		VectorCopy( self->s.angles, self->client->ps.viewangles );
 		//[CoOp]
 		AngleVectors( self->s.angles, self->client->renderInfo.muzzleDir, NULL, NULL );
-		//AngleVectors( self->s.angles, self->pos1, NULL, NULL );
 		//[/CoOp]
 	}
 

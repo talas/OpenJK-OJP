@@ -91,25 +91,24 @@ int forcePowerNeeded[NUM_FORCE_POWER_LEVELS][NUM_FORCE_POWERS] =
 		10,//FP_LEVITATION,//hold/duration
 		//[ForceSys]
 		3,//FP_SPEED,//hold/duration
-		//50,//FP_SPEED,//duration
 		//[/ForceSys]
 		20,//FP_PUSH,//hold/duration
 		20,//FP_PULL,//hold/duration
 		20,//FP_TELEPATHY,//instant
-		0,//FP_GRIP,//hold/duration
 		//[ForceSys]
-		8,//FP_LIGHTNING,//initial FP cost -- was 10
-		//1,//FP_LIGHTNING,//hold/duration
+		0,//FP_GRIP,//hold/duration
+		8,//FP_LIGHTNING,//initial FP cost -- was 10tion
 		//[/ForceSys]
 		50,//FP_RAGE,//duration
+		//[ForceSys]
 		3,//FP_PROTECT,//duration
+		//[/ForceSys]
 		50,//FP_ABSORB,//duration
 		50,//FP_TEAM_HEAL,//instant
 		50,//FP_TEAM_FORCE,//instant
 		//[ForceSys]
 		//drain now acts like lightning.
 		10,//FP_DRAIN, //initial FP cost
-		//20,//FP_DRAIN,//hold/duration
 		//[/ForceSys]
 		20,//FP_SEE,//duration
 		0,//FP_SABER_OFFENSE,
@@ -125,25 +124,22 @@ int forcePowerNeeded[NUM_FORCE_POWER_LEVELS][NUM_FORCE_POWERS] =
 		//reduced the FP cost for pull/push
 		15,//FP_PUSH,//hold/duration
 		15,//FP_PULL,//hold/duration
-		//50,//FP_SPEED,//duration
-		//20,//FP_PUSH,//hold/duration
-		//20,//FP_PULL,//hold/duration
 		//[/ForceSys]
 		20,//FP_TELEPATHY,//instant
-		0,//FP_GRIP,//hold/duration
 		//[ForceSys]
+		0,//FP_GRIP,//hold/duration
 		8,//FP_LIGHTNING,//initial FP cost -- was 10
-		//1,//FP_LIGHTNING,//hold/duration
 		//[/ForceSys]
 		50,//FP_RAGE,//duration
+		//[ForceSys]
 		2,//FP_PROTECT,//duration
+		//[/ForceSys]
 		25,//FP_ABSORB,//duration
 		33,//FP_TEAM_HEAL,//instant
 		33,//FP_TEAM_FORCE,//instant
 		//[ForceSys]
 		//drain now acts like lightning.
 		10,//FP_DRAIN,//initial FP cost
-		//20,//FP_DRAIN,//hold/duration
 		//[/ForceSys]
 		20,//FP_SEE,//duration
 		0,//FP_SABER_OFFENSE,
@@ -159,25 +155,22 @@ int forcePowerNeeded[NUM_FORCE_POWER_LEVELS][NUM_FORCE_POWERS] =
 		//reduced the FP cost for pull/push
 		10,//FP_PUSH,//hold/duration
 		10,//FP_PULL,//hold/duration
-		//50,//FP_SPEED,//duration
-		//20,//FP_PUSH,//hold/duration
-		//20,//FP_PULL,//hold/duration
 		//[/ForceSys]
 		20,//FP_TELEPATHY,//instant
-		0,//FP_GRIP,//hold/duration
 		//[ForceSys]
+		0,//FP_GRIP,//hold/duration
 		8,//FP_LIGHTNING,//initial FP cost -- Was 10
-		//1,//FP_LIGHTNING,//hold/duration
 		//[/ForceSys]
 		50,//FP_RAGE,//duration
+		//[ForceSys]
 		1,//FP_PROTECT,//duration
+		//[/ForceSys]
 		10,//FP_ABSORB,//duration
 		25,//FP_TEAM_HEAL,//instant
 		25,//FP_TEAM_FORCE,//instant
 		//[ForceSys]
 		//drain now acts like lightning.
 		10,//FP_DRAIN,//initial FP cost
-		//20,//FP_DRAIN,//hold/duration
 		//[/ForceSys]
 		20,//FP_SEE,//duration
 		0,//FP_SABER_OFFENSE,
@@ -2885,7 +2878,6 @@ static qboolean PM_CheckJump( void )
 				//can't backflip if we don't have enough FP
 				if ( allowFlips && BG_EnoughForcePowerForMove(FATIGUE_BACKFLIP_ATARU)
 					&& saber1 && !saber2 && pm->ps->fd.saberAnimLevel == SS_DUAL)//for a part of single dual/ataru's. 1 point cartwheels)
-				//if ( allowFlips )
 				//[/FatigueSys]
 				{
 					vertPush = JUMP_VELOCITY;
@@ -2895,7 +2887,6 @@ static qboolean PM_CheckJump( void )
 					//[/FatigueSys]
 				}
 				else if ( allowFlips && BG_EnoughForcePowerForMove(FATIGUE_BACKFLIP) )
-				//if ( allowFlips )
 				//[/FatigueSys]
 				{
 					vertPush = JUMP_VELOCITY;
@@ -4031,7 +4022,6 @@ static void PM_AirMove( void ) {
 			}
 
 			wishvel[2] += scale * pm->cmd.upmove;
-			//wishvel[2]=0;
 		}
 
 		VectorScale(wishvel, 1.5f, wishvel);
@@ -4504,7 +4494,6 @@ static int PM_TryRoll( void )
 	//[MoveSys]
 	//you can now roll with any weapon
 	if (//(pm->ps->weapon != WP_SABER && pm->ps->weapon != WP_MELEE) ||
-	//if (//(pm->ps->weapon != WP_SABER && pm->ps->weapon != WP_MELEE) ||
 	//[/MoveSys]
 		PM_IsRocketTrooper() ||
 		BG_HasYsalamiri(pm->gametype, pm->ps) ||
@@ -5300,7 +5289,6 @@ static void PM_GroundTrace( void ) {
 	//[JetpackSys]
 	//jetpacks now land on ground instead of hovering over it.
 	if (pm->ps->pm_type == PM_FLOAT)
-	//if (pm->ps->pm_type == PM_FLOAT || pm->ps->pm_type == PM_JETPACK)
 	//[/JetpackSys]
 	{
 		PM_GroundTraceMissed();
@@ -5328,7 +5316,6 @@ static void PM_GroundTrace( void ) {
 		{//already in a knockdown
 		}
 		else if ( pm->cmd.forwardmove >= 0 ) {
-		//if ( pm->cmd.forwardmove >= 0 ) {
 		//[/KnockdownSys]
 			PM_ForceLegsAnim( BOTH_JUMP1 );
 			pm->ps->pm_flags &= ~PMF_BACKWARDS_JUMP;
@@ -6392,10 +6379,8 @@ static void PM_Footsteps( void ) {
 
 	//[SaberSys]
 	//racc - Broken parries should play full body.
-	if ( (PM_InSaberAnim( (pm->ps->legsAnim) ) 
-		&& !BG_SpinningSaberAnim(pm->ps->legsAnim) 
+	if ( (PM_InSaberAnim( (pm->ps->legsAnim) ) && !BG_SpinningSaberAnim(pm->ps->legsAnim) 
 		&& !PM_SaberInBrokenParry(pm->ps->saberMove) ) 
-	//if ( (PM_InSaberAnim( (pm->ps->legsAnim) ) && !BG_SpinningSaberAnim( (pm->ps->legsAnim) )) 
 	//[/SaberSys]
 		|| (pm->ps->legsAnim) == BOTH_STAND1 
 		|| (pm->ps->legsAnim) == BOTH_STAND1TO2 
@@ -6447,7 +6432,6 @@ static void PM_Footsteps( void ) {
 	//[MoveSys]
 	//added case for when we're restricted from moving (like during viewlocks)
 	else if ( (!pm->cmd.forwardmove && !pm->cmd.rightmove) || pm->ps->speed == 0 ) {
-	//else if ( !pm->cmd.forwardmove && !pm->cmd.rightmove ) {
 	//[/MoveSys]
 		if (  pm->xyspeed < 5 ) {
 			pm->ps->bobCycle = 0;	// start at beginning of cycle again
@@ -6799,7 +6783,6 @@ static void PM_Footsteps( void ) {
 					//[SaberThrowSys]
 					//adding special case for dropped sabers during while using dual sabers. 
 					else if ( pm->ps->saberHolstered && (!pm->ps->saberInFlight || pm->ps->saberEntityNum) )
-					//else if ( pm->ps->saberHolstered )
 					//[/SaberThrowSys]
 					{
 						desiredAnim = BOTH_WALKBACK2;
@@ -6857,7 +6840,6 @@ static void PM_Footsteps( void ) {
 						//[SaberThrowSys]
 						//adding special case for dropped sabers during while using dual sabers. 
 						else if ( pm->ps->saberHolstered && (!pm->ps->saberInFlight || pm->ps->saberEntityNum) )
-						//else if ( pm->ps->saberHolstered )
 						//[/SaberThrowSys]
 						{
 							desiredAnim = BOTH_WALK2;
@@ -7199,8 +7181,6 @@ void PM_FinishWeaponChange( void ) {
 		{//have saber(s)
 			PM_SetSaberMove(LS_DRAW);
 		}
-
-		//PM_SetSaberMove(LS_DRAW);
 		//[/SaberThrowSys]
 	}
 	//[/SaberThrowSys][/test]
@@ -7678,7 +7658,6 @@ int PM_ItemUsable(playerState_t *ps, int forcedUse)
 
 	//[Flamethrower]
 	if (ps->pm_flags & PMF_USE_ITEM_HELD && bg_itemlist[ps->stats[STAT_HOLDABLE_ITEM]].giTag != HI_FLAMETHROWER)
-	//if (ps->pm_flags & PMF_USE_ITEM_HELD)
 	//[/Flamethrower]
 	{ //force to let go first
 		return 0;
@@ -8328,7 +8307,6 @@ static void PM_Weapon( void )
 				//[Flamethrower]
 				//had to alter the default to make the flamethrower use this stuff correctly.
 				desiredAnim = BOTH_FORCELIGHTNING_HOLD;
-				//desiredAnim = BOTH_FORCEGRIP_HOLD;
 				//[/Flamethrower]
 			}
 			break;
@@ -8388,10 +8366,8 @@ static void PM_Weapon( void )
 				}
 				else
 				{
-				desiredAnim = BOTH_KNOCKDOWN1;
-			}
-
-				//desiredAnim = BOTH_KNOCKDOWN1;
+					desiredAnim = BOTH_KNOCKDOWN1;
+				}
 				//[/MELEE]
 			}
 			break;
@@ -9122,7 +9098,6 @@ static void PM_Weapon( void )
 		}
 	}
 	else if (pm->ps->weapon == WP_DISRUPTOR && pm->ps->zoomMode == 1)
-	//if (pm->ps->weapon == WP_DISRUPTOR && pm->ps->zoomMode == 1)
 	//[/CoOp]
 	{
 		PM_StartTorsoAnim( BOTH_ATTACK4 );
@@ -9140,11 +9115,7 @@ static void PM_Weapon( void )
 		{ //if riding a vehicle don't do this stuff at all
 			//[MELEE]
 			if ((pm->cmd.buttons & BUTTON_ATTACK) &&
-			/*
-			if (pm->debugMelee &&
-				(pm->cmd.buttons & BUTTON_ATTACK) &&
-			*/
-			(pm->cmd.buttons & BUTTON_ALT_ATTACK))
+				(pm->cmd.buttons & BUTTON_ALT_ATTACK))
 			//[/MELEE]
 			{ //ok, grapple time
 				if(pm->ps->weaponTime <= 0 && !PM_InKnockDown(pm->ps) && !BG_KickingAnim(pm->ps->legsAnim))
@@ -9197,8 +9168,6 @@ static void PM_Weapon( void )
 			//You can do kick without debugMelee turned on
 			}
 			else if (pm->cmd.buttons & BUTTON_ALT_ATTACK)
-			//else if (pm->debugMelee &&
-			//	(pm->cmd.buttons & BUTTON_ALT_ATTACK))
 			//[/MELEE]
 			{ //kicks
 				//[MELEE]
@@ -9211,78 +9180,6 @@ static void PM_Weapon( void )
 					}
 					pm->ps->weaponTime = 0;
 				}
-				/*
-				if (!BG_KickingAnim(pm->ps->torsoAnim) &&
-					!BG_KickingAnim(pm->ps->legsAnim))
-				{
-					int kickMove = PM_KickMoveForConditions();
-					if (kickMove == LS_HILT_BASH)
-					{ //yeah.. no hilt to bash with!
-						kickMove = LS_KICK_F;
-					}
-
-					if (kickMove != -1)
-					{
-						if ( pm->ps->groundEntityNum == ENTITYNUM_NONE )
-						{//if in air, convert kick to an in-air kick
-							float gDist = PM_GroundDistance();
-							//let's only allow air kicks if a certain distance from the ground
-							//it's silly to be able to do them right as you land.
-							//also looks wrong to transition from a non-complete flip anim...
-							if ((!BG_FlippingAnim( pm->ps->legsAnim ) || pm->ps->legsTimer <= 0) &&
-								gDist > 64.0f && //strict minimum
-								gDist > (-pm->ps->velocity[2])-64.0f //make sure we are high to ground relative to downward velocity as well
-								)
-							{
-								switch ( kickMove )
-								{
-								case LS_KICK_F:
-									kickMove = LS_KICK_F_AIR;
-									break;
-								case LS_KICK_B:
-									kickMove = LS_KICK_B_AIR;
-									break;
-								case LS_KICK_R:
-									kickMove = LS_KICK_R_AIR;
-									break;
-								case LS_KICK_L:
-									kickMove = LS_KICK_L_AIR;
-									break;
-								default: //oh well, can't do any other kick move while in-air
-									kickMove = -1;
-									break;
-								}
-							}
-							else
-							{ //off ground, but too close to ground
-								kickMove = -1;
-							}
-						}
-					}
-
-					if (kickMove != -1)
-					{
-						int kickAnim = saberMoveData[kickMove].animToUse;
-
-						if (kickAnim != -1)
-						{
-							PM_SetAnim(SETANIM_BOTH, kickAnim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0);
-							if (pm->ps->legsAnim == kickAnim)
-							{
-								pm->ps->weaponTime = pm->ps->legsTimer;
-								return;
-							}
-						}
-					}
-				}
-
-				//if got here then no move to do so put torso into leg idle or whatever
-				if (pm->ps->torsoAnim != pm->ps->legsAnim)
-				{
-					PM_SetAnim(SETANIM_BOTH, pm->ps->legsAnim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0);
-				}
-				pm->ps->weaponTime = 0;
-				*/
 				//[/MELEE]
 				return;
 			}
@@ -9292,20 +9189,6 @@ static void PM_Weapon( void )
 				//turned this code into a function
 				PM_DoPunch();
 				return;
-
-				/*
-				int desTAnim = BOTH_MELEE1;
-				if (pm->ps->torsoAnim == BOTH_MELEE1)
-				{
-					desTAnim = BOTH_MELEE2;
-				}
-				PM_StartTorsoAnim( desTAnim );
-
-				if (pm->ps->torsoAnim == desTAnim)
-				{
-					pm->ps->weaponTime = pm->ps->torsoTimer;
-				}
-				*/
 				//[/Melee]
 			}
 		}
@@ -10280,14 +10163,6 @@ void BG_AdjustClientSpeed(playerState_t *ps, usercmd_t *cmd, int svTime)
 	{//pure strafe running is slower.
 		ps->speed *= 1.0;
 	}
-
-	/* basejka
-	if ( cmd->forwardmove < 0 && !(cmd->buttons&BUTTON_WALKING) && pm->ps->groundEntityNum != ENTITYNUM_NONE )
-	{//running backwards is slower than running forwards (like SP)
-		
-		ps->speed *= 0.75;
-	}
-	*/
 	//[/MoveSys]
 
 	if (ps->fd.forcePowersActive & (1 << FP_GRIP))
@@ -10873,7 +10748,6 @@ void BG_UpdateLookAngles( int lookingDebounceTime, vec3_t lastHeadAngles, int ti
 //for setting visual look (headturn) angles
 //[LedgeGrab]
 static void BG_G2ClientNeckAngles( void *ghoul2, int time, const vec3_t lookAngles, vec3_t headAngles, vec3_t neckAngles, vec3_t thoracicAngles, vec3_t headClampMinAngles, vec3_t headClampMaxAngles, entityState_t *cent )
-//static void BG_G2ClientNeckAngles( void *ghoul2, int time, const vec3_t lookAngles, vec3_t headAngles, vec3_t neckAngles, vec3_t thoracicAngles, vec3_t headClampMinAngles, vec3_t headClampMaxAngles )
 //[/LedgeGrab]
 {
 	vec3_t	lA;
@@ -10962,7 +10836,6 @@ static void BG_G2ClientNeckAngles( void *ghoul2, int time, const vec3_t lookAngl
 			thoracicAngles[PITCH] = 0;
 		}
 		else if ( thoracicAngles[PITCH] )
-		//if ( thoracicAngles[PITCH] )
 		//[/LedgeGrab]
 		{//already been set above, blend them
 			thoracicAngles[PITCH] = (thoracicAngles[PITCH] + (lA[PITCH] * 0.4)) * 0.5f;
@@ -11005,16 +10878,6 @@ static void BG_G2ClientNeckAngles( void *ghoul2, int time, const vec3_t lookAngl
 			headAngles[YAW] = lA[YAW] * 0.6;
 			headAngles[ROLL] = lA[ROLL] * 0.6;
 		}
-
-		/*
-		neckAngles[PITCH] = lA[PITCH] * 0.2f;
-		neckAngles[YAW] = lA[YAW] * 0.3f;
-		neckAngles[ROLL] = lA[ROLL] * 0.3f;
-
-		headAngles[PITCH] = lA[PITCH] * 0.4;
-		headAngles[YAW] = lA[YAW] * 0.6;
-		headAngles[ROLL] = lA[ROLL] * 0.6;
-		*/
 		//[/LedgeGrab]
 	}
 	//[/CoOp]
@@ -11061,7 +10924,6 @@ static void BG_G2ClientSpineAngles( void *ghoul2, int motionBolt, vec3_t cent_le
 							int time, vec3_t viewAngles, int ciLegs, int ciTorso, const vec3_t angles, vec3_t thoracicAngles,
 //[CoOp]
 //added NPC_class input to allow for different spine handling for some of the NPCs
-//							vec3_t ulAngles, vec3_t llAngles, vec3_t modelScale, float *tPitchAngle, float *tYawAngle, int *corrTime )
 							vec3_t ulAngles, vec3_t llAngles, vec3_t modelScale, float *tPitchAngle, float *tYawAngle, int *corrTime, int NPC_class )
 //[/CoOp]
 {
@@ -11230,11 +11092,6 @@ static void BG_G2ClientSpineAngles( void *ghoul2, int motionBolt, vec3_t cent_le
 		llAngles[PITCH] = viewAngles[PITCH]*0.40f;
 		ulAngles[PITCH] = viewAngles[PITCH]*0.40f;
 		}
-		/*
-		thoracicAngles[PITCH] = viewAngles[PITCH]*0.20f;
-		llAngles[PITCH] = viewAngles[PITCH]*0.40f;
-		ulAngles[PITCH] = viewAngles[PITCH]*0.40f;
-		*/
 		//[/LedgeGrab]
 
 		thoracicAngles[YAW] = viewAngles[YAW]*0.20f;
@@ -11403,7 +11260,6 @@ void BG_G2PlayerAngles(void *ghoul2, int motionBolt, entityState_t *cent, int ti
 	if ( (( cent->legsAnim ) != BOTH_STAND1) || 
 			( ( ( ( cent->torsoAnim ) != WeaponReadyAnim[cent->weapon] ) && !( cent->eFlags & EF_DUAL_WEAPONS) ) ||
 			( ( ( cent->torsoAnim ) != WeaponReadyAnim2[cent->weapon] ) && ( cent->eFlags & EF_DUAL_WEAPONS) ) )
-			//( cent->torsoAnim != PM_GetWeaponReadyAnim() )
 		)
 	{
 	//[/DualPistols]
@@ -11652,7 +11508,6 @@ void BG_G2PlayerAngles(void *ghoul2, int motionBolt, entityState_t *cent, int ti
 //[CoOp]
 //added NPC_class input to allow for different spine handling for some of the NPCs
 					tPitchAngle, tYawAngle, corrTime, cent->NPC_class);
-//					tPitchAngle, tYawAngle, corrTime);
 //[/CoOp]
 				strap_G2API_SetBoneAngles(ghoul2, 0, "lower_lumbar", llAngles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time); 
 				strap_G2API_SetBoneAngles(ghoul2, 0, "upper_lumbar", ulAngles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, 0, 0, time); 
@@ -11693,7 +11548,6 @@ void BG_G2PlayerAngles(void *ghoul2, int motionBolt, entityState_t *cent, int ti
 //[CoOp]
 //added NPC_class input to allow for different spine handling for some of the NPCs
 		tPitchAngle, tYawAngle, corrTime, cent->NPC_class);
-//		tPitchAngle, tYawAngle, corrTime);
 //[/CoOp]
 
 	VectorCopy(cent_lerpAngles, eyeAngles);
@@ -11710,7 +11564,6 @@ void BG_G2PlayerAngles(void *ghoul2, int motionBolt, entityState_t *cent, int ti
 	//[LedgeGrab]
 	//added NPC_class input to allow for different spine handling for some of the NPCs
 	BG_G2ClientNeckAngles(ghoul2, time, lookAngles, headAngles, neckAngles, thoracicAngles, headClampMinAngles, headClampMaxAngles, cent);
-	//BG_G2ClientNeckAngles(ghoul2, time, lookAngles, headAngles, neckAngles, thoracicAngles, headClampMinAngles, headClampMaxAngles);
 	//[/LedgeGrab]
 
 #ifdef BONE_BASED_LEG_ANGLES
@@ -12684,17 +12537,6 @@ void PmoveSingle (pmove_t *pmove) {
 			pm->ps->viewangles[YAW] += pml.frametime*240.0f;
 			PM_SetPMViewAngle(pm->ps, pm->ps->viewangles, &pm->cmd);
 		}
-		/* basejka code
-		if (pm->ps->legsAnim == BOTH_JUMPFLIPSTABDOWN ||
-			pm->ps->legsAnim == BOTH_JUMPFLIPSLASHDOWN1)
-		{ //flipover medium stance attack
-			if (pm->ps->legsTimer < 1600 && pm->ps->legsTimer > 900)
-			{
-				pm->ps->viewangles[YAW] += pml.frametime*240.0f;
-				PM_SetPMViewAngle(pm->ps, pm->ps->viewangles, &pm->cmd);
-			}
-		}
-		*/
 		//[/SaberSys]
 		stiffenedUp = qtrue;
 	}
@@ -13190,17 +13032,6 @@ void PmoveSingle (pmove_t *pmove) {
 		{
 			pm->ps->gravity = 0.0f;
 		}
-			
-		/*
-		if (gDist < JETPACK_HOVER_HEIGHT+64)
-		{
-			pm->ps->gravity *= 0.1f;
-		}
-		else
-		{
-			pm->ps->gravity *= 0.25f;
-		}
-		*/
 		//[/JetpackSys]
 	}
 	else if (gPMDoSlowFall)
@@ -13216,35 +13047,30 @@ void PmoveSingle (pmove_t *pmove) {
 		{
 			//[JetpackSys]
   			PM_ContinueLegsAnim(BOTH_FORCEJUMPRIGHT1);
-			//PM_ContinueLegsAnim(BOTH_INAIRRIGHT1);
 			//[/JetpackSys]
 		}
 		else if (pm->cmd.rightmove < 0)
 		{
 			//[JetpackSys]
             PM_ContinueLegsAnim(BOTH_FORCEJUMPLEFT1);
-			//PM_ContinueLegsAnim(BOTH_INAIRLEFT1);
 			//[/JetpackSys]
 		}
 		else if (pm->cmd.forwardmove > 0)
 		{
 			//[JetpackSys]
   			PM_ContinueLegsAnim(BOTH_FORCELONGLEAP_START);
-			//PM_ContinueLegsAnim(BOTH_INAIR1);
 			//[/JetpackSys]
 		}
 		else if (pm->cmd.forwardmove < 0)
 		{
 			//[JetpackSys]
 			PM_ContinueLegsAnim(BOTH_FORCEJUMPBACK1);
-			//PM_ContinueLegsAnim(BOTH_INAIRBACK1);
 			//[/JetpackSys]
 		}
 		else
 		{
 			//[JetpackSys]
 			PM_ContinueLegsAnim(BOTH_FORCEJUMP1);
-			//PM_ContinueLegsAnim(BOTH_INAIR1);
 			//[/JetpackSys]
 		}
 
@@ -13257,7 +13083,6 @@ void PmoveSingle (pmove_t *pmove) {
 
 		//[JetpackSys]
 		if (pm->cmd.upmove || pm->cmd.rightmove || pm->cmd.forwardmove /*&& pm->ps->velocity[2] < 256*/)
-		//if (pm->cmd.upmove > 0 && pm->ps->velocity[2] < 256)
 		//[/JetpackSys]
 		{ //cap upward velocity off at 256. Seems reasonable.
 			//[JetpackSys]

@@ -468,7 +468,6 @@ void WP_ActivateSaber( gentity_t *self )
 	//[StanceSelection]
 	//NPC code calls this all the time, only whip out saber if it's not already turned on.
 	if ( self->client->ps.saberHolstered == 2)
-	//if ( self->client->ps.saberHolstered )
 	//[/StanceSelection]
 	{
 		self->client->ps.saberHolstered = 0;
@@ -1466,9 +1465,6 @@ static GAME_INLINE qboolean WP_SabersCheckLock2( gentity_t *attacker, gentity_t 
 			attAnim = BOTH_CCWCIRCLELOCK;
 			defAnim = BOTH_CWCIRCLELOCK;
 			attStart = defStart = 0.15f;
-			//attAnim = BOTH_CWCIRCLELOCK;
-			//defAnim = BOTH_CCWCIRCLELOCK;
-			//attStart = defStart = 0.85f;
 			//[/SaberLockSys]
 			idealDist = LOCK_IDEAL_DIST_CIRCLE;
 			break;
@@ -1478,9 +1474,6 @@ static GAME_INLINE qboolean WP_SabersCheckLock2( gentity_t *attacker, gentity_t 
 			attAnim = BOTH_CWCIRCLELOCK;
 			defAnim = BOTH_CCWCIRCLELOCK;
 			attStart = defStart = 0.15f;
-			//attAnim = BOTH_CCWCIRCLELOCK;
-			//defAnim = BOTH_CWCIRCLELOCK;
-			//attStart = defStart = 0.85f;
 			//[/SaberLockSys]
 			idealDist = LOCK_IDEAL_DIST_CIRCLE;
 			break;
@@ -1490,7 +1483,6 @@ static GAME_INLINE qboolean WP_SabersCheckLock2( gentity_t *attacker, gentity_t 
 			//[SaberLockSys]
 			//the starting position wasn't correct for the lock direction.
 			attStart = defStart = 0.25f;
-			//attStart = defStart = 0.75f;
 			//[/SaberLockSys]
 			idealDist = LOCK_IDEAL_DIST_CIRCLE;
 			break;
@@ -1500,7 +1492,6 @@ static GAME_INLINE qboolean WP_SabersCheckLock2( gentity_t *attacker, gentity_t 
 			//[SaberLockSys]
 			//the starting position wasn't correct for the lock direction.
 			attStart = defStart = 0.25f;
-			//attStart = defStart = 0.75f;
 			//[/SaberLockSys]
 			idealDist = LOCK_IDEAL_DIST_CIRCLE;
 			break;
@@ -1858,438 +1849,6 @@ qboolean WP_SabersCheckLock( gentity_t *ent1, gentity_t *ent2 )
 			break;
 	};
 }
-
-
-/* original basejka code 
-qboolean WP_SabersCheckLock( gentity_t *ent1, gentity_t *ent2 )
-{
-	float dist;
-	qboolean	ent1BlockingPlayer = qfalse;
-	qboolean	ent2BlockingPlayer = qfalse;
-
-	if ( g_debugSaberLocks.integer )
-	{
-		WP_SabersCheckLock2( ent1, ent2, LOCK_RANDOM );
-		return qtrue;
-	}
-	//for now.. it's not fair to the lone duelist.
-	//we need dual saber lock animations.
-	if (g_gametype.integer == GT_POWERDUEL)
-	{
-		return qfalse;
-	}
-
-	if (!g_saberLocking.integer)
-	{
-		return qfalse;
-	}
-
-	if (!ent1->client || !ent2->client)
-	{
-		return qfalse;
-	}
-
-	if (ent1->s.eType == ET_NPC ||
-		ent2->s.eType == ET_NPC)
-	{ //if either ents is NPC, then never let an NPC lock with someone on the same playerTeam
-		if (ent1->client->playerTeam == ent2->client->playerTeam)
-		{
-			return qfalse;
-		}
-	}
-
-	if (!ent1->client->ps.saberEntityNum ||
-		!ent2->client->ps.saberEntityNum ||
-		ent1->client->ps.saberInFlight ||
-		ent2->client->ps.saberInFlight)
-	{ //can't get in lock if one of them has had the saber knocked out of his hand
-		return qfalse;
-	}
-
-	if (ent1->s.eType != ET_NPC && ent2->s.eType != ET_NPC)
-	{ //can always get into locks with NPCs
-		if (!ent1->client->ps.duelInProgress ||
-			!ent2->client->ps.duelInProgress ||
-			ent1->client->ps.duelIndex != ent2->s.number ||
-			ent2->client->ps.duelIndex != ent1->s.number)
-		{ //only allow saber locking if two players are dueling with each other directly
-			if (g_gametype.integer != GT_DUEL && g_gametype.integer != GT_POWERDUEL)
-			{
-				return qfalse;
-			}
-		}
-	}
-
-	if ( fabs( ent1->r.currentOrigin[2]-ent2->r.currentOrigin[2] ) > 16 )
-	{
-		return qfalse;
-	}
-	if ( ent1->client->ps.groundEntityNum == ENTITYNUM_NONE ||
-		ent2->client->ps.groundEntityNum == ENTITYNUM_NONE )
-	{
-		return qfalse;
-	}
-	dist = DistanceSquared(ent1->r.currentOrigin,ent2->r.currentOrigin);
-	if ( dist < 64 || dist > 6400 )
-	{//between 8 and 80 from each other
-		return qfalse;
-	}
-
-	if (BG_InSpecialJump(ent1->client->ps.legsAnim))
-	{
-		return qfalse;
-	}
-	if (BG_InSpecialJump(ent2->client->ps.legsAnim))
-	{
-		return qfalse;
-	}
-
-	if (BG_InRoll(&ent1->client->ps, ent1->client->ps.legsAnim))
-	{
-		return qfalse;
-	}
-	if (BG_InRoll(&ent2->client->ps, ent2->client->ps.legsAnim))
-	{
-		return qfalse;
-	}
-
-	if (ent1->client->ps.forceHandExtend != HANDEXTEND_NONE ||
-		ent2->client->ps.forceHandExtend != HANDEXTEND_NONE)
-	{
-		return qfalse;
-	}
-
-	if ((ent1->client->ps.pm_flags & PMF_DUCKED) ||
-		(ent2->client->ps.pm_flags & PMF_DUCKED))
-	{
-		return qfalse;
-	}
-
-	if ( (ent1->client->saber[0].saberFlags&SFL_NOT_LOCKABLE)
-		|| (ent2->client->saber[0].saberFlags&SFL_NOT_LOCKABLE) )
-	{
-		return qfalse;
-	}
-	if ( ent1->client->saber[1].model
-		&& ent1->client->saber[1].model[0]
-		&& !ent1->client->ps.saberHolstered
-		&& (ent1->client->saber[1].saberFlags&SFL_NOT_LOCKABLE) )
-	{
-		return qfalse;
-	}
-	if ( ent2->client->saber[1].model
-		&& ent2->client->saber[1].model[0]
-		&& !ent2->client->ps.saberHolstered
-		&& (ent2->client->saber[1].saberFlags&SFL_NOT_LOCKABLE) )
-	{
-		return qfalse;
-	}
-
-	if (!InFront( ent1->client->ps.origin, ent2->client->ps.origin, ent2->client->ps.viewangles, 0.4f ))
-	{
-		return qfalse;
-	}
-	if (!InFront( ent2->client->ps.origin, ent1->client->ps.origin, ent1->client->ps.viewangles, 0.4f ))
-	{
-		return qfalse;
-	}
-
-	//T to B lock
-	if ( ent1->client->ps.torsoAnim == BOTH_A1_T__B_ ||
-		ent1->client->ps.torsoAnim == BOTH_A2_T__B_ ||
-		ent1->client->ps.torsoAnim == BOTH_A3_T__B_ ||
-		ent1->client->ps.torsoAnim == BOTH_A4_T__B_ ||
-		ent1->client->ps.torsoAnim == BOTH_A5_T__B_ ||
-		ent1->client->ps.torsoAnim == BOTH_A6_T__B_ ||
-		ent1->client->ps.torsoAnim == BOTH_A7_T__B_)
-	{//ent1 is attacking top-down
-		return WP_SabersCheckLock2( ent1, ent2, LOCK_TOP );
-	}
-
-	if ( ent2->client->ps.torsoAnim == BOTH_A1_T__B_ ||
-		ent2->client->ps.torsoAnim == BOTH_A2_T__B_ ||
-		ent2->client->ps.torsoAnim == BOTH_A3_T__B_ ||
-		ent2->client->ps.torsoAnim == BOTH_A4_T__B_ ||
-		ent2->client->ps.torsoAnim == BOTH_A5_T__B_ ||
-		ent2->client->ps.torsoAnim == BOTH_A6_T__B_ ||
-		ent2->client->ps.torsoAnim == BOTH_A7_T__B_)
-	{//ent2 is attacking top-down
-		return WP_SabersCheckLock2( ent2, ent1, LOCK_TOP );
-	}
-
-	if ( ent1->s.number == 0 &&
-		ent1->client->ps.saberBlocking == BLK_WIDE && ent1->client->ps.weaponTime <= 0 )
-	{
-		ent1BlockingPlayer = qtrue;
-	}
-	if ( ent2->s.number == 0 &&
-		ent2->client->ps.saberBlocking == BLK_WIDE && ent2->client->ps.weaponTime <= 0 )
-	{
-		ent2BlockingPlayer = qtrue;
-	}
-
-	//TR to BL lock
-	if ( ent1->client->ps.torsoAnim == BOTH_A1_TR_BL ||
-		ent1->client->ps.torsoAnim == BOTH_A2_TR_BL ||
-		ent1->client->ps.torsoAnim == BOTH_A3_TR_BL ||
-		ent1->client->ps.torsoAnim == BOTH_A4_TR_BL ||
-		ent1->client->ps.torsoAnim == BOTH_A5_TR_BL ||
-		ent1->client->ps.torsoAnim == BOTH_A6_TR_BL ||
-		ent1->client->ps.torsoAnim == BOTH_A7_TR_BL)
-	{//ent1 is attacking diagonally
-		if ( ent2BlockingPlayer )
-		{//player will block this anyway
-			return WP_SabersCheckLock2( ent1, ent2, LOCK_DIAG_TR );
-		}
-		if ( ent2->client->ps.torsoAnim == BOTH_A1_TR_BL ||
-			ent2->client->ps.torsoAnim == BOTH_A2_TR_BL ||
-			ent2->client->ps.torsoAnim == BOTH_A3_TR_BL ||
-			ent2->client->ps.torsoAnim == BOTH_A4_TR_BL ||
-			ent2->client->ps.torsoAnim == BOTH_A5_TR_BL ||
-			ent2->client->ps.torsoAnim == BOTH_A6_TR_BL ||
-			ent2->client->ps.torsoAnim == BOTH_A7_TR_BL ||
-			ent2->client->ps.torsoAnim == BOTH_P1_S1_TL )
-		{//ent2 is attacking in the opposite diagonal
-			return WP_SabersCheckLock2( ent1, ent2, LOCK_DIAG_TR );
-		}
-		if ( ent2->client->ps.torsoAnim == BOTH_A1_BR_TL ||
-			ent2->client->ps.torsoAnim == BOTH_A2_BR_TL ||
-			ent2->client->ps.torsoAnim == BOTH_A3_BR_TL ||
-			ent2->client->ps.torsoAnim == BOTH_A4_BR_TL ||
-			ent2->client->ps.torsoAnim == BOTH_A5_BR_TL ||
-			ent2->client->ps.torsoAnim == BOTH_A6_BR_TL ||
-			ent2->client->ps.torsoAnim == BOTH_A7_BR_TL ||
-			ent2->client->ps.torsoAnim == BOTH_P1_S1_BL )
-		{//ent2 is attacking in the opposite diagonal
-			return WP_SabersCheckLock2( ent1, ent2, LOCK_DIAG_BL );
-		}
-		return qfalse;
-	}
-
-	if ( ent2->client->ps.torsoAnim == BOTH_A1_TR_BL ||
-		ent2->client->ps.torsoAnim == BOTH_A2_TR_BL ||
-		ent2->client->ps.torsoAnim == BOTH_A3_TR_BL ||
-		ent2->client->ps.torsoAnim == BOTH_A4_TR_BL ||
-		ent2->client->ps.torsoAnim == BOTH_A5_TR_BL ||
-		ent2->client->ps.torsoAnim == BOTH_A6_TR_BL ||
-		ent2->client->ps.torsoAnim == BOTH_A7_TR_BL)
-	{//ent2 is attacking diagonally
-		if ( ent1BlockingPlayer )
-		{//player will block this anyway
-			return WP_SabersCheckLock2( ent2, ent1, LOCK_DIAG_TR );
-		}
-		if ( ent1->client->ps.torsoAnim == BOTH_A1_TR_BL ||
-			ent1->client->ps.torsoAnim == BOTH_A2_TR_BL ||
-			ent1->client->ps.torsoAnim == BOTH_A3_TR_BL ||
-			ent1->client->ps.torsoAnim == BOTH_A4_TR_BL ||
-			ent1->client->ps.torsoAnim == BOTH_A5_TR_BL ||
-			ent1->client->ps.torsoAnim == BOTH_A6_TR_BL ||
-			ent1->client->ps.torsoAnim == BOTH_A7_TR_BL ||
-			ent1->client->ps.torsoAnim == BOTH_P1_S1_TL )
-		{//ent1 is attacking in the opposite diagonal
-			return WP_SabersCheckLock2( ent2, ent1, LOCK_DIAG_TR );
-		}
-		if ( ent1->client->ps.torsoAnim == BOTH_A1_BR_TL ||
-			ent1->client->ps.torsoAnim == BOTH_A2_BR_TL ||
-			ent1->client->ps.torsoAnim == BOTH_A3_BR_TL ||
-			ent1->client->ps.torsoAnim == BOTH_A4_BR_TL ||
-			ent1->client->ps.torsoAnim == BOTH_A5_BR_TL ||
-			ent1->client->ps.torsoAnim == BOTH_A6_BR_TL ||
-			ent1->client->ps.torsoAnim == BOTH_A7_BR_TL ||
-			ent1->client->ps.torsoAnim == BOTH_P1_S1_BL )
-		{//ent1 is attacking in the opposite diagonal
-			return WP_SabersCheckLock2( ent2, ent1, LOCK_DIAG_BL );
-		}
-		return qfalse;
-	}
-
-	//TL to BR lock
-	if ( ent1->client->ps.torsoAnim == BOTH_A1_TL_BR ||
-		ent1->client->ps.torsoAnim == BOTH_A2_TL_BR ||
-		ent1->client->ps.torsoAnim == BOTH_A3_TL_BR ||
-		ent1->client->ps.torsoAnim == BOTH_A4_TL_BR ||
-		ent1->client->ps.torsoAnim == BOTH_A5_TL_BR ||
-		ent1->client->ps.torsoAnim == BOTH_A6_TL_BR ||
-		ent1->client->ps.torsoAnim == BOTH_A7_TL_BR)
-	{//ent1 is attacking diagonally
-		if ( ent2BlockingPlayer )
-		{//player will block this anyway
-			return WP_SabersCheckLock2( ent1, ent2, LOCK_DIAG_TL );
-		}
-		if ( ent2->client->ps.torsoAnim == BOTH_A1_TL_BR ||
-			ent2->client->ps.torsoAnim == BOTH_A2_TL_BR ||
-			ent2->client->ps.torsoAnim == BOTH_A3_TL_BR ||
-			ent2->client->ps.torsoAnim == BOTH_A4_TL_BR ||
-			ent2->client->ps.torsoAnim == BOTH_A5_TL_BR ||
-			ent2->client->ps.torsoAnim == BOTH_A6_TL_BR ||
-			ent2->client->ps.torsoAnim == BOTH_A7_TL_BR ||
-			ent2->client->ps.torsoAnim == BOTH_P1_S1_TR )
-		{//ent2 is attacking in the opposite diagonal
-			return WP_SabersCheckLock2( ent1, ent2, LOCK_DIAG_TL );
-		}
-		if ( ent2->client->ps.torsoAnim == BOTH_A1_BL_TR ||
-			ent2->client->ps.torsoAnim == BOTH_A2_BL_TR ||
-			ent2->client->ps.torsoAnim == BOTH_A3_BL_TR ||
-			ent2->client->ps.torsoAnim == BOTH_A4_BL_TR ||
-			ent2->client->ps.torsoAnim == BOTH_A5_BL_TR ||
-			ent2->client->ps.torsoAnim == BOTH_A6_BL_TR ||
-			ent2->client->ps.torsoAnim == BOTH_A7_BL_TR ||
-			ent2->client->ps.torsoAnim == BOTH_P1_S1_BR )
-		{//ent2 is attacking in the opposite diagonal
-			return WP_SabersCheckLock2( ent1, ent2, LOCK_DIAG_BR );
-		}
-		return qfalse;
-	}
-
-	if ( ent2->client->ps.torsoAnim == BOTH_A1_TL_BR ||
-		ent2->client->ps.torsoAnim == BOTH_A2_TL_BR ||
-		ent2->client->ps.torsoAnim == BOTH_A3_TL_BR ||
-		ent2->client->ps.torsoAnim == BOTH_A4_TL_BR ||
-		ent2->client->ps.torsoAnim == BOTH_A5_TL_BR ||
-		ent2->client->ps.torsoAnim == BOTH_A6_TL_BR ||
-		ent2->client->ps.torsoAnim == BOTH_A7_TL_BR)
-	{//ent2 is attacking diagonally
-		if ( ent1BlockingPlayer )
-		{//player will block this anyway
-			return WP_SabersCheckLock2( ent2, ent1, LOCK_DIAG_TL );
-		}
-		if ( ent1->client->ps.torsoAnim == BOTH_A1_TL_BR ||
-			ent1->client->ps.torsoAnim == BOTH_A2_TL_BR ||
-			ent1->client->ps.torsoAnim == BOTH_A3_TL_BR ||
-			ent1->client->ps.torsoAnim == BOTH_A4_TL_BR ||
-			ent1->client->ps.torsoAnim == BOTH_A5_TL_BR ||
-			ent1->client->ps.torsoAnim == BOTH_A6_TL_BR ||
-			ent1->client->ps.torsoAnim == BOTH_A7_TL_BR ||
-			ent1->client->ps.torsoAnim == BOTH_P1_S1_TR )
-		{//ent1 is attacking in the opposite diagonal
-			return WP_SabersCheckLock2( ent2, ent1, LOCK_DIAG_TL );
-		}
-		if ( ent1->client->ps.torsoAnim == BOTH_A1_BL_TR ||
-			ent1->client->ps.torsoAnim == BOTH_A2_BL_TR ||
-			ent1->client->ps.torsoAnim == BOTH_A3_BL_TR ||
-			ent1->client->ps.torsoAnim == BOTH_A4_BL_TR ||
-			ent1->client->ps.torsoAnim == BOTH_A5_BL_TR ||
-			ent1->client->ps.torsoAnim == BOTH_A6_BL_TR ||
-			ent1->client->ps.torsoAnim == BOTH_A7_BL_TR ||
-			ent1->client->ps.torsoAnim == BOTH_P1_S1_BR )
-		{//ent1 is attacking in the opposite diagonal
-			return WP_SabersCheckLock2( ent2, ent1, LOCK_DIAG_BR );
-		}
-		return qfalse;
-	}
-	//L to R lock
-	if ( ent1->client->ps.torsoAnim == BOTH_A1__L__R ||
-		ent1->client->ps.torsoAnim == BOTH_A2__L__R ||
-		ent1->client->ps.torsoAnim == BOTH_A3__L__R ||
-		ent1->client->ps.torsoAnim == BOTH_A4__L__R ||
-		ent1->client->ps.torsoAnim == BOTH_A5__L__R ||
-		ent1->client->ps.torsoAnim == BOTH_A6__L__R ||
-		ent1->client->ps.torsoAnim == BOTH_A7__L__R)
-	{//ent1 is attacking l to r
-		if ( ent2BlockingPlayer )
-		{//player will block this anyway
-			return WP_SabersCheckLock2( ent1, ent2, LOCK_L );
-		}
-		if ( ent2->client->ps.torsoAnim == BOTH_A1_TL_BR ||
-			ent2->client->ps.torsoAnim == BOTH_A2_TL_BR ||
-			ent2->client->ps.torsoAnim == BOTH_A3_TL_BR ||
-			ent2->client->ps.torsoAnim == BOTH_A4_TL_BR ||
-			ent2->client->ps.torsoAnim == BOTH_A5_TL_BR ||
-			ent2->client->ps.torsoAnim == BOTH_A6_TL_BR ||
-			ent2->client->ps.torsoAnim == BOTH_A7_TL_BR ||
-			ent2->client->ps.torsoAnim == BOTH_P1_S1_TR ||
-			ent2->client->ps.torsoAnim == BOTH_P1_S1_BL )
-		{//ent2 is attacking or blocking on the r
-			return WP_SabersCheckLock2( ent1, ent2, LOCK_L );
-		}
-		return qfalse;
-	}
-	if ( ent2->client->ps.torsoAnim == BOTH_A1__L__R ||
-		ent2->client->ps.torsoAnim == BOTH_A2__L__R ||
-		ent2->client->ps.torsoAnim == BOTH_A3__L__R ||
-		ent2->client->ps.torsoAnim == BOTH_A4__L__R ||
-		ent2->client->ps.torsoAnim == BOTH_A5__L__R ||
-		ent2->client->ps.torsoAnim == BOTH_A6__L__R ||
-		ent2->client->ps.torsoAnim == BOTH_A7__L__R)
-	{//ent2 is attacking l to r
-		if ( ent1BlockingPlayer )
-		{//player will block this anyway
-			return WP_SabersCheckLock2( ent2, ent1, LOCK_L );
-		}
-		if ( ent1->client->ps.torsoAnim == BOTH_A1_TL_BR ||
-			ent1->client->ps.torsoAnim == BOTH_A2_TL_BR ||
-			ent1->client->ps.torsoAnim == BOTH_A3_TL_BR ||
-			ent1->client->ps.torsoAnim == BOTH_A4_TL_BR ||
-			ent1->client->ps.torsoAnim == BOTH_A5_TL_BR ||
-			ent1->client->ps.torsoAnim == BOTH_A6_TL_BR ||
-			ent1->client->ps.torsoAnim == BOTH_A7_TL_BR ||
-			ent1->client->ps.torsoAnim == BOTH_P1_S1_TR ||
-			ent1->client->ps.torsoAnim == BOTH_P1_S1_BL )
-		{//ent1 is attacking or blocking on the r
-			return WP_SabersCheckLock2( ent2, ent1, LOCK_L );
-		}
-		return qfalse;
-	}
-	//R to L lock
-	if ( ent1->client->ps.torsoAnim == BOTH_A1__R__L ||
-		ent1->client->ps.torsoAnim == BOTH_A2__R__L ||
-		ent1->client->ps.torsoAnim == BOTH_A3__R__L ||
-		ent1->client->ps.torsoAnim == BOTH_A4__R__L ||
-		ent1->client->ps.torsoAnim == BOTH_A5__R__L ||
-		ent1->client->ps.torsoAnim == BOTH_A6__R__L ||
-		ent1->client->ps.torsoAnim == BOTH_A7__R__L)
-	{//ent1 is attacking r to l
-		if ( ent2BlockingPlayer )
-		{//player will block this anyway
-			return WP_SabersCheckLock2( ent1, ent2, LOCK_R );
-		}
-		if ( ent2->client->ps.torsoAnim == BOTH_A1_TR_BL ||
-			ent2->client->ps.torsoAnim == BOTH_A2_TR_BL ||
-			ent2->client->ps.torsoAnim == BOTH_A3_TR_BL ||
-			ent2->client->ps.torsoAnim == BOTH_A4_TR_BL ||
-			ent2->client->ps.torsoAnim == BOTH_A5_TR_BL ||
-			ent2->client->ps.torsoAnim == BOTH_A6_TR_BL ||
-			ent2->client->ps.torsoAnim == BOTH_A7_TR_BL ||
-			ent2->client->ps.torsoAnim == BOTH_P1_S1_TL ||
-			ent2->client->ps.torsoAnim == BOTH_P1_S1_BR )
-		{//ent2 is attacking or blocking on the l
-			return WP_SabersCheckLock2( ent1, ent2, LOCK_R );
-		}
-		return qfalse;
-	}
-	if ( ent2->client->ps.torsoAnim == BOTH_A1__R__L ||
-		ent2->client->ps.torsoAnim == BOTH_A2__R__L ||
-		ent2->client->ps.torsoAnim == BOTH_A3__R__L ||
-		ent2->client->ps.torsoAnim == BOTH_A4__R__L ||
-		ent2->client->ps.torsoAnim == BOTH_A5__R__L ||
-		ent2->client->ps.torsoAnim == BOTH_A6__R__L ||
-		ent2->client->ps.torsoAnim == BOTH_A7__R__L)
-	{//ent2 is attacking r to l
-		if ( ent1BlockingPlayer )
-		{//player will block this anyway
-			return WP_SabersCheckLock2( ent2, ent1, LOCK_R );
-		}
-		if ( ent1->client->ps.torsoAnim == BOTH_A1_TR_BL ||
-			ent1->client->ps.torsoAnim == BOTH_A2_TR_BL ||
-			ent1->client->ps.torsoAnim == BOTH_A3_TR_BL ||
-			ent1->client->ps.torsoAnim == BOTH_A4_TR_BL ||
-			ent1->client->ps.torsoAnim == BOTH_A5_TR_BL ||
-			ent1->client->ps.torsoAnim == BOTH_A6_TR_BL ||
-			ent1->client->ps.torsoAnim == BOTH_A7_TR_BL ||
-			ent1->client->ps.torsoAnim == BOTH_P1_S1_TL ||
-			ent1->client->ps.torsoAnim == BOTH_P1_S1_BR )
-		{//ent1 is attacking or blocking on the l
-			return WP_SabersCheckLock2( ent2, ent1, LOCK_R );
-		}
-		return qfalse;
-	}
-	if ( !Q_irand( 0, 10 ) )
-	{
-		return WP_SabersCheckLock2( ent1, ent2, LOCK_RANDOM );
-	}
-	return qfalse;
-}
-*/
 //[/SaberLockSys]
 
 
@@ -2654,7 +2213,6 @@ static GAME_INLINE int G_GetAttackDamage(gentity_t *self, int minDmg, int maxDmg
 	//Be sure to scale by the proper anim speed just as if we were going to play the animation
 	//[FatigueSys]
 	BG_SaberStartTransAnim(self->s.number, self->client->ps.fd.saberAnimLevel, self->client->ps.weapon, self->client->ps.torsoAnim, &animSpeedFactor, self->client->ps.brokenLimbs, self->client->ps.userInt3);
-	//BG_SaberStartTransAnim(self->s.number, self->client->ps.fd.saberAnimLevel, self->client->ps.weapon, self->client->ps.torsoAnim, &animSpeedFactor, self->client->ps.brokenLimbs);
 	//[/FatigueSys]
 	speedDif = attackAnimLength - (attackAnimLength * animSpeedFactor);
 	attackAnimLength += speedDif;
@@ -2706,7 +2264,6 @@ static GAME_INLINE float G_GetAnimPoint(gentity_t *self)
 	//Be sure to scale by the proper anim speed just as if we were going to play the animation
 	//[FatigueSys]
 	BG_SaberStartTransAnim(self->s.number, self->client->ps.fd.saberAnimLevel, self->client->ps.weapon, self->client->ps.torsoAnim, &animSpeedFactor, self->client->ps.brokenLimbs, self->client->ps.userInt3);
-	//BG_SaberStartTransAnim(self->s.number, self->client->ps.fd.saberAnimLevel, self->client->ps.weapon, self->client->ps.torsoAnim, &animSpeedFactor, self->client->ps.brokenLimbs);
 	//[/FatigueSys]
 	speedDif = attackAnimLength - (attackAnimLength * animSpeedFactor);
 	attackAnimLength += speedDif;
@@ -2742,7 +2299,6 @@ static GAME_INLINE qboolean G_ClientIdleInWorld(gentity_t *ent)
 		//using this function anymore.
 		!(ent->client->pers.cmd.buttons & BUTTON_ATTACK) &&
 		!(ent->client->pers.cmd.buttons & BUTTON_SABERTHROW))
-		//!(ent->client->pers.cmd.buttons & BUTTON_ATTACK))
 		//[/SaberSys]
 	{
 		return qtrue;
@@ -3186,7 +2742,6 @@ qboolean OJP_BladeIsOff(gentity_t *self, int saberNum, int bladeNum);
 static GAME_INLINE qboolean G_SaberCollide(gentity_t *atk, gentity_t *def, vec3_t atkStart, 
 //[SaberSys]
 											vec3_t atkEnd, vec3_t atkMins, vec3_t atkMaxs, trace_t *tr)
-//											vec3_t atkEnd, vec3_t atkMins, vec3_t atkMaxs, vec3_t impactPoint)
 //[/SaberSys]
 {
 	static int i, j;
@@ -3200,7 +2755,6 @@ static GAME_INLINE qboolean G_SaberCollide(gentity_t *atk, gentity_t *def, vec3_
 	//Removed the atk gentity requirements for the function so my saber trace will work with
 	//atk gentity checks.
 	if (!def->inuse || !def->client)
-	//if (!atk->inuse || !atk->client || !def->inuse || !def->client)
 	{ //must have 2 clients and a valid saber entity
 		TraceClear( tr, atkEnd);
 		return qfalse;
@@ -3267,7 +2821,6 @@ static GAME_INLINE qboolean G_SaberCollide(gentity_t *atk, gentity_t *def, vec3_
 						//[SaberSys]
 						//atk is no longer assumed to be valid at this point
 						if (atk->inuse && atk->client && atk->s.number == 0)
-						//if (atk->s.number == 0)
 						//[/SaberSys]
 						{
 							int x = 0;
@@ -3286,7 +2839,6 @@ static GAME_INLINE qboolean G_SaberCollide(gentity_t *atk, gentity_t *def, vec3_
 #endif
 						//[SaberSys]
 						if (G_SaberFaceCollisionCheck(fNum, fList, atkStart, atkEnd, atkMins, atkMaxs, tr->endpos))
-						//if (G_SaberFaceCollisionCheck(fNum, fList, atkStart, atkEnd, atkMins, atkMaxs, impactPoint))
 						{ //collided
 							//determine the plane of impact for the viewlocking stuff.
 							vec3_t result;
@@ -5132,7 +4684,6 @@ void WP_SaberDoHit( gentity_t *self, int saberNum, int bladeNum )
 extern qboolean G_EntIsBreakable( int entityNum );
 //[KnockdownSys]
 extern void G_Knockdown( gentity_t *self, gentity_t *attacker, const vec3_t pushDir, float strength, qboolean breakSaberLock );
-//extern void G_Knockdown( gentity_t *victim );
 //[/KnockdownSys]
 void WP_SaberRadiusDamage( gentity_t *ent, vec3_t point, float radius, int damage, float knockBack )
 {
@@ -5221,7 +4772,6 @@ void WP_SaberRadiusDamage( gentity_t *ent, vec3_t point, float radius, int damag
 									//racc - FYI, this appears to be code pulled from Tavion's spector slam, not sure
 									//why it's in the saber radius damage stuff.
 									G_Knockdown( radiusEnt, ent, entDir, 500, qtrue );
-									//G_Knockdown( radiusEnt );//, ent, entDir, 500, qtrue );
 									//[/KnockdownSys]
 								}
 							}
@@ -5316,967 +4866,11 @@ void WP_SaberBounceSound( gentity_t *ent, int saberNum, int bladeNum )
 
 
 //[SaberSys]
-//Not used anymore.
-//static qboolean saberHitWall = qfalse;
-//static qboolean saberHitSaber = qfalse;
-//static float saberHitFraction = 1.0f;
-//[/SaberSys]
-
-//rww - MP version of the saber damage function. This is where all the things like blocking, triggering a parry,
-//triggering a broken parry, doing actual damage, etc. are done for the saber. It doesn't resemble the SP
-//version very much, but functionality is (hopefully) about the same.
-//This is a large function. I feel sort of bad inlining it. But it does get called tons of times per frame.
-//[SaberSys] moved this prototype up for ojp_SaberCanBlock
-/*
-#include "../namespace_begin.h"
-qboolean BG_SuperBreakWinAnim( int anim );
-#include "../namespace_end.h"
+/*Not used anymore.
+static qboolean saberHitWall = qfalse;
+static qboolean saberHitSaber = qfalse;
+static float saberHitFraction = 1.0f;
 */
-//[/SaberSys]
-
-//[SaberSys]
-static GAME_INLINE void G_SetViewLockDebounce( gentity_t *self )
-{
-	if(!WalkCheck(self))
-	{//running pauses you longer
-		self->client->viewLockTime = level.time + 500;
-	}
-	else if( PM_SaberInParry(G_GetParryForBlock(self->client->ps.saberBlocked)) //normal block (not a parry)
-		|| (!PM_SaberInKnockaway(self->client->ps.saberMove) //didn't parry
-		&& self->client->ps.stats[STAT_DODGE] < self->client->ps.stats[STAT_MAX_DODGE]*.50) )
-	{//normal block or attacked with less than %50 DP
-		self->client->viewLockTime = level.time + 300;
-	}
-	else
-	{
-        self->client->viewLockTime = level.time;
-	}
-}
-
-
-static GAME_INLINE void G_SetViewLock( gentity_t *self, vec3_t impactPos, vec3_t impactNormal )
-{//Sets the view/movement lock flags based on the given information
-	vec3_t	cross;
-	vec3_t	length;
-	vec3_t  forward;
-	vec3_t  right;
-	vec3_t  up;
-
-	if( !self || !self->client )
-	{
-		return;
-	}
-
-	//Since this is the only function that sets/unsets these flags.  We need to clear them
-	//all before messing with them.  Otherwise we end up with all the flags piling up until
-	//they are cleared.
-	self->client->ps.userInt1 = 0;
-
-	if( VectorCompare( impactNormal, vec3_origin ) 
-		|| self->client->ps.saberInFlight )
-	{//bad impact surface normal or our saber is in flgiht
-		return;
-	}
-
-	//find the impact point in terms of the player origin
-	VectorSubtract( impactPos, self->client->ps.origin, length );
-
-	//Check for very low hits.  If it's very close to the lower bbox edge just skip view/move locking.  
-	//This is to prevent issues with many of the saber moves touching the ground naturally.
-	if ( length[2] < (.8 * self->r.mins[2]))
-	{
-		return;
-	}
-
-	CrossProduct( length, impactNormal, cross );
-
-	if( cross[0] > 0 )
-	{
-		self->client->ps.userInt1 |= LOCK_UP;
-	}
-	else if ( cross[0] < 0 )
-	{
-		self->client->ps.userInt1 |= LOCK_DOWN;
-	}
-
-	if( cross[2] > 0 )
-	{
-		self->client->ps.userInt1 |= LOCK_RIGHT;
-	}
-	else if ( cross[2] < 0 )
-	{
-		self->client->ps.userInt1 |= LOCK_LEFT;
-	}
-
-
-	//Movement lock
-
-	//Forward
-	AngleVectors(self->client->ps.viewangles, forward, right, up);
-	if ( DotProduct(length, forward) < 0 )
-	{//lock backwards
-		self->client->ps.userInt1 |= LOCK_MOVEBACK;
-	}
-	else if ( DotProduct(length, forward) > 0 )
-	{//lock forwards
-		self->client->ps.userInt1 |= LOCK_MOVEFORWARD;
-	}
-
-	if ( DotProduct(length, right) < 0 )
-	{
-		self->client->ps.userInt1 |= LOCK_MOVELEFT;
-	}
-	else if ( DotProduct(length, right) > 0 )
-	{
-		self->client->ps.userInt1 |= LOCK_MOVERIGHT;
-	}
-
-	if ( DotProduct(length, up) > 0 )
-	{
-		self->client->ps.userInt1 |= LOCK_MOVEDOWN;
-	}
-	else if ( DotProduct(length, up) < 0 )
-	{
-		self->client->ps.userInt1 |= LOCK_MOVEUP;
-	}
-}
-
- 		
-//[SaberSys]
-
-
-static GAME_INLINE void AnimateKnockaway( gentity_t *self, gentity_t * inflictor, vec3_t impact )
-{//do an knockaway.
-	if( !PM_SaberInKnockaway(self->client->ps.saberMove) && !PM_InKnockDown(&self->client->ps) )
-	{
-		if (!PM_SaberInParry(self->client->ps.saberMove))
-		{
-			WP_SaberBlockNonRandom(self, impact, qfalse);
-			self->client->ps.saberMove = BG_KnockawayForParry( self->client->ps.saberBlocked );
-			self->client->ps.saberBlocked = BLOCKED_BOUNCE_MOVE;
-		}
-		else
-		{
-			self->client->ps.saberMove = G_KnockawayForParry(self->client->ps.saberMove); //BG_KnockawayForParry( otherOwner->client->ps.saberBlocked );
-			self->client->ps.saberBlocked = BLOCKED_BOUNCE_MOVE;
-		}
-	}
-}
-
-
-
-extern void NPC_SetPainEvent( gentity_t *self );
-extern void NPC_Pain(gentity_t *self, gentity_t *attacker, int damage);
-void AnimateStun( gentity_t *self, gentity_t * inflictor, vec3_t impact )
-{//place self into a stunned state.
-	//RAFIXME - I need to figure out a way to make non-saberers stumble.
-	if(self->client->ps.weapon != WP_SABER)
-	{//knock them down instead
-		G_Knockdown(self, inflictor, vec3_origin, 300, qtrue);
-	}
-	else if( !PM_SaberInBrokenParry(self->client->ps.saberMove) 
-		&& !PM_InKnockDown(&self->client->ps) )
-	{
-		if (!PM_SaberInParry(G_GetParryForBlock(self->client->ps.saberBlocked)))
-		{//not already in a parry position, get one
-			WP_SaberBlockNonRandom(self, impact, qfalse);
-		}
-					
-		self->client->ps.saberMove = BG_BrokenParryForParry(G_GetParryForBlock(self->client->ps.saberBlocked));
-		self->client->ps.saberBlocked = BLOCKED_PARRY_BROKEN;
-
-		//make pain noise
-		if ( self->s.number < MAX_CLIENTS )
-		{
-			G_AddEvent( self, Q_irand(EV_PUSHED1, EV_PUSHED3), 0 );
-		}
-		else
-		{//npc
-			NPC_Pain( self, inflictor, 0 );
-		}
-	}
-}
-
-
-void AnimateKnockdown( gentity_t * self, gentity_t * inflictor )
-{
-	if (self->health > 0 && !PM_InKnockDown(&self->client->ps))
-	{ //if still alive knock them down
-		//[KnockdownSys]
-		//use SP style knockdown
-		int throwStr = Q_irand(50, 75);
-
-		//push person away from attacker
-		vec3_t pushDir;
-
-		if(inflictor)
-		{
-			VectorSubtract(self->client->ps.origin, inflictor->r.currentOrigin, pushDir);
-		}
-		else
-		{//this is possible in debug situations or where there's mishaps without another player (IE rarely)
-			AngleVectors(self->client->ps.viewangles, pushDir, NULL, NULL);
-			//reverse it
-			VectorScale(pushDir, -1, pushDir);
-		}
-		pushDir[2] = 0;
-		VectorNormalize(pushDir);
-		G_Throw(self, pushDir, throwStr);
-
-		//translate throw strength to the force used for determining knockdown anim.
-		if(throwStr > 65)
-		{//really got nailed, play the hard version of the knockdown anims
-			throwStr = 300;
-		}	
-
-		//knock them on their ass!
-		G_Knockdown(self, inflictor, pushDir, throwStr, qtrue);
-
-		/* the old basejka way
-		self->client->ps.forceHandExtend = HANDEXTEND_KNOCKDOWN;
-		self->client->ps.forceHandExtendTime = level.time + 1300;
-		*/
-		//[/KnockdownSys]
-
-		//Count as kill for attacker if the other player falls to his death.
-		if( inflictor && inflictor->inuse && inflictor->client )
-		{
-			self->client->ps.otherKiller = self->s.number;
-			self->client->ps.otherKillerTime = level.time + 8000;
-			self->client->ps.otherKillerDebounceTime = level.time + 100;
-		}
-	}
-}
-
-
-qboolean PM_RunningAnim( int anim );
-//Check to see if the player is actually walking or just standing
-qboolean GAME_INLINE WalkCheck( gentity_t * self )
-{
-	if(PM_RunningAnim(self->client->ps.legsAnim))
-	{
-		return qfalse;
-	}
-
-	/* old method.  seems to have issues failing players when they're walking diagonally. :|
-	float velocity = VectorLength(self->client->ps.velocity);
-	if (velocity == 0)
-	{
-		return qtrue;
-	}
-
-	if( self->client->ps.groundEntityNum == ENTITYNUM_NONE )
-	{//count as walking!
-		return qtrue;
-	}
-
-	if(velocity >= (g_speed.value * (.37)) )
-	{//on the ground and moving at run speeds.
-		//G_Printf("Player %i is running: %f\n", self->s.number, velocity);
-		return qfalse;
-	}
-	*/
-
-	return qtrue;
-}
-//[/SaberSys]
-
-//[DodgeSys]
-void DoNormalDodge(gentity_t *self, int dodgeAnim, qboolean partial)
-{//have self go into the given dodgeAnim				   
-	//Our own happy way of forcing an anim:
-	self->client->ps.forceHandExtend = HANDEXTEND_DODGE;
-	self->client->ps.forceDodgeAnim = dodgeAnim;
-	self->client->ps.forceHandExtendTime = level.time + 300;
-	self->client->ps.weaponTime = 300;
-	self->client->ps.saberMove = LS_NONE;
-
-	if(!partial)
-	{//only do the after image during full dodges.
-		self->client->ps.powerups[PW_SPEEDBURST] = level.time + 100;
-	}
-
-	G_Sound( self, CHAN_BODY, G_SoundIndex("sound/weapons/force/speed.wav") );
-}
-
-
-qboolean DodgeRollCheck(gentity_t *self, int dodgeAnim, vec3_t forward, vec3_t right)
-{//checks to see if there's a cliff in the direction that dodgeAnim would travel.
-	vec3_t mins, maxs, traceto_mod, tracefrom_mod, moveDir;
-	trace_t tr;
-	int contents;
-	int dodgeDistance = 200;//how far away do we do the scans.
-
-	//determine which direction we're travelling in.
-	if( dodgeAnim == BOTH_ROLL_F || dodgeAnim == BOTH_HOP_F )
-	{//forward rolls
-		VectorCopy(forward, moveDir);
-	}
-	else if( dodgeAnim == BOTH_ROLL_B || dodgeAnim == BOTH_HOP_B )
-	{//backward rolls
-		VectorCopy(forward, moveDir);
-		VectorScale(moveDir, -1, moveDir);
-	}
-	else if( dodgeAnim == BOTH_GETUP_BROLL_R 
-		|| dodgeAnim == BOTH_GETUP_FROLL_R
-		|| dodgeAnim == BOTH_ROLL_R
-		|| dodgeAnim == BOTH_HOP_R )
-	{//right rolls
-		VectorCopy(right, moveDir);
-	}
-	else if( dodgeAnim == BOTH_GETUP_BROLL_L 
-		|| dodgeAnim == BOTH_GETUP_FROLL_L
-		|| dodgeAnim == BOTH_ROLL_L
-		|| dodgeAnim == BOTH_HOP_L )
-	{//left rolls
-		VectorCopy(right, moveDir);
-		VectorScale(moveDir, -1, moveDir);
-	}
-	else
-	{
-		G_Printf("Error: unknown dodge roll animation %i given to DodgeRollFallCheck.\n", dodgeAnim);
-		return qfalse;
-	}
-
-	if( dodgeAnim == BOTH_HOP_L || dodgeAnim == BOTH_HOP_R )
-	{//left/right hops are shorter
-		dodgeDistance = 120;
-	}
-		
-	//set up the trace positions
-	VectorCopy(self->client->ps.origin, tracefrom_mod);
-	VectorMA(tracefrom_mod, dodgeDistance, moveDir, traceto_mod);
-
-	mins[0] = -15;
-	mins[1] = -15;
-	mins[2] = -10; //was -18, changed because bots were hopping over the flag stands
-					//on ctf1
-	maxs[0] = 15;
-	maxs[1] = 15;
-	maxs[2] = 32;
-
-	//check for solids/or players in the way.
-	trap_Trace(&tr, tracefrom_mod, mins, maxs, traceto_mod, self->client->ps.clientNum, 
-		MASK_PLAYERSOLID);
-	if (tr.fraction != 1 || tr.startsolid)
-	{//something is in the way.
-		return qfalse;
-	}
-
-	VectorCopy(traceto_mod, tracefrom_mod);
-
-
-	//check for 20+ feet drops
-	traceto_mod[2] -= 200;
-
-	trap_Trace(&tr, tracefrom_mod, mins, maxs, traceto_mod, self->client->ps.clientNum, 
-		MASK_SOLID);
-	if (tr.fraction == 1 && !tr.startsolid)
-	{//CLIFF!
-		return qfalse;
-	}
-
-	contents = trap_PointContents( tr.endpos, -1 );
-	if(contents & (CONTENTS_SLIME|CONTENTS_LAVA))
-	{//the fall point is inside something we don't want to fall to
-		return qfalse;
-	}
-
-	return qtrue;
-}
-
-extern qboolean BG_HopAnim( int anim );
-extern qboolean PM_InKnockDown( playerState_t *ps );
-extern int DetermineDisruptorCharge(gentity_t *ent);
-//Returns qfalse if hit effects/damage is still suppose to be applied.
-qboolean G_DoDodge( gentity_t *self, gentity_t *shooter, vec3_t dmgOrigin, int hitLoc, int * dmg, int mod )
-{
-	int	dodgeAnim = -1;
-	int dpcost = BasicDodgeCosts[mod];
-
-	//saved copy of the original damage level.  This is used determine the kickback power for slashdamage dodges.
-	int savedDmg = *dmg; 
-
-	//partial dodge flag
-	qboolean partial = qfalse;
-
-	//Don't do any visuals.
-	qboolean NoAction = qfalse;
-/*
-	if( !ojp_allowBodyDodge.integer )
-	{//body dodges have been disabled.  
-		return qfalse;
-	}
-*/
-if( !ojp_allowBodyDodge.integer )
-	{//body dodges have been disabled. 
-		if(self->client && !(self->client->pers.cmd.generic_cmd & GENCMD_FORCE_HEALOTHER))
-		return qfalse;
-	}
-
-	if(self->NPC 
-		&& (self->client->NPC_class == CLASS_SABER_DROID ||
-			self->client->NPC_class == CLASS_ASSASSIN_DROID ||
-			self->client->NPC_class == CLASS_GONK ||
-			self->client->NPC_class == CLASS_MOUSE ||
-			self->client->NPC_class == CLASS_PROBE ||
-			self->client->NPC_class == CLASS_PROTOCOL ||
-			self->client->NPC_class == CLASS_R2D2 ||
-			self->client->NPC_class == CLASS_R5D2 ||
-			self->client->NPC_class == CLASS_SEEKER ||
-			self->client->NPC_class == CLASS_INTERROGATOR) )
-	{//non-humans don't get Dodge.
-		return qfalse;
-	}
-
-	if( dpcost == -1 )
-	{//can't dodge this.
-		if(g_debugdodge.integer)
-		{
-			G_Printf("%i: Client %i Can't Dodge this type of damage.\n", 
-					level.time, self->s.number);
-		}
-		return qfalse;
-	}
-
-	if(!self || !self->client || !self->inuse || self->health <= 0 )
-	{		
-		if(g_debugdodge.integer)
-		{
-			G_Printf("%i: Client %i Entity is dead or bad.  Can't Dodge.\n", 
-					level.time, self->s.number);
-		}
-		return qfalse;
-	}
-	//[DodgeChange]
-	if (self->client->ps.stats[STAT_DODGE] < 30)
-	{//Not enough dodge
-		return qfalse;
-	}
-	//[/DodgeChange]
-	//check for private duel conditions
-	if (shooter && shooter->client)
-	{
-		if(shooter->client->ps.duelInProgress && shooter->client->ps.duelIndex != self->s.number)
-		{//enemy client is in duel with someone else.
-			return qfalse;
-		}
-	
-		if (self->client->ps.duelInProgress && self->client->ps.duelIndex != shooter->s.number)
-		{//we're in a duel with someone else.
-			return qfalse;
-		}
-	}
-
-	if(BG_HopAnim(self->client->ps.legsAnim) //in dodge hop
-		|| (BG_InRoll(&self->client->ps, self->client->ps.legsAnim) 
-			&& (self->client->ps.userInt3 & (1 << FLAG_DODGEROLL)))  //in dodge roll
-			//dodging non-saber damage and in dodge animation
-			|| (mod != MOD_SABER && self->client->ps.forceHandExtend == HANDEXTEND_DODGE) )
-	{//already doing a dodge
-		if(g_debugdodge.integer)
-		{
-			G_Printf("%i: Client %i continues Dodge Roll.\n", level.time, self->s.number );
-		}
-		return qtrue;
-	}
-
-	if ( self->client->ps.groundEntityNum == ENTITYNUM_NONE 
-		&& mod != MOD_REPEATER_ALT_SPLASH 
-		&& mod != MOD_FLECHETTE_ALT_SPLASH
-		&& mod != MOD_ROCKET_SPLASH
-		&& mod != MOD_ROCKET_HOMING_SPLASH
-		&& mod != MOD_THERMAL_SPLASH
-		&& mod != MOD_TRIP_MINE_SPLASH
-		&& mod != MOD_TIMED_MINE_SPLASH
-		&& mod != MOD_DET_PACK_SPLASH )
-	{//can't dodge direct fire in mid-air
-		if(g_debugdodge.integer)
-		{
-			G_Printf("%i: Client %i Can't dodge in mid air.\n", level.time, self->s.number);
-		}
-		return qfalse;
-	}
-
-	if ( self->client->ps.forceHandExtend == HANDEXTEND_CHOKE
-		|| BG_InGrappleMove(self->client->ps.torsoAnim) > 1 )
-	{//in some effect that stops me from moving on my own
-		if(g_debugdodge.integer)
-		{
-			G_Printf("%i: Client %i Being held, can't dodge.\n", level.time, self->s.number);
-		}
-		return qfalse;
-	}
-
-	if(mod == MOD_MELEE)
-	{//don't dodge melee attacks for now.
-		if(g_debugdodge.integer)
-		{
-			G_Printf("%i: Client %i Can't dodge melee damage\n", level.time, self->s.number);
-		}
-		return qfalse;
-	}
-
-	if(self->client->ps.legsAnim == BOTH_MEDITATE)
-	{//can't dodge while meditating.
-		if(g_debugdodge.integer)
-		{
-			G_Printf("%i: Client %i Meditating, Can't Dodge.\n", level.time, self->s.number);
-		}
-		return qfalse;
-	}
-
-	if(mod == MOD_SABER && shooter && shooter->client)
-	{//special saber moves have special effects.
-		if(shooter->client->ps.saberMove == LS_A_LUNGE 
-				|| shooter->client->ps.saberMove == LS_SPINATTACK
-				|| shooter->client->ps.saberMove == LS_SPINATTACK_DUAL)
-		{//attacker is doing lunge special
-			if(self->client->ps.userInt3 & (1 << FLAG_FATIGUED_HEAVY))
-			{//can't dodge a lunge special while fatigued
-				return qfalse;
-			}
-		}
-
-		if(BG_SuperBreakWinAnim(shooter->client->ps.torsoAnim) && self->client->ps.stats[STAT_DODGE] < DODGE_CRITICALLEVEL)
-		{//can't block super breaks if we're low on DP.
-			return qfalse;
-		}
-
-		if(!WalkCheck(self)
-			&& (!InFront(shooter->client->ps.origin, self->client->ps.origin, self->client->ps.viewangles, -.7f)
-			|| BG_SaberInAttack( self->client->ps.saberMove )
-			|| PM_SaberInStart( self->client->ps.saberMove )))
-		{
-			if(self->NPC)
-			{//can't Dodge saber swings while running and hit from behind or in swing.
-				return qtrue;
-			}
-			else
-			{//can't Dodge saber swings while running and hit from behind or in swing.
-				return qfalse;
-			}
-		}
-	}
-
-	if( *dmg <= DODGE_MINDAM && mod != MOD_REPEATER )
-	{
-		dpcost = (int)(dpcost * ((float) *dmg/DODGE_MINDAM));
-		NoAction = qtrue;
-	}
-	else if ( self->client->ps.forceHandExtend == HANDEXTEND_DODGE )
-	{//you're already dodging but you got hit again.
-		dpcost = 0;
-	}
-
-	if(mod == MOD_DISRUPTOR_SNIPER && shooter && shooter->client)
-	{//25,50,75,100
-	 //15,30,45,60
-		int damage=0;
-
-		if(shooter->genericValue6 <= 10)
-			damage=10;
-		else if(shooter->genericValue6 <= 25)
-			damage=20;
-		else if(shooter->genericValue6 < 59)
-			damage=50;
-		else if(shooter->genericValue6 == 60)
-			damage=100;
-
-		if(self->client->ps.stats[STAT_DODGE] > damage)
-			dpcost=damage;
-		else
-			return qfalse;
-		/*
-		switch(shooter->client->skillLevel[SK_DISRUPTOR])
-		{
-		case FORCE_LEVEL_3:
-			return qfalse;
-		case FORCE_LEVEL_2:
-			if(self->client->ps.stats[STAT_DODGE] >100)
-				dpcost=100;
-			else
-				return qfalse;
-			break;
-		case FORCE_LEVEL_1:
-			if(self->client->ps.stats[STAT_DODGE] >50)
-				dpcost=50;
-			else
-				return qfalse;
-			break;
-			//G_Damage(self,shooter,shooter,NULL,NULL,200,DAMAGE_NO_ARMOR,MOD_DISRUPTOR_SNIPER);
-			//break;
-		}
-		return qtrue;
-		//G_DodgeDrain(self,shooter,200);
-		*/
-	}
-
-	if(dpcost < self->client->ps.stats[STAT_DODGE])
-	{
-		//[ExpSys]
-		G_DodgeDrain(self, shooter, dpcost);
-		//self->client->ps.stats[STAT_DODGE] -= dpcost; 
-		//[/ExpSys]
-	}
-	else if( dpcost != 0 && self->client->ps.stats[STAT_DODGE])
-	{//still have enough DP for a partial dodge.
-		//Scale damage as is approprate
-		*dmg =(int)(*dmg * (self->client->ps.stats[STAT_DODGE]/ (float) dpcost));
-		//[ExpSys]
-		G_DodgeDrain(self, shooter, self->client->ps.stats[STAT_DODGE]);
-		//self->client->ps.stats[STAT_DODGE] = 0;
-		//[/ExpSys]
-		partial = qtrue;
-	}
-	else
-	{//not enough DP left
-		if(g_debugdodge.integer)
-		{
-			G_Printf("%i: Client %i out of DP.  Couldn't Dodge.\n", level.time, self->s.number);
-		}
-		return qfalse;
-	}
-
-	if(NoAction)
-	{
-		if(partial)
-		{
-			if(g_debugdodge.integer)
-			{
-				G_Printf("%i: Client %i No-Action Partially Dodged %i points of damage.\n", 
-					level.time, self->s.number, *dmg);
-			}
-			return qfalse;
-		}
-		else
-		{
-			if(g_debugdodge.integer)
-			{
-				G_Printf("%i: Client %i No-Action Dodged %i points of damage.\n", 
-					level.time, self->s.number, *dmg);
-			}
-			return qtrue;
-		}
-	}
-
-
-	if(mod == MOD_REPEATER_ALT_SPLASH 
-		|| mod == MOD_FLECHETTE_ALT_SPLASH
-		|| mod == MOD_ROCKET_SPLASH
-		|| mod == MOD_ROCKET_HOMING_SPLASH
-		|| mod == MOD_THERMAL_SPLASH
-		|| mod == MOD_TRIP_MINE_SPLASH
-		|| mod == MOD_TIMED_MINE_SPLASH
-		|| mod == MOD_DET_PACK_SPLASH
-		|| mod == MOD_ROCKET)
-	{//splash damage dodge, dodged by throwing oneself away from the blast into a knockdown
-		vec3_t blowBackDir;//[ExplosivesKnockback]
-		int blowBackPower = savedDmg;
-		VectorSubtract(self->client->ps.origin, dmgOrigin, blowBackDir);
-		VectorNormalize(blowBackDir);
-
-		if(blowBackPower > 1000)
-		{//clamp blow back power level 
-			blowBackPower = 1000;
-		}
-		blowBackPower*=2;
-		G_Throw( self, blowBackDir, blowBackPower );
-		G_Knockdown(self, shooter, blowBackDir, 600, qtrue); 
-		if(g_debugdodge.integer)
-		{
-			G_Printf("%i: Client %i Splash Dodged %i points of damage.\n", level.time, self->s.number, *dmg);
-		}
-
-		if(partial)
-		{
-			return qfalse;
-		}
-		else
-		{
-			return qtrue;
-		}
-	}
-
-
-	/*===========================================================================
-	doing a positional dodge for direct hit damage (like sabers or blaster bolts)
-	===========================================================================*/
-	if(hitLoc == -1)
-	{//Use the last surface impact data as the hit location
-		//[BugFix12]
-		if ((d_saberGhoul2Collision.integer && self->client 
-			&& self->client->g2LastSurfaceModel == G2MODEL_PLAYER
-			&& self->client->g2LastSurfaceTime == level.time))
-
-		//if ((d_saberGhoul2Collision.integer && self->client && self->client->g2LastSurfaceTime == level.time))
-		//[/BugFix12]
-		{
-			char hitSurface[MAX_QPATH];
-
-			trap_G2API_GetSurfaceName(self->ghoul2, self->client->g2LastSurfaceHit, 0, hitSurface);
-
-			if (hitSurface[0])
-			{
-				G_GetHitLocFromSurfName(self, hitSurface, &hitLoc, dmgOrigin, vec3_origin, vec3_origin, MOD_SABER);
-			}
-		}
-		else
-		{//ok, that didn't work.  Try the old math way.
-			hitLoc = G_GetHitLocation(self, dmgOrigin);
-		}
-	}
-
-	switch(hitLoc)
-	{
-	case HL_NONE:
-		if(g_debugdodge.integer)
-		{
-			G_Printf("%i: Client %i Dodge failed:  Bad hitlocation given.\n", 
-				level.time, self->s.number);
-		}
-		return qfalse;
-		break;
-
-	case HL_FOOT_RT:
-	case HL_FOOT_LT:
-	case HL_LEG_RT:
-	case HL_LEG_LT:
-		dodgeAnim = BOTH_JUMP1;
-		break;
-
-	case HL_BACK_RT:
-		dodgeAnim = BOTH_DODGE_FL;
-		break;
-	case HL_CHEST_RT:
-		dodgeAnim = BOTH_DODGE_FR;
-		break;
-	case HL_BACK_LT:
-		dodgeAnim = BOTH_DODGE_FR;
-		break;
-	case HL_CHEST_LT:
-		dodgeAnim = BOTH_DODGE_FR;
-		break;
-	case HL_BACK:
-	case HL_CHEST:
-	case HL_WAIST:
-		dodgeAnim = BOTH_DODGE_FL;
-		break;
-	case HL_ARM_RT:
-	case HL_HAND_RT:
-		dodgeAnim = BOTH_DODGE_L;
-		break;
-	case HL_ARM_LT:
-	case HL_HAND_LT:
-		dodgeAnim = BOTH_DODGE_R;
-		break;
-	case HL_HEAD:
-		dodgeAnim = BOTH_DODGE_FL;
-		break;
-	default:
-		if(g_debugdodge.integer)
-		{
-			G_Printf("%i: Client %i Dodge failed:  Bad hitlocation given.\n", 
-				level.time, self->s.number);
-		}
-		return qfalse;
-	}
-
-	if ( dodgeAnim != -1 )
-	{
-		if( self->client->ps.forceHandExtend != HANDEXTEND_DODGE //not already in a dodge
-			&& !PM_InKnockDown(&self->client->ps) )
-		{//do a simple dodge
-			DoNormalDodge(self, dodgeAnim, partial);
-		}
-		else
-		{//can't just do a simple dodge
-			int rolled;
-			vec3_t tangles;
-			vec3_t forward;
-			vec3_t right;
-			float fdot;
-			float rdot;
-			vec3_t impactpoint;
-			int x;
-			int FallCheckMax;
-
-			VectorSubtract(dmgOrigin, self->client->ps.origin, impactpoint);
-			VectorNormalize(impactpoint);
-
-			VectorSet(tangles, 0, self->client->ps.viewangles[YAW], 0);
-
-			AngleVectors(tangles, forward, right, NULL);
-				
-			fdot = DotProduct(impactpoint, forward);
-			rdot = DotProduct(impactpoint, right);
-
-			if( PM_InKnockDown(&self->client->ps) )
-			{//ground dodge roll
-				FallCheckMax = 2;
-				if(rdot < 0)
-				{//Right
-					if ( self->client->ps.legsAnim == BOTH_KNOCKDOWN3 
-						|| self->client->ps.legsAnim == BOTH_KNOCKDOWN5
-						|| self->client->ps.legsAnim == BOTH_LK_DL_ST_T_SB_1_L )
-					{
-						rolled = BOTH_GETUP_FROLL_R;
-					}
-					else
-					{
-						rolled = BOTH_GETUP_BROLL_R;
-					}
-				}
-				else
-				{//left
-					if ( self->client->ps.legsAnim == BOTH_KNOCKDOWN3 
-						|| self->client->ps.legsAnim == BOTH_KNOCKDOWN5
-						|| self->client->ps.legsAnim == BOTH_LK_DL_ST_T_SB_1_L )
-					{
-						rolled = BOTH_GETUP_FROLL_L;
-					}
-					else
-					{
-						rolled = BOTH_GETUP_BROLL_L;
-					}
-				}
-			}
-			else
-			{//normal Dodge rolls.
-				FallCheckMax = 4;
-				if( fabs(fdot) > fabs(rdot) )
-				{//Forward/Back
-					if(fdot < 0 )
-					{//Forward
-						rolled = BOTH_HOP_F; //BOTH_ROLL_F;
-					}
-					else
-					{//Back
-						rolled = BOTH_HOP_B; //BOTH_ROLL_B;
-					}
-				}
-				else
-				{//Right/Left
-					if(rdot < 0)
-					{//Right
-						rolled = BOTH_HOP_R; //BOTH_ROLL_R;
-					}
-					else
-					{//Left
-						rolled = BOTH_HOP_L;//BOTH_ROLL_L;
-					}
-				}
-			}
-
-			for(x = 0; x < FallCheckMax; x++)
-			{//check for a valid rolling direction..namely someplace where we
-				//won't roll off cliffs
-				if(DodgeRollCheck(self, rolled, forward, right))
-				{//passed check
-					break;
-				}
-
-				//otherwise, rotate to try the next possible direction
-				//reset to start of possible moves if we're at the end of the list
-				//for the perspective roll type.
-				if(rolled == BOTH_GETUP_BROLL_R)
-				{//there's only two possible evasions in this mode.
-					rolled = BOTH_GETUP_BROLL_L;
-				}
-				else if(rolled == BOTH_GETUP_BROLL_L)
-				{//there's only two possible evasions in this mode.
-					rolled = BOTH_GETUP_BROLL_R;
-				}
-				else if(rolled == BOTH_GETUP_FROLL_R)
-				{//there's only two possible evasions in this mode.
-					rolled = BOTH_GETUP_FROLL_L;
-				}
-				else if(rolled == BOTH_GETUP_FROLL_L)
-				{//there's only two possible evasions in this mode.
-					rolled = BOTH_GETUP_FROLL_R;
-				}
-				else if ( rolled == BOTH_ROLL_R )
-				{//reset to start of the possible normal roll directions
-					rolled = BOTH_ROLL_F;
-				}
-				else if ( rolled == BOTH_HOP_R )
-				{//reset to the start of possible hop directions
-					rolled = BOTH_HOP_F;
-				}
-				else
-				{//just advance the roll move
-					rolled++;
-				}
-			}
-
-			if( x == FallCheckMax )
-			{//we don't have a valid position to dodge roll to. just do a normal dodge
-				DoNormalDodge(self, dodgeAnim, partial);
-			}
-			else
-			{//ok, we can do the dodge hops/rolls
-				if( PM_InKnockDown(&self->client->ps)
-					|| BG_HopAnim(rolled))
-				{//ground dodge roll
-					G_SetAnim(self, &self->client->pers.cmd, SETANIM_BOTH, rolled, 
-						SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD, 0);
-				}
-				else
-				{//normal dodge roll
-					self->client->ps.legsTimer = 0;
-					self->client->ps.legsAnim = 0;
-					G_SetAnim(self, &self->client->pers.cmd, SETANIM_BOTH,rolled,SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 150);
-					G_AddEvent(self, EV_ROLL, 0 );
-					self->r.maxs[2] = self->client->ps.crouchheight;//CROUCH_MAXS_2;
-					self->client->ps.viewheight = DEFAULT_VIEWHEIGHT;
-					self->client->ps.pm_flags &= ~PMF_DUCKED;
-					self->client->ps.pm_flags |= PMF_ROLLING;			
-				}
-
-				//set the dodge roll flag
-				self->client->ps.userInt3 |= (1 << FLAG_DODGEROLL);
-
-				//set weapontime
-				self->client->ps.weaponTime = self->client->ps.torsoTimer;
-
-				//clear out the old dodge move.
-				self->client->ps.forceHandExtend = HANDEXTEND_NONE;
-				self->client->ps.forceDodgeAnim = 0;
-				self->client->ps.forceHandExtendTime = 0;
-				self->client->ps.saberMove = LS_NONE;
-
-				//do dodge special effects.
-				if(!partial)
-				{//only do the after image during full dodges.
-					self->client->ps.powerups[PW_SPEEDBURST] = level.time + self->client->ps.legsTimer;
-				}
-			
-				G_Sound( self, CHAN_BODY, G_SoundIndex("sound/weapons/force/speed.wav") );	
-			}
-		}
-		if( partial && *dmg > 0)
-		{
-			if(g_debugdodge.integer)
-			{
-				G_Printf("%i: Client %i Partially Dodged %i points of damage.\n", level.time, self->s.number, *dmg);
-			}
-			return qfalse;
-		}
-		else
-		{
-			if(g_debugdodge.integer)
-			{
-				G_Printf("%i: Client %i Dodged %i points of damage.\n", level.time, self->s.number, *dmg);
-			}
-			return qtrue;
-		}
-			
-	}
-	return qfalse;
-}
-//[/DodgeSys]
-
-//[SaberSys]
 //racc - OJP Enhanced completely rewritten CheckSaberDamage function.  This is the heart of the saber system beast.
 void SabBeh_SetupSaberMechanics( gentity_t *self, sabmech_t *mechSelf, 
 								gentity_t *otherOwner, sabmech_t *mechOther, vec3_t hitLoc, 
@@ -6288,6 +4882,10 @@ void DebounceSaberImpact(gentity_t *self, gentity_t *otherSaberer,
 						 int rSaberNum, int rBladeNum, int sabimpactentitynum);
 void OJP_SetSlowBounce(gentity_t* self, gentity_t* attacker);
 qboolean G_InAttackParry(gentity_t *self);
+//rww - MP version of the saber damage function. This is where all the things like blocking, triggering a parry,
+//triggering a broken parry, doing actual damage, etc. are done for the saber. It doesn't resemble the SP
+//version very much, but functionality is (hopefully) about the same.
+//This is a large function. I feel sort of bad inlining it. But it does get called tons of times per frame.
 static GAME_INLINE qboolean CheckSaberDamage(gentity_t *self, int rSaberNum, int rBladeNum, vec3_t saberStart, vec3_t saberEnd, qboolean doInterpolate, int trMask, qboolean extrapolate )
 {
 	static trace_t tr;
@@ -6889,7 +5487,7 @@ GAME_INLINE int VectorCompare2( const vec3_t v1, const vec3_t v2 )
 
 //[SaberSys]
 //Not Used Anymore.
-/*
+#ifdef _DISABLED
 void G_SPSaberDamageTraceLerped( gentity_t *self, int saberNum, int bladeNum, vec3_t baseNew, vec3_t endNew, int clipmask )
 {
 	vec3_t baseOld, endOld;
@@ -7007,7 +5605,7 @@ void G_SPSaberDamageTraceLerped( gentity_t *self, int saberNum, int bladeNum, ve
 				VectorMA( baseOld, curDirFrac, baseDiff, curBase2 );
 			}
 			// Move up the blade in intervals of stepsize
-			for ( step = stepsize; step <= self->client->saber[saberNum].blade[bladeNum].lengthMax *//*&& step < self->client->saber[saberNum].blade[bladeNum].lengthOld*//*; step += stepsize )
+			for ( step = stepsize; step <= self->client->saber[saberNum].blade[bladeNum].lengthMax /*&& step < self->client->saber[saberNum].blade[bladeNum].lengthOld*/; step += stepsize )
 			{
 				VectorMA( curBase1, step, curMD1, bladePointOld );
 				VectorMA( curBase2, step, curMD2, bladePointNew );
@@ -7018,7 +5616,7 @@ void G_SPSaberDamageTraceLerped( gentity_t *self, int saberNum, int bladeNum, ve
 				}
 				//do the damage trace
 				CheckSaberDamage( self, saberNum, bladeNum, bladePointOld, bladePointNew, qfalse, clipmask, extrapolate );
-				*//*
+				/*
 				if ( WP_SaberDamageForTrace( ent->s.number, bladePointOld, bladePointNew, baseDamage, curMD2, 
 					qfalse, entPowerLevel, ent->client->ps.saber[saberNum].type, qtrue,
 					saberNum, bladeNum ) )
@@ -7026,7 +5624,7 @@ void G_SPSaberDamageTraceLerped( gentity_t *self, int saberNum, int bladeNum, ve
 					hit_wall = qtrue;
 				}
 				*/
-/*
+
 				//if hit a saber, shorten rest of traces to match
 				if ( saberHitFraction < 1.0f )
 				{
@@ -7070,7 +5668,7 @@ void G_SPSaberDamageTraceLerped( gentity_t *self, int saberNum, int bladeNum, ve
 
 		//do the trace at the end last
 		//Special check- adjust for length of blade not being a multiple of 12
-		*//*
+		/*
 		aveLength = (ent->client->ps.saber[saberNum].blade[bladeNum].lengthOld + ent->client->ps.saber[saberNum].blade[bladeNum].length)/2;
 		if ( step > aveLength )
 		{//less dmg if the last interval was not stepsize
@@ -7083,10 +5681,10 @@ void G_SPSaberDamageTraceLerped( gentity_t *self, int saberNum, int bladeNum, ve
 		{
 			hit_wall = qtrue;
 		}
-		*//*
+		*/
 	}
 }
-*/
+#endif //_DISABLED
 //[/SaberSys]
 
 #include "../namespace_begin.h"
@@ -7169,7 +5767,6 @@ void WP_SaberStartMissileBlockCheck( gentity_t *self, usercmd_t *ucmd  )
 	//[SaberSys]
 	//you should be able to update block positioning if you're already in a block.
 	if (self->client->ps.weaponTime > 0 && !PM_SaberInParry(self->client->ps.saberMove))
-	//if (self->client->ps.weaponTime > 0)
 	//[/SaberSys]
 	{ //don't autoblock while busy with stuff
 		return;
@@ -7269,16 +5866,6 @@ void WP_SaberStartMissileBlockCheck( gentity_t *self, usercmd_t *ucmd  )
 				}
 			}
 		}
-
-		//[DodgeSys]
-		//moved down so the player will take defensive action even they they can't pre-block
-		/*
-		if (!doFullRoutine)
-		{ //don't care about the rest then
-			continue;
-		}
-		*/
-		//[/DodgeSys]
 
 		if (ent->r.ownerNum == self->s.number)
 			continue;
@@ -7381,14 +5968,13 @@ void WP_SaberStartMissileBlockCheck( gentity_t *self, usercmd_t *ucmd  )
 		*/
 
 
-		/* old method.  borked and messy.
+#ifdef _DISABLED // old method.  borked and messy.
 		//FIXME: handle detpacks, proximity mines and tripmines
 		if ( ent->s.weapon == WP_THERMAL )
 		{//thermal detonator!
 			//[DodgeSys]
 			//Do Dodge for thermal detonators.
 			if ( dist < ent->splashRadius  && !OnSameTeam(&g_entities[ent->r.ownerNum], self))
-			//if ( self->NPC && dist < ent->splashRadius )
 			{
 				if (self->client->ps.stats[STAT_DODGE] > PreCogDodgeCosts[MOD_THERMAL]) 
 				{
@@ -7399,7 +5985,6 @@ void WP_SaberStartMissileBlockCheck( gentity_t *self, usercmd_t *ucmd  )
 							(ent->s.pos.trType == TR_STATIONARY||
 							ent->s.pos.trType == TR_INTERPOLATE||
 							(dot1 = DotProduct( dir, forward )) < SABER_REFLECT_MISSILE_CONE||
-							//!WP_ForcePowerUsable( self, FP_PUSH )) )
 							//racc - replaced with the below since we're going to override push's debounce
 							!(self->client->ps.fd.forcePowersKnown & ( 1 << FP_PUSH )) ) ) //don't have force push
 					{//TD is close enough to hurt me, I'm on the ground and the thing is at rest or behind me and about to blow up, or I don't have force-push so force-jump!
@@ -7407,7 +5992,6 @@ void WP_SaberStartMissileBlockCheck( gentity_t *self, usercmd_t *ucmd  )
 						self->client->ps.fd.forceJumpCharge = 480;
 						//[ExpSys]
 						G_DodgeDrain(self, &g_entities[ent->r.ownerNum], PreCogDodgeCosts[MOD_THERMAL]);
-						//self->client->ps.stats[STAT_DODGE] -= PreCogDodgeCosts[MOD_THERMAL];
 						//[/ExpSys]
 					}
 					else if ( self->client->NPC_class != CLASS_BOBAFETT )
@@ -7417,7 +6001,6 @@ void WP_SaberStartMissileBlockCheck( gentity_t *self, usercmd_t *ucmd  )
 						ForceThrow( self, qfalse );
 						//[ExpSys]
 						G_DodgeDrain(self, &g_entities[ent->r.ownerNum], PreCogDodgeCosts[MOD_THERMAL]);
-						//self->client->ps.stats[STAT_DODGE] -= PreCogDodgeCosts[MOD_THERMAL];
 						//[/ExpSys]
 						//re-add the used up FP points since this should count as a DP cost only.
 						self->client->ps.fd.forcePower += forcePowerNeeded[self->client->ps.fd.forcePowerLevel[FP_PUSH]][FP_PUSH];
@@ -7430,7 +6013,6 @@ void WP_SaberStartMissileBlockCheck( gentity_t *self, usercmd_t *ucmd  )
 		else if ( ent->splashDamage && ent->splashRadius )
 		{//exploding missile
 			//[DodgeSys]
-			*//*
 			//FIXME: handle tripmines and detpacks somehow... 
 			//			maybe do a force-gesture that makes them explode?  
 			//			But what if we're within it's splashradius?
@@ -7440,7 +6022,6 @@ void WP_SaberStartMissileBlockCheck( gentity_t *self, usercmd_t *ucmd  )
 			}
 			else 
 			{
-			*//*
 			if(PreCogDodgeCosts[ent->methodOfDeath] != -1 &&  self->client->ps.stats[STAT_DODGE] > PreCogDodgeCosts[ent->methodOfDeath])
 			{
 				//if ( ent->s.pos.trType == TR_STATIONARY && (ent->s.eFlags&EF_MISSILE_STICK) 
@@ -7506,7 +6087,7 @@ void WP_SaberStartMissileBlockCheck( gentity_t *self, usercmd_t *ucmd  )
 			//otherwise, can't block it, so we're screwed
 			continue;
 		}
-		*/
+#endif //_DISABLED
 		
 		if (!doFullRoutine)
 		{ //don't care about the rest then
@@ -7535,13 +6116,6 @@ void WP_SaberStartMissileBlockCheck( gentity_t *self, usercmd_t *ucmd  )
 			if ( (dot2 = DotProduct( dir, missile_dir )) > 0 )
 				continue;
 		}
-
-		/* basejka
-		VectorCopy( ent->s.pos.trDelta, missile_dir );
-		VectorNormalize( missile_dir );
-		if ( (dot2 = DotProduct( dir, missile_dir )) > 0 )
-			continue;
-		*/
 		//[/SaberSys]
 
 		//FIXME: must have a clear trace to me, too...
@@ -7657,7 +6231,6 @@ void WP_SaberStartMissileBlockCheck( gentity_t *self, usercmd_t *ucmd  )
 			{
 				WP_SaberBlockNonRandom( self, incoming->r.currentOrigin, qtrue );
 			}
-			//WP_SaberBlockNonRandom( self, incoming->r.currentOrigin, qtrue );
 			//[/SaberSys]
 			if ( owner && owner->client && (!self->enemy || self->enemy->s.weapon != WP_SABER) )//keep enemy jedi over shooters
 			{
@@ -8219,7 +6792,6 @@ void DownedSaberThink(gentity_t *saberent)
 			saberent->think = G_FreeEntity;
 			saberent->nextthink = level.time;
 			return;
-			//assert(!"Bad saber index!!!");
 			//[/test]
 		}
 #endif
@@ -8263,16 +6835,6 @@ void DownedSaberThink(gentity_t *saberent)
 	{//we want to pull back the saber.
 		pullBack = qtrue;
 	}
-	/* basejka code
-	if (saberOwn->client->saberKnockedTime < level.time && (saberOwn->client->pers.cmd.buttons & BUTTON_ATTACK))
-	{ //He wants us back
-		pullBack = qtrue;
-	}
-	else if ((level.time - saberOwn->client->saberKnockedTime) > MAX_LEAVE_TIME)
-	{ //Been sitting around for too long, go back no matter what he wants.
-		pullBack = qtrue;
-	}
-	*/
 	//[/SaberThrowSys]
 
 	if (pullBack)
@@ -8288,7 +6850,6 @@ void DownedSaberThink(gentity_t *saberent)
 			G_Printf("Client %i:  saberStoredIndex %i in DownedSaberThink, it should have been %i.\n", 
 				saberOwn->s.number, saberOwn->client->saberStoredIndex, saberent->s.number);
 			saberOwn->client->saberStoredIndex = saberOwn->client->ps.saberEntityNum = saberent->s.number;
-			//assert(!"Bad saber index!!!");
 			//[/Test]
 		}
 #endif
@@ -8311,16 +6872,6 @@ void DownedSaberThink(gentity_t *saberent)
 		saberent->s.apos.trType = TR_STATIONARY;
 
 		//saber doesn't auto turn on when pulled back anymore.
-		/* basejka code
-		if (saberOwn->client->saber[0].soundOn)
-		{
-			G_Sound( saberent, CHAN_BODY, saberOwn->client->saber[0].soundOn );
-		}
-		if (saberOwn->client->saber[1].soundOn)
-		{
-			G_Sound( saberOwn, CHAN_BODY, saberOwn->client->saber[1].soundOn );
-		}
-		*/
 		//[/SaberThrowSys]
 
 		return;
@@ -8482,7 +7033,6 @@ void saberKnockDown(gentity_t *saberent, gentity_t *saberOwner, gentity_t *other
 	//[SaberThrowSys]
 	//created new function so we could have dropped sabers return then they are manually grabbed by their owners.
 	saberent->touch = DrownedSaberTouch;
-	//saberent->touch = SaberBounceSound;
 	//[/SaberThrowSys]
 	saberent->think = DownedSaberThink;
 	saberent->nextthink = level.time;
@@ -9209,11 +7759,6 @@ void thrownSaberTouch (gentity_t *saberent, gentity_t *other, trace_t *trace)
 	}
 	else
 		saberKnockDown(saberent, saberOwn, saberOwn);
-
-	
-	/* basejka code - setting up the speed check stuff for returns.
-	saberent->speed = 0;
-	*/
 	//[/SaberThrowSys]
 	
 }
@@ -9283,7 +7828,6 @@ void saberFirstThrown(gentity_t *saberent)
 	{
 		//[SaberSys]
 		if (!(saberOwn->client->buttons & BUTTON_ALT_ATTACK) && !((saberOwn->client->buttons & BUTTON_FORCEPOWER) && saberOwn->client->ps.fd.forcePowerSelected == FP_SABERTHROW) )
-		//if (!(saberOwn->client->buttons & BUTTON_ALT_ATTACK))	
 		//[/SaberSys]
 		{ //If owner releases altattack 500ms or later after throwing saber, it autoreturns
 			thrownSaberTouch(saberent, saberent, NULL);
@@ -9303,7 +7847,6 @@ void saberFirstThrown(gentity_t *saberent)
 		//[SaberThrowSys]
 		//lost force concentration, switch the saber into ballistics mode.
 		thrownSaberBallistics(saberent, saberOwn, qfalse);
-		//thrownSaberTouch(saberent, saberent, NULL);
 		//[/SaberThrowSys]
 		goto runMin;
 	}
@@ -9313,7 +7856,6 @@ void saberFirstThrown(gentity_t *saberent)
 		//[SaberThrowSys]
 		//lost force concentration, switch the saber into ballistics mode.
 		thrownSaberBallistics(saberent, saberOwn, qfalse);
-		//thrownSaberTouch(saberent, saberent, NULL);
 		//[/SaberThrowSys]
 		goto runMin;
 	}
@@ -9332,7 +7874,6 @@ void saberFirstThrown(gentity_t *saberent)
 		//[SaberThrowSys]
 		//lost force concentration, switch the saber into ballistics mode.
 		thrownSaberBallistics(saberent, saberOwn, qfalse);
-		//thrownSaberTouch(saberent, saberent, NULL);
 		//[/SaberThrowSys]
 		goto runMin;
 	}
@@ -9397,12 +7938,6 @@ void saberFirstThrown(gentity_t *saberent)
 			traceTo[0] += fwd[0]*300;
 			traceTo[1] += fwd[1]*300;
 			traceTo[2] += fwd[2]*300;
-		}
-		else
-		{
-			//traceTo[0] += fwd[0];
-			//traceTo[1] += fwd[1];
-			//traceTo[2] += fwd[2];
 		}
 
 		saberMoveBack(saberent, qfalse);
@@ -9861,7 +8396,6 @@ static gentity_t *G_KickTrace( gentity_t *ent, vec3_t kickDir, float kickDist, v
 
 	//improving the hit detection for the kicks.  
 	if ( trace.fraction < 1.0f || trace.startsolid )
-	//if ( trace.fraction < 1.0f && !trace.startsolid && !trace.allsolid )
 	//[/SaberSys]
 	{
 		if (ent->client->jediKickTime > level.time)
@@ -10728,7 +9262,6 @@ void WP_SaberPositionUpdate( gentity_t *self, usercmd_t *ucmd )
 		G_PunchSomeMofos(self);
 	}
 	else if (BG_KickingAnim(self->client->ps.legsAnim))
-	//if (BG_KickingAnim(self->client->ps.legsAnim))
 	//[/Melee]
 	{ //do some kick traces and stuff if we're in the appropriate anim
 		G_KickSomeMofos(self);
@@ -10758,8 +9291,6 @@ void WP_SaberPositionUpdate( gentity_t *self, usercmd_t *ucmd )
 				G_SetAnim(self, &self->client->pers.cmd, SETANIM_BOTH, BOTH_STAND1, SETANIM_FLAG_OVERRIDE, 0);
 				self->client->ps.weaponTime = self->client->ps.torsoTimer = 0;
 			}
-			//if ((BG_InGrappleMove(self->client->ps.torsoAnim) && self->client->ps.torsoTimer > 100) ||
-			//	(BG_InGrappleMove(self->client->ps.legsAnim) && self->client->ps.legsTimer > 100))
 			else if ((BG_InGrappleMove(self->client->ps.torsoAnim) && self->client->ps.torsoTimer > 100) ||
 				(BG_InGrappleMove(self->client->ps.legsAnim) && self->client->ps.legsTimer > 100))
 			//[/MELEE]
@@ -10808,11 +9339,9 @@ void WP_SaberPositionUpdate( gentity_t *self, usercmd_t *ucmd )
 						idealDist = 46.0f;
 					}
 					//[MELEE]
-					//else
 					else if (grappler->client->ps.torsoAnim == BOTH_KYLE_PA_2)
 					{ //knee-throw
 						idealDist = 46.0f;
-						//idealDist = 34.0f;
 					}
 					else
 					{ //head lock
@@ -11574,7 +10103,6 @@ nextStep:
 				//add special case to do saber damage for second saber if the player has dropped their first saber.
 				&& self->client->ps.saberHolstered == 1
 				&& (!self->client->ps.saberInFlight || self->client->ps.saberEntityNum) )
-				//&& self->client->ps.saberHolstered == 1 )
 				//[/SaberThrowSys]
 			{ //don't to saber 2 if it's off
 				break;
@@ -11652,7 +10180,6 @@ nextStep:
 
 				//[SaberSys]
 				if (self->client->hasCurrentPosition && d_saberInterpolate.integer == 1)
-				//if (self->client->hasCurrentPosition && d_saberInterpolate.integer)
 				//[/SaberSys]
 				{
 					if (self->client->ps.weaponTime <= 0)
@@ -13007,11 +11534,944 @@ qboolean OJP_UsingDualSaberAsPrimary(playerState_t *ps)
 	return qfalse;
 }
 
+//[DodgeSys]
+void DoNormalDodge(gentity_t *self, int dodgeAnim, qboolean partial)
+{//have self go into the given dodgeAnim				   
+	//Our own happy way of forcing an anim:
+	self->client->ps.forceHandExtend = HANDEXTEND_DODGE;
+	self->client->ps.forceDodgeAnim = dodgeAnim;
+	self->client->ps.forceHandExtendTime = level.time + 300;
+	self->client->ps.weaponTime = 300;
+	self->client->ps.saberMove = LS_NONE;
+
+	if(!partial)
+	{//only do the after image during full dodges.
+		self->client->ps.powerups[PW_SPEEDBURST] = level.time + 100;
+	}
+
+	G_Sound( self, CHAN_BODY, G_SoundIndex("sound/weapons/force/speed.wav") );
+}
+
+
+qboolean DodgeRollCheck(gentity_t *self, int dodgeAnim, vec3_t forward, vec3_t right)
+{//checks to see if there's a cliff in the direction that dodgeAnim would travel.
+	vec3_t mins, maxs, traceto_mod, tracefrom_mod, moveDir;
+	trace_t tr;
+	int contents;
+	int dodgeDistance = 200;//how far away do we do the scans.
+
+	//determine which direction we're travelling in.
+	if( dodgeAnim == BOTH_ROLL_F || dodgeAnim == BOTH_HOP_F )
+	{//forward rolls
+		VectorCopy(forward, moveDir);
+	}
+	else if( dodgeAnim == BOTH_ROLL_B || dodgeAnim == BOTH_HOP_B )
+	{//backward rolls
+		VectorCopy(forward, moveDir);
+		VectorScale(moveDir, -1, moveDir);
+	}
+	else if( dodgeAnim == BOTH_GETUP_BROLL_R 
+		|| dodgeAnim == BOTH_GETUP_FROLL_R
+		|| dodgeAnim == BOTH_ROLL_R
+		|| dodgeAnim == BOTH_HOP_R )
+	{//right rolls
+		VectorCopy(right, moveDir);
+	}
+	else if( dodgeAnim == BOTH_GETUP_BROLL_L 
+		|| dodgeAnim == BOTH_GETUP_FROLL_L
+		|| dodgeAnim == BOTH_ROLL_L
+		|| dodgeAnim == BOTH_HOP_L )
+	{//left rolls
+		VectorCopy(right, moveDir);
+		VectorScale(moveDir, -1, moveDir);
+	}
+	else
+	{
+		G_Printf("Error: unknown dodge roll animation %i given to DodgeRollFallCheck.\n", dodgeAnim);
+		return qfalse;
+	}
+
+	if( dodgeAnim == BOTH_HOP_L || dodgeAnim == BOTH_HOP_R )
+	{//left/right hops are shorter
+		dodgeDistance = 120;
+	}
+		
+	//set up the trace positions
+	VectorCopy(self->client->ps.origin, tracefrom_mod);
+	VectorMA(tracefrom_mod, dodgeDistance, moveDir, traceto_mod);
+
+	mins[0] = -15;
+	mins[1] = -15;
+	mins[2] = -10; //was -18, changed because bots were hopping over the flag stands
+					//on ctf1
+	maxs[0] = 15;
+	maxs[1] = 15;
+	maxs[2] = 32;
+
+	//check for solids/or players in the way.
+	trap_Trace(&tr, tracefrom_mod, mins, maxs, traceto_mod, self->client->ps.clientNum, 
+		MASK_PLAYERSOLID);
+	if (tr.fraction != 1 || tr.startsolid)
+	{//something is in the way.
+		return qfalse;
+	}
+
+	VectorCopy(traceto_mod, tracefrom_mod);
+
+
+	//check for 20+ feet drops
+	traceto_mod[2] -= 200;
+
+	trap_Trace(&tr, tracefrom_mod, mins, maxs, traceto_mod, self->client->ps.clientNum, 
+		MASK_SOLID);
+	if (tr.fraction == 1 && !tr.startsolid)
+	{//CLIFF!
+		return qfalse;
+	}
+
+	contents = trap_PointContents( tr.endpos, -1 );
+	if(contents & (CONTENTS_SLIME|CONTENTS_LAVA))
+	{//the fall point is inside something we don't want to fall to
+		return qfalse;
+	}
+
+	return qtrue;
+}
+
+extern qboolean BG_HopAnim( int anim );
+extern qboolean PM_InKnockDown( playerState_t *ps );
+extern int DetermineDisruptorCharge(gentity_t *ent);
+//Returns qfalse if hit effects/damage is still suppose to be applied.
+qboolean G_DoDodge( gentity_t *self, gentity_t *shooter, vec3_t dmgOrigin, int hitLoc, int * dmg, int mod )
+{
+	int	dodgeAnim = -1;
+	int dpcost = BasicDodgeCosts[mod];
+
+	//saved copy of the original damage level.  This is used determine the kickback power for slashdamage dodges.
+	int savedDmg = *dmg; 
+
+	//partial dodge flag
+	qboolean partial = qfalse;
+
+	//Don't do any visuals.
+	qboolean NoAction = qfalse;
+/*
+	if( !ojp_allowBodyDodge.integer )
+	{//body dodges have been disabled.  
+		return qfalse;
+	}
+*/
+if( !ojp_allowBodyDodge.integer )
+	{//body dodges have been disabled. 
+		if(self->client && !(self->client->pers.cmd.generic_cmd & GENCMD_FORCE_HEALOTHER))
+		return qfalse;
+	}
+
+	if(self->NPC 
+		&& (self->client->NPC_class == CLASS_SABER_DROID ||
+			self->client->NPC_class == CLASS_ASSASSIN_DROID ||
+			self->client->NPC_class == CLASS_GONK ||
+			self->client->NPC_class == CLASS_MOUSE ||
+			self->client->NPC_class == CLASS_PROBE ||
+			self->client->NPC_class == CLASS_PROTOCOL ||
+			self->client->NPC_class == CLASS_R2D2 ||
+			self->client->NPC_class == CLASS_R5D2 ||
+			self->client->NPC_class == CLASS_SEEKER ||
+			self->client->NPC_class == CLASS_INTERROGATOR) )
+	{//non-humans don't get Dodge.
+		return qfalse;
+	}
+
+	if( dpcost == -1 )
+	{//can't dodge this.
+		if(g_debugdodge.integer)
+		{
+			G_Printf("%i: Client %i Can't Dodge this type of damage.\n", 
+					level.time, self->s.number);
+		}
+		return qfalse;
+	}
+
+	if(!self || !self->client || !self->inuse || self->health <= 0 )
+	{		
+		if(g_debugdodge.integer)
+		{
+			G_Printf("%i: Client %i Entity is dead or bad.  Can't Dodge.\n", 
+					level.time, self->s.number);
+		}
+		return qfalse;
+	}
+	//[DodgeChange]
+	if (self->client->ps.stats[STAT_DODGE] < 30)
+	{//Not enough dodge
+		return qfalse;
+	}
+	//[/DodgeChange]
+	//check for private duel conditions
+	if (shooter && shooter->client)
+	{
+		if(shooter->client->ps.duelInProgress && shooter->client->ps.duelIndex != self->s.number)
+		{//enemy client is in duel with someone else.
+			return qfalse;
+		}
+	
+		if (self->client->ps.duelInProgress && self->client->ps.duelIndex != shooter->s.number)
+		{//we're in a duel with someone else.
+			return qfalse;
+		}
+	}
+
+	if(BG_HopAnim(self->client->ps.legsAnim) //in dodge hop
+		|| (BG_InRoll(&self->client->ps, self->client->ps.legsAnim) 
+			&& (self->client->ps.userInt3 & (1 << FLAG_DODGEROLL)))  //in dodge roll
+			//dodging non-saber damage and in dodge animation
+			|| (mod != MOD_SABER && self->client->ps.forceHandExtend == HANDEXTEND_DODGE) )
+	{//already doing a dodge
+		if(g_debugdodge.integer)
+		{
+			G_Printf("%i: Client %i continues Dodge Roll.\n", level.time, self->s.number );
+		}
+		return qtrue;
+	}
+
+	if ( self->client->ps.groundEntityNum == ENTITYNUM_NONE 
+		&& mod != MOD_REPEATER_ALT_SPLASH 
+		&& mod != MOD_FLECHETTE_ALT_SPLASH
+		&& mod != MOD_ROCKET_SPLASH
+		&& mod != MOD_ROCKET_HOMING_SPLASH
+		&& mod != MOD_THERMAL_SPLASH
+		&& mod != MOD_TRIP_MINE_SPLASH
+		&& mod != MOD_TIMED_MINE_SPLASH
+		&& mod != MOD_DET_PACK_SPLASH )
+	{//can't dodge direct fire in mid-air
+		if(g_debugdodge.integer)
+		{
+			G_Printf("%i: Client %i Can't dodge in mid air.\n", level.time, self->s.number);
+		}
+		return qfalse;
+	}
+
+	if ( self->client->ps.forceHandExtend == HANDEXTEND_CHOKE
+		|| BG_InGrappleMove(self->client->ps.torsoAnim) > 1 )
+	{//in some effect that stops me from moving on my own
+		if(g_debugdodge.integer)
+		{
+			G_Printf("%i: Client %i Being held, can't dodge.\n", level.time, self->s.number);
+		}
+		return qfalse;
+	}
+
+	if(mod == MOD_MELEE)
+	{//don't dodge melee attacks for now.
+		if(g_debugdodge.integer)
+		{
+			G_Printf("%i: Client %i Can't dodge melee damage\n", level.time, self->s.number);
+		}
+		return qfalse;
+	}
+
+	if(self->client->ps.legsAnim == BOTH_MEDITATE)
+	{//can't dodge while meditating.
+		if(g_debugdodge.integer)
+		{
+			G_Printf("%i: Client %i Meditating, Can't Dodge.\n", level.time, self->s.number);
+		}
+		return qfalse;
+	}
+
+	if(mod == MOD_SABER && shooter && shooter->client)
+	{//special saber moves have special effects.
+		if(shooter->client->ps.saberMove == LS_A_LUNGE 
+				|| shooter->client->ps.saberMove == LS_SPINATTACK
+				|| shooter->client->ps.saberMove == LS_SPINATTACK_DUAL)
+		{//attacker is doing lunge special
+			if(self->client->ps.userInt3 & (1 << FLAG_FATIGUED_HEAVY))
+			{//can't dodge a lunge special while fatigued
+				return qfalse;
+			}
+		}
+
+		if(BG_SuperBreakWinAnim(shooter->client->ps.torsoAnim) && self->client->ps.stats[STAT_DODGE] < DODGE_CRITICALLEVEL)
+		{//can't block super breaks if we're low on DP.
+			return qfalse;
+		}
+
+		if(!WalkCheck(self)
+			&& (!InFront(shooter->client->ps.origin, self->client->ps.origin, self->client->ps.viewangles, -.7f)
+			|| BG_SaberInAttack( self->client->ps.saberMove )
+			|| PM_SaberInStart( self->client->ps.saberMove )))
+		{
+			if(self->NPC)
+			{//can't Dodge saber swings while running and hit from behind or in swing.
+				return qtrue;
+			}
+			else
+			{//can't Dodge saber swings while running and hit from behind or in swing.
+				return qfalse;
+			}
+		}
+	}
+
+	if( *dmg <= DODGE_MINDAM && mod != MOD_REPEATER )
+	{
+		dpcost = (int)(dpcost * ((float) *dmg/DODGE_MINDAM));
+		NoAction = qtrue;
+	}
+	else if ( self->client->ps.forceHandExtend == HANDEXTEND_DODGE )
+	{//you're already dodging but you got hit again.
+		dpcost = 0;
+	}
+
+	if(mod == MOD_DISRUPTOR_SNIPER && shooter && shooter->client)
+	{//25,50,75,100
+	 //15,30,45,60
+		int damage=0;
+
+		if(shooter->genericValue6 <= 10)
+			damage=10;
+		else if(shooter->genericValue6 <= 25)
+			damage=20;
+		else if(shooter->genericValue6 < 59)
+			damage=50;
+		else if(shooter->genericValue6 == 60)
+			damage=100;
+
+		if(self->client->ps.stats[STAT_DODGE] > damage)
+			dpcost=damage;
+		else
+			return qfalse;
+		/*
+		switch(shooter->client->skillLevel[SK_DISRUPTOR])
+		{
+		case FORCE_LEVEL_3:
+			return qfalse;
+		case FORCE_LEVEL_2:
+			if(self->client->ps.stats[STAT_DODGE] >100)
+				dpcost=100;
+			else
+				return qfalse;
+			break;
+		case FORCE_LEVEL_1:
+			if(self->client->ps.stats[STAT_DODGE] >50)
+				dpcost=50;
+			else
+				return qfalse;
+			break;
+			//G_Damage(self,shooter,shooter,NULL,NULL,200,DAMAGE_NO_ARMOR,MOD_DISRUPTOR_SNIPER);
+			//break;
+		}
+		return qtrue;
+		//G_DodgeDrain(self,shooter,200);
+		*/
+	}
+
+	if(dpcost < self->client->ps.stats[STAT_DODGE])
+	{
+		//[ExpSys]
+		G_DodgeDrain(self, shooter, dpcost);
+		//self->client->ps.stats[STAT_DODGE] -= dpcost; 
+		//[/ExpSys]
+	}
+	else if( dpcost != 0 && self->client->ps.stats[STAT_DODGE])
+	{//still have enough DP for a partial dodge.
+		//Scale damage as is approprate
+		*dmg =(int)(*dmg * (self->client->ps.stats[STAT_DODGE]/ (float) dpcost));
+		//[ExpSys]
+		G_DodgeDrain(self, shooter, self->client->ps.stats[STAT_DODGE]);
+		//self->client->ps.stats[STAT_DODGE] = 0;
+		//[/ExpSys]
+		partial = qtrue;
+	}
+	else
+	{//not enough DP left
+		if(g_debugdodge.integer)
+		{
+			G_Printf("%i: Client %i out of DP.  Couldn't Dodge.\n", level.time, self->s.number);
+		}
+		return qfalse;
+	}
+
+	if(NoAction)
+	{
+		if(partial)
+		{
+			if(g_debugdodge.integer)
+			{
+				G_Printf("%i: Client %i No-Action Partially Dodged %i points of damage.\n", 
+					level.time, self->s.number, *dmg);
+			}
+			return qfalse;
+		}
+		else
+		{
+			if(g_debugdodge.integer)
+			{
+				G_Printf("%i: Client %i No-Action Dodged %i points of damage.\n", 
+					level.time, self->s.number, *dmg);
+			}
+			return qtrue;
+		}
+	}
+
+
+	if(mod == MOD_REPEATER_ALT_SPLASH 
+		|| mod == MOD_FLECHETTE_ALT_SPLASH
+		|| mod == MOD_ROCKET_SPLASH
+		|| mod == MOD_ROCKET_HOMING_SPLASH
+		|| mod == MOD_THERMAL_SPLASH
+		|| mod == MOD_TRIP_MINE_SPLASH
+		|| mod == MOD_TIMED_MINE_SPLASH
+		|| mod == MOD_DET_PACK_SPLASH
+		|| mod == MOD_ROCKET)
+	{//splash damage dodge, dodged by throwing oneself away from the blast into a knockdown
+		vec3_t blowBackDir;//[ExplosivesKnockback]
+		int blowBackPower = savedDmg;
+		VectorSubtract(self->client->ps.origin, dmgOrigin, blowBackDir);
+		VectorNormalize(blowBackDir);
+
+		if(blowBackPower > 1000)
+		{//clamp blow back power level 
+			blowBackPower = 1000;
+		}
+		blowBackPower*=2;
+		G_Throw( self, blowBackDir, blowBackPower );
+		G_Knockdown(self, shooter, blowBackDir, 600, qtrue); 
+		if(g_debugdodge.integer)
+		{
+			G_Printf("%i: Client %i Splash Dodged %i points of damage.\n", level.time, self->s.number, *dmg);
+		}
+
+		if(partial)
+		{
+			return qfalse;
+		}
+		else
+		{
+			return qtrue;
+		}
+	}
+
+
+	/*===========================================================================
+	doing a positional dodge for direct hit damage (like sabers or blaster bolts)
+	===========================================================================*/
+	if(hitLoc == -1)
+	{//Use the last surface impact data as the hit location
+		//[BugFix12]
+		if ((d_saberGhoul2Collision.integer && self->client 
+			&& self->client->g2LastSurfaceModel == G2MODEL_PLAYER
+			&& self->client->g2LastSurfaceTime == level.time))
+
+		//if ((d_saberGhoul2Collision.integer && self->client && self->client->g2LastSurfaceTime == level.time))
+		//[/BugFix12]
+		{
+			char hitSurface[MAX_QPATH];
+
+			trap_G2API_GetSurfaceName(self->ghoul2, self->client->g2LastSurfaceHit, 0, hitSurface);
+
+			if (hitSurface[0])
+			{
+				G_GetHitLocFromSurfName(self, hitSurface, &hitLoc, dmgOrigin, vec3_origin, vec3_origin, MOD_SABER);
+			}
+		}
+		else
+		{//ok, that didn't work.  Try the old math way.
+			hitLoc = G_GetHitLocation(self, dmgOrigin);
+		}
+	}
+
+	switch(hitLoc)
+	{
+	case HL_NONE:
+		if(g_debugdodge.integer)
+		{
+			G_Printf("%i: Client %i Dodge failed:  Bad hitlocation given.\n", 
+				level.time, self->s.number);
+		}
+		return qfalse;
+		break;
+
+	case HL_FOOT_RT:
+	case HL_FOOT_LT:
+	case HL_LEG_RT:
+	case HL_LEG_LT:
+		dodgeAnim = BOTH_JUMP1;
+		break;
+
+	case HL_BACK_RT:
+		dodgeAnim = BOTH_DODGE_FL;
+		break;
+	case HL_CHEST_RT:
+		dodgeAnim = BOTH_DODGE_FR;
+		break;
+	case HL_BACK_LT:
+		dodgeAnim = BOTH_DODGE_FR;
+		break;
+	case HL_CHEST_LT:
+		dodgeAnim = BOTH_DODGE_FR;
+		break;
+	case HL_BACK:
+	case HL_CHEST:
+	case HL_WAIST:
+		dodgeAnim = BOTH_DODGE_FL;
+		break;
+	case HL_ARM_RT:
+	case HL_HAND_RT:
+		dodgeAnim = BOTH_DODGE_L;
+		break;
+	case HL_ARM_LT:
+	case HL_HAND_LT:
+		dodgeAnim = BOTH_DODGE_R;
+		break;
+	case HL_HEAD:
+		dodgeAnim = BOTH_DODGE_FL;
+		break;
+	default:
+		if(g_debugdodge.integer)
+		{
+			G_Printf("%i: Client %i Dodge failed:  Bad hitlocation given.\n", 
+				level.time, self->s.number);
+		}
+		return qfalse;
+	}
+
+	if ( dodgeAnim != -1 )
+	{
+		if( self->client->ps.forceHandExtend != HANDEXTEND_DODGE //not already in a dodge
+			&& !PM_InKnockDown(&self->client->ps) )
+		{//do a simple dodge
+			DoNormalDodge(self, dodgeAnim, partial);
+		}
+		else
+		{//can't just do a simple dodge
+			int rolled;
+			vec3_t tangles;
+			vec3_t forward;
+			vec3_t right;
+			float fdot;
+			float rdot;
+			vec3_t impactpoint;
+			int x;
+			int FallCheckMax;
+
+			VectorSubtract(dmgOrigin, self->client->ps.origin, impactpoint);
+			VectorNormalize(impactpoint);
+
+			VectorSet(tangles, 0, self->client->ps.viewangles[YAW], 0);
+
+			AngleVectors(tangles, forward, right, NULL);
+				
+			fdot = DotProduct(impactpoint, forward);
+			rdot = DotProduct(impactpoint, right);
+
+			if( PM_InKnockDown(&self->client->ps) )
+			{//ground dodge roll
+				FallCheckMax = 2;
+				if(rdot < 0)
+				{//Right
+					if ( self->client->ps.legsAnim == BOTH_KNOCKDOWN3 
+						|| self->client->ps.legsAnim == BOTH_KNOCKDOWN5
+						|| self->client->ps.legsAnim == BOTH_LK_DL_ST_T_SB_1_L )
+					{
+						rolled = BOTH_GETUP_FROLL_R;
+					}
+					else
+					{
+						rolled = BOTH_GETUP_BROLL_R;
+					}
+				}
+				else
+				{//left
+					if ( self->client->ps.legsAnim == BOTH_KNOCKDOWN3 
+						|| self->client->ps.legsAnim == BOTH_KNOCKDOWN5
+						|| self->client->ps.legsAnim == BOTH_LK_DL_ST_T_SB_1_L )
+					{
+						rolled = BOTH_GETUP_FROLL_L;
+					}
+					else
+					{
+						rolled = BOTH_GETUP_BROLL_L;
+					}
+				}
+			}
+			else
+			{//normal Dodge rolls.
+				FallCheckMax = 4;
+				if( fabs(fdot) > fabs(rdot) )
+				{//Forward/Back
+					if(fdot < 0 )
+					{//Forward
+						rolled = BOTH_HOP_F; //BOTH_ROLL_F;
+					}
+					else
+					{//Back
+						rolled = BOTH_HOP_B; //BOTH_ROLL_B;
+					}
+				}
+				else
+				{//Right/Left
+					if(rdot < 0)
+					{//Right
+						rolled = BOTH_HOP_R; //BOTH_ROLL_R;
+					}
+					else
+					{//Left
+						rolled = BOTH_HOP_L;//BOTH_ROLL_L;
+					}
+				}
+			}
+
+			for(x = 0; x < FallCheckMax; x++)
+			{//check for a valid rolling direction..namely someplace where we
+				//won't roll off cliffs
+				if(DodgeRollCheck(self, rolled, forward, right))
+				{//passed check
+					break;
+				}
+
+				//otherwise, rotate to try the next possible direction
+				//reset to start of possible moves if we're at the end of the list
+				//for the perspective roll type.
+				if(rolled == BOTH_GETUP_BROLL_R)
+				{//there's only two possible evasions in this mode.
+					rolled = BOTH_GETUP_BROLL_L;
+				}
+				else if(rolled == BOTH_GETUP_BROLL_L)
+				{//there's only two possible evasions in this mode.
+					rolled = BOTH_GETUP_BROLL_R;
+				}
+				else if(rolled == BOTH_GETUP_FROLL_R)
+				{//there's only two possible evasions in this mode.
+					rolled = BOTH_GETUP_FROLL_L;
+				}
+				else if(rolled == BOTH_GETUP_FROLL_L)
+				{//there's only two possible evasions in this mode.
+					rolled = BOTH_GETUP_FROLL_R;
+				}
+				else if ( rolled == BOTH_ROLL_R )
+				{//reset to start of the possible normal roll directions
+					rolled = BOTH_ROLL_F;
+				}
+				else if ( rolled == BOTH_HOP_R )
+				{//reset to the start of possible hop directions
+					rolled = BOTH_HOP_F;
+				}
+				else
+				{//just advance the roll move
+					rolled++;
+				}
+			}
+
+			if( x == FallCheckMax )
+			{//we don't have a valid position to dodge roll to. just do a normal dodge
+				DoNormalDodge(self, dodgeAnim, partial);
+			}
+			else
+			{//ok, we can do the dodge hops/rolls
+				if( PM_InKnockDown(&self->client->ps)
+					|| BG_HopAnim(rolled))
+				{//ground dodge roll
+					G_SetAnim(self, &self->client->pers.cmd, SETANIM_BOTH, rolled, 
+						SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD, 0);
+				}
+				else
+				{//normal dodge roll
+					self->client->ps.legsTimer = 0;
+					self->client->ps.legsAnim = 0;
+					G_SetAnim(self, &self->client->pers.cmd, SETANIM_BOTH,rolled,SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 150);
+					G_AddEvent(self, EV_ROLL, 0 );
+					self->r.maxs[2] = self->client->ps.crouchheight;//CROUCH_MAXS_2;
+					self->client->ps.viewheight = DEFAULT_VIEWHEIGHT;
+					self->client->ps.pm_flags &= ~PMF_DUCKED;
+					self->client->ps.pm_flags |= PMF_ROLLING;			
+				}
+
+				//set the dodge roll flag
+				self->client->ps.userInt3 |= (1 << FLAG_DODGEROLL);
+
+				//set weapontime
+				self->client->ps.weaponTime = self->client->ps.torsoTimer;
+
+				//clear out the old dodge move.
+				self->client->ps.forceHandExtend = HANDEXTEND_NONE;
+				self->client->ps.forceDodgeAnim = 0;
+				self->client->ps.forceHandExtendTime = 0;
+				self->client->ps.saberMove = LS_NONE;
+
+				//do dodge special effects.
+				if(!partial)
+				{//only do the after image during full dodges.
+					self->client->ps.powerups[PW_SPEEDBURST] = level.time + self->client->ps.legsTimer;
+				}
+			
+				G_Sound( self, CHAN_BODY, G_SoundIndex("sound/weapons/force/speed.wav") );	
+			}
+		}
+		if( partial && *dmg > 0)
+		{
+			if(g_debugdodge.integer)
+			{
+				G_Printf("%i: Client %i Partially Dodged %i points of damage.\n", level.time, self->s.number, *dmg);
+			}
+			return qfalse;
+		}
+		else
+		{
+			if(g_debugdodge.integer)
+			{
+				G_Printf("%i: Client %i Dodged %i points of damage.\n", level.time, self->s.number, *dmg);
+			}
+			return qtrue;
+		}
+			
+	}
+	return qfalse;
+}
+//[/DodgeSys]
+
+//[SaberSys]
+static GAME_INLINE void G_SetViewLockDebounce( gentity_t *self )
+{
+	if(!WalkCheck(self))
+	{//running pauses you longer
+		self->client->viewLockTime = level.time + 500;
+	}
+	else if( PM_SaberInParry(G_GetParryForBlock(self->client->ps.saberBlocked)) //normal block (not a parry)
+		|| (!PM_SaberInKnockaway(self->client->ps.saberMove) //didn't parry
+		&& self->client->ps.stats[STAT_DODGE] < self->client->ps.stats[STAT_MAX_DODGE]*.50) )
+	{//normal block or attacked with less than %50 DP
+		self->client->viewLockTime = level.time + 300;
+	}
+	else
+	{
+        self->client->viewLockTime = level.time;
+	}
+}
+
+
+static GAME_INLINE void G_SetViewLock( gentity_t *self, vec3_t impactPos, vec3_t impactNormal )
+{//Sets the view/movement lock flags based on the given information
+	vec3_t	cross;
+	vec3_t	length;
+	vec3_t  forward;
+	vec3_t  right;
+	vec3_t  up;
+
+	if( !self || !self->client )
+	{
+		return;
+	}
+
+	//Since this is the only function that sets/unsets these flags.  We need to clear them
+	//all before messing with them.  Otherwise we end up with all the flags piling up until
+	//they are cleared.
+	self->client->ps.userInt1 = 0;
+
+	if( VectorCompare( impactNormal, vec3_origin ) 
+		|| self->client->ps.saberInFlight )
+	{//bad impact surface normal or our saber is in flgiht
+		return;
+	}
+
+	//find the impact point in terms of the player origin
+	VectorSubtract( impactPos, self->client->ps.origin, length );
+
+	//Check for very low hits.  If it's very close to the lower bbox edge just skip view/move locking.  
+	//This is to prevent issues with many of the saber moves touching the ground naturally.
+	if ( length[2] < (.8 * self->r.mins[2]))
+	{
+		return;
+	}
+
+	CrossProduct( length, impactNormal, cross );
+
+	if( cross[0] > 0 )
+	{
+		self->client->ps.userInt1 |= LOCK_UP;
+	}
+	else if ( cross[0] < 0 )
+	{
+		self->client->ps.userInt1 |= LOCK_DOWN;
+	}
+
+	if( cross[2] > 0 )
+	{
+		self->client->ps.userInt1 |= LOCK_RIGHT;
+	}
+	else if ( cross[2] < 0 )
+	{
+		self->client->ps.userInt1 |= LOCK_LEFT;
+	}
+
+
+	//Movement lock
+
+	//Forward
+	AngleVectors(self->client->ps.viewangles, forward, right, up);
+	if ( DotProduct(length, forward) < 0 )
+	{//lock backwards
+		self->client->ps.userInt1 |= LOCK_MOVEBACK;
+	}
+	else if ( DotProduct(length, forward) > 0 )
+	{//lock forwards
+		self->client->ps.userInt1 |= LOCK_MOVEFORWARD;
+	}
+
+	if ( DotProduct(length, right) < 0 )
+	{
+		self->client->ps.userInt1 |= LOCK_MOVELEFT;
+	}
+	else if ( DotProduct(length, right) > 0 )
+	{
+		self->client->ps.userInt1 |= LOCK_MOVERIGHT;
+	}
+
+	if ( DotProduct(length, up) > 0 )
+	{
+		self->client->ps.userInt1 |= LOCK_MOVEDOWN;
+	}
+	else if ( DotProduct(length, up) < 0 )
+	{
+		self->client->ps.userInt1 |= LOCK_MOVEUP;
+	}
+}
+
+ 		
+//[SaberSys]
+
+
+static GAME_INLINE void AnimateKnockaway( gentity_t *self, gentity_t * inflictor, vec3_t impact )
+{//do an knockaway.
+	if( !PM_SaberInKnockaway(self->client->ps.saberMove) && !PM_InKnockDown(&self->client->ps) )
+	{
+		if (!PM_SaberInParry(self->client->ps.saberMove))
+		{
+			WP_SaberBlockNonRandom(self, impact, qfalse);
+			self->client->ps.saberMove = BG_KnockawayForParry( self->client->ps.saberBlocked );
+			self->client->ps.saberBlocked = BLOCKED_BOUNCE_MOVE;
+		}
+		else
+		{
+			self->client->ps.saberMove = G_KnockawayForParry(self->client->ps.saberMove); //BG_KnockawayForParry( otherOwner->client->ps.saberBlocked );
+			self->client->ps.saberBlocked = BLOCKED_BOUNCE_MOVE;
+		}
+	}
+}
 
 
 
+extern void NPC_SetPainEvent( gentity_t *self );
+extern void NPC_Pain(gentity_t *self, gentity_t *attacker, int damage);
+void AnimateStun( gentity_t *self, gentity_t * inflictor, vec3_t impact )
+{//place self into a stunned state.
+	//RAFIXME - I need to figure out a way to make non-saberers stumble.
+	if(self->client->ps.weapon != WP_SABER)
+	{//knock them down instead
+		G_Knockdown(self, inflictor, vec3_origin, 300, qtrue);
+	}
+	else if( !PM_SaberInBrokenParry(self->client->ps.saberMove) 
+		&& !PM_InKnockDown(&self->client->ps) )
+	{
+		if (!PM_SaberInParry(G_GetParryForBlock(self->client->ps.saberBlocked)))
+		{//not already in a parry position, get one
+			WP_SaberBlockNonRandom(self, impact, qfalse);
+		}
+					
+		self->client->ps.saberMove = BG_BrokenParryForParry(G_GetParryForBlock(self->client->ps.saberBlocked));
+		self->client->ps.saberBlocked = BLOCKED_PARRY_BROKEN;
+
+		//make pain noise
+		if ( self->s.number < MAX_CLIENTS )
+		{
+			G_AddEvent( self, Q_irand(EV_PUSHED1, EV_PUSHED3), 0 );
+		}
+		else
+		{//npc
+			NPC_Pain( self, inflictor, 0 );
+		}
+	}
+}
 
 
+void AnimateKnockdown( gentity_t * self, gentity_t * inflictor )
+{
+	if (self->health > 0 && !PM_InKnockDown(&self->client->ps))
+	{ //if still alive knock them down
+		//[KnockdownSys]
+		//use SP style knockdown
+		int throwStr = Q_irand(50, 75);
+
+		//push person away from attacker
+		vec3_t pushDir;
+
+		if(inflictor)
+		{
+			VectorSubtract(self->client->ps.origin, inflictor->r.currentOrigin, pushDir);
+		}
+		else
+		{//this is possible in debug situations or where there's mishaps without another player (IE rarely)
+			AngleVectors(self->client->ps.viewangles, pushDir, NULL, NULL);
+			//reverse it
+			VectorScale(pushDir, -1, pushDir);
+		}
+		pushDir[2] = 0;
+		VectorNormalize(pushDir);
+		G_Throw(self, pushDir, throwStr);
+
+		//translate throw strength to the force used for determining knockdown anim.
+		if(throwStr > 65)
+		{//really got nailed, play the hard version of the knockdown anims
+			throwStr = 300;
+		}	
+
+		//knock them on their ass!
+		G_Knockdown(self, inflictor, pushDir, throwStr, qtrue);
+
+		/* the old basejka way
+		self->client->ps.forceHandExtend = HANDEXTEND_KNOCKDOWN;
+		self->client->ps.forceHandExtendTime = level.time + 1300;
+		*/
+		//[/KnockdownSys]
+
+		//Count as kill for attacker if the other player falls to his death.
+		if( inflictor && inflictor->inuse && inflictor->client )
+		{
+			self->client->ps.otherKiller = self->s.number;
+			self->client->ps.otherKillerTime = level.time + 8000;
+			self->client->ps.otherKillerDebounceTime = level.time + 100;
+		}
+	}
+}
 
 
+qboolean PM_RunningAnim( int anim );
+//Check to see if the player is actually walking or just standing
+qboolean GAME_INLINE WalkCheck( gentity_t * self )
+{
+	if(PM_RunningAnim(self->client->ps.legsAnim))
+	{
+		return qfalse;
+	}
 
+	/* old method.  seems to have issues failing players when they're walking diagonally. :|
+	float velocity = VectorLength(self->client->ps.velocity);
+	if (velocity == 0)
+	{
+		return qtrue;
+	}
+
+	if( self->client->ps.groundEntityNum == ENTITYNUM_NONE )
+	{//count as walking!
+		return qtrue;
+	}
+
+	if(velocity >= (g_speed.value * (.37)) )
+	{//on the ground and moving at run speeds.
+		//G_Printf("Player %i is running: %f\n", self->s.number, velocity);
+		return qfalse;
+	}
+	*/
+
+	return qtrue;
+}
+//[/SaberSys]

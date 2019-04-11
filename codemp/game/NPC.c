@@ -221,12 +221,6 @@ void NPC_RemoveBody( gentity_t *self )
 
 	//run physics at 20fps
 	CorpsePhysics( self );
-	
-	/* old code
-	CorpsePhysics( self );
-
-	self->nextthink = level.time + FRAMETIME;
-	*/
 	//[/CoOp]
 
 	if ( self->NPC->nextBStateThink <= level.time )
@@ -338,108 +332,6 @@ void NPC_RemoveBody( gentity_t *self )
 			}
 		}
 	}
-
-	/* old code
-	}
-	self->NPC->nextBStateThink = level.time + FRAMETIME;
-
-	if ( self->message )
-	{//I still have a key
-		return;
-	}
-
-	// I don't consider this a hack, it's creative coding . . . 
-	// I agree, very creative... need something like this for ATST and GALAKMECH too!
-	if (self->client->NPC_class == CLASS_MARK1)
-	{
-		Mark1_dying( self );
-	}
-
-	// Since these blow up, remove the bounding box.
-	if ( self->client->NPC_class == CLASS_REMOTE 
-		|| self->client->NPC_class == CLASS_SENTRY
-		|| self->client->NPC_class == CLASS_PROBE
-		|| self->client->NPC_class == CLASS_INTERROGATOR
-		|| self->client->NPC_class == CLASS_PROBE
-		|| self->client->NPC_class == CLASS_MARK2 )
-	{
-		//if ( !self->taskManager || !self->taskManager->IsRunning() )
-		if (!trap_ICARUS_IsRunning(self->s.number))
-		{
-			if ( !self->activator || !self->activator->client || !(self->activator->client->ps.eFlags2&EF2_HELD_BY_MONSTER) )
-			{//not being held by a Rancor
-				G_FreeEntity( self );
-			}
-		}
-		return;
-	}
-
-	//FIXME: don't ever inflate back up?
-	self->r.maxs[2] = self->client->renderInfo.eyePoint[2] - self->r.currentOrigin[2] + 4;
-	if ( self->r.maxs[2] < -8 )
-	{
-		self->r.maxs[2] = -8;
-	}
-
-	if ( self->client->NPC_class == CLASS_GALAKMECH )
-	{//never disappears
-		return;
-	}
-	if ( self->NPC && self->NPC->timeOfDeath <= level.time )
-	{
-		self->NPC->timeOfDeath = level.time + 1000;
-		// Only do all of this nonsense for Scav boys ( and girls )
-	///	if ( self->client->playerTeam == NPCTEAM_SCAVENGERS || self->client->playerTeam == NPCTEAM_KLINGON 
-	//		|| self->client->playerTeam == NPCTEAM_HIROGEN || self->client->playerTeam == NPCTEAM_MALON )
-		// should I check NPC_class here instead of TEAM ? - dmv
-		if( self->client->playerTeam == NPCTEAM_ENEMY || self->client->NPC_class == CLASS_PROTOCOL )
-		{
-			self->nextthink = level.time + FRAMETIME; // try back in a second
-
-			*//*
-			if ( DistanceSquared( g_entities[0].r.currentOrigin, self->r.currentOrigin ) <= REMOVE_DISTANCE_SQR )
-			{
-				return;
-			}
-
-			if ( (InFOV( self, &g_entities[0], 110, 90 )) ) // generous FOV check
-			{
-				if ( (NPC_ClearLOS2( &g_entities[0], self->r.currentOrigin )) )
-				{
-					return;
-				}
-			}
-			*//*
-			//Don't care about this for MP I guess.
-		}
-
-		//FIXME: there are some conditions - such as heavy combat - in which we want
-		//			to remove the bodies... but in other cases it's just weird, like
-		//			when they're right behind you in a closed room and when they've been
-		//			placed as dead NPCs by a designer...
-		//			For now we just assume that a corpse with no enemy was 
-		//			placed in the map as a corpse
-		if ( self->enemy )
-		{
-			//if ( !self->taskManager || !self->taskManager->IsRunning() )
-			if (!trap_ICARUS_IsRunning(self->s.number))
-			{
-				if ( !self->activator || !self->activator->client || !(self->activator->client->ps.eFlags2&EF2_HELD_BY_MONSTER) )
-				{//not being held by a Rancor
-					if ( self->client && self->client->ps.saberEntityNum > 0 && self->client->ps.saberEntityNum < ENTITYNUM_WORLD )
-					{
-						gentity_t *saberent = &g_entities[self->client->ps.saberEntityNum];
-						if ( saberent )
-						{
-							G_FreeEntity( saberent );
-						}
-					}
-					G_FreeEntity( self );
-				}
-			}
-		}
-	}
-	*/
 	//[/CoOp]
 }
 
@@ -555,7 +447,7 @@ Effect to be applied when ditching the corpse
 */
 
 //[CoOp]
-/* doesn't do anything here or in SP code.  removing.
+#ifdef _DISABLED
 static void NPC_RemoveBodyEffect(void)
 {
 //	vec3_t		org;
@@ -563,7 +455,7 @@ static void NPC_RemoveBodyEffect(void)
 
 	if ( !NPC || !NPC->client || (NPC->s.eFlags & EF_NODRAW) )
 		return;
-*//*
+/*
 	switch(NPC->client->playerTeam)
 	{
 	case NPCTEAM_STARFLEET:
@@ -581,7 +473,7 @@ static void NPC_RemoveBodyEffect(void)
 	default:
 		break;
 	}
-*//*
+*/
 
 
 	// team no longer indicates species/race, so in this case we'd use NPC_class, but
@@ -612,7 +504,7 @@ static void NPC_RemoveBodyEffect(void)
 
 
 }
-*/
+#endif //_DISABLED
 //[/CoOp]
 
 
@@ -680,7 +572,6 @@ void pitch_roll_for_slope( gentity_t *forwhom, vec3_t pass_slope )
 	{
 		AngleVectors( forwhom->r.currentAngles, ovf, ovr, NULL );
 	}
-	//AngleVectors( forwhom->r.currentAngles, ovf, ovr, NULL );
 	//[/CoOp]
 
 	vectoangles( slope, new_angles );
@@ -845,7 +736,6 @@ static void DeadThink ( void )
 
 				//[CoOp] SP Code
 				NPC->nextthink = level.time + FRAMETIME/2;
-				//NPC->nextthink = level.time + FRAMETIME;
 				//[/CoOp]
 			//	if ( NPC->client->playerTeam == NPCTEAM_FORGE )
 			//		NPCInfo->timeOfDeath = level.time + FRAMETIME * 8;
@@ -1451,15 +1341,8 @@ void NPC_BehaviorSet_Seeker( int bState )
 	//[CoOp] SP Code
 	default:
 		NPC_BSSeeker_Default();
-		break;
-	/*
-		NPC_BSSeeker_Default();
-		break; 
-	default:
-		NPC_BehaviorSet_Default( bState );
-		break;
-	*/
 	//[/CoOp]
+		break;
 	}
 }
 
@@ -1486,7 +1369,6 @@ void NPC_BehaviorSet_Remote( int bState )
 		NPC_BehaviorSet_Default( bState );
 		break;
 	}
-	//NPC_BSRemote_Default();
 	//[/CoOp]
 }
 
@@ -1902,7 +1784,6 @@ extern void NPC_BSEmplaced( void );
 extern qboolean NPC_CheckSurrender( void );
 extern void Boba_FlyStop( gentity_t *self );
 //[CoOp]
-//extern void NPC_BSWampa_Default( void );
 extern void BubbleShield_Update(void);
 extern void NPC_BSSD_Default( void );
 extern void NPC_BSCivilian_Default( int bState );
@@ -1947,7 +1828,6 @@ void NPC_RunBehavior( int team, int bState )
 		NPC_BSEmplaced();
 		//[CoOp] SP Code
 		G_CheckCharmed( NPC );
-		//NPC_CheckCharmed();
 		//[CoOp]
 		return;
 	}
@@ -2033,7 +1913,6 @@ void NPC_RunBehavior( int team, int bState )
 		//[CoOp] SP Code
 		NPC_BehaviorSet_Wampa( bState );
 		G_CheckCharmed( NPC );
-		//NPC_BSWampa_Default();
 		//[/CoOp]
 	}
 	//[CoOp] SP Code
@@ -2067,37 +1946,6 @@ void NPC_RunBehavior( int team, int bState )
 	{
 		NPC_BehaviorSet_Stormtrooper( bState );
 		G_CheckCharmed( NPC );
-	}
-	*/
-
-	/* old code
-	else if ( NPC->client->NPC_class == CLASS_RANCOR )
-	{//rancor
-		NPC_BehaviorSet_Rancor( bState );
-	}
-	else if ( NPC->client->NPC_class == CLASS_REMOTE )
-	{
-		NPC_BehaviorSet_Remote( bState );
-	}
-	else if ( NPC->client->NPC_class == CLASS_SEEKER )
-	{
-		NPC_BehaviorSet_Seeker( bState );
-	}
-	else if ( NPC->client->NPC_class == CLASS_BOBAFETT )
-	{//bounty hunter
-		if ( Boba_Flying( NPC ) )
-		{
-			NPC_BehaviorSet_Seeker(bState);
-		}
-		else
-		{
-			NPC_BehaviorSet_Jedi( bState );
-		}
-		dontSetAim = qtrue;
-	}
-	else if ( NPCInfo->scriptFlags & SCF_FORCED_MARCH )
-	{//being forced to march
-		NPC_BSDefault();
 	}
 	*/
 	//[/CoOp]
@@ -2196,7 +2044,6 @@ void NPC_RunBehavior( int team, int bState )
 			//[CoOp]
 			if ( NPC->client->ps.weapon == WP_THERMAL 
 				|| NPC->client->ps.weapon == WP_MELEE )//FIXME: separate AI for melee fighters
-			//if ( NPC->client->ps.weapon == WP_THERMAL || NPC->client->ps.weapon == WP_STUN_BATON )//FIXME: separate AI for melee fighters
 			//[/CoOp]
 			{//a grenadier
 				NPC_BehaviorSet_Grenadier( bState );
@@ -2239,20 +2086,6 @@ void NPC_RunBehavior( int team, int bState )
 					// occupied and in a landing zone.
 				}
 			}
-
-			/*
-			// special cases for enemy droids
-			if ( NPC->client->NPC_class == CLASS_PROTOCOL || NPC->client->NPC_class == CLASS_UGNAUGHT ||
-				NPC->client->NPC_class == CLASS_JAWA)
-			{
-				NPC_BehaviorSet_Default(bState);
-			}
-			else if ( NPC->client->NPC_class == CLASS_VEHICLE )
-			{
-				// TODO: Add vehicle behaviors here.
-				NPC_UpdateAngles( qtrue, qtrue );//just face our spawn angles for now
-			}
-			*/
 			//[/CoOp]
 			else
 			{
@@ -2279,7 +2112,6 @@ void NPC_RunBehavior( int team, int bState )
 
 				//[CoOp] SP Code
 				G_CheckCharmed( NPC );
-				//NPC_CheckCharmed();
 				//[/CoOp]
 				dontSetAim = qtrue;
 			}
@@ -2334,59 +2166,9 @@ void NPC_ExecuteBState ( gentity_t *self)//, int msec )
 	//Clear this and let bState set it itself, so it automatically handles changing bStates... but we need a set bState wrapper func
 	NPCInfo->combatMove = qfalse;
 
-	//[CoOp]
-	//Falling to our death code.
-	/*ok, removed the code.  Let's hope the true SP version turns up.
-	if (NPCInfo->jumpState != JS_JUMPING &&
-		NPCInfo->jumpState != JS_LANDING &&
-		G_GroundDistance( NPC ) > 512 &&
-		((NPC->client->ps.lastOnGround + 500) < level.time) &&
-		!(NPC->noFallDamage) &&
-		!(NPC->client->ps.eFlags2 & EF2_FLYING) &&
-		NPC->client->ps.velocity[2] < -15.0f &&
-		abs(NPC->client->ps.velocity[2]) > abs(NPC->client->ps.velocity[0]) &&
-		!(NPC->client->ps.fallingToDeath) && 
-		(!self->client->ps.fd.forceJumpZStart || (NPC->client->ps.origin[2] < self->client->ps.fd.forceJumpZStart)) && 
-		(NPC->client->NPC_class != CLASS_BOBAFETT *//*&& NPC->client->NPC_class != CLASS_ROCKETTROOPER*//*))
-	{
-#ifdef _DEBUG
-		//Com_Printf("Stupid...\n");
-#endif
-		//G_Damage(NPC,NPC,NPC,NPC->client->ps.velocity,NPC->client->ps.origin,Q3_INFINITE,0,MOD_FALLING);
-		NPC_SetAnim( NPC, SETANIM_BOTH, BOTH_FALLDEATH1INAIR, SETANIM_FLAG_HOLD|SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_RESTART );
-		G_EntitySound( NPC, CHAN_VOICE, G_SoundIndex("*falling1.wav") );
-		NPCInfo->aiFlags |= NPCAI_DIE_ON_IMPACT;
-		if (NPC->client->ps.otherKillerTime > level.time)
-		{ //we're as good as dead, so if someone pushed us into this then remember them
-			NPC->client->ps.otherKillerTime = level.time + 20000;
-			NPC->client->ps.otherKillerDebounceTime = level.time + 10000;
-		}
-		NPC->client->ps.fallingToDeath = level.time;
-
-		//rag on the way down, this flag will automatically be cleared for us on respawn
-		NPC->client->ps.eFlags |= EF_RAG;
-		return;
-	}
-	*/
-	//[/CoOp]
-
 	//[CoOp] SP code
 	//Execute our bState
 	bState = G_CurrentBState( NPCInfo );
-	/* old MP code
-	//Execute our bState
-	if(NPCInfo->tempBehavior)
-	{//Overrides normal behavior until cleared
-		bState = NPCInfo->tempBehavior;
-	}
-	else
-	{
-		if(!NPCInfo->behaviorState)
-			NPCInfo->behaviorState = NPCInfo->defaultBehavior;
-
-		bState = NPCInfo->behaviorState;
-	}
-	*/
 	//[/CoOp]
 
 	//Pick the proper bstate for us and run it
@@ -2444,7 +2226,6 @@ void NPC_ExecuteBState ( gentity_t *self)//, int msec )
 			|| (NPC->client->NPC_class == CLASS_TUSKEN && Q_irand( 0, 4 )))//not a rampaging creature or I'm a tusken and I feel generous (temporarily)
 			&& NPC->enemy->NPC 
 			&& (NPC->enemy->NPC->surrenderTime > level.time || (NPC->enemy->NPC->scriptFlags&SCF_FORCED_MARCH)) )
-		//else if ( NPC->client->playerTeam != NPCTEAM_ENEMY && NPC->enemy->NPC && (NPC->enemy->NPC->surrenderTime > level.time || (NPC->enemy->NPC->scriptFlags&SCF_FORCED_MARCH)) )
 		//[/CoOp]
 		{//don't shoot someone who's surrendering if you're a good guy
 			ucmd.buttons &= ~BUTTON_ATTACK;
@@ -2643,12 +2424,9 @@ void NPC_Think ( gentity_t *self)//, int msec )
 	//[CoOp]
 	//NUAM?
 	//int i = 0;
-
-	//SP Code
 	//gentity_t *player;
 
 	self->nextthink = level.time + FRAMETIME/2;
-	//self->nextthink = level.time + FRAMETIME;
 	//[/CoOp]
 
 	SetNPCGlobals( self );
@@ -2656,20 +2434,21 @@ void NPC_Think ( gentity_t *self)//, int msec )
 	memset( &ucmd, 0, sizeof( ucmd ) );
 
 	VectorCopy( self->client->ps.moveDir, oldMoveDir );
-	//[CoOp] SP Code
 	if (self->s.NPC_class != CLASS_VEHICLE)
 	{ //YOU ARE BREAKING MY PREDICTION. Bad clear.
 		VectorClear( self->client->ps.moveDir );
 	}
-	//RAFIXME - impliment this?
+	//[CoOp] RAFIXME - impliment this?
 	//VectorClear( self->client->ps.moveDir );
 	//[/CoOp]
 
-	//[CoOp] SP Code
+	//[CoOp] Moved up
+	// see if NPC ai is frozen
 	if ( debugNPCFreeze.integer || (NPC->r.svFlags&SVF_ICARUS_FREEZE) ) 
-	{//our AI is frozen.
+	{
 		NPC_UpdateAngles( qtrue, qtrue );
 		ClientThink(self->s.number, &ucmd);
+		//VectorCopy(self->s.origin, self->s.origin2 );
 		VectorCopy(self->s.origin, self->s.origin2 );
 		return;
 	}
@@ -2696,21 +2475,7 @@ void NPC_Think ( gentity_t *self)//, int msec )
 		return;
 	}
 
-	//[CoOp] SP code.
-	//done above in SP code
-	/*
-	// see if NPC ai is frozen
-	if ( debugNPCFreeze.value || (NPC->r.svFlags&SVF_ICARUS_FREEZE) ) 
-	{
-		NPC_UpdateAngles( qtrue, qtrue );
-		ClientThink(self->s.number, &ucmd);
-		//VectorCopy(self->s.origin, self->s.origin2 );
-		VectorCopy(self->r.currentOrigin, self->client->ps.origin);
-		return;
-	}
 
-	self->nextthink = level.time + FRAMETIME/2;
-	*/
 
 	// TODO! Tauntaun's (and other creature vehicles?) think, we'll need to make an exception here to allow that.
 
@@ -2955,10 +2720,10 @@ void NPC_Think ( gentity_t *self)//, int msec )
 
 //[CoOp] SP Code
 //all this stuff is implimented in g_main.c
-/*
+#ifdef _DISABLED
 void NPC_InitAI ( void ) 
 {
-	*//*
+	/*
 	trap_Cvar_Register(&g_saberRealisticCombat, "g_saberRealisticCombat", "0", CVAR_CHEAT);
 
 	trap_Cvar_Register(&debugNoRoam, "d_noroam", "0", CVAR_CHEAT);
@@ -2983,9 +2748,9 @@ void NPC_InitAI ( void )
 	trap_Cvar_Register(&d_saberCombat, "d_saberCombat", "0", CVAR_CHEAT);
 
 	trap_Cvar_Register(&g_spskill, "g_npcspskill", "0", CVAR_ARCHIVE | CVAR_USERINFO);
-	*//*
+	*/
 }
-*/
+#endif //_DISABLED
 //[/CoOp]
 
 /*
