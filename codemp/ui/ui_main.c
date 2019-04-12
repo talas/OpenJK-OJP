@@ -701,10 +701,8 @@ int	uiSkinColor=TEAM_FREE;
 int	uiHoldSkinColor=TEAM_FREE;	// Stores the skin color so that in non-team games, the player screen remembers the team you chose, in case you're coming back from the force powers screen.
 
 static const serverFilter_t serverFilters[] = {
-	//[SERVERFILTERS]
-	//since OJP Enhanced only works with OJP Enhanced servers, only show them.
-	{"OJP_MENUS_OJP_ENHANCED", "ojpenhanced" },
-	//[/SERVERFILTERS]
+	{"MENUS_ALL", "" },
+	{"MENUS_JEDI_ACADEMY", "" },
 };
 static const int numServerFilters = sizeof(serverFilters) / sizeof(serverFilter_t);
 
@@ -7626,15 +7624,13 @@ static void UI_BuildServerDisplayList(qboolean force) {
 					continue;
 				}
 			}
-			
-			//[SERVERFILTERS]
-			// removed the ui_serverFilterType check to allow our first filter to be for OJP servers.
-			if (Q_stricmp(Info_ValueForKey(info, "game"), serverFilters[ui_serverFilterType.integer].basedir) != 0) {
-				trap_LAN_MarkServerVisible(ui_netSource.integer, i, qfalse);
-				continue;
+				
+			if (ui_serverFilterType.integer > 0) {
+				if (Q_stricmp(Info_ValueForKey(info, "game"), serverFilters[ui_serverFilterType.integer].basedir) != 0) {
+					trap_LAN_MarkServerVisible(ui_netSource.integer, i, qfalse);
+					continue;
+				}
 			}
-			//[/SERVERFILTERS]
-
 			// make sure we never add a favorite server twice
 			if (ui_netSource.integer == AS_FAVORITES) {
 				UI_RemoveServerFromDisplayList(i);
