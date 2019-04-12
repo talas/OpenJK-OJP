@@ -3445,9 +3445,6 @@ qboolean G_OtherPlayersDueling(void)
 	return qfalse;
 }
 
-//[DuelSys]
-extern vmCvar_t g_multiDuel;
-//[/DuelSys]
 //[TABBots]
 extern void TAB_BotSaberDuelChallenged(gentity_t *bot, gentity_t *player);
 extern int FindBotType(int clientNum);
@@ -3514,10 +3511,8 @@ void Cmd_EngageDuel_f(gentity_t *ent)
 		trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "CANTDUEL_JUSTDID")) );
 		return;
 	}
-	//[DuelSys]
-	// MJN - cvar g_multiDuel allows more than 1 private duel at a time.
-	if (!g_multiDuel.integer && G_OtherPlayersDueling())
-	//[/DuelSys]
+
+	if (G_OtherPlayersDueling())
 	{
 		trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "CANTDUEL_BUSY")) );
 		return;

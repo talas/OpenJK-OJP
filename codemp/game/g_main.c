@@ -322,8 +322,6 @@ vmCvar_t		ojp_allowBodyDodge;
 // MJN
 // Next Duel Timer (in sec.)
 vmCvar_t	g_duelTimer;
-// More than 1 Duel at a Time
-vmCvar_t    g_multiDuel;
 // Duel Stats
 vmCvar_t	g_duelStats;
 // Log Duel Stats
@@ -691,8 +689,6 @@ static cvarTable_t		gameCvarTable[] = {
 	// MJN
 	// Next Duel Timer (in sec.)
 	{ &g_duelTimer, "g_duelTimer", "10", CVAR_ARCHIVE, 0, qtrue  },
-	// Toggles weither or not we restrict private duels to one at a time.
-	{ &g_multiDuel, "g_multiDuel", "1", CVAR_ARCHIVE, 0, qtrue },
 	// Shield boost on duel start
 	{ &g_playerDuelShield, "g_playerDuelShield", "50", CVAR_ARCHIVE, 0, qfalse },
 	// Duel Stats
