@@ -2193,13 +2193,6 @@ static void Jedi_CombatDistance( int enemy_dist )
 	}
 
 	//[CoOp]
-	if ( Jedi_CultistDestroyer( NPC ) )
-	{
-		Jedi_Advance();
-		NPC->client->ps.speed = NPCInfo->stats.runSpeed;
-		ucmd.buttons &= ~BUTTON_WALKING;
-		return;
-	}
 	if ( enemy_dist < 128 
 		&& NPC->enemy
 		&& NPC->enemy->client
@@ -2880,12 +2873,6 @@ static void Jedi_CombatDistance( int enemy_dist )
 
 static qboolean Jedi_Strafe( int strafeTimeMin, int strafeTimeMax, int nextStrafeTimeMin, int nextStrafeTimeMax, qboolean walking )
 {
-	//[CoOp]
-	if ( Jedi_CultistDestroyer( NPC ) )
-	{//destroyers never strafe
-		return qfalse;
-	}
-	//[/CoOp]
 	if ( NPC->client->ps.saberEventFlags&SEF_LOCK_WON && NPC->enemy && NPC->enemy->painDebounceTime > level.time )
 	{//don't strafe if pressing the advantage of winning a saberLock
 		return qfalse;
@@ -5797,14 +5784,6 @@ static void Jedi_TimersApply( void )
 
 static void Jedi_CombatTimersUpdate( int enemy_dist )
 {
-	//[CoOp]
-	if ( Jedi_CultistDestroyer( NPC ) )
-	{
-		Jedi_Aggression( NPC, 5 );
-		return;
-	}
-	//[/CoOp]
-
 	if ( TIMER_Done( NPC, "roamTime" ) )
 	{
 		TIMER_Set( NPC, "roamTime", Q_irand( 2000, 5000 ) );
@@ -8503,26 +8482,6 @@ qboolean Jedi_InSpecialMove( void )
 		} 
 		NPC_UpdateAngles( qtrue, qtrue );
 		return qtrue;
-	}
-
-	if ( Jedi_CultistDestroyer( NPC ) )
-	{
-		if ( !NPC->takedamage )
-		{//ready to explode
-			//RAFIXME - this is a hack, I hope this works
-			if ( NPC->painDebounceTime <= level.time )
-			{
-				//this should damage everyone - FIXME: except other destroyers?
-				NPC->client->playerTeam = TEAM_FREE;//FIXME: will this destroy wampas, tusken & rancors?
-				WP_Explode( NPC );
-				return qtrue;
-			}
-			if ( NPC->enemy )
-			{
-				NPC_FaceEnemy( qfalse );
-			}
-			return qtrue;
-		}
 	}
 
 	if ( NPC->client->NPC_class == CLASS_REBORN )
