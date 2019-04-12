@@ -360,7 +360,6 @@ void NPC_ChoosePainAnimation( gentity_t *self, gentity_t *other, vec3_t point, i
 	}
 }
 
-
 //[CoOp]
 extern void emplaced_gun_use( gentity_t *self, gentity_t *other, trace_t *trace );
 gentity_t *G_CheckControlledTurretEnemy(gentity_t *self, gentity_t *enemy, qboolean validate )
@@ -839,7 +838,6 @@ void NPC_Respond( gentity_t *self, int userNum )
 				event = Q_irand( EV_CHASE1, EV_CHASE3 );
 			}
 			else if ( Q_irand( 0, 1 ) )
-
 			{
 				event = Q_irand( EV_OUTFLANK1, EV_OUTFLANK2 );
 			}
@@ -878,7 +876,6 @@ void NPC_Respond( gentity_t *self, int userNum )
 	case CLASS_JEDI:
 		if ( !self->enemy )
 		{
-
 			//[CoOp]
 			//reenabling the IGNORE_ENEMIES flag
 			if ( !(self->NPC->scriptFlags&SCF_IGNORE_ENEMIES) 
@@ -1205,7 +1202,6 @@ void NPC_CheckPlayerAim( void )
 	*//*
 }
 */
-
 
 /* this feature isn't used anymore.  Maybe enable later?
 void NPC_CheckAllClear( void )

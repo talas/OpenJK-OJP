@@ -325,7 +325,6 @@ int GetPairedValue(char *buf, char *key, char *outbuf)
 	return 1;
 }
 
-
 //[BotTweaks]
 int G_CountHumanPlayers( int ignoreClientNum, int team );
 //[/BotTweaks]
@@ -973,7 +972,6 @@ void BotUtilizePersonality(bot_state_t *bs)
 	trap_FS_FCloseFile(f);
 }
 
-
 //[AotCAI]
 extern bot_state_t	*botstates[MAX_CLIENTS];
 int FindBotType(int clientNum)
@@ -1033,5 +1031,4 @@ gentity_t *FindClosestHumanPlayer(vec3_t position, int enemyTeam)
 	return closestplayer;
 }
 //[/TABBots]
-
 

@@ -91,6 +91,7 @@ int adjustRespawnTime(float preRespawnTime, int itemType, int itemTag)
 	return ((int)respawnTime);
 }
 
+
 //[TicketFix234]
 #define SHIELD_HEALTH				2000//Was 250
 //[/TicketFix234]
@@ -563,6 +564,7 @@ void SentryTouch(gentity_t *ent, gentity_t *other, trace_t *trace)
 {
 	return;
 }
+
 qboolean BG_CrouchAnim( int anim );
 qboolean PM_InKnockDown( playerState_t *ps );
 //----------------------------------------------------------------
@@ -1206,12 +1208,10 @@ qboolean NPC_MoveToGoal( qboolean tryStraight );
 void ItemUse_Seeker(gentity_t *ent)
 {
 	//[SeekerItemNpc]
-
 	gentity_t *remote = ent->client->remote;
 
 	if(!remote || !remote->inuse || !remote->client || remote->activator != ent)
 	{//actualy spawn a remote NPC
-
 		remote = NPC_SpawnType( ent, "seeker", va("player%iseeker", ent->s.number), qfalse );
 		if ( remote && remote->client )
 		{//set it to my team
@@ -1421,7 +1421,6 @@ void Jetpack_On(gentity_t *ent)
 	ent->client->jetPackOn = qtrue;
 }
 
-
 //[FlameThrower]
 #define FLAMETHROWER_RADIUS 300
 void Flamethrower_Fire( gentity_t *self )
@@ -1553,7 +1552,6 @@ void ItemUse_FlameThrower(gentity_t *ent)
 	ent->client->flameTime = level.time + 300;
 }
 //[/Flamethrower]
-
 
 void ItemUse_Jetpack( gentity_t *ent )
 {
@@ -3483,7 +3481,6 @@ int G_ItemDisabled( gitem_t *item ) {
 	return trap_Cvar_VariableIntegerValue( name );
 }
 
-
 //[MOREWEAPOPTIONS]
 //This function checks an ammo type against the disabled weapons list.
 qboolean G_AmmoDisabled (int wDisable, gitem_t *item)
@@ -3583,7 +3580,6 @@ qboolean G_AmmoDisabled (int wDisable, gitem_t *item)
 	};
 }
 //[/MOREWEAPOPTIONS]
-
 
 /*
 ============

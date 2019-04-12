@@ -104,7 +104,7 @@ void CorpsePhysics( gentity_t *self )
 	//if ( level.time - self->s.time > 500 )
 	if (self->client->respawnTime < (level.time+500))
 	{//don't turn "nonsolid" until about 1 second after actual death
-		
+
 		//[CoOp]
 		//RAFIXME - not in SP code.  Still use?
 		/*
@@ -423,7 +423,6 @@ int BodyRemovalPadTime( gentity_t *ent )
 		{
 			time = g_corpseRemovalTime.integer*1000;
 		}
-
 		// never go away
 	//	time = Q3_INFINITE;
 		// for now I'm making default 10000
@@ -733,7 +732,6 @@ static void DeadThink ( void )
 
 				//FIXME: keep it running through physics somehow?
 				NPC->think = NPC_RemoveBody;
-
 				//[CoOp] SP Code
 				NPC->nextthink = level.time + FRAMETIME/2;
 				//[/CoOp]
@@ -847,8 +845,6 @@ void NPC_ShowDebugInfo (void)
 	}
 }
 */
-
-
 
 extern qboolean InPlayersPVS(vec3_t point);
 //[/CoOp]
@@ -1418,8 +1414,6 @@ void NPC_BehaviorSet_Grenadier( int bState )
 		break;
 	}
 }
-
-
 //[CoOp]  SP Code RAFIXME - impliment tuskens
 /*
 -------------------------
@@ -1446,7 +1440,6 @@ void NPC_BehaviorSet_Tusken( int bState )
 }
 */
 //[/CoOp]
-
 /*
 -------------------------
 NPC_BehaviorSet_Sniper
@@ -1532,7 +1525,6 @@ void NPC_BehaviorSet_Jedi( int bState )
 	}
 }
 
-
 //[CoOp]  SP Code RAFIXME - impliment this function into the other files.
 qboolean G_JediInNormalAI( gentity_t *ent )
 {//NOTE: should match above func's switch!
@@ -1556,7 +1548,6 @@ qboolean G_JediInNormalAI( gentity_t *ent )
 	return qfalse;
 }
 //[/CoOp]
-
 
 /*
 -------------------------
@@ -1706,7 +1697,6 @@ void NPC_BehaviorSet_Rancor( int bState )
 	}
 }
 
-
 //[CoOp] SP Code
 /*
 -------------------------
@@ -1729,7 +1719,6 @@ void NPC_BehaviorSet_Wampa( int bState )
 		break;
 	}
 }
-
 
 /*
 -------------------------
@@ -2042,8 +2031,7 @@ void NPC_RunBehavior( int team, int bState )
 				return;
 			}
 			//[CoOp]
-			if ( NPC->client->ps.weapon == WP_THERMAL 
-				|| NPC->client->ps.weapon == WP_MELEE )//FIXME: separate AI for melee fighters
+			if ( NPC->client->ps.weapon == WP_THERMAL || NPC->client->ps.weapon == WP_MELEE )//FIXME: separate AI for melee fighters
 			//[/CoOp]
 			{//a grenadier
 				NPC_BehaviorSet_Grenadier( bState );
@@ -2120,7 +2108,6 @@ void NPC_RunBehavior( int team, int bState )
 	}
 }
 
-
 //[CoOp] SP Code
 static bState_t G_CurrentBState( gNPC_t *gNPC )
 {
@@ -2137,7 +2124,6 @@ static bState_t G_CurrentBState( gNPC_t *gNPC )
 	return (gNPC->behaviorState);
 }
 //[/CoOp]
-
 
 /*
 ===============
@@ -2347,7 +2333,6 @@ void NPC_ExecuteBState ( gentity_t *self)//, int msec )
 	}*/
 }
 
-
 //[CoOp] SP Code
 /* function not used anymore.
 void NPC_CheckInSolid(void)
@@ -2373,7 +2358,6 @@ void NPC_CheckInSolid(void)
 	}
 }
 */
-
 
 /* Not in SP Code.
 void G_DroidSounds( gentity_t *self )
@@ -2406,7 +2390,6 @@ void G_DroidSounds( gentity_t *self )
 }
 */
 //[/CoOp]
-
 
 /*
 ===============
@@ -2474,8 +2457,6 @@ void NPC_Think ( gentity_t *self)//, int msec )
 		//[/CoOp]
 		return;
 	}
-
-
 
 	// TODO! Tauntaun's (and other creature vehicles?) think, we'll need to make an exception here to allow that.
 

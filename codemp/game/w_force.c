@@ -694,7 +694,6 @@ void WP_InitForcePowers( gentity_t *ent )
 	//[/DodgeSys]
 }
 
-
 void WP_SpawnInitForcePowers( gentity_t *ent )
 {
 	int i = 0;
@@ -949,7 +948,6 @@ int ForcePowerUsableOn(gentity_t *attacker, gentity_t *other, forcePowers_t forc
 			if(!WalkCheck(other) && PM_RunningAnim(other->client->ps.legsAnim) )
 				return 0;
 			break;
-
 		case FORCE_LEVEL_1:
 			if(!WalkCheck(other))
 				return 0;
@@ -968,10 +966,8 @@ int ForcePowerUsableOn(gentity_t *attacker, gentity_t *other, forcePowers_t forc
 			if(other->client->ps.inAirAnim || other->client->ps.groundEntityNum == ENTITYNUM_NONE)
 				return 1;
 			break;
-
 		case FORCE_LEVEL_3:
 			return 0;
-
 		default:
 			return 1;
 		}
@@ -1777,7 +1773,6 @@ void ForceTeamForceReplenish( gentity_t *self )
 	}
 }
 
-
 //[ForceSys]
 extern qboolean PM_SaberInParry( int move );
 qboolean OJP_CounterForce(gentity_t *attacker, gentity_t *defender, int attackPower);
@@ -2069,7 +2064,6 @@ void ForceLightning( gentity_t *self )
 	{
 		return;
 	}
-
 	//[ForceSys]
 	if( !WP_ForcePowerUsable( self, FP_LIGHTNING ) )
 	//[/ForceSys]
@@ -2114,10 +2108,10 @@ qboolean IsHybrid(gentity_t *ent)
 	qboolean jedi = qfalse,merc = qfalse;
 
 	if(ent->client->ps.fd.forcePowersKnown & (1 << FP_SEE))
-	jedi = qtrue;
+		jedi = qtrue;
 
 	if(ent->client->skillLevel[SK_JETPACK])
-	merc = qtrue;
+		merc = qtrue;
 	else if(ent->client->skillLevel[SK_PISTOL])
 		merc = qtrue;
 	else if(ent->client->skillLevel[SK_BLASTER])
@@ -2145,11 +2139,11 @@ qboolean IsHybrid(gentity_t *ent)
 	else if(ent->client->skillLevel[SK_REPEATER])
 		merc = qtrue;
 	else if(ent->client->skillLevel[SK_DISRUPTOR])
-	merc = qtrue;
+		merc = qtrue;
 	if(jedi && merc)
 		return qtrue;
 
-return qfalse;
+	return qfalse;
 }
 
 
@@ -2421,7 +2415,6 @@ void ForceLightningDamage( gentity_t *self, gentity_t *traceEnt, vec3_t dir, vec
 		}
 	}
 }
-
 
 void ForceShootLightning( gentity_t *self )
 {
@@ -3248,7 +3241,6 @@ qboolean ForceTelepathyCheckDirectNPCTarget( gentity_t *self, trace_t *tr, qbool
 }
 
 extern void WP_DeactivateSaber( gentity_t *self, qboolean clearLength );
-
 void ForceTelepathy(gentity_t *self)
 {
 	trace_t tr;
@@ -3263,7 +3255,7 @@ void ForceTelepathy(gentity_t *self)
 	{
 		return;
 	}
-	
+
 	if (self->client->ps.forceHandExtend != HANDEXTEND_NONE)
 	{
 		return;
@@ -3429,7 +3421,6 @@ void GEntity_UseFunc( gentity_t *self, gentity_t *other, gentity_t *activator )
 	GlobalUse(self, other, activator);
 }
 
-
 qboolean CanCounterThrow(gentity_t *self, gentity_t *thrower, qboolean pull)
 {
 	//[ForceSys]
@@ -3466,7 +3457,7 @@ qboolean CanCounterThrow(gentity_t *self, gentity_t *thrower, qboolean pull)
 		return 0;
 	}
 	*/
-	
+
 	if(!OJP_CounterForce(thrower, self, (pull ? FP_PULL : FP_PUSH)))
 	{//wasn't able to counter due to generic counter issue
 		return qfalse;
@@ -3642,6 +3633,7 @@ void ForceThrow( gentity_t *self, qboolean pull )
 	//[/GripPush]
 
 	visionArc = 0;
+
 	//[ForceSys]
 	if (self->client->ps.forceHandExtend != HANDEXTEND_NONE && (self->client->ps.forceHandExtend != HANDEXTEND_KNOCKDOWN || !G_InGetUpAnim(&self->client->ps)) && !(self->client->ps.fd.forcePowersActive & (1 << FP_GRIP)))
 	//[/ForceSys]
@@ -3716,7 +3708,7 @@ void ForceThrow( gentity_t *self, qboolean pull )
 		//[/SaberLockSys]
 		return;
 	}
-	
+
 	WP_ForcePowerStart( self, powerUse, 0 );
 
 	//make sure this plays and that you cannot press fire for about 1 second after this
@@ -3881,33 +3873,33 @@ void ForceThrow( gentity_t *self, qboolean pull )
 				}
 			}
 			
-//[SEEKERSENTRY]
+			//[SEEKERSENTRY]
 			if(Q_stricmp(ent->classname,"sentryGun") == 0 )//|| ent->s.NPC_class == CLASS_SEEKER)
 			{
-		VectorCopy(self->client->ps.origin, tfrom);
-		tfrom[2] += self->client->ps.viewheight;
-		AngleVectors(self->client->ps.viewangles, fwd, NULL, NULL);
-		tto[0] = tfrom[0] + fwd[0]*radius/2;
-		tto[1] = tfrom[1] + fwd[1]*radius/2;
-		tto[2] = tfrom[2] + fwd[2]*radius/2;
+				VectorCopy(self->client->ps.origin, tfrom);
+				tfrom[2] += self->client->ps.viewheight;
+				AngleVectors(self->client->ps.viewangles, fwd, NULL, NULL);
+				tto[0] = tfrom[0] + fwd[0]*radius/2;
+				tto[1] = tfrom[1] + fwd[1]*radius/2;
+				tto[2] = tfrom[2] + fwd[2]*radius/2;
 
-		trap_Trace(&tr, tfrom, NULL, NULL, tto, self->s.number, MASK_PLAYERSOLID);
+				trap_Trace(&tr, tfrom, NULL, NULL, tto, self->s.number, MASK_PLAYERSOLID);
 
-		if (tr.fraction != 1.0 &&
-			tr.entityNum != ENTITYNUM_NONE)
-		{
-			if (!g_entities[tr.entityNum].client && g_entities[tr.entityNum].s.eType == ET_NPC)
-			{ //g2animent
-				if (g_entities[tr.entityNum].s.genericenemyindex < level.time)
+				if (tr.fraction != 1.0 &&
+					tr.entityNum != ENTITYNUM_NONE)
 				{
-					g_entities[tr.entityNum].s.genericenemyindex = level.time + 2000;
-				}
-			}
+					if (!g_entities[tr.entityNum].client && g_entities[tr.entityNum].s.eType == ET_NPC)
+					{ //g2animent
+						if (g_entities[tr.entityNum].s.genericenemyindex < level.time)
+						{
+							g_entities[tr.entityNum].s.genericenemyindex = level.time + 2000;
+						}
+					}
 
-			aimingAt = &g_entities[tr.entityNum];
-			if(ent == aimingAt)//Looking at the sentry...so deactivate for 10 seconds
-				ent->nextthink = level.time + 5000;
-		}
+					aimingAt = &g_entities[tr.entityNum];
+					if(ent == aimingAt)//Looking at the sentry...so deactivate for 10 seconds
+						ent->nextthink = level.time + 5000;
+				}
 			}
 			//[/SEEKERSENTRY]
 
@@ -4107,6 +4099,7 @@ void ForceThrow( gentity_t *self, qboolean pull )
 		{
 			int modPowerLevel = powerLevel;
 
+	
 			//[ForceSys]
 			/* racc - removed active component of absorb
 			if (push_list[x]->client)
@@ -4131,7 +4124,7 @@ void ForceThrow( gentity_t *self, qboolean pull )
 				VectorCopy(push_list[x]->s.origin, thispush_org);
 			}
 
-			if ( push_list[x]->client)
+			if ( push_list[x]->client )
 			{//FIXME: make enemy jedi able to hunker down and resist this?
 				//[ForceSys]
 				qboolean wasWallGrabbing = qfalse;
@@ -4305,7 +4298,6 @@ void ForceThrow( gentity_t *self, qboolean pull )
 				/* racc - converted this stuff to be push strength based
 				if ((modPowerLevel > otherPushPower || push_list[x]->client->ps.m_iVehicleNum) && push_list[x]->client)
 				{
-
 					if (modPowerLevel == FORCE_LEVEL_3 &&
 						push_list[x]->client->ps.forceHandExtend != HANDEXTEND_KNOCKDOWN)
 					{
@@ -4627,7 +4619,6 @@ void ForceThrow( gentity_t *self, qboolean pull )
 }
 
 extern void WP_ActivateSaber( gentity_t *self );
-
 void WP_ForcePowerStop( gentity_t *self, forcePowers_t forcePower )
 {
 	int wasActive = self->client->ps.fd.forcePowersActive;
@@ -4665,7 +4656,6 @@ void WP_ForcePowerStop( gentity_t *self, forcePowers_t forcePower )
 		self->client->ps.fd.forceMindtrickTargetIndex2 = 0;
 		self->client->ps.fd.forceMindtrickTargetIndex3 = 0;
 		self->client->ps.fd.forceMindtrickTargetIndex4 = 0;
-
 		break;
 	case FP_SEE:
 		if (wasActive & (1 << FP_SEE))
@@ -4853,6 +4843,7 @@ void DoGripAction(gentity_t *self, forcePowers_t forcePower)
 	}
 #endif //_DISABLED
 	//[/ForceSys]
+
 	if (self->client->ps.fd.forcePowerDebounce[FP_GRIP] < level.time)
 	{ //2 damage per second while choking, resulting in 10 damage total (not including The Squeeze<tm>)
 		self->client->ps.fd.forcePowerDebounce[FP_GRIP] = level.time + 1000;
@@ -5379,7 +5370,6 @@ static void WP_ForcePowerRun( gentity_t *self, forcePowers_t forcePower, usercmd
 				self->client->ps.fd.forcePowerDuration[FP_LIGHTNING] = level.time + 500;
 			}
 		}
-
 		// OVERRIDEFIXME
 		//[ForceSys]
 		if ( !WP_ForcePowerAvailable( self, forcePower, 1 ) || self->client->ps.fd.forcePowerDuration[FP_LIGHTNING] < level.time 
@@ -6090,7 +6080,6 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 	qboolean	usingForce = qfalse;
 	int			i, holo, holoregen;
 	int			prepower = 0;
-
 	//[FatigueSys]
 	int			FatigueTime;
 	//[/FatigueSys]
@@ -6156,7 +6145,6 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 
 	UpdateFatigueFlags(&self->client->ps);
 	//[/FatigueSys]
-
 
 	if ( ((self->client->sess.selectedFP != self->client->ps.fd.forcePowerSelected) ||
 		(self->client->sess.saberLevel != self->client->ps.fd.saberAnimLevel)) &&
@@ -6342,7 +6330,6 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 			while (i < NUM_FORCE_POWERS)
 			{
 				self->client->ps.fd.forcePowerBaseLevel[i] = self->client->ps.fd.forcePowerLevel[i];
-				
 				//[ExpSys]
 				if(i == FP_HEAL 
 					|| i == FP_RAGE 
@@ -6354,7 +6341,7 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 					i++;
 					continue;
 				}
-	
+
 				if(!forcePowerDarkLight[i] 
 					|| (self->client->ps.powerups[PW_FORCE_ENLIGHTENED_LIGHT] && forcePowerDarkLight[i] == FORCE_LIGHTSIDE)
 					|| (self->client->ps.powerups[PW_FORCE_ENLIGHTENED_DARK] && forcePowerDarkLight[i] == FORCE_DARKSIDE))
@@ -6718,7 +6705,7 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 				}
 				else
 				{
-						self->client->ps.fd.forcePowerRegenDebounceTime = level.time + g_forceRegenTime.integer;
+					self->client->ps.fd.forcePowerRegenDebounceTime = level.time + g_forceRegenTime.integer;
 				}
 			}
 			else

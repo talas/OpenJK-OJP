@@ -374,7 +374,6 @@ static void Howler_Howl( void )
 	*/
 }
 
-
 //------------------------------
 //replaced with SP version
 void G_SoundOnEnt( gentity_t *ent, int channel, const char *soundPath );
@@ -484,9 +483,9 @@ static void Howler_Attack( float enemyDist, qboolean howl )
 //replaced with SP version.
 static void Howler_Combat( void )
 {
-	qboolean	faced = qfalse;
-	float		distance;	
-	qboolean	advance = qfalse;
+	qboolean faced = qfalse;
+	float distance;
+	qboolean advance = qfalse;
 	if ( NPC->client->ps.groundEntityNum == ENTITYNUM_NONE )
 	{//not on the ground
 		if ( NPC->client->ps.legsAnim == BOTH_JUMP1

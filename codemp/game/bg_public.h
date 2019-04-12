@@ -379,7 +379,6 @@ typedef enum
 	NUM_FOOTSTEP_TYPES
 } footstepType_t;
 
-
 extern stringID_table_t animEventTypeTable[MAX_ANIM_EVENTS+1];
 extern stringID_table_t footstepTypeTable[NUM_FOOTSTEP_TYPES+1];
 
@@ -787,6 +786,7 @@ typedef enum {
 #define	EF2_NOT_USED_1			(1<<8)		// not used
 #define EF2_BOWCASTERSCOPE		(1<<9)//[BowcasterScope]
 
+
 typedef enum {
 	EFFECT_NONE = 0,
 	EFFECT_SMOKE,
@@ -928,7 +928,7 @@ typedef enum {
 
 	//[SaberLockSys]
 	//replaced EV_JUMP_PAD with EV_SABERLOCK
-	EV_SABERLOCK,				// Player is in saberlock (render sound/effects)
+	EV_SABERLOCK,			// Player is in saberlock (render sound/effects)
 	//[/SaberLockSys]
 
 	EV_GHOUL2_MARK,			//create a projectile impact mark on something with a client-side g2 instance.
@@ -1178,6 +1178,7 @@ typedef enum {
 	GTS_BLUETEAM_TOOK_LEAD,
 	GTS_TEAMS_ARE_TIED
 } global_team_sound_t;
+
 
 
 typedef enum {
@@ -1784,11 +1785,9 @@ qboolean BG_SaberInSpecialAttack( int anim );
 qboolean BG_SaberInKata( int saberMove );
 qboolean BG_InKataAnim(int anim);
 qboolean BG_KickingAnim( int anim );
-
 //[Melee]
 qboolean BG_PunchAnim( int anim );
 //[/Melee]
-
 int BG_InGrappleMove(int anim);
 int BG_BrokenParryForAttack( int move );
 int BG_BrokenParryForParry( int move );
@@ -1803,8 +1802,7 @@ qboolean BG_InWalk( int anim );
 //[/SaberSys]
 
 //[FatigueSys]
-void BG_SaberStartTransAnim( int clientNum, int saberAnimLevel, int weapon, int anim, 
-							float *animSpeed, int broken, int fatigued );
+void BG_SaberStartTransAnim( int clientNum, int saberAnimLevel, int weapon, int anim, float *animSpeed, int broken, int fatigued );
 //[/FatigueSys]
 
 void BG_ForcePowerDrain( playerState_t *ps, forcePowers_t forcePower, int overrideAmt );
@@ -1856,7 +1854,6 @@ qboolean BG_IsUsingMediumWeap (playerState_t *ps);
 qboolean BG_IsUsingHeavyWeap (playerState_t *ps);
 //[/ForceSys]
 
-
 void BG_BLADE_ActivateTrail ( bladeInfo_t *blade, float duration );
 void BG_BLADE_DeactivateTrail ( bladeInfo_t *blade, float duration );
 void BG_SI_Activate( saberInfo_t *saber );
@@ -1877,7 +1874,6 @@ extern void BG_AttachToSandCreature( void *ghoul2, float rancYaw, vec3_t rancOri
 
 extern int WeaponReadyAnim[WP_NUM_WEAPONS];
 extern int WeaponAttackAnim[WP_NUM_WEAPONS];
-
 //[DualPistols]
 extern int WeaponReadyAnim2[WP_NUM_WEAPONS];
 extern int WeaponAttackAnim2[WP_NUM_WEAPONS];

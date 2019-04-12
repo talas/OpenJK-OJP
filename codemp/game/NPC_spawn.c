@@ -331,7 +331,6 @@ void NPC_SetMiscDefaultData( gentity_t *ent )
 		if (ent->m_pVehicle->m_pVehicleInfo->type == VH_WALKER)
 		{
 			ent->mass = 2000;//???
-
 			//ROP VEHICLE_IMP START
 			ent->flags |= FL_NO_KNOCKBACK;
 			if(!ent->m_pVehicle->m_pVehicleInfo->AllWeaponsDoDamageToArmor)
@@ -339,7 +338,6 @@ void NPC_SetMiscDefaultData( gentity_t *ent )
 				ent->flags |= FL_SHIELDED;
 			}
 			//ROP VEHICLE_IMP END
-
 			ent->pain = NPC_ATST_Pain;
 		}
 		//turn the damn hatch cover on and LEAVE it on
@@ -404,40 +402,33 @@ void NPC_SetMiscDefaultData( gentity_t *ent )
 		WP_InitForcePowers( ent );
 		WP_SpawnInitForcePowers(ent); //rww
 	}
-
 	//[ExpSys] 
 	//initialize skill levels since the NPCs kick out of InitForcePowers early.
 	for(i=0; i < NUM_SKILLS; i++)
 	{
 		ent->client->skillLevel[i] = 0;
 	}
-
 	//allocate the NPC's skills based on their weapon selection
 	if(ent->client->ps.weapon == WP_BLASTER)
 	{
 		ent->client->skillLevel[SK_BLASTER] = FORCE_LEVEL_3;
 	}
-
 	if(ent->client->ps.weapon == WP_BOWCASTER)
 	{
 		ent->client->skillLevel[SK_BOWCASTER] = FORCE_LEVEL_3;
 	}
-
 	if(ent->client->ps.weapon == WP_BLASTER)
 	{
 		ent->client->skillLevel[SK_BLASTER] = FORCE_LEVEL_3;
 	}
-
 	if(ent->client->ps.weapon == WP_ROCKET_LAUNCHER)
 	{
 		ent->client->skillLevel[SK_ROCKET] = FORCE_LEVEL_3;
 	}
-
 	if(ent->client->ps.weapon == WP_THERMAL)
 	{
 		ent->client->skillLevel[SK_THERMAL] = FORCE_LEVEL_3;
 	}
-
 	if(ent->client->ps.weapon == WP_BRYAR_PISTOL || ent->client->ps.weapon == WP_BRYAR_OLD)
 	{
 		ent->client->skillLevel[SK_PISTOL] = FORCE_LEVEL_3;
@@ -553,7 +544,6 @@ void NPC_SetMiscDefaultData( gentity_t *ent )
 		ent->client->ps.gravity = 0;
 		ent->NPC->aiFlags |= NPCAI_CUSTOM_GRAVITY;
 		ent->client->ps.eFlags2 |= EF2_FLYING;
-
 		//[SeekerItemNPC]
 		if(ent->client->leader //has leader
 				&& ent->client->leader->client //leader is a client
@@ -1892,7 +1882,6 @@ gentity_t *NPC_Spawn_Do( gentity_t *ent )
 	{//has a key
 		newent->message = ent->message;//transfer the key name
 		newent->flags |= FL_NO_KNOCKBACK;//don't fall off ledges
-
 		//[Enhanced sight] - server hack to tell client to draw officers with keys in blue
 		newent->client->ps.generic1 = 100;
 		//[/Enhanced sight]

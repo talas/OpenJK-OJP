@@ -210,7 +210,6 @@ qboolean BG_InReboundRelease( int anim )
 	return qfalse;
 }
 
-
 //[LedgeGrab]
 qboolean BG_InLedgeMove( int anim )
 {
@@ -239,7 +238,6 @@ qboolean In_LedgeIdle( int anim )
 	return qfalse;
 }
 //[/LedgeGrab]
-
 
 qboolean BG_InBackFlip( int anim )
 {
@@ -370,7 +368,6 @@ qboolean BG_InKataAnim(int anim)
 	return qfalse;
 }
 
-
 //[CoOp]
 qboolean PM_LockedAnim( int anim )
 {//anims that can *NEVER* be overridden, regardless
@@ -399,7 +396,6 @@ qboolean PM_LockedAnim( int anim )
 	return qfalse;
 }
 //[/CoOp]
-
 
 qboolean BG_SaberInSpecial( int move )
 {
@@ -465,7 +461,7 @@ qboolean BG_KickMove( int move )
 {
 	switch( move )
 	{
-	case LS_KICK_F: 
+	case LS_KICK_F:
 	case LS_KICK_B:
 	case LS_KICK_R:
 	case LS_KICK_L:
@@ -733,7 +729,6 @@ qboolean BG_SaberInSpecialAttack( int anim )
 	return qfalse;
 }
 
-
 //[SaberSys]
 //Are you in a punching animation?
 qboolean BG_PunchAnim( int anim )
@@ -748,12 +743,11 @@ qboolean BG_PunchAnim( int anim )
 	return qfalse;
 }
 
-
 qboolean BG_KickingAnim( int anim )
 {
 	switch ( anim )
 	{
-	case BOTH_A7_KICK_F: 
+	case BOTH_A7_KICK_F:
 	case BOTH_A7_KICK_B:
 	case BOTH_A7_KICK_R:
 	case BOTH_A7_KICK_L:
@@ -810,7 +804,7 @@ int BG_BrokenParryForAttack( int move )
 	switch ( saberMoveData[move].startQuad )
 	{
 	case Q_B:
-		return LS_V1_B_; 
+		return LS_V1_B_;
 		break;
 	case Q_BR:
 		return LS_V1_BR;
@@ -898,7 +892,6 @@ int BG_KnockawayForParry( int move )
 	}
 	//return LS_NONE;
 }
-
 
 //[CoOp]
 qboolean PM_InRollIgnoreTimer( playerState_t *ps )
@@ -1144,7 +1137,6 @@ qboolean PM_InCartwheel( int anim )
 	return qfalse;
 }
 
-
 //[CoOp]
 qboolean PM_InAirKickingAnim( int anim )
 {//in a air kick animation
@@ -1266,7 +1258,6 @@ int PM_SaberBounceForAttack( int move )
 	return LS_NONE;
 }
 
-
 //[SaberSys]
 int InvertQuad(int quad)
 {//Returns the reflection quad for the given quad.
@@ -1303,7 +1294,6 @@ int InvertQuad(int quad)
 	};
 }
 //[/SaberSys]
-
 
 int PM_SaberDeflectionForQuad( int quad )
 {
@@ -1355,7 +1345,6 @@ qboolean PM_SaberInParry( int move )
 	return qfalse;
 }
 
-
 //[SaberSys]
 qboolean BG_InWalk( int anim )
 {
@@ -1393,7 +1382,6 @@ qboolean PM_SaberInKnockaway( int move )
 	return qfalse;
 }
 
-
 //[SaberSys]
 qboolean PM_KnockawayAnim( int anim ) 
 {//animation based version of PM_SaberInKnockaway used for BG_SaberStartTransAnim
@@ -1414,7 +1402,6 @@ qboolean PM_KnockawayAnim( int anim )
 	return qfalse;
 }
 //[/SaberSys]
-
 
 qboolean PM_SaberInReflect( int move )
 {
@@ -1456,7 +1443,6 @@ qboolean PM_InSaberAnim( int anim )
 	}
 	return qfalse;
 }
-
 
 //[KnockdownSys]
 qboolean PM_InForceGetUp( playerState_t *ps )
@@ -1521,12 +1507,11 @@ qboolean PM_InGetUp( playerState_t *ps )
 }
 //[/KnockdownSys]
 
-
 qboolean PM_InKnockDown( playerState_t *ps )
 {
 	//[KnockdownSys] 
 	//Porting in SP Code for this stuff.
-	switch ( ps->legsAnim )
+	switch ( (ps->legsAnim) )
 	{
 	case BOTH_KNOCKDOWN1:
 	case BOTH_KNOCKDOWN2:
@@ -1905,6 +1890,7 @@ qboolean PM_KnockDownAnimExtended( int anim )
 	return qfalse;
 }
 //[/KnockdownSys]
+
 
 qboolean BG_FullBodyTauntAnim( int anim )
 {
@@ -2366,7 +2352,6 @@ void ParseAnimationEvtBlock(const char *aeb_filename, animevent_t *animEvents, a
 			}	
 			continue;
 		}
-
 
 		//Compare to same table as animations used 
 		//	so we don't have to use actual numbers for animation first frames,
@@ -2889,7 +2874,6 @@ fin:
 }
 #endif
 
-
 /*
 ======================
 BG_ParseAnimationFile
@@ -2982,7 +2966,6 @@ int BG_ParseAnimationFile(const char *filename, animation_t *animset, qboolean i
 		assert(animset);
 	}
 #endif
-
 
 	// load the file
 	//[NewGLA]
@@ -3145,7 +3128,6 @@ int BG_ParseAnimationFile(const char *filename, animation_t *animset, qboolean i
 		{
 			strcpy(bgAllAnims[0].filename, filename);
 		}
-
 		BGPAFtextLoaded = qtrue;
 
 		usedIndex = 0;
@@ -3397,8 +3379,7 @@ qboolean PM_SaberReturnAnim( int anim );
 //[/SaberSys]
 //[FatigueSys]
 //Made it so saber moves go slower if your fatigued
-void BG_SaberStartTransAnim( int clientNum, int saberAnimLevel, int weapon, int anim, float *animSpeed, 
-							int broken, int fatigued )
+void BG_SaberStartTransAnim( int clientNum, int saberAnimLevel, int weapon, int anim, float *animSpeed, int broken, int fatigued )
 //[/FatigueSys]
 {
 	//[SaberSys]
@@ -3683,7 +3664,6 @@ setAnimLegs:
 		{
 			if (setAnimFlags & SETANIM_FLAG_HOLDLESS)
 			{	// Make sure to only wait in full 1/20 sec server frame intervals.
-
 				//[BugFix2]
 				//Yeah, I don't think this was working correctly before
 				

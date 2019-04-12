@@ -162,7 +162,6 @@ void UI_UpdateClientForcePowers(const char *teamArg)
 			trap_Cmd_ExecuteText( EXEC_APPEND, va("forcechanged x %s\n", newForceString) );
 			//[/ExpSys]
 		}
-
 	}
 
 	gTouchedForce = qfalse;
@@ -461,7 +460,6 @@ void UpdateForceUsed()
 				if(uiForceRank >= 50)
 					Menu_ShowItemByName(menu, "setfp_staffstyle", qtrue);//Staff
 
-
 				Menu_ShowItemByName(menu, "setfp_saberthrow", qtrue);
 				Menu_ShowItemByName(menu, "effectentry", qtrue);
 				Menu_ShowItemByName(menu, "effectfield", qtrue);
@@ -707,6 +705,7 @@ void UpdateForceUsed()
 		prevRank[i]=uiRank[i];
 	}
 }
+
 
 //Mostly parts of other functions merged into one another.
 //Puts the current UI stuff into a string, legalizes it, and then reads it back out.
@@ -1034,34 +1033,43 @@ extern int	uiHoldSkinColor;
 
 qboolean UI_SkinColor_HandleKey(int flags, float *special, int key, int num, int min, int max, int type) 
 {
-	if (key == A_MOUSE1 || key == A_MOUSE2 || key == A_ENTER || key == A_KP_ENTER) 
+  if (key == A_MOUSE1 || key == A_MOUSE2 || key == A_ENTER || key == A_KP_ENTER) 
+  {
+  	int i = num;
+
+	if (key == A_MOUSE2)
 	{
-		int i = num;
-
-		if (key == A_MOUSE2) {
-			i--;
-		} else {
-			i++;
-		}
-
-		if (i < min) {
-			i = max;
-		} else if (i > max) {
-			i = min;
-		}
-
-		num = i;
-
-		uiSkinColor = num;
-
-		uiHoldSkinColor = uiSkinColor;
-
-		UI_FeederSelection(FEEDER_Q3HEADS, uiInfo.q3SelectedHead, NULL);
-
-		return qtrue;
+	    i--;
 	}
-	return qfalse;
+	else
+	{
+	    i++;
+	}
+
+    if (i < min)
+	{
+		i = max;
+	}
+	else if (i > max)
+	{
+      i = min;
+    }
+
+    num = i;
+
+	uiSkinColor = num;
+
+	uiHoldSkinColor = uiSkinColor;
+
+	UI_FeederSelection(FEEDER_Q3HEADS, uiInfo.q3SelectedHead, NULL);
+
+    return qtrue;
+  }
+  return qfalse;
 }
+
+
+
 
 qboolean UI_ForceSide_HandleKey(int flags, float *special, int key, int num, int min, int max, int type) 
 {
@@ -1216,36 +1224,42 @@ qboolean UI_JediNonJedi_HandleKey(int flags, float *special, int key, int num, i
 
 qboolean UI_ForceMaxRank_HandleKey(int flags, float *special, int key, int num, int min, int max, int type) 
 {
-	if (key == A_MOUSE1 || key == A_MOUSE2 || key == A_ENTER || key == A_KP_ENTER) 
+  if (key == A_MOUSE1 || key == A_MOUSE2 || key == A_ENTER || key == A_KP_ENTER) 
+  {
+  	int i = num;
+
+	if (key == A_MOUSE2)
 	{
-		int i = num;
-
-		if (key == A_MOUSE2) {
-			i--;
-		} else {
-			i++;
-		}
-
-		if (i < min) {
-			i = max;
-		} else if (i > max){
-			i = min;
-		}
-
-		num = i;
-
-		uiMaxRank = num;
-
-		trap_Cvar_Set( "g_maxForceRank", va("%i", num));
-
-		// The update force used will remove overallocated powers automatically.
-		UpdateForceUsed();
-
-		gTouchedForce = qtrue;
-
-		return qtrue;
+	    i--;
 	}
-	return qfalse;
+	else
+	{
+	    i++;
+	}
+
+    if (i < min)
+	{
+		i = max;
+	}
+	else if (i > max)
+	{
+      i = min;
+    }
+
+    num = i;
+
+	uiMaxRank = num;
+
+	trap_Cvar_Set( "g_maxForceRank", va("%i", num));
+
+	// The update force used will remove overallocated powers automatically.
+	UpdateForceUsed();
+
+	gTouchedForce = qtrue;
+
+    return qtrue;
+  }
+  return qfalse;
 }
 
 

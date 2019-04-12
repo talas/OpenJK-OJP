@@ -970,7 +970,7 @@ void CG_SiegeBriefingDisplay(int team, int dontshow)
 				//siege_Cvar_Set(va("siege_objective%i", i), "0");
 				trap_Cvar_Set(va("team%i_objective%i_inuse", useTeam, i), "0");
 				trap_Cvar_Set(va("team%i_objective%i", useTeam, i), "0");
-	
+
 				//siege_Cvar_Set(va("siege_objective%i_mappos", i), "");
 				trap_Cvar_Set(va("team%i_objective%i_mappos", useTeam, i), "");
 				//siege_Cvar_Set(va("siege_objective%i_gfx", i), "");

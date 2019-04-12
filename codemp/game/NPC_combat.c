@@ -16,7 +16,6 @@ extern qboolean PM_DroidMelee( int npc_class );
 //Prototypes
 qboolean G_ValidEnemy( gentity_t *self, gentity_t *enemy );
 //[/CoOp]
-
 void ChangeWeapon( gentity_t *ent, int newWeapon );
 
 void G_ClearEnemy (gentity_t *self)
@@ -127,7 +126,6 @@ qboolean G_TeamEnemy( gentity_t *self )
 	return qfalse;
 }
 
-
 //[CoOp]
 qboolean G_CheckSaberAllyAttackDelay( gentity_t *self, gentity_t *enemy )
 {//sets a delay for attacking non-saber attackers when we're a saber user 
@@ -177,7 +175,6 @@ qboolean G_CheckSaberAllyAttackDelay( gentity_t *self, gentity_t *enemy )
 	return qfalse;
 }
 //[/CoOp]
-
 
 void G_AttackDelay( gentity_t *self, gentity_t *enemy )
 {
@@ -990,7 +987,7 @@ void ChangeWeapon( gentity_t *ent, int newWeapon )
 		break;
 	*/
 	//[/CoOp]
-	
+
 	//RAFIXME - impliment this?
 		/*
 	case WP_ATST_MAIN:
@@ -1328,11 +1325,11 @@ void WeaponThink( qboolean inCombat )
 //[CoOp]
 //MCG - Begin
 	//For now, no-one runs out of ammo	
-	if ( NPC->client->ps.ammo[ weaponData[client->ps.weapon].ammoIndex ] < weaponData[client->ps.weapon].energyPerShot )
+	if(NPC->client->ps.ammo[ weaponData[client->ps.weapon].ammoIndex ] < weaponData[client->ps.weapon].energyPerShot)
 	{ 
 		Add_Ammo( NPC, client->ps.weapon, weaponData[client->ps.weapon].energyPerShot*10 );
 	}
-	else if ( NPC->client->ps.ammo[ weaponData[client->ps.weapon].ammoIndex ] < weaponData[client->ps.weapon].altEnergyPerShot )
+	else if(NPC->client->ps.ammo[ weaponData[client->ps.weapon].ammoIndex ] < weaponData[client->ps.weapon].altEnergyPerShot)
 	{
 		Add_Ammo( NPC, client->ps.weapon, weaponData[client->ps.weapon].altEnergyPerShot*5 );
 	}
@@ -1696,6 +1693,7 @@ float NPC_MaxDistSquaredForWeapon (void)
 ValidEnemy
 -------------------------
 */
+
 //[CoOp]
 //This replaces ValidEnemy.
 qboolean G_ValidEnemy( gentity_t *self, gentity_t *enemy )
@@ -2136,7 +2134,6 @@ gentity_t *NPC_PickEnemy( gentity_t *closestTo, int enemyTeam, qboolean checkVis
 gentity_t *NPC_PickAlly ( void )
 
   Simply returns closest visible ally
-
 */
 
 gentity_t *NPC_PickAlly ( qboolean facingEachOther, float range, qboolean ignoreGroup, qboolean movingOnly )
@@ -3367,7 +3364,6 @@ int NPC_FindCombatPointRetry( const vec3_t position,
 }
 //[/CoOp]
 
-
 /*
 -------------------------
 NPC_FindSquadPoint
@@ -3409,7 +3405,6 @@ int NPC_FindSquadPoint( vec3_t position )
 	return nearestPoint;
 }
 
-
 /*
 -------------------------
 NPC_ReserveCombatPoint
@@ -3431,7 +3426,6 @@ qboolean NPC_ReserveCombatPoint( int combatPointID )
 
 	return qtrue;
 }
-
 
 /*
 -------------------------
@@ -3458,7 +3452,6 @@ qboolean NPC_FreeCombatPoint( int combatPointID, qboolean failed )
 	
 	return qtrue;
 }
-
 
 /*
 -------------------------

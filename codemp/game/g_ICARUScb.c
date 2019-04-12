@@ -293,7 +293,6 @@ stringID_table_t setTable[] =
 	ENUM2STRING(SET_SABER_THROW),
 	ENUM2STRING(SET_SABER_DEFENSE),
 	ENUM2STRING(SET_SABER_OFFENSE),
-
 	ENUM2STRING(SET_VIEWENTITY),
 	ENUM2STRING(SET_WATCHTARGET),
 	ENUM2STRING(SET_SABERACTIVE),
@@ -329,7 +328,6 @@ stringID_table_t setTable[] =
 	ENUM2STRING(SET_WINTER_GEAR),
 	ENUM2STRING(SET_RENDER_CULL_RADIUS),
 	ENUM2STRING(SET_FORCE_PROTECT),
-
 	//camera scripting commands
 	ENUM2STRING(ENABLE),
 	ENUM2STRING(MOVE),
@@ -496,7 +494,6 @@ static char *Q3_GetAnimBoth( gentity_t *ent )
 	return lowerName;
 }
 
-
 //[CoOp]
 //Finds the sound time of a given sound file based of the length of the subtitle string
 int Icarus_SoundTime(char soundName[MAX_QPATH])
@@ -534,7 +531,6 @@ int Icarus_SoundTime(char soundName[MAX_QPATH])
 	return time;
 }
 //[/CoOp]
-
 
 int Q3_PlaySound( int taskID, int entID, const char *name, const char *channel )
 {
@@ -648,6 +644,7 @@ int Q3_PlaySound( int taskID, int entID, const char *name, const char *channel )
 		//Set sound debounce time
 		ent->IcarusSoundTime = level.time + Icarus_SoundTime(finalName);
 		//[/CoOp]
+
 		return qfalse;
 	}
 
@@ -675,7 +672,7 @@ Q3_Play
 void Q3_Play( int taskID, int entID, const char *type, const char *name )
 {
 	gentity_t *ent = &g_entities[entID];
-	
+
 	//[ROFF]
 	if ( !stricmp( type, "PLAY_ROFF" ) )
 	{
@@ -4310,7 +4307,6 @@ static void Q3_SetMusicState( const char *dms )
 	//[/dynamicMusic]
 }
 
-
 //[CoOp]
 void SetSpawnForcePower( int forcePower, int forceLevel )
 {//sets a new force power level for the default force powers for the clients in CoOp.
@@ -5991,7 +5987,6 @@ static void Q3_SetSaberActive( int entID, qboolean active )
 	
 	//ok, toggle the saber then.
 	//fixme: Take into account player being in state where saber won't toggle? For now we simply won't care.
-	
 	//[CoOp]
 	//was reversed
 	if (!ent->client->ps.saberHolstered && !active)

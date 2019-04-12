@@ -717,7 +717,6 @@ typedef struct {
 	//[ExpSys]
 	int				skill;		//number of skill points this player currently has.
 	//[/ExpSys]
-
 } score_t;
 
 
@@ -1765,7 +1764,6 @@ typedef struct {
 	//This value is set by the server.
 	char			mapURL[MAX_QPATH];  
 	//[/MapURLs]
-
 } cgs_t;
 
 typedef struct siegeExtended_s

@@ -269,7 +269,6 @@ void Svcmd_RemoveIP_f (void)
 	G_Printf ( "Didn't find %s.\n", str );
 }
 
-
 void Svcmd_ListIPs_f( void )
 {
 	int		i;

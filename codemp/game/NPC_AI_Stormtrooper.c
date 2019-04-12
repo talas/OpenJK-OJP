@@ -1426,8 +1426,7 @@ void NPC_BSST_Patrol( void )
 
 	NPC_UpdateAngles( qtrue, qtrue );
 	//TEMP hack for Imperial stand anim
-	if ( NPC->client->NPC_class == CLASS_IMPERIAL 
-		|| NPC->client->NPC_class == CLASS_IMPWORKER )
+	if ( NPC->client->NPC_class == CLASS_IMPERIAL || NPC->client->NPC_class == CLASS_IMPWORKER )
 	{//hack
 		//[CoOp]
 		if ( NPC->client->ps.weapon != WP_CONCUSSION )
@@ -1635,10 +1634,8 @@ static void ST_CheckMoveState( void )
 	{
 		//Did we make it?
 		//[CoOp]
-
-		if ( NAV_HitNavGoal( NPC->r.currentOrigin, NPC->r.mins, NPC->r.maxs, 
-			NPCInfo->goalEntity->r.currentOrigin, 16, FlyingCreature( NPC ) ) ||
-			(enemyLOS && (NPCInfo->aiFlags&NPCAI_STOP_AT_LOS) && !trap_ICARUS_TaskIDPending(NPC, TID_MOVE_NAV)))
+		if ( NAV_HitNavGoal( NPC->r.currentOrigin, NPC->r.mins, NPC->r.maxs, NPCInfo->goalEntity->r.currentOrigin, 16, FlyingCreature( NPC ) ) || 
+			( enemyLOS && (NPCInfo->aiFlags&NPCAI_STOP_AT_LOS) && !trap_ICARUS_TaskIDPending(NPC, TID_MOVE_NAV) ) )
 		//[/CoOp]
 		{//either hit our navgoal or our navgoal was not a crucial (scripted) one (maybe a combat point) and we're scouting and found our enemy
 			int	newSquadState = SQUAD_STAND_AND_SHOOT;
@@ -1665,7 +1662,6 @@ static void ST_CheckMoveState( void )
 			//don't attack right away
 			TIMER_Set( NPC, "attackDelay", Q_irand( 250, 500 ) );	//FIXME: Slant for difficulty levels
 			//don't do something else just yet
-
 			//[CoOp]
 			// THIS IS THE ONE TRUE PLACE WHERE ROAM TIME IS SET
 			TIMER_Set( NPC, "roamTime", Q_irand( 8000, 15000 ) );
@@ -2215,6 +2211,7 @@ void ST_Commander( void )
 	{//no-one has seen the enemy for at least 10 seconds!  Should send a scout
 		enemyLost = qtrue;
 	}
+
 	//[CoOp]
 	/*
 	if ( group->lastClearShotTime < level.time - 5000 )
@@ -2845,7 +2842,7 @@ void ST_Commander( void )
 				}
 				//now try again
 				cp = NPC_FindCombatPoint( NPC->r.currentOrigin, NPC->r.currentOrigin, group->enemy->r.currentOrigin, cpFlags|CP_HAS_ROUTE, avoidDist, -1 );
-			}
+			} 
 #endif //_DISABLED
 			//[/CoOp]
 			//see if we got a valid one
@@ -2860,7 +2857,6 @@ void ST_Commander( void )
 				//[/CoOp]
 				NPC_SetCombatPoint( cp );
 				NPC_SetMoveGoal( NPC, level.combatPoints[cp].origin, 8, qtrue, cp, NULL );
-		
 			//[CoOp]
 				// If Successfully
 				if ((cpFlags&CP_FLANK) || ((cpFlags&CP_COVER) && (cpFlags&CP_CLEAR)))
@@ -2993,7 +2989,6 @@ void ST_Commander( void )
 	RestoreNPCGlobals();
 	return;
 }
-
 
 //[CoOp]
 extern void G_Knockdown( gentity_t *self, gentity_t *attacker, const vec3_t pushDir, float strength, qboolean breakSaberLock );
@@ -3425,7 +3420,7 @@ void NPC_BSST_Attack( void )
 	//[/CoOp]
 
 	//[CoOp]
-	if(move&&!TIMER_Done( NPC, "runBackwardsDebounce" ))
+	if (move && !TIMER_Done( NPC, "runBackwardsDebounce" ) )
 	//[/CoOp]
 	{//running away
 		faceEnemy = qfalse;

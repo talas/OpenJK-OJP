@@ -265,12 +265,12 @@ sfxHandle_t	CG_CustomSound( int clientNum, const char *soundName ) {
 
 	//[AllTAUNTS]
 	//Since duel taunts are now usable in any mode, the duel sounds must be used as well.
-    /*
-	if (cgs.gametype == GT_DUEL
+	/*
+    if (cgs.gametype == GT_DUEL
 		|| cgs.gametype == GT_POWERDUEL
 		|| cg_buildScript.integer)
 	*/
-		//[/ALLTAUNTS]
+	//[/ALLTAUNTS]
 	{ //Duel only
 		for (i = 0; i < MAX_CUSTOM_SOUNDS; i++)
 		{
@@ -425,12 +425,10 @@ qboolean CG_ParseSurfsFile( const char *modelName, const char *skinName, char *s
 	return qtrue;
 }
 
-
 //[TrueView]
 //Warning flag for models that are incompatible with True View
 qboolean	trueviewwarning = qfalse;
 //[/TrueView]
-
 
 /*
 ==========================
@@ -664,7 +662,6 @@ retryModel:
 	//We need a lower lumbar bolt for footsteps
 	ci->bolt_llumbar = trap_G2API_AddBolt(ci->ghoul2Model, 0, "lower_lumbar");
 
-
 	//[VisualWeapons]
 	//Initialize the holster bolts
 	ci->holster_saber = trap_G2API_AddBolt(ci->ghoul2Model, 0, "*holster_saber");
@@ -748,7 +745,6 @@ retryModel:
 			ci->modelIcon = trap_R_RegisterShaderNoMip ( va ( "models/players/%s/%s", modelName, iconName ) );
 		}
 	}
-
 	return qtrue;
 }
 
@@ -1294,7 +1290,6 @@ static void CG_InitG2SaberData(int saberNum, clientInfo_t *ci)
 				ci->saber[saberNum].skin);
 		}
 	}
-
 	//[/VisualWeapons]
 }
 
@@ -1653,7 +1648,6 @@ CG_NewClientInfo
 void ParseRGBSaber(char * str, vec3_t c);
 void CG_ParseScriptedSaber(char *script, clientInfo_t *ci, int snum);
 //[/RGBSabers]
-
 #include "../namespace_begin.h"
 void WP_SetSaber( int entNum, saberInfo_t *sabers, int saberNum, const char *saberName );
 #include "../namespace_end.h"
@@ -4703,9 +4697,9 @@ static void CG_PlayerFlag( centity_t *cent, qhandle_t hModel ) {
 	clientInfo_t	*ci;
 
 	//[TrueView]
-	if (cent->currentState.number == cg.snap->ps.clientNum 
-		&& !cg.renderingThirdPerson && !cg_trueguns.integer 
-		&& cg.snap->ps.weapon != WP_SABER)
+	if (cent->currentState.number == cg.snap->ps.clientNum &&
+		!cg.renderingThirdPerson && !cg_trueguns.integer &&
+		cg.snap->ps.weapon != WP_SABER)
 	//[/TrueView]
 	{
 		return;
@@ -4977,9 +4971,9 @@ static qboolean CG_PlayerShadow( centity_t *cent, float *shadowPlane ) {
 	//[NPCSandCreature]
 	if ( cent->currentState.NPC_class == CLASS_SAND_CREATURE )
 	//wahoo  - disable shadows for el suckers, toerhwise a big blob of shadow shows up in the middle of nowhere
-    {//sand creatures have no shadow 
-        return qfalse;
-    }
+    	{//sand creatures have no shadow 
+        	return qfalse;
+    	}
 	//[/NPCSandCreature]
 
 	if ( cg_shadows.integer == 1 )
@@ -5268,8 +5262,6 @@ static void CG_ForcePushBlur( vec3_t org, centity_t *cent )
 		VectorScale(ent.axis[1], scale, ent.axis[1]);
 		VectorScale(ent.axis[2], scale, ent.axis[2]);
 
-		
-		
 		VectorScale(ent.modelScale,100,ent.modelScale);
 		ent.hModel = cgs.media.explosionModel;
 		ent.customShader = cgs.media.refractionShader; //cgs.media.cloakedShader;
@@ -5550,7 +5542,6 @@ int CG_LightVerts( vec3_t normal, int numVerts, polyVert_t *verts )
 	return qtrue;
 }
 
-
 //[RGBSabers]
 void RGB_LerpColor(vec3_t from, vec3_t to, float frac, vec3_t out)
 {
@@ -5563,7 +5554,6 @@ void RGB_LerpColor(vec3_t from, vec3_t to, float frac, vec3_t out)
 
 	for(i=0;i<3;i++)
 		out[i] += diff[i] * frac;
-
 }
 
 int getint(char **buf)
@@ -5631,15 +5621,11 @@ void RGB_AdjustSciptedSaberColor(clientInfo_t *ci, vec3_t color, int n)
 
 	frac = (float)(cg.time - ci->ScriptedStartTime[n]) / (float)(ci->ScriptedEndTime[n] - ci->ScriptedStartTime[n]);
 
-
 	if(actual+1 != ci->ScriptedNum[n])
 		RGB_LerpColor(ci->ScriptedColors[actual][n], ci->ScriptedColors[actual+1][n], frac, color);
 	else
 		RGB_LerpColor(ci->ScriptedColors[actual][n], ci->ScriptedColors[0][n], frac, color);
-
 }
-
-
 
 #define PIMP_MIN_INTESITY 120
 
@@ -5652,7 +5638,6 @@ void RGB_RandomRGB(vec3_t c)
 	while(c[0]+c[1]+c[2] < PIMP_MIN_INTESITY)
 		for(i=0;i<3;i++)
 			c[i] = rand() % 255;
-
 }
 
 void RGB_AdjustPimpSaberColor(clientInfo_t *ci, vec3_t color, int n)
@@ -5683,9 +5668,7 @@ void RGB_AdjustPimpSaberColor(clientInfo_t *ci, vec3_t color, int n)
 //	Com_Printf("frac : %f\n",frac);
 
 	RGB_LerpColor(ci->PimpColorFrom[n], ci->PimpColorTo[n], frac, color);
-
 }
-
 
 static void CG_RGBForSaberColor( saber_colors_t color, vec3_t rgb, int cnum, int bnum )
 //[/RGBSabers]
@@ -5774,7 +5757,7 @@ static void CG_RGBForSaberColor( saber_colors_t color, vec3_t rgb, int cnum, int
 //[SaberThrowSys]
 //changed this from static so we can use it for rendering the saber blade for 
 //dropped/ballastics sabers.
-void CG_DoSaberLight( saberInfo_t *saber , int cnum, int bnum)
+void CG_DoSaberLight( saberInfo_t *saber , int cnum, int bnum )
 //[/SaberThrowSys]
 //[/RGBSabers]
 {
@@ -5799,7 +5782,7 @@ void CG_DoSaberLight( saberInfo_t *saber , int cnum, int bnum)
 		{
 			//FIXME: make RGB sabers
 			//[RGBSabers]
-			CG_RGBForSaberColor( saber->blade[i].color, rgbs[i] , cnum, bnum);
+			CG_RGBForSaberColor( saber->blade[i].color, rgbs[i] , cnum, bnum );
 			//[/RGBSabers]
 			lengths[i] = saber->blade[i].length;
 			if ( saber->blade[i].length*2.0f > diameter )
@@ -9723,7 +9706,6 @@ void CG_SaberCompWork(vec3_t start, vec3_t end, centity_t *owner, int saberNum, 
 	}
 }
 
-
 #define SABER_TRAIL_TIME	40.0f
 #define FX_USE_ALPHA		0x08000000
 
@@ -9734,7 +9716,7 @@ qboolean BG_SuperBreakWinAnim( int anim );
 void CG_AddSaberBlade( centity_t *cent, centity_t *scent, refEntity_t *saber, int renderfx, int modelIndex, int saberNum, int bladeNum, vec3_t origin, vec3_t angles, qboolean fromSaber, qboolean dontDraw)
 {
 	vec3_t	org_, end, v,
-	axis_[3] = {0,0,0, 0,0,0, 0,0,0};	// shut the compiler up
+			axis_[3] = {0,0,0, 0,0,0, 0,0,0};	// shut the compiler up
 	//[SFXSabers]
 	vec3_t	rgb1={255.0f,255.0f,255.0f};
 	//[/SFXSabers]
@@ -9836,7 +9818,7 @@ void CG_AddSaberBlade( centity_t *cent, centity_t *scent, refEntity_t *saber, in
 	}
 
 	//[RGBSabers]
-	if(((ojp_teamrgbsabers.integer < 1) 
+	if (((ojp_teamrgbsabers.integer < 1) 
 		|| (ojp_teamrgbsabers.integer == 1 && cg.snap && cg.snap->ps.clientNum != cent->currentState.number)) &&
 		cgs.gametype >= GT_TEAM &&
 		cgs.gametype != GT_SIEGE &&
@@ -9853,7 +9835,6 @@ void CG_AddSaberBlade( centity_t *cent, centity_t *scent, refEntity_t *saber, in
 			scolor = SABER_BLUE;
 		}
 	}
-
 
 	if (!cg_saberContact.integer)
 	{ //if we don't have saber contact enabled, just add the blade and don't care what it's touching
@@ -9902,7 +9883,6 @@ void CG_AddSaberBlade( centity_t *cent, centity_t *scent, refEntity_t *saber, in
 			{//tracing from base to end
 				CG_Trace( &trace, org_, NULL, NULL, end, ENTITYNUM_NONE, MASK_SOLID );
 			}
-
 			
 			if(cent->currentState.userInt3 & (1 << FLAG_DODGE_LIGHT))
 			{//player's dodge is getting low, spark their saber hilt a bit as a warning.
@@ -9996,8 +9976,8 @@ void CG_AddSaberBlade( centity_t *cent, centity_t *scent, refEntity_t *saber, in
 			}
 		}
 	}
-CheckTrail:   
-        
+CheckTrail:
+
 	if (!cg_saberTrail.integer)
 	{ //don't do the trail in this case
 		goto JustDoIt;
@@ -10465,7 +10445,7 @@ JustDoIt:
 			&& !(client->saber[saberNum].saberFlags2&SFL2_NO_DLIGHT) )
 		{//hmm, but still add the dlight
 			//[RGBSabers]
-			CG_DoSaberLight( &client->saber[saberNum] ,cent->currentState.clientNum, saberNum);
+			CG_DoSaberLight( &client->saber[saberNum] ,cent->currentState.clientNum, saberNum );
 			//[/RGBSabers]
 		}
 		return;
@@ -11399,7 +11379,7 @@ static void CG_CreateSurfaceDebris(centity_t *cent, int surfNum, int fxID, qbool
 	int b = -1;
 	vec3_t v, d;
 	mdxaBone_t boltMatrix;
-	const char *surfName = NULL;	
+	const char *surfName = NULL;
 	
 	if ( surfNum > 0 )
 	{
@@ -11818,7 +11798,6 @@ void CG_ForceFPLSPlayerModel(centity_t *cent, clientInfo_t *ci)
 }
 #endif
 
-
 //[CoOp]
 //find the gender for a given modelname.  This is used to set up the NPCClient's gender correct
 //to make jaden's dialog play in the correct gender
@@ -11889,7 +11868,6 @@ int FindGender( const char *modelPath, centity_t *cent )
 	}
 }
 //[/CoOp]
-
 
 //for allocating and freeing npc clientinfo structures.
 //Remember to free this before game shutdown no matter what
@@ -12626,7 +12604,6 @@ void CG_CheckThirdPersonAlpha( centity_t *cent, refEntity_t *legs )
 	}
 }
 
-
 //[TrueView]
 /*
 ================
@@ -12659,7 +12636,6 @@ float GetSelfLegAnimPoint(void)
 	*/
 	//[/BugFix2]
 }
-
 
 /*
 ================
@@ -12702,7 +12678,6 @@ float GetSelfTorsoAnimPoint(void)
 	//[/BugFix2]
 }
 
-
 /*
 ===============
 SmoothTrueView
@@ -12715,7 +12690,6 @@ SmoothTrueView
 					pitch (x) axis. 
 ===============
 */
-
 void SmoothTrueView(vec3_t eyeAngles)
 {
 	float LegAnimPoint = GetSelfLegAnimPoint();
@@ -13041,7 +13015,6 @@ void SmoothTrueView(vec3_t eyeAngles)
 }
 //[/TrueView]
 
-
 //[VisualWeapons]
 extern void *g2HolsterWeaponInstances[MAX_WEAPONS];
 void *CG_G2HolsterWeaponInstance(centity_t *cent, int weapon, qboolean secondSaber);
@@ -13126,7 +13099,6 @@ void ApplyAxisRotation( vec3_t axis[3], int rotType, float value )
 	AxisCopy(result, axis);
 
 }
-
 
 extern stringID_table_t holsterTypeTable[];
 void CG_HolsteredWeaponRender( centity_t *cent, clientInfo_t *ci, int holsterType ) 
@@ -13282,7 +13254,6 @@ void CG_HolsteredWeaponRender( centity_t *cent, clientInfo_t *ci, int holsterTyp
 	trap_R_AddRefEntityToScene( &ent );
 }
 
-
 //Defines for the ghoul2 model indexes
 #define		G2MODEL_SABER_HOLSTERED			4
 #define		G2MODEL_SABER2_HOLSTERED		5
@@ -13291,7 +13262,6 @@ void CG_HolsteredWeaponRender( centity_t *cent, clientInfo_t *ci, int holsterTyp
 #define		G2MODEL_BLASTER2_HOLSTERED		8
 #define		G2MODEL_LAUNCHER_HOLSTERED		9
 #define		G2MODEL_GOLAN_HOLSTERED			10
-
 
 void CG_VisualWeaponsUpdate( centity_t *cent, clientInfo_t *ci )
 {//renders holstered weapons on players.
@@ -14038,7 +14008,6 @@ void CG_VisualWeaponsUpdate( centity_t *cent, clientInfo_t *ci )
 }
 //[/VisualWeapons]
 
-
 void CG_Player( centity_t *cent ) {
 	clientInfo_t	*ci;
 	refEntity_t		legs;
@@ -14506,10 +14475,8 @@ void CG_Player( centity_t *cent ) {
 
 	// get the player model information
 	renderfx = 0;
-	if ( cent->currentState.number == cg.snap->ps.clientNum) 
-	{
-		if (!cg.renderingThirdPerson) 
-		{
+	if ( cent->currentState.number == cg.snap->ps.clientNum) {
+		if (!cg.renderingThirdPerson) {
 			//[TrueView]
 			if ( ( !cg_trueguns.integer && cg.predictedPlayerState.weapon != WP_SABER 
 				&& cg.predictedPlayerState.weapon != WP_MELEE) 
@@ -14518,10 +14485,8 @@ void CG_Player( centity_t *cent ) {
 			{
 				renderfx = RF_THIRD_PERSON;			// only draw in mirrors
 			}
-		} else 
-		{
-			if (cg_cameraMode.integer) 
-			{
+		} else {
+			if (cg_cameraMode.integer) {
 				iwantout = 1;
 
 				
@@ -15741,12 +15706,12 @@ stillDoSaber:
 	}
 	//[SaberThrowSys]
 	//rearranged this code a little because sabers can now be returning without being active.
-	else if ( cent->currentState.weapon == WP_SABER )
+	else if (cent->currentState.weapon == WP_SABER)
 	//[/SaberThrowSys]
 	{
 		//[SaberThrowSys]
 		//rearranged this code a little because sabers can now be returning without being active.
-		if( cent->currentState.saberHolstered < 2 &&
+		if ( cent->currentState.saberHolstered < 2 &&
 			(!cent->currentState.saberInFlight //saber not in flight
 		//[/SaberThrowSys]
 				|| ci->saber[1].soundLoop) //??? //racc - or we have dual sabers
@@ -15984,6 +15949,7 @@ stillDoSaber:
 				{
 					cent->bolt2 = cg.time;
 				}
+
 				if (cent->bolt3 != 90)
 				{
 					if (cent->bolt3 < 90)
@@ -16072,7 +16038,7 @@ stillDoSaber:
 				{
 					BG_SI_SetDesiredLength(&ci->saber[1], -1, -1);
 				}
-				
+
 				//[SaberThrowSys]
 				if( cent->currentState.saberHolstered < 2 )
 				{//racc - saber blades are active, render them for thrown sabers.
@@ -16691,10 +16657,10 @@ stillDoSaber:
 	//
 	if (cent->currentState.weapon != WP_EMPLACED_GUN)
 	{
-		CG_AddPlayerWeapon( &legs, NULL, cent, ci->team, rootAngles, qtrue,qfalse );
+		CG_AddPlayerWeapon( &legs, NULL, cent, ci->team, rootAngles, qtrue, qfalse );
 		if((cent->currentState.eFlags & EF_DUAL_WEAPONS) 
 			&& cent->currentState.weapon == WP_BRYAR_PISTOL)
-			CG_AddPlayerWeapon(&legs,NULL,cent,ci->team,rootAngles,qtrue,qtrue);
+			CG_AddPlayerWeapon( &legs, NULL, cent, ci->team, rootAngles, qtrue, qtrue );
 	}
 	// add powerups floating behind the player
 	CG_PlayerPowerups( cent, &legs );

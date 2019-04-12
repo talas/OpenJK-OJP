@@ -590,7 +590,6 @@ void Cmd_TeamTask_f( gentity_t *ent ) {
 	ClientUserinfoChanged(client);
 }
 
-
 extern void AddIP( char *str );
 extern vmCvar_t	g_autoKickTKSpammers;
 extern vmCvar_t	g_autoBanTKSpammers;
@@ -1288,7 +1287,6 @@ void Cmd_Team_f( gentity_t *ent ) {
 	SetTeam( ent, s );
 
 	ent->client->switchTeamTime = level.time + 5000;
-
 }
 
 /*
@@ -1554,9 +1552,7 @@ void Cmd_ForceChanged_f( gentity_t *ent )
 	trap_SendServerCommand( ent-g_entities, va("print \"%s%s\n\n\"", S_COLOR_GREEN, fpChStr) );
 
 	ent->client->ps.fd.forceDoInit = 1;
-
 argCheck:
-
 	if (g_gametype.integer == GT_DUEL || g_gametype.integer == GT_POWERDUEL)
 	{ //If this is duel, don't even bother changing team in relation to this.
 		return;
@@ -1825,7 +1821,6 @@ static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, cons
 
 #define EC		"\x19"
 
-
 //[TABBot]
 extern void TAB_BotOrder( gentity_t *orderer, gentity_t *orderee, int order, gentity_t *objective);
 //This badboy of a function scans the say command for possible bot orders and then does them
@@ -1964,7 +1959,6 @@ void BotOrderParser(gentity_t *ent, gentity_t *target, int mode, const char *cha
 	TAB_BotOrder(ent, orderee, order, objective);
 }
 //[/TABBot]
-
 
 void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) {
 	int			j;
@@ -2348,7 +2342,6 @@ int G_ClientNumberFromStrippedName ( const char* name )
 Cmd_CallVote_f
 ==================
 */
-
 //[AdminSys]
 void Cmd_CallTeamVote_f( gentity_t *ent );
 //[/AdminSys]
@@ -3452,7 +3445,6 @@ qboolean G_OtherPlayersDueling(void)
 	return qfalse;
 }
 
-
 //[DuelSys]
 extern vmCvar_t g_multiDuel;
 //[/DuelSys]
@@ -3460,7 +3452,6 @@ extern vmCvar_t g_multiDuel;
 extern void TAB_BotSaberDuelChallenged(gentity_t *bot, gentity_t *player);
 extern int FindBotType(int clientNum);
 //[/TABBots]
-
 void Cmd_EngageDuel_f(gentity_t *ent)
 {
 	trace_t tr;
@@ -3658,7 +3649,6 @@ void Cmd_DebugSetSaberMove_f(gentity_t *self)
 	Com_Printf("Anim for move: %s\n", animTable[saberMoveData[self->client->ps.saberMove].animToUse].name);
 }
 
-
 //[SaberSys]
 void Cmd_DebugSetSaberBlock_f(gentity_t *self)
 {//This is a simple debugging function for debugging the saberblocked code.
@@ -3687,7 +3677,6 @@ void Cmd_DebugSetSaberBlock_f(gentity_t *self)
 	}
 }
 //[/SaberSys]
-
 
 void Cmd_DebugSetBodyAnim_f(gentity_t *self, int flags)
 {
@@ -3873,7 +3862,6 @@ void ClientCommand( int clientNum ) {
 		Cmd_Say_f (ent, SAY_ALL, qfalse);
 		return;
 	}
-
 	if (Q_stricmp (cmd, "say_team") == 0) {
 		if (g_gametype.integer < GT_TEAM)
 		{ //not a team game, just refer to regular say.
@@ -3910,7 +3898,6 @@ void ClientCommand( int clientNum ) {
 		return;
 	}
 	//[/ROQFILES]
-	
 
 	// ignore all other commands when at intermission
 	if (level.intermissiontime)

@@ -1313,9 +1313,7 @@ void Jedi_Decloak( gentity_t *self )
 
 void Jedi_CheckCloak( void )
 {
-	if ( NPC 
-		&& NPC->client 
-		&& NPC->client->NPC_class == CLASS_SHADOWTROOPER
+	if ( NPC && NPC->client && NPC->client->NPC_class == CLASS_SHADOWTROOPER
 		&& Q_stricmpn("shadowtrooper", NPC->NPC_type, 13 ) == 0 )
 	{
 		if ( NPC->client->ps.saberHolstered != 2 ||
@@ -3761,7 +3759,7 @@ evasionType_t Jedi_SaberBlockGo( gentity_t *self, usercmd_t *cmd, vec3_t pHitloc
 	rightdot = DotProduct(right, diff);// + flrand(-0.10f,0.10f);
 	//totalHeight = self->client->renderInfo.eyePoint[2] - self->r.absmin[2];
 	zdiff = hitloc[2] - self->client->renderInfo.eyePoint[2];// + Q_irand(-6,6);
-
+	
 	//[CoOp]
 	if ( self->client->NPC_class == CLASS_BOBAFETT )
 	{
@@ -4631,9 +4629,9 @@ static qboolean Jedi_SaberBlock( void )
 	vec3_t pointDir, baseDir, tipDir, saberHitPoint, saberMins, saberMaxs;
 	float	pointDist, baseDirPerc, dist;
 	//[CoOp]
-	float bestDist = Q3_INFINITE;
-	int		saberNum = 0, bladeNum = 0;
-	int		closestSaberNum = 0, closestBladeNum = 0;
+	float	bestDist = Q3_INFINITE;
+	int	saberNum = 0, bladeNum = 0;
+	int	closestSaberNum = 0, closestBladeNum = 0;
 	//[/CoOp]
 	trace_t	tr;
 	evasionType_t	evasionType;
@@ -4761,9 +4759,7 @@ static qboolean Jedi_SaberBlock( void )
 		TIMER_Set( NPC, "parryTime", -1 );
 		return qfalse;
 	}
-
-		dist = bestDist;
-	
+	dist = bestDist;
 	if ( d_JediAI.integer )
 	{
 		Com_Printf( S_COLOR_GREEN"enemy saber dist: %4.2f\n", dist );
@@ -4805,8 +4801,6 @@ static qboolean Jedi_SaberBlock( void )
 		baseDirPerc = pointDist/
 			NPC->enemy->client->saber[closestSaberNum].blade[closestBladeNum].length;
 	}
-
-	
 	VectorSubtract( 
 		NPC->enemy->client->saber[closestSaberNum].blade[closestBladeNum].muzzlePoint, 
 		NPC->enemy->client->saber[closestSaberNum].blade[closestBladeNum].muzzlePointOld, 
@@ -4956,8 +4950,7 @@ static void Jedi_EvasionSaber( vec3_t enemy_movedir, float enemy_dist, vec3_t en
 	{//don't try to block/evade an enemy who is in a saberLock
 		return;
 	}
-	else if ( (NPC->client->ps.saberEventFlags&SEF_LOCK_WON)
-		&& NPC->enemy->painDebounceTime > level.time )
+	else if ( (NPC->client->ps.saberEventFlags&SEF_LOCK_WON) && NPC->enemy->painDebounceTime > level.time )
 	{//pressing the advantage of winning a saber lock
 		return;
 	}
@@ -5012,9 +5005,7 @@ static void Jedi_EvasionSaber( vec3_t enemy_movedir, float enemy_dist, vec3_t en
 		evasionChance = 50;
 	}
 
-	if ( NPC->enemy->client->ps.saberInFlight 
-		&& NPC->enemy->client->ps.saberEntityNum != ENTITYNUM_NONE 
-		&& NPC->enemy->client->ps.saberEntityState != SES_RETURNING )
+	if ( NPC->enemy->client->ps.saberInFlight && NPC->enemy->client->ps.saberEntityNum != ENTITYNUM_NONE && NPC->enemy->client->ps.saberEntityState != SES_RETURNING )
 	{//enemy is shooting lightning
 		enemy_attacking = qtrue;
 		throwing_saber = qtrue;
@@ -5445,7 +5436,6 @@ static void Jedi_SetEnemyInfo( vec3_t enemy_dest, vec3_t enemy_dir, float *enemy
 	}
 	//[/CoOp]
 }
-
 
 //[CoOp]
 void NPC_EvasionSaber( void )
@@ -6114,7 +6104,6 @@ static void Jedi_CombatIdle( int enemy_dist )
 	}
 }
 
-
 static qboolean Jedi_AttackDecide( int enemy_dist )
 {
 	//[CoOp]
@@ -6231,7 +6220,7 @@ static qboolean Jedi_AttackDecide( int enemy_dist )
 	//		or base it on aggression?
 
 	//[CoOp]
-	if ( ucmd.buttons&BUTTON_ATTACK && !NPC_Jumping())
+	if ( ucmd.buttons&BUTTON_ATTACK && !NPC_Jumping() )
 	//[/CoOp]
 	{//attacking
 		/*
@@ -7225,7 +7214,7 @@ static void Jedi_Combat( void )
 	Jedi_CheckJumps();
 	//Just make sure we don't strafe into walls or off cliffs
 	//[CoOp]
-		if ( VectorCompare( NPC->client->ps.moveDir, vec3_origin )//stomped the NAV system's moveDir
+	if ( VectorCompare( NPC->client->ps.moveDir, vec3_origin )//stomped the NAV system's moveDir
 		&& !NPC_MoveDirClear( ucmd.forwardmove, ucmd.rightmove, qtrue ) )//check ucmd-driven movement
 	//[/CoOp]
 	{//uh-oh, we are going to fall or hit something
@@ -7518,8 +7507,7 @@ void Jedi_Ambush( gentity_t *self )
 	NPC_SetAnim( self, SETANIM_BOTH, BOTH_CEILING_DROP, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
 	self->client->ps.weaponTime = self->client->ps.torsoTimer; //NPC->client->ps.torsoTimer; //what the?
 	//[CoOp]
-	if ( self->client->NPC_class != CLASS_BOBAFETT 
-		&& self->client->NPC_class != CLASS_ROCKETTROOPER )
+	if ( self->client->NPC_class != CLASS_BOBAFETT && self->client->NPC_class != CLASS_ROCKETTROOPER )
 	//[/CoOp]
 	{
 		WP_ActivateSaber(self);
@@ -7569,7 +7557,7 @@ static void Jedi_Patrol( void )
 			gentity_t *enemy = &g_entities[i];
 			float	enemy_dist;
 			//[CoOp]
-			if ( enemy && enemy->client && NPC_ValidEnemy( enemy ))
+			if ( enemy && enemy->client && NPC_ValidEnemy( enemy ) )
 			//[/CoOp]
 			{
 				if ( trap_InPVS( NPC->r.currentOrigin, enemy->r.currentOrigin ) )
@@ -7983,7 +7971,6 @@ static void Jedi_Attack( void )
 		//	{
 		//		ucmd.buttons |= BUTTON_ATTACK;
 		//	}
-
 			//[CoOp]
 			if ( NPCInfo->aiFlags&NPCAI_BOSS_CHARACTER )
 			{ 

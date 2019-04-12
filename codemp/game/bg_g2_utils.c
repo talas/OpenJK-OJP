@@ -154,7 +154,6 @@ void BG_AttachToSandCreature( void *ghoul2,
 }
 //[/NPCSandCreature]
 
-
 #define	MAX_VARIANTS 8
 qboolean BG_GetRootSurfNameWithVariant( void *ghoul2, const char *rootSurfName, char *returnSurfName, int returnSize )
 {

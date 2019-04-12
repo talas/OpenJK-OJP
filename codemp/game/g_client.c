@@ -38,7 +38,6 @@ void OJP_Spectator(gentity_t *ent)
 }
 //[/LastManStanding]
 
-
 /*QUAKED info_player_duel (1 0 1) (-16 -16 -24) (16 16 32) initial
 potential spawning position for duelists in duel.
 Targets will be fired when someone spawns in on them.
@@ -409,7 +408,6 @@ void JMSaberThink(gentity_t *ent)
 	G_RunObject(ent);
 }
 
-
 //[ExpSys]
 void DetermineDodgeMax(gentity_t *ent);
 //[/ExpSys]
@@ -470,7 +468,6 @@ void JMSaberTouch(gentity_t *self, gentity_t *other, trace_t *trace)
 
 	if (other->client->ps.fd.forcePower < 100)
 	{
-
 		other->client->ps.fd.forcePower = 100;
 	}
 
@@ -1010,7 +1007,6 @@ void InitBodyQue (void) {
 */
 //[/NOBODYQUE]
 
-
 /*
 =============
 BodySink
@@ -1119,7 +1115,6 @@ static qboolean CopyToBodyQue( gentity_t *ent ) {
 	} else {
 		body->s.pos.trType = TR_STATIONARY;
 	}
-
 	body->s.event = 0;
 
 	body->s.weapon = ent->s.bolt2;
@@ -1141,7 +1136,6 @@ static qboolean CopyToBodyQue( gentity_t *ent ) {
 	trap_SendServerCommand(-1, va("ircg %i %i %i %i", ent->s.number, body->s.number, body->s.weapon, islight));
 
 	body->r.svFlags = ent->r.svFlags | SVF_BROADCAST;
-
 	VectorCopy (ent->r.mins, body->r.mins);
 	VectorCopy (ent->r.maxs, body->r.maxs);
 	VectorCopy (ent->r.absmin, body->r.absmin);
@@ -1339,6 +1333,7 @@ void respawn( gentity_t *ent ) {
 		gentity_t	*tent;
 
 		ClientSpawn(ent);
+
 		// add a teleportation effect
 		tent = G_TempEntity( ent->client->ps.origin, EV_PLAYER_TELEPORT_IN );
 		tent->s.clientNum = ent->s.clientNum;
@@ -2057,14 +2052,12 @@ void ClientUserinfoChanged( int clientNum ) {
 	char	saber2Name[MAX_QPATH];
 	char	*value;
 	int		maxHealth;
-
 	//[RGBSabers]
 	char	rgb1[MAX_INFO_STRING];
 	char	rgb2[MAX_INFO_STRING];
 	char	script1[MAX_INFO_STRING];
 	char	script2[MAX_INFO_STRING];
 	//[/RGBSabers]
-
 	qboolean	modelChanged = qfalse;
 
 	ent = g_entities + clientNum;
@@ -2804,11 +2797,11 @@ void ClientBegin( int clientNum, qboolean allowTeamReset ) {
 		//[LastManStanding]
 		if (ojp_lms.integer > 0 && ent->lives < 1 && BG_IsLMSGametype(g_gametype.integer) && LMS_EnoughPlayers() && client->sess.sessionTeam != TEAM_SPECTATOR)
 		{//don't allow players to respawn in LMS by switching teams.
-			OJP_Spectator(ent);
+			OJP_Spectator( ent );
 		}
 		else
 		{
-			ClientSpawn(ent);
+			ClientSpawn( ent );
 			if(client->sess.sessionTeam != TEAM_SPECTATOR && LMS_EnoughPlayers())
 			{//costs a life to switch teams to something other than spectator.
 				ent->lives--;
@@ -3333,7 +3326,6 @@ void ClientSpawn(gentity_t *ent) {
 	char				*saber;
 	qboolean			changedSaber = qfalse;
 	qboolean			inSiegeWithClass = qfalse;
-
 
 	index = ent - g_entities;
 	client = ent->client;
@@ -3983,7 +3975,6 @@ void ClientSpawn(gentity_t *ent) {
 				{
 					client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_SABER );	//these are precached in g_items, ClearRegisteredItems()
 				}
-				
 			}
 			//[ExpSys]
 			/* NUAM already get melee for free earlier in the function.
@@ -4247,7 +4238,6 @@ void ClientSpawn(gentity_t *ent) {
 		//[ExpSys]
 		client->ps.stats[STAT_HOLDABLE_ITEMS] = 0;
 
-		
 		if(client->skillLevel[SK_JETPACK])
 		{//player has jetpack
 			client->ps.stats[STAT_HOLDABLE_ITEMS] |= (1 << HI_JETPACK);
@@ -4563,7 +4553,7 @@ void ClientSpawn(gentity_t *ent) {
 		}
 		*/
 		//[/CoOp]
-		
+
 		// select the highest weapon number available, after any
 		// spawn given items have fired
 		/*

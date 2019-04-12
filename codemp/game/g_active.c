@@ -346,7 +346,7 @@ void DoImpact( gentity_t *self, gentity_t *other, qboolean damageSelf )
 
 		//[CoOp]
 		//added FL_NO_IMPACT_DMG
-		if ( damageSelf && self->takedamage && !(self->flags&FL_NO_IMPACT_DMG))
+		if ( damageSelf && self->takedamage && !(self->flags&FL_NO_IMPACT_DMG) )
 		//[/CoOp]
 		{
 			//Now damage me
@@ -812,7 +812,6 @@ void ClientTimerActions( gentity_t *ent, int msec ) {
 		}
 		*/
 		//[/ExpSys]
-
 	}
 }
 
@@ -1082,7 +1081,6 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 	}
 
 }
-
 
 //[KnockdownSys]
 void G_ThrownDeathAnimForDeathAnim( gentity_t *hitEnt, vec3_t impactPoint )
@@ -1803,7 +1801,8 @@ void G_HeldByMonster( gentity_t *ent, usercmd_t **ucmd )
 	(*ucmd)->upmove = 0;
 }
 
-typedef enum {
+typedef enum
+{
 	TAUNT_TAUNT = 0,
 	TAUNT_BOW,
 	TAUNT_MEDITATE,
@@ -2828,7 +2827,7 @@ void ClientThink_real( gentity_t *ent ) {
 	//[CoOp]
 	//NPCs on the NPCTEAM_NEUTRAL (vehicles and bots) use the same team number as the TEAM_SPECTATOR.  
 	//As such, this was causing those NPCs to act like they were spectating while in CoOp!
-	if ( client->ps.clientNum < MAX_CLIENTS && (client->sess.sessionTeam == TEAM_SPECTATOR || client->tempSpectate > level.time) ) {
+	if ( client->ps.clientNum < MAX_CLIENTS && (client->sess.sessionTeam == TEAM_SPECTATOR || client->tempSpectate > level.time ) ) {
 	//[/CoOp]
 		if ( client->sess.spectatorState == SPECTATOR_SCOREBOARD ) {
 			return;
@@ -3104,7 +3103,7 @@ void ClientThink_real( gentity_t *ent ) {
 
 			client->ps.speed = ent->NPC->desiredSpeed;
 		}
-		
+
 		//[CoOp]
 		//add case to prevent NPCs from getting their ucmds halved
 		if (ucmd->buttons & BUTTON_WALKING && ent->s.eType != ET_NPC)
@@ -3270,7 +3269,7 @@ void ClientThink_real( gentity_t *ent ) {
 			if (duelAgainst 
 				&& duelAgainst->client 
 				&& duelAgainst->inuse 
-				&& duelAgainst->client->ps.weapon == WP_SABER
+				&& duelAgainst->client->ps.weapon == WP_SABER 
 				//[DuelSys]
 				//removed the holstered requirement
 				//&& duelAgainst->client->ps.saberHolstered 
@@ -3701,8 +3700,7 @@ void ClientThink_real( gentity_t *ent ) {
 	if (ent->client && ent->client->ps.fallingToDeath &&
 		//[CoOp]
 		//[SuperDindon]
-		(level.time - FALL_FADE_TIME) > ent->client->ps.fallingToDeath &&
-		!ent->noFallDamage)
+		(level.time - FALL_FADE_TIME) > ent->client->ps.fallingToDeath && !ent->noFallDamage)
 		//[/CoOp]
 	{ //die!
 		if (ent->health > 0)
@@ -4579,7 +4577,7 @@ void ClientThink_real( gentity_t *ent ) {
 				respawn( ent );
 				return;
 			}
-			
+		
 			// pressing attack or use is the normal respawn method
 			if ( ucmd->buttons & ( BUTTON_ATTACK | BUTTON_USE_HOLDABLE ) ) {
 				respawn( ent );

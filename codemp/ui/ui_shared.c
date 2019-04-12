@@ -2348,58 +2348,48 @@ void Item_RunScript(itemDef_t *item, const char *s)
 }
 
 
-qboolean Item_EnableShowViaCvar(itemDef_t *item, int flag) 
-{
-	char script[2048], *p;
-	if (item && item->enableCvar && *item->enableCvar && item->cvarTest && *item->cvarTest) 
-	{
+qboolean Item_EnableShowViaCvar(itemDef_t *item, int flag) {
+  char script[2048], *p;
+  if (item && item->enableCvar && *item->enableCvar && item->cvarTest && *item->cvarTest) {
 		char buff[2048];
-		DC->getCVarString(item->cvarTest, buff, sizeof(buff));
+	  DC->getCVarString(item->cvarTest, buff, sizeof(buff));
 
-		Q_strncpyz(script, item->enableCvar, 2048);
-		p = script;
-		while (1) 
-		{
-			const char *val;
-			// expect value then ; or NULL, NULL ends list
-			if (!String_Parse(&p, &val)) 
-			{
+    Q_strncpyz(script, item->enableCvar, 2048);
+    p = script;
+    while (1) {
+      const char *val;
+      // expect value then ; or NULL, NULL ends list
+      if (!String_Parse(&p, &val)) {
 				return (item->cvarFlags & flag) ? qfalse : qtrue;
-			}
+      }
 
-			if (val[0] == ';' && val[1] == '\0') 
-			{
-				continue;
-			}
+      if (val[0] == ';' && val[1] == '\0') {
+        continue;
+      }
 
-				// enable it if any of the values are true
-			if (item->cvarFlags & flag) 
-			{
-				//[CoOp]
-				//adding cvarSubString support
-				if( ( (item->cvarFlags & CVAR_SUBSTRING) && strstr(buff, val) )
-					|| (Q_stricmp(buff, val) == 0) )
-				//[/CoOp]
-				{
+			// enable it if any of the values are true
+			if (item->cvarFlags & flag) {
+        //[CoOp]
+        //adding cvarSubString support
+        if( ( (item->cvarFlags & CVAR_SUBSTRING) && strstr(buff, val) )
+        || (Q_stricmp(buff, val) == 0) ) {
+        //[/CoOp]
 					return qtrue;
 				}
-			} 
-			else 
-			{
+			} else {
 				// disable it if any of the values are true
-				//[CoOp]
-				//adding cvarSubString support
-				if( ( (item->cvarFlags & CVAR_SUBSTRING) && strstr(buff, val) )
-					|| (Q_stricmp(buff, val) == 0) )
-				//[/CoOp]
-				{
+        //[CoOp]
+        //adding cvarSubString support
+        if( ( (item->cvarFlags & CVAR_SUBSTRING) && strstr(buff, val) )
+        || (Q_stricmp(buff, val) == 0) ) {
+        //[/CoOp]
 					return qfalse;
 				}
 			}
 
-		}	
+    }
 		return (item->cvarFlags & flag) ? qfalse : qtrue;
-	}	
+  }
 	return qtrue;
 }
 
@@ -4059,7 +4049,7 @@ qboolean Item_HandleKey(itemDef_t *item, int key, qboolean down) {
 
   switch (item->type) {
     case ITEM_TYPE_BUTTON:
-	  return qfalse;
+	return qfalse;
     case ITEM_TYPE_RADIOBUTTON:
       return qfalse;
     case ITEM_TYPE_CHECKBOX:
@@ -8201,7 +8191,6 @@ qboolean ItemParse_cvar( itemDef_t *item, int handle )
 			//[/INTSLIDER]
 			case ITEM_TYPE_TEXT:
 				editPtr = (editFieldDef_t*)item->typeData;
-
 				editPtr->minVal = -1;
 				editPtr->maxVal = -1;
 				editPtr->defVal = -1;
@@ -8550,7 +8539,6 @@ qboolean ItemParse_hideCvar( itemDef_t *item, int handle ) {
 	return qfalse;
 }
 
-
 //[CoOp]
 qboolean ItemParse_cvarSubString( itemDef_t *item, int handle ) 
 {
@@ -8558,7 +8546,6 @@ qboolean ItemParse_cvarSubString( itemDef_t *item, int handle )
 	return qtrue;
 }
 //[/CoOp]
-
 
 /*
 ===============

@@ -15,34 +15,34 @@
 
 #define MAX_FORCE_INFO_SIZE 2048
 
-#define WPFLAG_JUMP					0x00000010 //jump when we hit this
-#define WPFLAG_DUCK					0x00000020 //duck while moving around here
-#define WPFLAG_NOVIS				0x00000400 //go here for a bit even with no visibility
-#define WPFLAG_SNIPEORCAMPSTAND		0x00000800 //a good position to snipe or camp - stand
-#define WPFLAG_WAITFORFUNC			0x00001000 //wait for a func brushent under this point before moving here
-#define WPFLAG_SNIPEORCAMP			0x00002000 //a good position to snipe or camp - crouch
-#define WPFLAG_ONEWAY_FWD			0x00004000 //can only go forward on the trial from here (e.g. went over a ledge)
-#define WPFLAG_ONEWAY_BACK			0x00008000 //can only go backward on the trail from here
-#define WPFLAG_GOALPOINT			0x00010000 //make it a goal to get here.. goal points will be decided by setting "weight" values
-#define WPFLAG_RED_FLAG				0x00020000 //red flag
-#define WPFLAG_BLUE_FLAG			0x00040000 //blue flag
-#define WPFLAG_SIEGE_REBELOBJ		0x00080000 //rebel siege objective
+#define WPFLAG_JUMP				0x00000010 //jump when we hit this
+#define WPFLAG_DUCK				0x00000020 //duck while moving around here
+#define WPFLAG_NOVIS			0x00000400 //go here for a bit even with no visibility
+#define WPFLAG_SNIPEORCAMPSTAND	0x00000800 //a good position to snipe or camp - stand
+#define WPFLAG_WAITFORFUNC		0x00001000 //wait for a func brushent under this point before moving here
+#define WPFLAG_SNIPEORCAMP		0x00002000 //a good position to snipe or camp - crouch
+#define WPFLAG_ONEWAY_FWD		0x00004000 //can only go forward on the trial from here (e.g. went over a ledge)
+#define WPFLAG_ONEWAY_BACK		0x00008000 //can only go backward on the trail from here
+#define WPFLAG_GOALPOINT		0x00010000 //make it a goal to get here.. goal points will be decided by setting "weight" values
+#define WPFLAG_RED_FLAG			0x00020000 //red flag
+#define WPFLAG_BLUE_FLAG		0x00040000 //blue flag
+#define WPFLAG_SIEGE_REBELOBJ	0x00080000 //rebel siege objective
 #define WPFLAG_SIEGE_IMPERIALOBJ	0x00100000 //imperial siege objective
-#define WPFLAG_NOMOVEFUNC			0x00200000 //don't move over if a func is under
+#define WPFLAG_NOMOVEFUNC		0x00200000 //don't move over if a func is under
 
-#define WPFLAG_CALCULATED			0x00400000 //don't calculate it again
-#define WPFLAG_NEVERONEWAY			0x00800000 //never flag it as one-way
+#define WPFLAG_CALCULATED		0x00400000 //don't calculate it again
+#define WPFLAG_NEVERONEWAY		0x00800000 //never flag it as one-way
 
 //[TABBot]
 #define WPFLAG_DESTROY_FUNCBREAK	0x01000000 //destroy all the func_breakables in the area
 												//before moving to this waypoint
-#define WPFLAG_REDONLY				0x02000000 //only bots on the red team will be able to
+#define WPFLAG_REDONLY			0x02000000 //only bots on the red team will be able to
 												//use this waypoint
-#define WPFLAG_BLUEONLY				0x04000000 //only bots on the blue team will be able to
+#define WPFLAG_BLUEONLY			0x04000000 //only bots on the blue team will be able to
 												//use this waypoint
-#define WPFLAG_FORCEPUSH			0x08000000 //force push all the active func_doors in the
+#define WPFLAG_FORCEPUSH		0x08000000 //force push all the active func_doors in the
 												//area before moving to this waypoint.
-#define WPFLAG_FORCEPULL			0x10000000 //force pull all the active func_doors in the
+#define WPFLAG_FORCEPULL		0x10000000 //force pull all the active func_doors in the
 												//area before moving to this waypoint.			
 //[/TABBot]
 

@@ -270,9 +270,8 @@ static void CG_EntityEffects( centity_t *cent ) {
 	// add loop sound
 	//[CoOp]
 	//don't play loop sounds while in briefing menus or watching a ROQ
-	if ( (cent->currentState.loopSound || (cent->currentState.loopIsSoundset && cent->currentState.number >= MAX_CLIENTS)) 
-		&& !InCinematic && !InBriefing ) {
-	//[/CoOp]	
+	if ( (cent->currentState.loopSound || (cent->currentState.loopIsSoundset && cent->currentState.number >= MAX_CLIENTS)) && !InCinematic && !InBriefing ) {
+	//[/CoOp]
 		sfxHandle_t realSoundIndex = -1;
 			
 		if (cent->currentState.loopIsSoundset && cent->currentState.number >= MAX_CLIENTS)
@@ -2738,7 +2737,7 @@ Ghoul2 Insert End
 	//[SaberThrowSys]
 	//don't apply this weird spin stuff to the sabers because they don't rotate on the 
 	//same axis.
-	if ( s1->apos.trType != TR_INTERPOLATE && s1->weapon != WP_SABER)
+	if ( s1->apos.trType != TR_INTERPOLATE && s1->weapon != WP_SABER )
 	//[/SaberThrowSys]
 	{
 		// convert direction of travel into axis
@@ -2834,8 +2833,8 @@ Ghoul2 Insert End
 
 	//[SaberThrowSys]
 	//made it so a player's dropped saber glows so it's easier to find/see.
-	if (s1->weapon == WP_SABER 
-		&& (cgs.gametype == GT_JEDIMASTER || //playing JediMaster
+	if (s1->weapon == WP_SABER &&
+		(cgs.gametype == GT_JEDIMASTER || //playing JediMaster
 		(s1->owner == cg.snap->ps.clientNum)))//or it's our saber and we've dropped it.
 	//[/SaberThrowSys]
 	{ //in jedimaster always make the saber glow when on the ground

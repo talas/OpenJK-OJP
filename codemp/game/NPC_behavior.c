@@ -424,7 +424,6 @@ void NPC_BSInvestigate (void)
 	*//*
 }
 
-
 qboolean NPC_CheckInvestigate( int alertEventNum )
 {
 	gentity_t	*owner = level.alertEvents[alertEventNum].owner;
@@ -545,7 +544,6 @@ void NPC_BSSleep( void )
 }
 
 extern qboolean NPC_MoveDirClear( int forwardmove, int rightmove, qboolean reset );
-
 //[CoOp]
 qboolean NPC_BSFollowLeader_UpdateLeader(void)
 {//racc - checks the status of our leader.  If the leader is invalid, do some backup behavior.
@@ -601,7 +599,6 @@ qboolean NPC_BSFollowLeader_UpdateLeader(void)
 	}
 	return qtrue; 
 }
-
 
 void NPC_BSFollowLeader_UpdateEnemy(void)
 {
@@ -722,7 +719,6 @@ qboolean NPC_BSFollowLeader_AttackEnemy(void)
 		{//focus more on aiming
 			NPC_AimAdjust( 1 );
 		}
-		
 		//NPC_CheckCanAttack(1.0, qfalse);
 	}
 	else
@@ -1074,7 +1070,6 @@ void NPC_BSJump (void)
 	}
 }
 
-
 //[CoOp]
 extern qboolean InPlayersPVS(vec3_t point);
 //[/CoOp]
@@ -1102,7 +1097,6 @@ void NPC_BSRemove (void)
 		NPC->nextthink = level.time + FRAMETIME;
 	}//FIXME: else allow for out of FOV???
 }
-
 
 void NPC_BSSearch (void)
 {
@@ -1553,7 +1547,6 @@ void NPC_BSWander (void)
 	*/
 	//[/CoOp]
 
-
 	if ( !NPCInfo->investigateDebounceTime )
 	{//Starting out
 		float	minGoalReachedDistSquared = 64;//32*32;
@@ -1911,7 +1904,6 @@ qboolean NPC_CheckSurrender( void )
 					}
 				}
 			}
-
 			//fixme: this logic keeps making npc's randomly surrender
 			//[CoOp]
 			if ( !NPCInfo->group || (NPCInfo->group && NPCInfo->group->numGroup <= 1) )

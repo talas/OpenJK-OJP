@@ -252,7 +252,6 @@ static void CG_SetNextSnap( snapshot_t *snap ) {
 
 	// if changing server restarts, don't interpolate
 	if ( ( cg.nextSnap->snapFlags ^ cg.snap->snapFlags ) & SNAPFLAG_SERVERCOUNT ) {
-		
 		//[CoOp]
 		//hack to turn off camera fade on map_restarts
 		vec4_t vec4_origin = {0, 0, 0, 0};

@@ -144,7 +144,6 @@ qboolean InFOV2( vec3_t origin, gentity_t *from, int hFOV, int vFOV )
 	return InFOV3( origin, eyes, fromAngles, hFOV, vFOV );
 }
 
-
 //[CoOp] SP code
 //[RAFIXME] - Impliment this function when we actually need it (later)
 //Entity to entity
@@ -698,14 +697,12 @@ int G_CheckAlertEvents( gentity_t *self, qboolean checkSight, qboolean checkSoun
 	//[/CoOp]
 }
 
-
 //[CoOp]
 int NPC_CheckAlertEvents( qboolean checkSight, qboolean checkSound, int ignoreAlert, qboolean mustHaveOwner, int minAlertLevel, qboolean onGroundOnly )
 {
 	return G_CheckAlertEvents( NPC, checkSight, checkSound, NPCInfo->stats.visrange, NPCInfo->stats.earshot, ignoreAlert, mustHaveOwner, minAlertLevel, onGroundOnly );
 }
 //[/CoOp]
-
 
 qboolean G_CheckForDanger( gentity_t *self, int alertEvent )
 {//FIXME: more bStates need to call this?
@@ -855,6 +852,7 @@ void AddSightEvent( gentity_t *owner, vec3_t position, float radius, alertEventL
 #endif
 */
 //[/CoOp]
+
 	VectorCopy( position, level.alertEvents[ level.numAlertEvents ].position );
 
 	level.alertEvents[ level.numAlertEvents ].radius	= radius;

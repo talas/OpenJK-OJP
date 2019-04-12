@@ -79,7 +79,6 @@ vmCvar_t	d_saberBodyCheck;
 vmCvar_t	d_powerDuelPrint;
 
 vmCvar_t	d_saberGhoul2Collision;
-
 vmCvar_t	g_saberBladeFaces;
 vmCvar_t	d_saberAlwaysBoxTrace;
 vmCvar_t	d_saberBoxTraceSize;
@@ -130,15 +129,12 @@ vmCvar_t	sv_privatepassword;
 //[/PrivatePasswordFix]
 
 vmCvar_t	g_forceRegenTime;
-
 //[DodgeSys]
 vmCvar_t	g_dodgeRegenTime;
 //[/DodgeSys]
-
 //[SaberSys]
 vmCvar_t	g_mishapRegenTime;
 //[/SaberSys]
-
 vmCvar_t	g_spawnInvulnerability;
 vmCvar_t	g_forcePowerDisable;
 vmCvar_t	g_weaponDisable;
@@ -150,11 +146,9 @@ vmCvar_t	g_duel_fraglimit;
 vmCvar_t	g_timelimit;
 vmCvar_t	g_capturelimit;
 vmCvar_t	d_saberInterpolate;
-
 //[test]
 vmCvar_t	d_test;
 //[/test]
-
 vmCvar_t	g_friendlyFire;
 vmCvar_t	g_friendlySaber;
 vmCvar_t	g_password;
@@ -256,17 +250,14 @@ vmCvar_t		g_saberRealisticCombat;
 vmCvar_t		g_saberRestrictForce;
 vmCvar_t		d_saberSPStyleDamage;
 vmCvar_t		g_debugSaberLocks;
-
 //[SaberSys]
 #ifndef FINAL_BUILD
 vmCvar_t		g_debugsabercombat;
 #endif
 //[/SaberSys]
-
 //[DodgeSys]
 vmCvar_t		g_debugdodge;
 //[/DodgeSys]
-
 vmCvar_t		g_saberLockRandomNess;
 // nmckenzie: SABER_DAMAGE_WALLS
 vmCvar_t		g_saberWallDamageScale;
@@ -431,7 +422,6 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &d_powerDuelPrint, "d_powerDuelPrint", "0", 0, qtrue },
 
 	{ &d_saberGhoul2Collision, "d_saberGhoul2Collision", "1", CVAR_CHEAT, 0, qtrue  },
-
 	{ &g_saberBladeFaces, "g_saberBladeFaces", "1", 0, 0, qtrue  },
 
 	{ &d_saberAlwaysBoxTrace, "d_saberAlwaysBoxTrace", "0", CVAR_CHEAT, 0, qtrue  },
@@ -614,18 +604,15 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_saberDebugPrint, "g_saberDebugPrint", "0", CVAR_CHEAT, 0, qfalse  },
 #endif
 	{ &g_debugSaberLocks, "g_debugSaberLocks", "0", CVAR_CHEAT, 0, qfalse },
-
 	//[SaberSys]
 #ifndef FINAL_BUILD
 	{ &g_debugsabercombat, "g_debugsabercombat", "0", CVAR_CHEAT, 0, qtrue },
 	//1 == the attacker always drops his saber when it collides with something. 
 #endif
 	//[/SaberSys]
-
 	//[DodgeSys]
 	{ &g_debugdodge, "g_debugdodge", "0", CVAR_CHEAT, 0, qtrue },
 	//[/DodgeSys]
-
 	{ &g_saberLockRandomNess, "g_saberLockRandomNess", "2", CVAR_CHEAT, 0, qfalse },
 // nmckenzie: SABER_DAMAGE_WALLS
 	{ &g_saberWallDamageScale, "g_saberWallDamageScale", "0.4", CVAR_SERVERINFO, 0, qfalse },
@@ -953,7 +940,6 @@ int vmMain( int command, int arg0, int arg1, int arg2, int arg3, int arg4, int a
 				strcpy(sharedMem->value, crap);
 			}
 
-
 			return r;
 		}
 	case GAME_ICARUS_SOUNDINDEX:
@@ -1194,15 +1180,12 @@ G_InitGame
 extern void RemoveAllWP(void);
 extern void BG_ClearVehicleParseParms(void);
 extern void G_LoadIPBans(void);
-
 //[CoOp]
 extern void InitSpawnScriptValues(void);
 //[/CoOp]
-
 //[CoOpEditor]
 extern void Load_Autosaves(void);
 //[/CoOpEditor]
-
 void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	int					i;
 	vmCvar_t	mapname;
@@ -1447,11 +1430,9 @@ G_ShutdownGame
 =================
 */
 extern void G_SaveBanIP( void );
-
 //[DynamicMemory_Vehicles]
 void BG_VehicleUnloadParms( void );
 //[/DynamicMemory_Vehicles]
-
 void G_ShutdownGame( int restart ) {
 	int i = 0;
 	gentity_t *ent;
@@ -1763,7 +1744,6 @@ void RemovePowerDuelLosers(void)
 	int remNum = 0;
 	int i = 0;
 	gclient_t *cl;
-	
 
 	while (i < MAX_CLIENTS && remNum < 3)
 	{
@@ -1800,7 +1780,6 @@ void RemovePowerDuelLosers(void)
 
 	//recalculate stuff now that we have reset teams.
 	CalculateRanks();
-
 }
 
 void RemoveDuelDrawLoser(void)
@@ -2090,7 +2069,6 @@ void CalculateRanks( void ) {
 	//int		nonSpecIndex = -1;
 	gclient_t	*cl;
 
-
 	preNumSpec = level.numNonSpectatorClients;
 
 	level.follow1 = -1;
@@ -2238,7 +2216,6 @@ void CalculateRanks( void ) {
 		//rww - Made this operate on a "queue" system because it was causing large overflows
 	}
 }
-
 
 
 /*
@@ -2465,7 +2442,6 @@ void DuelResetWinsLosses(void)
 /*
 =============
 ExitLevel
-
 
 When the intermission has been exited, the server is either killed
 or moved to a new level based on the "nextmap" cvar 
@@ -2824,8 +2800,6 @@ void CheckIntermissionExit( void ) {
 		}
 	}
 
-
-
 	if ((g_gametype.integer == GT_DUEL || g_gametype.integer == GT_POWERDUEL) && !gDuelExit)
 	{ //in duel, we have different behaviour for between-round intermissions
 		if ( level.time > level.intermissiontime + 4000 )
@@ -2917,7 +2891,6 @@ qboolean ScoreIsTied( void ) {
 
 	return a == b;
 }
-
 
 //[LastManStanding]
 #define LMSRESETTIME		5000		//amount of time LMS being found and the LMS round reset.
@@ -3014,7 +2987,6 @@ void CheckLMS()
 	}
 }
 //[/LastManStanding]
-
 
 /*
 =================
@@ -3277,10 +3249,8 @@ void CheckExitRules( void ) {
 	{
 		sKillLimit = "Kill limit hit.";
 	}
-	
 	if ( g_gametype.integer < GT_SIEGE && g_fraglimit.integer ) {
-		if ( level.teamScores[TEAM_RED] >= g_fraglimit.integer ) 
-		{
+		if ( level.teamScores[TEAM_RED] >= g_fraglimit.integer ) {
 			trap_SendServerCommand( -1, va("print \"Red %s\n\"", G_GetStringEdString("MP_SVGAME", "HIT_THE_KILL_LIMIT")) );
 			if (d_powerDuelPrint.integer)
 			{
@@ -3831,7 +3801,7 @@ CheckTeamLeader
 ==================
 */
 void CheckTeamLeader( int team ) {
-int i;
+	int i;
 
 	for ( i = 0 ; i < level.maxclients ; i++ ) {
 		if (level.clients[i].sess.sessionTeam != team)
@@ -3982,7 +3952,6 @@ runicarus:
 	}
 }
 
-
 //[CoOp]
 //animation function for map entities and stuff.
 /*
@@ -3990,7 +3959,6 @@ runicarus:
 G_Animate
 -------------------------
 */
-
 static void G_Animate ( gentity_t *self )
 {
 	if ( self->s.eFlags & EF_SHADER_ANIM )
@@ -4824,7 +4792,7 @@ const char *G_GetStringEdString(char *refSection, char *refName)
 	trap_SP_GetStringTextString(va("%s_%s", refSection, refName), text, sizeof(text));
 	return text;
 	*/
-	
+
 	//Well, it would've been lovely doing it the above way, but it would mean mixing
 	//languages for the client depending on what the server is. So we'll mark this as
 	//a stringed reference with @@@ and send the refname to the client, and when it goes

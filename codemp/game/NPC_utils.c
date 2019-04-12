@@ -888,7 +888,6 @@ qboolean G_ActivateBehavior (gentity_t *self, int bset )
 		{
 			G_DebugPrint( WL_VERBOSE, "%s attempting to run bSet %s (%s)\n", self->targetname, GetStringForID( BSETTable, bset ), bs_name );
 		}
-
 		//[CoOp]			
 		//make the code handle the case of the scripts directory already being given
 		if(!Q_strncmp(bs_name, va( "%s/", Q3_SCRIPT_DIR ), 8 ) )
@@ -1381,14 +1380,11 @@ static qboolean NPC_CheckPlayerDistance( void )
 {
 	//[CoOp] added SP Code
 	//also set it up to work for multiple players.
-
 	int i; //counter
-
 	//closest current distance
 	gentity_t* player;
 	float ClosestDistance;
 	int ClosestPlayer = -1; //current closest player
-	
 	float distance;
 
 	//Make sure we have an enemy
@@ -1448,7 +1444,7 @@ static qboolean NPC_CheckPlayerDistance( void )
 		return qfalse;
 
 	distance = DistanceSquared( NPC->r.currentOrigin, NPC->enemy->r.currentOrigin );
-	
+
 	if ( distance > DistanceSquared( NPC->r.currentOrigin, g_entities[0].r.currentOrigin ) )
 	{ //rwwFIXMEFIXME: care about all clients not just client 0
 		G_SetEnemy( NPC, &g_entities[0] );
@@ -1493,7 +1489,7 @@ qboolean NPC_FindEnemy( qboolean checkAlerts )
 	//Don't want a new enemy
 	if ( ( ValidEnemy( NPC->enemy ) ) && ( NPC->NPC->aiFlags & NPCAI_LOCKEDENEMY ) )
 		return qtrue;
-	
+
 	//See if the player is closer than our current enemy
 	if ( NPC->client->NPC_class != CLASS_RANCOR 
 		&& NPC->client->NPC_class != CLASS_WAMPA
@@ -1777,7 +1773,6 @@ void G_CheckCharmed( gentity_t *self )
 			G_AddVoiceEvent( self, Q_irand(EV_CONFUSE1, EV_CONFUSE3), 2000 );
 		}
 	}
-
 }
 //[/CoOp]
 

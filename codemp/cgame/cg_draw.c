@@ -48,7 +48,7 @@ const char *armorTicName[MAX_HUD_TICS] =
 "armor_tic1", 
 "armor_tic2", 
 "armor_tic3", 
-"armor_tic4",
+"armor_tic4", 
 //[NewHud]
 "armor_tic5",
 "armor_tic6",
@@ -74,7 +74,7 @@ const char *forceTicName[MAX_HUD_TICS] =
 "force_tic1", 
 "force_tic2", 
 "force_tic3", 
-"force_tic4",
+"force_tic4", 
 //[NewHud]
 "force_tic5",
 "force_tic6",
@@ -104,7 +104,7 @@ const char *ammoTicName[MAX_HUD_TICS] =
 "ammo_tic1", 
 "ammo_tic2", 
 "ammo_tic3", 
-"ammo_tic4",
+"ammo_tic4", 
 //[NewHud] 
 "ammo_tic5",
 "ammo_tic6",
@@ -410,7 +410,7 @@ static void CG_DrawZoomMask( void )
 		CG_DrawPic( 0, 0, 640, 480, cgs.media.disruptorMask );
 
 		// apparently 99.0f is the full zoom level
-		if ( level >= 96)
+		if ( level >= 96 )
 		{
 			// Fully zoomed, so make the rotating insert pulse
 			color1[0] = 1.0f; 
@@ -677,7 +677,7 @@ void CG_DrawHealth( menuDef_t *menuHUD )
 	playerState_t	*ps;
 	int				healthAmt;
 	//[NewHud]
-	//int			i,currValue,inc;
+	//int				i,currValue,inc;
 	//[/NewHud]
 	itemDef_t		*focusItem;
 	//[NewHud]
@@ -1084,7 +1084,6 @@ static void CG_DrawSaberStyle( centity_t *cent, menuDef_t *menuHUD)
 				);
 		}
 		break;
-
 	//Created new icon for desann's saber style.
 	case 5://FORCE_LEVEL_5://Tavion
 		focusItem = Menu_FindItemByName(menuHUD, "saberstyle_tavion");
@@ -1106,7 +1105,6 @@ static void CG_DrawSaberStyle( centity_t *cent, menuDef_t *menuHUD)
 	}
 
 }
-
 
 //[SaberSys]
 static void CG_DrawBalance( centity_t *cent, menuDef_t *menuHUD)
@@ -1178,7 +1176,6 @@ static void CG_DrawBalance( centity_t *cent, menuDef_t *menuHUD)
 }
 //[/SaberSys]
 
-
 /*
 ================
 CG_DrawAmmo
@@ -1244,15 +1241,15 @@ static void CG_DrawAmmo( centity_t	*cent,menuDef_t *menuHUD)
 			}
 			value =ps->ammo[weaponData[cent->currentState.weapon].ammoIndex];
 
-			CG_DrawStringExt(
+			CG_DrawStringExt (
 				focusItem->window.rect.x, 
-				focusItem->window.rect.y,
-				va("%i/%i",(int)value,cg.snap->ps.stats[STAT_AMMOPOOL]),
-				0,
-				qfalse,
-				qfalse,
+				focusItem->window.rect.y, 
+				va("%i/%i",(int)value,cg.snap->ps.stats[STAT_AMMOPOOL]), 
+				0, 
+				qfalse, 
+				qfalse, 
 				focusItem->window.rect.w, 
-				focusItem->window.rect.h,
+				focusItem->window.rect.h, 
 				8);
 		}
 	}
@@ -1293,7 +1290,6 @@ static void CG_DrawAmmo( centity_t	*cent,menuDef_t *menuHUD)
 	}
 
 }
-
 
 //[DodgeSys]
 /*
@@ -1477,7 +1473,6 @@ void CG_DrawDodge( menuDef_t *menuHUD )
 }
 //[/DodgeSys]
 
-
 /*
 ================
 CG_DrawForcePower
@@ -1552,7 +1547,7 @@ void CG_DrawForcePower( menuDef_t *menuHUD )
 	// Make the hud flash by setting forceHUDTotalFlashTime above cg.time
 	//[FatigueSys]
 	//make the hud flash when fatigued.
-	if (cg.forceHUDTotalFlashTime > cg.time || (cg_entities[cg.snap->ps.clientNum].currentState.userInt3 &  ( 1 << FLAG_FATIGUED)))
+	if (cg.forceHUDTotalFlashTime > cg.time || (cg_entities[cg.snap->ps.clientNum].currentState.userInt3 &  ( 1 << FLAG_FATIGUED)) )
 	//[/FatigueSys]
 	{
 		flash = qtrue;
@@ -1641,7 +1636,7 @@ void CG_DrawForcePower( menuDef_t *menuHUD )
 	}
 	*/
 	//[/NewHud]
-	
+
 	focusItem = Menu_FindItemByName(menuHUD, "forceamount");
 
 	if (focusItem)
@@ -8221,7 +8216,6 @@ static CGAME_INLINE void CG_ChatBox_DrawStrings(void)
 		i++;
 	}
 }
-
 
 //[CoOp]
 void CGCam_DoFade(void);

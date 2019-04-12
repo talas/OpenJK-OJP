@@ -770,6 +770,7 @@ vmCvar_t	cg_autoMapW;
 vmCvar_t	cg_autoMapH;
 
 vmCvar_t	bg_fighterAltControl;
+
 vmCvar_t	cg_chatBox;
 vmCvar_t	cg_chatBoxHeight;
 
@@ -1124,7 +1125,7 @@ Ghoul2 Insert Start
 Ghoul2 Insert End
 */
 
-//[RGBSabers]
+	//[RGBSabers]
 	{ &rgb_saber1,	"rgb_saber1", "0,150,150", CVAR_USERINFO | CVAR_ARCHIVE },
 	{ &rgb_saber2,	"rgb_saber2", "150,0,150", CVAR_USERINFO | CVAR_ARCHIVE },
 	{ &rgb_script1,	"rgb_script1", ":255,0,255:500:0,0,255:500:", CVAR_USERINFO | CVAR_ARCHIVE },
@@ -1135,15 +1136,15 @@ Ghoul2 Insert End
 	//	1 = Player's saber is custom color, everyone else has team colors
 	//	2 = Everyone has custom colors.
 	{ &ojp_teamrgbsabers,	"ojp_teamrgbsabers", "0", CVAR_ARCHIVE },
-//[/RGBSabers]
+	//[/RGBSabers]
         
-//[SFXSabers]
+	//[SFXSabers]
 	{ &sfx_sabers,	"sfx_sabers", "0", CVAR_ARCHIVE },
-//[/SFXSabers]
+	//[/SFXSabers]
 
-//[Movie Sabers]
+	//[Movie Sabers]
 	{ &cg_MovieSaberType, "cg_MovieSaberType", "3", CVAR_ARCHIVE },
-//[/Movie Sabers]
+	//[/Movie Sabers]
 
 	//[VisualWeapons]
 	//controls how holstered weapons are rendered
@@ -1185,8 +1186,6 @@ Ghoul2 Insert End
 	//controls the angular offset for the current debug holsterType
 	{ &ojp_holsterdebug_angoffset, "ojp_holsterdebug_angoffset", "0.0 0.0 0.0", 0 },
 	//[/VisualWeapons]
-
-
 };
 
 static int  cvarTableSize = sizeof( cvarTable ) / sizeof( cvarTable[0] );
@@ -1657,13 +1656,13 @@ static void CG_RegisterSounds( void ) {
 	cgs.media.blackSaberTrail			= trap_R_RegisterShader( "gfx/effects/sabers/blacksaberBlur" );
 	//[/RGBSabers]
 
-    //[SFXSabers]
-    cgs.media.sfxSaberTrailShader		= trap_R_RegisterShader( "SFX_Sabers/saber_trail" );
-    cgs.media.sfxSaberBladeShader		= trap_R_RegisterShader( "SFX_Sabers/saber_blade" );
-    cgs.media.sfxSaberBlade2Shader		= trap_R_RegisterShader( "SFX_Sabers/saber_blade_rgb" );
-    cgs.media.sfxSaberEndShader			= trap_R_RegisterShader( "SFX_Sabers/saber_end" );
-    cgs.media.sfxSaberEnd2Shader		= trap_R_RegisterShader( "SFX_Sabers/saber_end_rgb" );
-    //[/SFXSabers]
+    	//[SFXSabers]
+    	cgs.media.sfxSaberTrailShader		= trap_R_RegisterShader( "SFX_Sabers/saber_trail" );
+    	cgs.media.sfxSaberBladeShader		= trap_R_RegisterShader( "SFX_Sabers/saber_blade" );
+    	cgs.media.sfxSaberBlade2Shader		= trap_R_RegisterShader( "SFX_Sabers/saber_blade_rgb" );
+    	cgs.media.sfxSaberEndShader			= trap_R_RegisterShader( "SFX_Sabers/saber_end" );
+    	cgs.media.sfxSaberEnd2Shader		= trap_R_RegisterShader( "SFX_Sabers/saber_end_rgb" );
+    	//[/SFXSabers]
 
 	//[Movie Sabers]
 	//Original Trilogy Sabers
@@ -2436,7 +2435,7 @@ Ghoul2 Insert End
 	memset( cg_weapons, 0, sizeof( cg_weapons ) );
 
 	// only register the items that the server says we need
-	strcpy( items, CG_ConfigString( CS_ITEMS ) );
+	strcpy( items, CG_ConfigString( CS_ITEMS) );
 
 	for ( i = 1 ; i < bg_numItems ; i++ ) {
 		if ( items[ i ] == '1' || cg_buildScript.integer ) {
@@ -3280,7 +3279,7 @@ static int CG_OwnerDrawWidth(int ownerDraw, float scale) {
 }
 
 static int CG_PlayCinematic(const char *name, float x, float y, float w, float h) {
-	return trap_CIN_PlayCinematic(name, x, y, w, h, 0);
+  return trap_CIN_PlayCinematic(name, x, y, w, h, 0);
 }
 
 static void CG_StopCinematic(int handle) {
@@ -4245,9 +4244,9 @@ void CG_Shutdown( void )
 {
 	BG_ClearAnimsets(); //free all dynamic allocations made through the engine
 
-//[DynamicMemory_Vehicles]
+	//[DynamicMemory_Vehicles]
 	BG_VehicleUnloadParms();
-//[/DynamicMemory_Vehicles]
+	//[/DynamicMemory_Vehicles]
 
     CG_DestroyAllGhoul2();
 

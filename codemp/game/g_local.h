@@ -100,7 +100,8 @@ typedef enum {
 
 #define SP_PODIUM_MODEL		"models/mapobjects/podium/podium4.md3"
 
-typedef enum {
+typedef enum 
+{
 	HL_NONE = 0,
 	HL_FOOT_RT,
 	HL_FOOT_LT,
@@ -126,7 +127,6 @@ typedef enum {
 	HL_GENERIC6,
 	HL_MAX
 };
-
 
 //[TABBot]
 //used for objective dependancy stuff
@@ -174,7 +174,6 @@ typedef enum {
 	
 };
 //[/TABBot]
-
 
 //============================================================================
 extern void *precachedKyle;
@@ -636,7 +635,6 @@ typedef struct renderInfo_s
 	int			boltValidityTime;
 } renderInfo_t;
 
-
 //[SaberSys]
 typedef struct 
 {
@@ -646,7 +644,6 @@ typedef struct
 	int BladeNum;
 }  sabimpact_t;
 //[SaberSys]
-
 
 // this structure is cleared on each ClientSpawn(),
 // except for 'client->pers' and 'client->sess'
@@ -749,7 +746,6 @@ struct gclient_s {
 	int			g2LastSurfaceModel; //the index of the model on the ghoul2 that was hit during the lastest hit.
 	//[BUGFIX12]
 
-
 	int			corrTime;
 
 	vec3_t		lastHeadAngles;
@@ -801,6 +797,7 @@ struct gclient_s {
 	int			throwingIndex;
 	int			beingThrown;
 	int			doingThrow;
+
 	float		hiddenDist;//How close ents have to be to pick you up as an enemy
 	vec3_t		hiddenDir;//Normalized direction in which NPCs can't see you (you are hidden)
 
@@ -1062,7 +1059,6 @@ typedef struct {
 	int			voteYes;
 	int			voteNo;
 	int			numVotingClients;		// set by CalculateRanks
-
 
 	qboolean	votingGametype;
 	int			votingGametypeTo;
@@ -1618,7 +1614,7 @@ void Svcmd_GameMem_f( void );
 void G_ReadSessionData( gclient_t *client );
 //[ExpSys]
 //added firstTime input so we'll know if we need to reset our skill point totals or not.
-void G_InitSessionData( gclient_t *client, char *userinfo, qboolean isBot, qboolean firstTime);
+void G_InitSessionData( gclient_t *client, char *userinfo, qboolean isBot, qboolean firstTime );
 //[/ExpSys]
 
 void G_InitWorldSession( void );
@@ -1743,7 +1739,6 @@ int		InFieldOfVision	( vec3_t viewangles, float fov, vec3_t angles);
 void B_InitAlloc(void);
 void B_CleanupAlloc(void);
 
-
 //[TABBot]
 typedef enum {
 	//Use the JKA Default bot system.
@@ -1759,7 +1754,6 @@ typedef enum {
 	//[/Hybrid]
 };
 //[/TABBot]
-
 
 //bot settings
 typedef struct bot_settings_s
@@ -2382,6 +2376,5 @@ void EnableStackTrace(void);
 void DisableStackTrace(void);
 void G_ShutdownGame( int restart );
 //[/CrashLog]
-
 
 #include "../namespace_end.h"

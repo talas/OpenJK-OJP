@@ -477,7 +477,6 @@ void AddScore( gentity_t *ent, vec3_t origin, int score )
 	if ( g_gametype.integer == GT_TEAM && !g_dontPenalizeTeam )
 		level.teamScores[ ent->client->ps.persistant[PERS_TEAM] ] += score;
 	CalculateRanks();
-
 }
 
 /*
@@ -2395,7 +2394,6 @@ void G_BroadcastObit( gentity_t *self, gentity_t *inflictor, gentity_t *attacker
 	}
 }
 
-
 /*
 ==================
 player_die
@@ -2423,7 +2421,6 @@ extern void BubbleShield_TurnOff(gentity_t *self);
 void AddFatigueKillBonus( gentity_t *attacker, gentity_t *victim );
 //[/SaberSys]
 void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath ) {
-
 	int			anim;
 	int			contents;
 	int			killer;
@@ -2465,7 +2462,6 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 	//check player stuff
 	g_dontFrickinCheck = qfalse;
-	
 
 	//[LastManStanding]
 	//[Coop]
@@ -3274,7 +3270,6 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 
 			self->client->ps.pm_type = sPMType;
 
-
 			//[FullDismemberment]
 			//weapon dismemberment so saber isn't the only one :)
 			if (meansOfDeath == MOD_SABER || (meansOfDeath == MOD_TURBLAST) || (meansOfDeath == MOD_FLECHETTE) || (meansOfDeath == MOD_FLECHETTE_ALT_SPLASH) || (meansOfDeath == MOD_CONC_ALT) || (meansOfDeath == MOD_THERMAL_SPLASH) || (meansOfDeath == MOD_TRIP_MINE_SPLASH) || (meansOfDeath == MOD_TIMED_MINE_SPLASH) || (meansOfDeath == MOD_TELEFRAG) || (meansOfDeath == MOD_CRUSH) || (meansOfDeath == MOD_MELEE && G_HeavyMelee( attacker )) )//saber or heavy melee (claws)
@@ -3584,7 +3579,6 @@ void G_ApplyKnockback( gentity_t *targ, vec3_t newDir, float knockback )
 	}
 }
 
-
 //[KnockdownSys]
 static int G_CheckForLedge( gentity_t *self, vec3_t fallCheckDir, float checkDist )
 {//racc - this function checks to see if there is a ledge/cliff/empty in fallCheckDir @ checkDist away from the player.
@@ -3616,7 +3610,6 @@ static int G_CheckForLedge( gentity_t *self, vec3_t fallCheckDir, float checkDis
 	return 0;
 }
 //[/KnockdownSys]
-
 
 /*
 ================
@@ -4781,8 +4774,7 @@ void G_CheckForDismemberment(gentity_t *ent, gentity_t *enemy, vec3_t point, int
 	else
 	{
 		//[BUGFIX12]
-		if (d_saberGhoul2Collision.integer && ent->client 
-			&& ent->client->g2LastSurfaceTime == level.time
+		if (d_saberGhoul2Collision.integer && ent->client && ent->client->g2LastSurfaceTime == level.time
 			&& ent->client->g2LastSurfaceModel == G2MODEL_PLAYER)
 		//[/BUGFIX12]
 		{
@@ -4953,12 +4945,10 @@ void G_LocationBasedDamageModifier(gentity_t *ent, vec3_t point, int mod, int df
 	}
 
 	//[BugFix12]
-	if ((d_saberGhoul2Collision.integer && ent->client 
-		&& ent->client->g2LastSurfaceTime == level.time
+	if ((d_saberGhoul2Collision.integer && ent->client && ent->client->g2LastSurfaceTime == level.time
 		&& ent->client->g2LastSurfaceModel == G2MODEL_PLAYER
 		&& mod == MOD_SABER) || //using ghoul2 collision? Then if the mod is a saber we should have surface data from the last hit (unless thrown).
-		(d_projectileGhoul2Collision.integer 
-		&& ent->client && ent->client->g2LastSurfaceModel == G2MODEL_PLAYER
+		(d_projectileGhoul2Collision.integer && ent->client && ent->client->g2LastSurfaceModel == G2MODEL_PLAYER
 		&& ent->client->g2LastSurfaceTime == level.time)) //It's safe to assume we died from the projectile that just set our surface index. So, go ahead and use that as the surf I guess.
 	//[/BugFix12]
 	{
@@ -5175,7 +5165,6 @@ void G_Knockdown( gentity_t *self, gentity_t *attacker, const vec3_t pushDir, fl
 	}
 }
 //[/KnockdownSys]
-
 
 void G_ApplyVehicleOtherKiller( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, int mod, qboolean vehicleDying )
 {
@@ -5949,7 +5938,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 				//racc - I'm still adding in the model index check incase there's another
 				//model attached (like a pilot or something
 				if ( targ->client && targ->client->g2LastSurfaceModel == G2MODEL_PLAYER
-					&& targ->client->g2LastSurfaceTime == level.time )
+					&& targ->client->g2LastSurfaceTime == level.time)
 				//[/BugFix12]
 				{
 					char hitSurface[MAX_QPATH];

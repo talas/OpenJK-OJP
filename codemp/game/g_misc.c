@@ -35,8 +35,7 @@ Used as a positional target for calculations in the utilities (spotlights, etc),
 
 LIGHT - If this info_null is only targeted by a non-switchable light (a light without a targetname), it does NOT spawn in at all and doesn't count towards the # of entities on the map, even at map spawn/load
 */
-void SP_info_null( gentity_t *self ) 
-{
+void SP_info_null( gentity_t *self ) {
 	if ( (self->spawnflags&1) )
 	{//only used as a light target, so bugger off
 	G_FreeEntity( self );
@@ -425,7 +424,8 @@ void SP_misc_gas_tank( gentity_t *ent )
 			it for models with stupid origins that go below the
 			ground and whatnot.
 
-loaded as a model in the renderer - does not take up precious bsp space!
+loaded as a model in the renderer - does not take up precious
+bsp space!
 */
 void SP_misc_model_static(gentity_t *ent)
 {
@@ -1940,7 +1940,8 @@ void ammo_power_converter_use( gentity_t *self, gentity_t *other, gentity_t *act
 		if (self->count)	// Has it got any power left?
 		{
 			int i = AMMO_BLASTER;
-			for ( i = AMMO_BLASTER ; i < AMMO_MAX ; i++ ) {
+			for ( i = AMMO_BLASTER ; i < AMMO_MAX ; i++ )
+			{
 				if ( i == AMMO_EMPLACED ) continue; // screw you emplaced
 
 				if ( !HasValidWeaponThatUsesAmmo(activator, i) ) continue;
@@ -3534,7 +3535,6 @@ void misc_weapon_shooter_fire( gentity_t *self )
 	}
 }
 
-
 void misc_weapon_shooter_use ( gentity_t *self, gentity_t *other, gentity_t *activator )
 {
 	if ( self->think == misc_weapon_shooter_fire )
@@ -3550,7 +3550,6 @@ void misc_weapon_shooter_use ( gentity_t *self, gentity_t *other, gentity_t *act
 	//otherwise, fire
 	misc_weapon_shooter_fire( self );
 }
-
 
 void misc_weapon_shooter_aim( gentity_t *self )
 {
@@ -3577,7 +3576,6 @@ void misc_weapon_shooter_aim( gentity_t *self )
 		}
 	}
 }
-
 
 #include "../namespace_begin.h"
 extern stringID_table_t WPTable[];

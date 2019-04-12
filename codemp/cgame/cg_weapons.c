@@ -401,7 +401,7 @@ The main player will have this called for BOTH cases, so effects like light and
 sound should only be done on the world model case.
 =============
 */
-void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent, int team, vec3_t newAngles, qboolean thirdPerson,qboolean leftweap ) {
+void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent, int team, vec3_t newAngles, qboolean thirdPerson, qboolean leftweap ) {
 	refEntity_t	gun;
 	refEntity_t	barrel;
 	vec3_t		angles;
@@ -513,7 +513,7 @@ Ghoul2 Insert Start
 				angles[ROLL] = 0;
 
 				AnglesToAxis( angles, barrel.axis );
-				
+
 				if (i == 0)
 				{
 					CG_PositionRotatedEntityOnTag( &barrel, parent/*&gun*/, /*weapon->weaponModel*/weapon->handsModel, "tag_barrel" );
@@ -692,8 +692,8 @@ Ghoul2 Insert End
 	}
 
 	//[TrueView]
-	if ( ps || cg.renderingThirdPerson || cg_trueguns.integer 
-		|| cent->currentState.number != cg.predictedPlayerState.clientNum ) 
+	if ( ps || cg.renderingThirdPerson || cg_trueguns.integer ||
+			cent->currentState.number != cg.predictedPlayerState.clientNum ) 
 	//[/TrueView]
 	{	// Make sure we don't do the thirdperson model effects for the local player if we're in first person
 		vec3_t flashorigin, flashdir;
@@ -750,7 +750,7 @@ Ghoul2 Insert End
 					}
 				}
 			}
-			else	
+			else
 			{	// Regular firing
 				if (weapon->muzzleEffect && (cg.predictedPlayerState.weapon != WP_FLECHETTE || cg.predictedPlayerState.weapon == WP_FLECHETTE && cg.predictedPlayerState.weaponTime == 100000))
 				{
@@ -1167,7 +1167,6 @@ static qboolean CG_WeaponSelectable( int i ) {
 		return qfalse;
 	}
 	//[/Reload]
-	
 
 	if (i == WP_DET_PACK && cg.predictedPlayerState.ammo[weaponData[i].ammoIndex] < 1 &&
 		!cg.predictedPlayerState.hasDetPackPlanted)
@@ -1888,7 +1887,6 @@ The current weapon has just run out of ammo
 */
 void CG_OutOfAmmoChange( int oldWeapon )
 {
-
 	int		i;
 
 	return;
@@ -1915,7 +1913,6 @@ void CG_OutOfAmmoChange( int oldWeapon )
 	}
 
 	trap_S_MuteSound(cg.snap->ps.clientNum, CHAN_WEAPON);
-
 }
 
 
@@ -1968,7 +1965,6 @@ void CG_FireWeapon( centity_t *cent, qboolean altFire ) {
 	if ( ent->weapon == WP_NONE ) {
 		return;
 	}
-
 	if(!altFire && ent->weapon == WP_FLECHETTE && cg.predictedPlayerState.weaponTime != 100000)
 		return;
 
@@ -1985,10 +1981,10 @@ void CG_FireWeapon( centity_t *cent, qboolean altFire ) {
 	if (cg.predictedPlayerState.clientNum == cent->currentState.number)
 	{
 		if ((ent->weapon == WP_BRYAR_PISTOL && altFire) ||
-				(ent->weapon == WP_BRYAR_OLD && altFire) ||
-				(ent->weapon == WP_BOWCASTER && !altFire) ||	
-				(ent->weapon == WP_DEMP2 && altFire)
-				|| mishap >= 5)
+			(ent->weapon == WP_BRYAR_OLD && altFire) ||
+			(ent->weapon == WP_BOWCASTER && !altFire) ||
+			(ent->weapon == WP_DEMP2 && altFire) ||
+			mishap >= 5)
 		{
 			float val = ( cg.time - cent->currentState.constantLight ) * 0.001f;
 
@@ -2008,6 +2004,7 @@ void CG_FireWeapon( centity_t *cent, qboolean altFire ) {
 				val = 4;
 			else if(mishap > 14)
 				val = 6;
+
 			CGCam_Shake( val, 250 );
 		}
 		else if (ent->weapon == WP_ROCKET_LAUNCHER ||
@@ -2679,7 +2676,6 @@ void *CG_G2HolsterWeaponInstance(centity_t *cent, int weapon, qboolean secondSab
 }
 //[/VisualWeapons]
 
-
 // what ghoul2 model do we want to copy ?
 void CG_CopyG2WeaponInstance(centity_t *cent, int weaponNum, void *toGhoul2)
 {
@@ -2776,7 +2772,6 @@ void CG_CopyG2WeaponInstance(centity_t *cent, int weaponNum, void *toGhoul2)
 		}
 	}
 	//[/CoOp]
-	
 }
 
 void CG_CheckPlayerG2Weapons(playerState_t *ps, centity_t *cent) 

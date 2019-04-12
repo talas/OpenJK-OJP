@@ -83,6 +83,7 @@ typedef enum
 	CLASS_PLAYER,
 	CLASS_TUSKEN,
 	//[/CoOp]
+	
 	CLASS_NUM_CLASSES
 } class_t;
 

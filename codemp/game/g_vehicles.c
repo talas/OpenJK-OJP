@@ -1773,6 +1773,7 @@ static bool Update( Vehicle_t *pVeh, const usercmd_t *pUmcd )
 	int halfMaxSpeed;
 	playerState_t *parentPS;
 	qboolean linkHeld = qfalse;
+
 	//ROP VEHICLE_IMP START
 	int iShieldCheck;
 	qboolean bShieldsDisabled = qfalse;

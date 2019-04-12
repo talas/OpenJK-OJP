@@ -264,7 +264,6 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 	}
 	//ROP VEHICLE_IMP END
 
-
 	if (parentPS->stats[STAT_HEALTH] <= 0)
 	{ //don't keep moving while you're dying!
 		parentPS->speed = 0;

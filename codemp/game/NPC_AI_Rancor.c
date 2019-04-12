@@ -811,7 +811,6 @@ void NPC_Rancor_Pain( gentity_t *self, gentity_t *attacker, int damage )
 						{
 							NPC_SetAnim( self, SETANIM_BOTH, BOTH_PAIN1, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD );
 						}
-						
 						//[CoOp] SP Code
 						TIMER_Set( self, "takingPain", self->client->ps.legsTimer+Q_irand(0, 500*(2-g_spskill.integer)) );
 						//[CoOp]

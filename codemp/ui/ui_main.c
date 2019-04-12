@@ -703,7 +703,7 @@ int	uiHoldSkinColor=TEAM_FREE;	// Stores the skin color so that in non-team game
 static const serverFilter_t serverFilters[] = {
 	//[SERVERFILTERS]
 	//since OJP Enhanced only works with OJP Enhanced servers, only show them.
-	{"OJP_MENUS_OJP_ENHANCED", "ojpenhanced"},
+	{"OJP_MENUS_OJP_ENHANCED", "ojpenhanced" },
 	//[/SERVERFILTERS]
 };
 static const int numServerFilters = sizeof(serverFilters) / sizeof(serverFilter_t);
@@ -1561,7 +1561,6 @@ void UI_ParseMenu(const char *menuFile) {
 	trap_PC_FreeSource(handle);
 }
 
-
 //[CoOp]
 void UI_LoadSingleMenuFile(const char *menuFile)
 {//load in a single menu file
@@ -1570,7 +1569,6 @@ void UI_LoadSingleMenuFile(const char *menuFile)
 	trap_PC_RemoveAllGlobalDefines ( );  //Close globaldefines.
 }
 //[/CoOp]
-
 
 qboolean Load_Menu(int handle) {
 	pc_token_t token;
@@ -1612,12 +1610,9 @@ void UI_LoadMenus(const char *menuFile, qboolean reset) {
 	if (!handle) {
 		Com_Printf( S_COLOR_YELLOW "menu file not found: %s, using default\n", menuFile );
 		handle = trap_PC_LoadSource( "ui/jampmenus.txt" );
-		
 		if (!handle) {
 			trap_Error( va( S_COLOR_RED "default menu file not found: ui/menus.txt, unable to continue!\n", menuFile ) );
-			
 		}
-		
 	}
 
 	if (reset) {
@@ -2951,7 +2946,6 @@ static int UI_OwnerDrawWidth(int ownerDraw, float scale) {
 		}
 		//[/ExpSys]
 		break;
-
     case UI_CLANNAME:
 				s = UI_Cvar_VariableString("ui_teamName");
       break;
@@ -3075,6 +3069,7 @@ static int UI_OwnerDrawWidth(int ownerDraw, float scale) {
       break;
   }
 }
+
 	if (s) {
 		return Text_Width(s, scale, 0);
 	}
@@ -5957,6 +5952,7 @@ char *saberStaffHiltInfo [MAX_SABER_HILTS];
 qboolean UI_SaberProperNameForSaber( const char *saberName, char *saberProperName );
 void UI_SaberGetHiltInfo( char *singleHilts[MAX_SABER_HILTS],char *staffHilts[MAX_SABER_HILTS] );
 
+
 static void UI_UpdateCharacter( qboolean changedModel )
 {
 	menuDef_t *menu;
@@ -6334,7 +6330,6 @@ static void UI_RunMenuScript(char **args)
 			//allow team bot selection in CoOp Games.
 			if (trap_Cvar_VariableValue("g_gametype") >= GT_SINGLE_PLAYER) {
 			//[/CoOp]
-				
 				trap_Cmd_ExecuteText( EXEC_APPEND, va("addbot \"%s\" %i %s 0 \"%s\" %i\n", UI_GetBotNameByNumber(uiInfo.botIndex), uiInfo.skillIndex+1, (uiInfo.redBlue == 0) ? "Red" : "Blue", UI_GetBotNameByNumber(uiInfo.botIndex), bottype) );
 			} else {
 				trap_Cmd_ExecuteText( EXEC_APPEND, va("addbot \"%s\" %i %s 0 \"%s\" %i\n", UI_GetBotNameByNumber(uiInfo.botIndex), uiInfo.skillIndex+1, (uiInfo.redBlue == 0) ? "Red" : "Blue", UI_GetBotNameByNumber(uiInfo.botIndex), bottype) );
@@ -8395,7 +8390,6 @@ static int UI_FeederCount(float feederID)
 
 		case FEEDER_SIEGE_BASE_CLASS:		
 			team = (int)trap_Cvar_VariableValue("ui_team");
-			
 			//[SIEGECVARFIX]
 			baseClass = (int)siege_Cvar_VariableValue("ui_siege_class");
 			//[/SIEGECVARFIX]
@@ -10016,6 +10010,7 @@ static qboolean bIsImageFile(const char* dirptr, const char* skinname)
 {
 	char fpath[MAX_QPATH];
 	int f;
+
 	Com_sprintf(fpath, MAX_QPATH, "models/players/%s/icon_%s.jpg", dirptr, skinname);
 	trap_FS_FOpenFile(fpath, &f, FS_READ);
 #if defined(_DEBUG)
@@ -10378,8 +10373,6 @@ static void UI_BuildPlayerModel_List( qboolean inGameLoad )
 	}	
 
 }
-
-
 
 /*
 =================

@@ -889,7 +889,6 @@ qboolean NPC_ClearPathToGoal( vec3_t dir, gentity_t *goal )
 	return qfalse;
 }
 
-
 //[CoOp]
 qboolean NAV_DirSafe( gentity_t *self, vec3_t dir, float dist )
 {//check to see if this NPC can move in the given direction and distance.

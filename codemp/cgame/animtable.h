@@ -1429,7 +1429,6 @@ stringID_table_t animTable [MAX_ANIMATIONS+1] =
 	ENUM2STRING(BOTH_GETUP_FROLL_R),	//#
 	ENUM2STRING(BOTH_WALL_FLIP_BACK1),	//#
 	ENUM2STRING(BOTH_WALL_FLIP_BACK2),	//#
-
 	ENUM2STRING(BOTH_SPIN1),				//#
 	ENUM2STRING(BOTH_CEILING_CLING),		//# clinging to ceiling
 	ENUM2STRING(BOTH_CEILING_DROP),		//# dropping from ceiling cling
@@ -1728,7 +1727,7 @@ stringID_table_t animTable [MAX_ANIMATIONS+1] =
 	//New anim as per Jarrod's request
 	ENUM2STRING(LEGS_TURN180),
 
-		//[LedgeGrab]
+	//[LedgeGrab]
 	ENUM2STRING(BOTH_LEDGE_GRAB), //grabbing ledge
 	ENUM2STRING(BOTH_LEDGE_HOLD), //Idle ledge hold frame
 	ENUM2STRING(BOTH_LEDGE_LEFT), //Ledge shimmy left
@@ -1741,7 +1740,6 @@ stringID_table_t animTable [MAX_ANIMATIONS+1] =
 	ENUM2STRING(BOTH_SABERTAVION_STANCE),
 	ENUM2STRING(BOTH_SABERDESANN_STANCE),
 	//[/SaberSys]
-	
 
 	//======================================================
 	//cinematic anims
@@ -1800,7 +1798,8 @@ stringID_table_t animTable [MAX_ANIMATIONS+1] =
 	ENUM2STRING(BOTH_CIN_50),		//# Level specific cinematic
 	ENUM2STRING(BOTH_P1_S1_B_),		//[backblock]
 	ENUM2STRING(BOTH_P6_S1_B_),		//[backblock]
-	ENUM2STRING(BOTH_P7_S1_B_),		//[backblock]	
+	ENUM2STRING(BOTH_P7_S1_B_),		//[backblock]
+										
 	//must be terminated
 	NULL,-1
 };

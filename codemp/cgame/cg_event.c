@@ -455,9 +455,8 @@ clientkilled:
 	// check for double client messages
 	if ( !attackerInfo ) {
 		//attacker = ENTITYNUM_WORLD;
-
 		//[ImprovedObituary]
-		strcpy(attackerName, GetStringForID( NPCClasses, cg_entities[attacker].currentState.NPC_class ));
+		strcpy( attackerName, GetStringForID( NPCClasses, cg_entities[attacker].currentState.NPC_class ));
 		//[/ImprovedObituary]
 	} else {
 		Q_strncpyz( attackerName, Info_ValueForKey( attackerInfo, "n" ), sizeof(attackerName) - 2);
@@ -2373,7 +2372,6 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		if(es->number == cg.snap->ps.clientNum && (cg.snap->ps.weapon == WP_DET_PACK || cg.snap->ps.weapon == WP_TRIP_MINE ||
 			cg.snap->ps.weapon == WP_THERMAL))
 		{
-			
 			if((cg.snap->ps.stats[STAT_WEAPONS] & ( 1 << WP_SABER)))
 				cg.weaponSelect = WP_SABER;
 			else
@@ -2932,9 +2930,9 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		{ //h4q3ry
 			//[DualPistols]
 			if (cent->currentState.eFlags & EF_DUAL_WEAPONS)
-				CG_GetClientWeaponMuzzleBoltPoint(cent->currentState.eventParm, cent->currentState.origin2,qtrue);
+				CG_GetClientWeaponMuzzleBoltPoint(cent->currentState.eventParm, cent->currentState.origin2, qtrue);
 			else
-				CG_GetClientWeaponMuzzleBoltPoint(cent->currentState.eventParm, cent->currentState.origin2,qfalse);
+				CG_GetClientWeaponMuzzleBoltPoint(cent->currentState.eventParm, cent->currentState.origin2, qfalse);
 			//[/DualPistols]
 		}
 		else
@@ -2954,9 +2952,9 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		{ //h4q3ry
 			//[DualPistols]
 			if (cent->currentState.eFlags & EF_DUAL_WEAPONS)
-				CG_GetClientWeaponMuzzleBoltPoint(cent->currentState.eventParm, cent->currentState.origin2,qtrue);
+				CG_GetClientWeaponMuzzleBoltPoint(cent->currentState.eventParm, cent->currentState.origin2, qtrue);
 			else
-				CG_GetClientWeaponMuzzleBoltPoint(cent->currentState.eventParm, cent->currentState.origin2,qfalse);
+				CG_GetClientWeaponMuzzleBoltPoint(cent->currentState.eventParm, cent->currentState.origin2, qfalse);
 			//[/DualPistols]
 		}
 		else
@@ -3993,7 +3991,6 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 
 	case EV_WEAPON_CHARGE_ALT:
 		DEBUGNAME("EV_WEAPON_CHARGE_ALT");
-
 		assert(es->eventParm > WP_NONE && es->eventParm < WP_NUM_WEAPONS);
 		if (cg_weapons[es->eventParm].altChargeSound)
 		{
@@ -4025,7 +4022,6 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		cg_entities[es->number].weapons = es->eventParm;
 		break;
 	//[/VisualWeapons]
-
 
 	default:
 		DEBUGNAME("UNKNOWN");

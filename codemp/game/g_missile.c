@@ -109,6 +109,7 @@ void G_DeflectMissile( gentity_t *ent, gentity_t *missile, vec3_t forward )
 
 	//save the original speed
 	speed = VectorNormalize( missile->s.pos.trDelta );
+
 	if (ent->client)
 	{
 		//VectorSubtract( ent->r.currentOrigin, missile->r.currentOrigin, missile_dir );
@@ -534,7 +535,7 @@ qboolean G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 		}
 	}
 	//ROP VEHICLE_IMP END
-	
+		
 	//[BoltBlockSys]
 	if (OJP_SaberCanBlock(other, ent, qfalse, trace->endpos, -1, -1))
 	/*
@@ -579,7 +580,6 @@ qboolean G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 			other->client->pers.cmd.forwardmove ||
 			other->client->pers.cmd.rightmove)
 			*//*
-
 		if (other->client->ps.velocity[2] > 0 ||
 			other->client->pers.cmd.forwardmove < 0) //now we only do it if jumping or running backward. Should be able to full-on charge.
 		{

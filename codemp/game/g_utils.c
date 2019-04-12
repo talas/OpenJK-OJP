@@ -713,7 +713,6 @@ void G_SpewEntList(void)
 {
 	int i = 0;
 	int numNPC = 0;
-
 	int numProjectile = 0;
 	int numTempEnt = 0;
 	int numTempEntST = 0;
@@ -793,7 +792,6 @@ void G_SpewEntList(void)
 	}
 #endif
 }
-
 
 //[NOBODYQUE]
 gentity_t *FindRemoveAbleGent(void)
@@ -1404,7 +1402,6 @@ gentity_t *G_PlayBoltedEffect( int fxID, gentity_t *owner, const char *bolt )
 }
 //[/Bolted effect]
 
-
 /*
 =============
 G_ScreenShake
@@ -1697,7 +1694,6 @@ qboolean TryHeal(gentity_t *ent, gentity_t *target)
 			else
 			{
 				G_SetAnim( ent, NULL, SETANIM_TORSO, BOTH_BUTTON_HOLD, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0 );
-
 			}
 
 			return qtrue;
@@ -2263,7 +2259,6 @@ qboolean G_ExpandPointToBBox( vec3_t point, const vec3_t mins, const vec3_t maxs
 	return qtrue;
 }
 
-
 //[SaberLockSys]
 // moved this to q_math.c so that it could be used for the new saber lock effects on the client side.
 #ifdef _DISABLED
@@ -2455,7 +2450,6 @@ void GetAnglesForDirection( const vec3_t p1, const vec3_t p2, vec3_t out )
 	VectorSubtract( p2, p1, v );
 	vectoangles( v, out );
 }
-
 
 //[AdminSys]
 void TextWrapCenterPrint(char orgtext[CENTERPRINT_MAXSTRING], char output[CENTERPRINT_MAXSTRING])

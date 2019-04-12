@@ -670,7 +670,7 @@ void G_AddRandomBot( int team ) {
 			}
 		}
 	}
-} 
+}
 
 /*
 ===============
@@ -843,7 +843,6 @@ void G_CheckMinimumPlayers( void ) {
 	checkminimumplayers_time = level.time;
 	trap_Cvar_Update(&bot_minplayers);
 	minplayers = bot_minplayers.integer;
-
 	//[BotTweaks]	
 	//MJN - All that new fancy bot auto limiting code. :)
 	if(g_allowBotLimit.integer == 0)

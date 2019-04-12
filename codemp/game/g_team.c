@@ -836,7 +836,6 @@ int Team_TouchOurFlag( gentity_t *ent, gentity_t *other, int team ) {
 
 	CalculateRanks();
 
-
 	return 0; // Do not respawn this automatically
 }
 
@@ -1078,7 +1077,6 @@ gentity_t *SelectCTFSpawnPoint ( team_t team, int teamstate, vec3_t origin, vec3
 	return spot;
 }
 
-
 //[CoOp]
 static vec3_t	playerMins = {-15, -15, DEFAULT_MINS_2};
 static vec3_t	playerMaxs = {15, 15, DEFAULT_MAXS_2};
@@ -1226,7 +1224,6 @@ gentity_t *SelectSPSpawnPoint( vec3_t origin, vec3_t angles )
 	return bestspot;
 }
 //[/CoOp]
-
 
 /*
 ===========
@@ -1435,7 +1432,6 @@ Targets will be fired when someone spawns in on them.
 */
 void SP_team_CTF_bluespawn(gentity_t *ent) {
 }
-
 
 //[AdminSys]
 int OJP_PointSpread(void)

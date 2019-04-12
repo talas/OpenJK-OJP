@@ -26,6 +26,7 @@ extern qboolean BG_FullBodyTauntAnim( int anim );
 extern float PM_WalkableGroundDistance(void);
 extern qboolean PM_GroundSlideOkay( float zNormal );
 extern saberInfo_t *BG_MySaber( int clientNum, int saberNum );
+
 pmove_t		*pm;
 pml_t		pml;
 
@@ -377,7 +378,6 @@ int PM_GetSaberStance(void)
 		anim = BOTH_SABERDESANN_STANCE;
 		break;
 	//[/SaberSys]
-
 	case SS_NONE:
 	case SS_MEDIUM:
 	//[SaberSys]
@@ -551,7 +551,6 @@ void PM_SetSpecialMoveValues (void)
 		}
 	}
 }
-
 
 //[CoOp] 
 #ifdef QAGAME
@@ -1178,7 +1177,7 @@ static void PM_Friction( void ) {
 	bgEntity_t *pEnt = NULL;
 	
 	vel = pm->ps->velocity;
-
+	
 	VectorCopy( vel, vec );
 	if ( pml.walking ) {
 		vec[2] = 0;	// ignore slope movement
@@ -1334,7 +1333,6 @@ static void PM_Accelerate( vec3_t wishdir, float wishspeed, float accel )
 		for (i=0 ; i<3 ; i++) {
 			pm->ps->velocity[i] += accelspeed*wishdir[i];	
 		}
-
 	}
 	else
 	{ //use the proper way for siege
@@ -1463,7 +1461,7 @@ qboolean PM_ForceJumpingUp(void)
 
 	if (!BG_CanUseFPNow(pm->gametype, pm->ps, pm->cmd.serverTime, FP_LEVITATION))
 	{
-  		return qfalse;
+		return qfalse;
 	}
 
 	if ( pm->ps->groundEntityNum == ENTITYNUM_NONE && //in air
@@ -1932,7 +1930,6 @@ qboolean PM_AdjustAngleForWallJump( playerState_t *ps, usercmd_t *ucmd, qboolean
 	ps->pm_flags &= ~PMF_STUCK_TO_WALL;
 	return qfalse;
 }
-
 
 //[LedgeGrab]
 //The height level at which you grab ledges.  In terms of player origin
@@ -2463,6 +2460,7 @@ static qboolean PM_CheckJump( void )
 	{
 		pm->ps->fd.forcePowersActive &= ~(1<<FP_LEVITATION);
 	}
+
 	if (pm->ps->fd.forcePowersActive & (1 << FP_LEVITATION))
 	{ //Force jump is already active.. continue draining power appropriately until we land.
 		if (pm->ps->fd.forcePowerDebounce[FP_LEVITATION] < pm->cmd.serverTime)
@@ -2569,7 +2567,7 @@ static qboolean PM_CheckJump( void )
 				//check for max force jump level and cap off & cut z vel
 				if ( ( curHeight<=forceJumpHeight[0] ||//still below minimum jump height
 						(pm->ps->fd.forcePower&&pm->cmd.upmove>=10) ) &&////still have force power available and still trying to jump up 
-						curHeight < forceJumpHeight[pm->ps->fd.forcePowerLevel[FP_LEVITATION]]-JumpHeightDeduction() &&//[Weight]
+					curHeight < forceJumpHeight[pm->ps->fd.forcePowerLevel[FP_LEVITATION]]-JumpHeightDeduction() &&//[Weight]
 					pm->ps->fd.forceJumpZStart)//still below maximum jump height
 				{//can still go up
 					if ( curHeight > forceJumpHeight[0] )
@@ -2700,7 +2698,6 @@ static qboolean PM_CheckJump( void )
 					pm->ps->velocity[2] += JUMP_VELOCITY;
 					pm->ps->velocity[2]+=150;
 					pm->ps->pm_flags |= PMF_JUMP_HELD;
-					
 				}
 				else if ( curHeight > forceJumpHeight[0] && curHeight < forceJumpHeight[pm->ps->fd.forcePowerLevel[FP_LEVITATION]] - forceJumpHeight[0] )
 				{//still have some headroom, don't totally stop it
@@ -2848,7 +2845,6 @@ static qboolean PM_CheckJump( void )
 						vertPush = forceJumpStrength[FORCE_LEVEL_2]/2.25f;
 						anim = BOTH_WALL_FLIP_RIGHT;
 					}
-
 				}
 			}
 			else if ( pm->cmd.rightmove < 0 && pm->ps->fd.forcePowerLevel[FP_LEVITATION] > FORCE_LEVEL_1 )
@@ -3457,7 +3453,6 @@ static qboolean PM_CheckJump( void )
 	return qtrue;
 }
 
-
 //[LedgeGrab]
 qboolean LedgeTrace( trace_t *trace, vec3_t dir, float *lerpup, float *lerpfwd, float *lerpyaw)
 {//scan for for a ledge in the given direction
@@ -3520,7 +3515,6 @@ qboolean LedgeTrace( trace_t *trace, vec3_t dir, float *lerpup, float *lerpfwd, 
 }
 
 //check for ledge grab
-
 void PM_CheckGrab(void)
 {
 	vec3_t checkDir, traceTo, fwdAngles; 
@@ -3632,7 +3626,6 @@ void PM_CheckGrab(void)
 	pm->ps->weaponTime = pm->ps->legsTimer;
 }
 //[/LedgeGrab]
-
 
 /*
 =============
@@ -4011,7 +4004,8 @@ static void PM_AirMove( void ) {
 		} 
 		else 
 		{//some x/y movement
-			for (i=0 ; i<3 ; i++) {
+			for ( i = 0 ; i < 3 ; i++)
+			{
 				if(i==2)
 					wishvel[i] = scale * pml.forward[i]*pm->cmd.forwardmove + scale * pml.right[i]*pm->cmd.rightmove * 1.6;//[HeavyJetpack] -- Added * 1.5
 				else
@@ -4106,7 +4100,6 @@ static void PM_WalkMove( void ) {
 		PM_WaterMove();
 		return;
 	}
-
 
 	if (pm->ps->pm_type != PM_SPECTATOR)
 	{
@@ -4399,7 +4392,6 @@ static float PM_DamageForDelta( int delta )
 	return damage * 0.5f;
 }
 
-
 //since this function deals actual damage, only use game side.
 #ifdef QAGAME
 static void PM_CrashLandDamage( int damage ) 
@@ -4429,7 +4421,6 @@ static void PM_CrashLandDamage( int damage )
 	}
 }
 #endif
-
 
 static float PM_CrashLandDelta( vec3_t prev_vel, int waterlevel )
 {
@@ -4964,7 +4955,6 @@ static int PM_CorrectAllSolid( trace_t *trace ) {
 
 	return qfalse;
 }
-
 
 /*
 =============
@@ -6523,6 +6513,7 @@ static void PM_Footsteps( void ) {
 		}
 		return;
 	}
+	
 
 	footstep = qfalse;
 
@@ -7353,6 +7344,7 @@ void PM_RocketLock( float lockDist, qboolean vehicleLock )
 		pm->ps->rocketLockTime = -1;
 	}
 }
+
 //---------------------------------------
 static qboolean PM_DoChargedWeapons( qboolean vehicleRocketLock, bgEntity_t *veh )
 //---------------------------------------
@@ -7396,7 +7388,7 @@ static qboolean PM_DoChargedWeapons( qboolean vehicleRocketLock, bgEntity_t *veh
 
 			// alt-fire charges the weapon
 			//if ( pm->gametype == GT_SIEGE )
-			if (1 )
+			if (1)
 			{
 				//[PistolLevel3]
 #ifdef QAGAME
@@ -7408,8 +7400,7 @@ static qboolean PM_DoChargedWeapons( qboolean vehicleRocketLock, bgEntity_t *veh
 #else
 )
 #endif
-					//[/PistolLevel3]
-					
+				//[/PistolLevel3]
 				{
 					charging = qtrue;
 					altFire = qtrue;
@@ -7446,7 +7437,6 @@ static qboolean PM_DoChargedWeapons( qboolean vehicleRocketLock, bgEntity_t *veh
 			{
 				charging = qtrue;
 			}
-
 			break;
 		
 		//------------------
@@ -8031,7 +8021,6 @@ backAgain:
 				Anim = BOTH_VT_ATL_G;
 				break;
 			case BOTH_VS_ATF_G:
-
 				Anim = BOTH_VT_ATF_G;
 				break;
 			case BOTH_VS_IDLE_SL:
@@ -8058,7 +8047,6 @@ backAgain:
 		PM_SetAnim(SETANIM_BOTH, Anim, iFlags, iBlend);
 	}
 }
-
 
 //[SaberSys]
 void PM_DoPunch(void)
@@ -8356,7 +8344,7 @@ static void PM_Weapon( void )
 				}
 			}
 			else
-			{	
+			{
 				//[MELEE]
 				//Allow different animation for the headlock knockdown
 				if(pm->ps->torsoAnim == BOTH_PLAYER_PA_3_FLY &&
@@ -8642,8 +8630,7 @@ static void PM_Weapon( void )
 			}
 			return;
 		}
-	} else 
-	{
+	} else {
 		pm->ps->pm_flags &= ~PMF_USE_ITEM_HELD;
 	}
 
@@ -8699,7 +8686,8 @@ static void PM_Weapon( void )
 	amount = weaponData[pm->ps->weapon].energyPerShot;
 
 	// take an ammo away if not infinite
-	if ( pm->ps->weapon != WP_NONE && pm->ps->weapon == pm->cmd.weapon &&
+	if ( pm->ps->weapon != WP_NONE &&
+		pm->ps->weapon == pm->cmd.weapon &&
 		(pm->ps->weaponTime <= 0 || pm->ps->weaponstate != WEAPON_FIRING) )
 	{
 		if ( pm->ps->clientNum < MAX_CLIENTS && pm->ps->ammo[ weaponData[pm->ps->weapon].ammoIndex ] != -1 )
@@ -9267,7 +9255,6 @@ static void PM_Weapon( void )
 			PM_AddEvent( EV_FIRE_WEAPON );
 			addTime = weaponData[pm->ps->weapon].fireTime;
 		}
-
 		else
 		{
 			if (pm->ps->weapon != WP_MELEE ||
@@ -9284,7 +9271,6 @@ static void PM_Weapon( void )
 		{ //do not fire melee events at all when on vehicle
 			PM_AddEvent( EV_FIRE_WEAPON );
 		}
-
 		addTime = weaponData[pm->ps->weapon].fireTime;
 
 		//[BlasterRateOfFireUpgrade]
@@ -9753,7 +9739,8 @@ void PM_AdjustAttackStates( pmove_t *pm )
 		&&pm->ps->m_iVehicleNum)
 	{ //riding a vehicle
 		bgEntity_t *veh = pm_entVeh;
-		if ( veh && veh->m_pVehicle && (veh->m_pVehicle->m_pVehicleInfo->type == VH_WALKER || veh->m_pVehicle->m_pVehicleInfo->type == VH_FIGHTER) )
+		if ( veh &&
+			veh->m_pVehicle && (veh->m_pVehicle->m_pVehicleInfo->type == VH_WALKER || veh->m_pVehicle->m_pVehicleInfo->type == VH_FIGHTER) )
 		{//riding a walker/fighter
 			//not firing, ever
 			pm->ps->eFlags &= ~(EF_FIRING|EF_ALT_FIRING);
@@ -11257,10 +11244,9 @@ void BG_G2PlayerAngles(void *ghoul2, int motionBolt, entityState_t *cent, int ti
 
 	// allow yaw to drift a bit
 	//[DualPistols]
-	if ( (( cent->legsAnim ) != BOTH_STAND1) || 
+	if ((( cent->legsAnim ) != BOTH_STAND1) || 
 			( ( ( ( cent->torsoAnim ) != WeaponReadyAnim[cent->weapon] ) && !( cent->eFlags & EF_DUAL_WEAPONS) ) ||
-			( ( ( cent->torsoAnim ) != WeaponReadyAnim2[cent->weapon] ) && ( cent->eFlags & EF_DUAL_WEAPONS) ) )
-		)
+			( ( ( cent->torsoAnim ) != WeaponReadyAnim2[cent->weapon] ) && ( cent->eFlags & EF_DUAL_WEAPONS) ) ))
 	{
 	//[/DualPistols]
 		// if not standing still, always point all in the same direction
@@ -11853,7 +11839,6 @@ static ID_INLINE void PM_CmdForSaberMoves(usercmd_t *ucmd)
 		ucmd->rightmove = 0;
 	}
 	//[/DodgeSys]
-
 }
 
 //constrain him based on the angles of his vehicle and the caps
@@ -12389,7 +12374,6 @@ void PM_MoveForKata(usercmd_t *ucmd)
 	}
 }
 
-
 //[SaberSys]
 void PM_MoveLock( void )
 {
@@ -12777,6 +12761,7 @@ void PmoveSingle (pmove_t *pmove) {
 		pm->cmd.buttons &= ~BUTTON_ATTACK;
 		pm->cmd.buttons &= ~BUTTON_ALT_ATTACK;
 	}
+
 	if ( BG_InRoll( pm->ps, pm->ps->legsAnim ) )
 	{ //can't roll unless you're able to move normally
 		BG_CmdForRoll( pm->ps, pm->ps->legsAnim, &pm->cmd );
@@ -13020,7 +13005,7 @@ void PmoveSingle (pmove_t *pmove) {
 
 	// set mins, maxs, and viewheight
 	PM_CheckDuck ();
-	
+
 	if (pm->ps->pm_type == PM_JETPACK)
 	{
 		gDist = PM_GroundDistance();
@@ -13046,7 +13031,7 @@ void PmoveSingle (pmove_t *pmove) {
 		if (pm->cmd.rightmove > 0)
 		{
 			//[JetpackSys]
-  			PM_ContinueLegsAnim(BOTH_FORCEJUMPRIGHT1);
+			PM_ContinueLegsAnim(BOTH_FORCEJUMPRIGHT1);
 			//[/JetpackSys]
 		}
 		else if (pm->cmd.rightmove < 0)
@@ -13058,7 +13043,7 @@ void PmoveSingle (pmove_t *pmove) {
 		else if (pm->cmd.forwardmove > 0)
 		{
 			//[JetpackSys]
-  			PM_ContinueLegsAnim(BOTH_FORCELONGLEAP_START);
+			PM_ContinueLegsAnim(BOTH_FORCELONGLEAP_START);
 			//[/JetpackSys]
 		}
 		else if (pm->cmd.forwardmove < 0)
@@ -13437,7 +13422,7 @@ void PmoveSingle (pmove_t *pmove) {
 
 	if (!pm->ps->m_iVehicleNum //not a vehicle and not riding one
 		|| pm_entSelf->s.NPC_class==CLASS_VEHICLE //you are a vehicle NPC
-		|| (!(pm->ps->eFlags&EF_NODRAW)&&PM_WeaponOkOnVehicle(pm->cmd.weapon))) //you're not inside the vehicle and the weapon you're holding can be used when riding this vehicle
+		|| (!(pm->ps->eFlags&EF_NODRAW)&&PM_WeaponOkOnVehicle(pm->cmd.weapon)) )//you're not inside the vehicle and the weapon you're holding can be used when riding this vehicle
 	{ //only run weapons if a valid weapon is selected
 		// weapons
 		PM_Weapon();
@@ -13548,7 +13533,6 @@ void Pmove (pmove_t *pmove) {
 		}
 	}
 }
-
 
 //[KnockdownSys]
 int PM_MinGetUpTime( playerState_t *ps )

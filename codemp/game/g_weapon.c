@@ -1026,7 +1026,6 @@ void WP_DisruptorAltFire( gentity_t *ent )
 				int preLegs = 0;
 				int preTorso = 0;
 
-
 				if (traceEnt->client)
 				{
 					preLegs = traceEnt->client->ps.legsAnim;
@@ -1180,7 +1179,6 @@ static void WP_BowcasterMainFire( gentity_t *ent )
 		ent->client->ps.userInt2=dp;
 		// we don't want it to bounce
 		missile->bounceCount = 0;
-
 		missile->damageDecreaseTime = level.time + 300;
 }
 //[/Bowcaster]
@@ -1588,7 +1586,7 @@ FLECHETTE
 */
 
 //---------------------------------------------------------
-static void WP_FlechetteMainFire( gentity_t *ent,qboolean altFire )
+static void WP_FlechetteMainFire( gentity_t *ent, qboolean altFire )
 //---------------------------------------------------------
 {
 	int velocity	= FLECHETTE_VELOCITY;
@@ -1631,7 +1629,6 @@ void prox_mine_think( gentity_t *ent )
 	// if it isn't time to auto-explode, do a small proximity check
 	if ( ent->delay > level.time )
 	{
-
 		count = G_RadiusList( ent->r.currentOrigin, FLECHETTE_MINE_RADIUS_CHECK, ent, qtrue, ent_list );
 
 		for ( i = 0; i < count; i++ )
@@ -2763,6 +2760,7 @@ void WP_PlaceLaserTrap( gentity_t *ent, qboolean alt_fire )
 		}
 	}
 	*/
+
 	//now make the new one
 	CreateLaserTrap( laserTrap, start, ent );
 
@@ -2841,7 +2839,6 @@ void charge_stick (gentity_t *self, gentity_t *other, trace_t *trace)
 		vectoangles(vNor, self->s.angles);
 		vectoangles(vNor, self->s.apos.trBase);
 		self->touch = charge_stick;
-		
 		return;
 		*/
 	}
@@ -4681,7 +4678,6 @@ int SkillLevelforWeapon(gentity_t *ent, int weapon)
 }
 //[/WeapAccuracy]
 
-
 /*
 ===============
 FireWeapon
@@ -4694,8 +4690,7 @@ int BG_EmplacedView(vec3_t baseAngles, vec3_t angles, float *newYaw, float const
 //[WeapAccuracy]
 extern void G_AddMercBalance(gentity_t *self, int amount);
 //[/WeapAccuracy]
-void FireWeapon( gentity_t *ent, qboolean altFire ) 
-{
+void FireWeapon( gentity_t *ent, qboolean altFire ) {
 	//[CoOp]
 	float alert = 256;  //alert level for weapon alter events
 	//[/CoOp]
@@ -4852,7 +4847,7 @@ void FireWeapon( gentity_t *ent, qboolean altFire )
 
 		case WP_BRYAR_PISTOL:
 			//if ( g_gametype.integer == GT_SIEGE )
-			if (1) 
+			if (1)
 			{//allow alt-fire
 				WP_FireBryarPistol( ent, altFire );
 			}
@@ -5022,7 +5017,6 @@ static void WP_FireEmplaced( gentity_t *ent, qboolean altFire )
 
 	WP_FireEmplacedMissile( gun, gunpoint, dir, altFire, ent );
 }
-
 
 #define EMPLACED_CANRESPAWN 1
 

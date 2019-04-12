@@ -586,7 +586,6 @@ void BotInputToUserCommand(bot_input_t *bi, usercmd_t *ucmd, int delta_angles[3]
 	{
 		if (bi->actionflags & ACTION_FORCEPOWER) ucmd->buttons |= BUTTON_FORCEPOWER;
 	}
-		
 
 	//[TABBot]
 	//RAFIXME:  This is a hack to fix the hack that Raven did
@@ -1273,7 +1272,6 @@ qboolean BotPVSCheck( const vec3_t p1, const vec3_t p2 )
 	return trap_InPVS(p1, p2);
 }
 
-
 //get the index to the nearest visible waypoint in the global trail
 int GetNearestVisibleWP(vec3_t org, int ignore)
 {
@@ -1362,7 +1360,6 @@ int PassWayCheck(bot_state_t *bs, int windex)
 
 	return 1;
 }
-
 
 //tally up the distance between two waypoints
 float TotalTrailDistance(int start, int end, bot_state_t *bs)
@@ -1923,7 +1920,6 @@ int BotTrace_Duck(bot_state_t *bs, vec3_t traceto)
 
 	return 0;
 }
-
 
 //[BotTweaks]
 qboolean G_ThereIsAMaster(void);
@@ -5477,7 +5473,7 @@ int BotSelectChoiceWeapon(bot_state_t *bs, int weapon, int doselection)
 		//[TABBot]
 		//Fixing this so you can select zero ammo weapons (like the saber and melee weapons)
 		if (bs->cur_ps.ammo[weaponData[i].ammoIndex] >= weaponData[i].energyPerShot &&
-		//[TABBot]		
+		//[TABBot]
 			i == weapon &&
 			(bs->cur_ps.stats[STAT_WEAPONS] & (1 << i)))
 		{
@@ -5767,8 +5763,8 @@ int KeepPrimFromFiring(bot_state_t *bs)
 int AltFiring(bot_state_t *bs)
 {
 	//[SaberSys]
-		if (bs->cur_ps.weaponstate != WEAPON_CHARGING_ALT &&
-			(bs->doAltAttack || bs->doSaberThrow))
+	if (bs->cur_ps.weaponstate != WEAPON_CHARGING_ALT &&
+		(bs->doAltAttack || bs->doSaberThrow))
 	{
 		return 1;
 	}
@@ -5786,7 +5782,6 @@ int AltFiring(bot_state_t *bs)
 //should we keep our alt from firing?
 int KeepAltFromFiring(bot_state_t *bs)
 {
-	
 	//[SaberSys]
 	if (bs->cur_ps.weaponstate != WEAPON_CHARGING_ALT &&
 		(bs->doAltAttack || bs->doSaberThrow))
@@ -6196,7 +6191,6 @@ void Bot_SetForcedMovement(int bot, int forward, int right, int up)
 		}
 	}
 }
-
 
 //the main AI loop.
 //please don't be too frightened.
@@ -6625,7 +6619,6 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 		{
 			bs->forceWeaponSelect = 0;
 		}
-
 
 		if (bs->plantContinue > level.time)
 		{
@@ -7513,7 +7506,6 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 		if (meleestrafe && bs->meleeStrafeDisable < level.time)
 		{
 			StrafeTracing(bs);
-
 			//StrafeTracing() can boost this level
 			if(bs->meleeStrafeDisable < level.time)
 			{
@@ -7573,7 +7565,6 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 	}
 
 	if (bs->jumpHoldTime > level.time)
-
 	{
 		bs->jumpTime = bs->jumpHoldTime;
 	}
@@ -7818,11 +7809,9 @@ int BotAIStartFrame(int time) {
 		//[BotTweaks]
 		trap_Cvar_Update(&bot_fps);
 		//[/BotTweaks]
-
 		//[BotTweaks]
 		trap_Cvar_Update(&bot_wp_edit);
 		//[/BotTweaks]
-
 		gUpdateVars = level.time + 1000;
 	}
 

@@ -33,7 +33,6 @@ void NPC_Seeker_Precache(void)
 //------------------------------------
 void NPC_Seeker_Pain(gentity_t *self, gentity_t *attacker, int damage)
 {
-
 	if ( !(self->NPC->aiFlags&NPCAI_CUSTOM_GRAVITY ))
 	{//void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t dir, vec3_t point, int damage, int dflags, int mod, int hitLoc=HL_NONE );
 		//[CoOp]
@@ -58,11 +57,9 @@ void NPC_Seeker_Pain(gentity_t *self, gentity_t *attacker, int damage)
 	NPC_Pain( self, attacker, damage );
 }
 
-
 //[CoOp]
 extern float Q_flrand(float min, float max);
 //[/CoOp]
-
 //------------------------------------
 void Seeker_MaintainHeight( void )
 {	
@@ -285,7 +282,6 @@ void Seeker_Hunt( qboolean visible, qboolean advance )
 	}
 	//[/SeekerItemNpc]
 
-
 	// If we're not supposed to stand still, pursue the player
 	if ( NPCInfo->standTime < level.time )
 	{
@@ -425,7 +421,6 @@ qboolean Seeker_Fire( void )
 	//the seeker shouldnt shoot itself.
 	//wait... the silly thing wasnt shooting itself, but was out of ammo (and self destructed)!
 
-
 	return qtrue;
 }
 
@@ -472,7 +467,6 @@ void Seeker_Ranged( qboolean visible, qboolean advance )
 } 
 
 //------------------------------------
-
 void Seeker_Attack( void )
 {
 	float		distance;
@@ -517,7 +511,6 @@ void Seeker_Attack( void )
 			return;
 		}	
 		//[/SeekerItemNpc]
-
 	}
 
 	Seeker_Ranged( visible, advance );
@@ -600,7 +593,6 @@ void Seeker_FindEnemy( void )
 			best = ent;
 		}
 		//[/SeekerItemNpc]
-
 	}
 
 	if ( best )
@@ -631,7 +623,6 @@ void Seeker_FindEnemy( void )
 			NPC->fly_sound_debounce_time = -1;
 	}
 	//[/SeekerItemNpc]
-
 }
 
 //[CoOp]

@@ -251,7 +251,6 @@ void G_TestLine(vec3_t start, vec3_t end, int color, int time)
 	te->r.svFlags |= SVF_BROADCAST;
 }
 
-
 //[BotTweaks]
 extern vmCvar_t bot_wp_editornumber;
 //[/BotTweaks]
@@ -434,7 +433,6 @@ void TransferWPData(int from, int to)
 	gWPArray[to]->inuse = gWPArray[from]->inuse;
 	VectorCopy(gWPArray[from]->origin, gWPArray[to]->origin);
 }
-
 
 void CreateNewWP(vec3_t origin, int flags)
 {
@@ -2105,7 +2103,7 @@ int LoadPathData(const char *filename)
 		G_Printf(S_COLOR_YELLOW "Bot route data not found for %s\n", filename);
 		return 2;
 	}
-	
+
 	//[DynamicMemoryTweaks]
 	if (len >= WPARRAY_BUFFER_SIZE)
 	//[/DynamicMemoryTweaks]
