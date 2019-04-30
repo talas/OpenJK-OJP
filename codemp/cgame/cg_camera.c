@@ -99,7 +99,7 @@ void CGCam_Disable( void )
 	client_camera.info_state |= CAMERA_BAR_FADING;
 
 	//RAFIXME - what does this do?
-	//trap_SendClientCommand( "cts" );
+	//trap->SendClientCommand( "cts" );
 
 	//we just came out of camera, so update cg.refdef.vieworg out of the camera's origin so the snapshot will know our new ori
 	VectorCopy( cg.predictedPlayerState.origin, cg.refdef.vieworg);
@@ -358,8 +358,8 @@ void CGCam_SetFade( vec4_t dest )
 {//Instant completion
 	client_camera.info_state &= ~CAMERA_FADING;
 	client_camera.fade_duration = 0;
-	Vector4Copy( dest, client_camera.fade_source );
-	Vector4Copy( dest, client_camera.fade_color );
+	VectorCopy( dest, client_camera.fade_source );
+	VectorCopy( dest, client_camera.fade_color );
 }
 
 /*
@@ -376,8 +376,8 @@ void CGCam_Fade( vec4_t source, vec4_t dest, float duration )
 		return;
 	}
 
-	Vector4Copy( source, client_camera.fade_source );
-	Vector4Copy( dest, client_camera.fade_dest );
+	VectorCopy( source, client_camera.fade_source );
+	VectorCopy( dest, client_camera.fade_dest );
 
 	client_camera.fade_duration = duration;
 	client_camera.fade_time = cg.time;
@@ -695,12 +695,12 @@ void CGCam_FollowUpdate ( void )
 			|| fromCent->currentState.number < MAX_CLIENTS)
 			&& client_camera.cameraGroupTag && client_camera.cameraGroupTag[0] )
 		{
-			int newBolt = trap_G2API_AddBolt( &fromCent->ghoul2, 0, client_camera.cameraGroupTag );
+			int newBolt = trap->G2API_AddBolt( &fromCent->ghoul2, 0, client_camera.cameraGroupTag );
 			if ( newBolt != -1 )
 			{
 				mdxaBone_t	boltMatrix;
 
-				trap_G2API_GetBoltMatrix( &fromCent->ghoul2, 0, newBolt, &boltMatrix, fromCent->turAngles, fromCent->lerpOrigin, cg.time, cgs.gameModels, fromCent->modelScale );
+				trap->G2API_GetBoltMatrix( &fromCent->ghoul2, 0, newBolt, &boltMatrix, fromCent->turAngles, fromCent->lerpOrigin, cg.time, cgs.gameModels, fromCent->modelScale );
 				BG_GiveMeVectorFromMatrix( &boltMatrix, ORIGIN, focus[num_subjects] );
 
 				focused = qtrue;
@@ -743,7 +743,7 @@ void CGCam_FollowUpdate ( void )
 	if ( !num_subjects )	// Bad cameragroup 
 	{
 #ifndef FINAL_BUILD
-		CG_Printf(S_COLOR_RED"ERROR: Camera Focus unable to locate cameragroup: %s\n", client_camera.cameraGroup);
+		Com_Printf(S_COLOR_RED"ERROR: Camera Focus unable to locate cameragroup: %s\n", client_camera.cameraGroup);
 #endif
 		return;
 	}
@@ -1135,7 +1135,7 @@ void CGCam_UpdateFade( void )
 	{
 		if ( client_camera.fade_time + client_camera.fade_duration < cg.time )
 		{
-			Vector4Copy( client_camera.fade_dest, client_camera.fade_color );
+			VectorCopy( client_camera.fade_dest, client_camera.fade_color );
 			client_camera.info_state &= ~CAMERA_FADING;
 		}
 		else
@@ -1477,7 +1477,7 @@ void CGCam_UpdateShake( vec3_t origin, vec3_t angles )
 
 	for ( i = 0; i < 3; i++ )
 	{
-		moveDir[i] = ( crandom() * intensity );
+		moveDir[i] = ( Q_flrand(-1.0f, 1.0f) * intensity );
 	}
 
 	//FIXME: Lerp
@@ -1486,7 +1486,7 @@ void CGCam_UpdateShake( vec3_t origin, vec3_t angles )
 	VectorAdd( origin, moveDir, origin );
 
 	for ( i=0; i < 2; i++ ) // Don't do ROLL
-		moveDir[i] = ( crandom() * intensity );
+		moveDir[i] = ( Q_flrand(-1.0f, 1.0f) * intensity );
 
 	//FIXME: Lerp
 
@@ -2111,7 +2111,7 @@ void CG_CameraParse( void )
 	}
 	else
 	{
-		CG_Printf("Bad CS_CAMERA configstring in CG_CameraParse().\n");
+		Com_Printf("Bad CS_CAMERA configstring in CG_CameraParse().\n");
 	}
 }
 

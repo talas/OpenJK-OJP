@@ -1,3 +1,25 @@
+/*
+===========================================================================
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2015, OpenJK contributors
+
+This file is part of the OpenJK source code.
+
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
+*/
+
 //NPC_reactions.cpp
 #include "b_local.h"
 #include "anims.h"
@@ -14,7 +36,6 @@ extern qboolean Jedi_WaitingAmbush( gentity_t *self );
 extern void Jedi_Ambush( gentity_t *self );
 extern qboolean NPC_SomeoneLookingAtMe(gentity_t *ent);
 
-#include "../namespace_begin.h"
 extern qboolean BG_SaberInSpecialAttack( int anim );
 extern qboolean PM_SpinningSaberAnim( int anim );
 extern qboolean PM_SpinningAnim( int anim );
@@ -23,7 +44,6 @@ extern qboolean BG_FlippingAnim( int anim );
 extern qboolean PM_RollingAnim( int anim );
 extern qboolean PM_InCartwheel( int anim );
 extern qboolean BG_CrouchAnim( int anim );
-#include "../namespace_end.h"
 
 extern int	teamLastEnemyTime[];
 extern int killPlayerTimer;
@@ -44,19 +64,15 @@ static void NPC_CheckAttacker( gentity_t *other, int mod )
 	//FIXME: I don't see anything in here that would stop teammates from taking a teammate
 	//			as an enemy.  Ideally, there would be code before this to prevent that from
 	//			happening, but that is presumptuous.
-	
-	//valid ent - FIXME: a VALIDENT macro would be nice here
-	if ( !other )
+
+	if ( !VALIDENT( other ) )
 		return;
 
-	if ( other == NPC )
-		return;
-
-	if ( !other->inuse )
+	if ( other == NPCS.NPC )
 		return;
 
 	//Don't take a target that doesn't want to be
-	if ( other->flags & FL_NOTARGET ) 
+	if ( other->flags & FL_NOTARGET )
 		return;
 
 //	if ( NPC->svFlags & SVF_LOCKEDENEMY )
@@ -66,44 +82,46 @@ static void NPC_CheckAttacker( gentity_t *other, int mod )
 	//rwwFIXMEFIXME: support this
 
 	//If we haven't taken a target, just get mad
-	if ( NPC->enemy == NULL )//was using "other", fixed to NPC
+	if ( NPCS.NPC->enemy == NULL )//was using "other", fixed to NPC
 	{
-		G_SetEnemy( NPC, other );
+		G_SetEnemy( NPCS.NPC, other );
 		return;
 	}
 
 	//we have an enemy, see if he's dead
-	if ( NPC->enemy->health <= 0 )
+	if ( NPCS.NPC->enemy->health <= 0 )
 	{
-		G_ClearEnemy( NPC );
-		G_SetEnemy( NPC, other );
+		G_ClearEnemy( NPCS.NPC );
+		G_SetEnemy( NPCS.NPC, other );
 		return;
 	}
 
 	//Don't take the same enemy again
-	if ( other == NPC->enemy )
+	if ( other == NPCS.NPC->enemy )
 		return;
 
-	if ( NPC->client->ps.weapon == WP_SABER )
+	if ( NPCS.NPC->client->ps.weapon == WP_SABER )
 	{//I'm a jedi
 		if ( mod == MOD_SABER )
 		{//I was hit by a saber  FIXME: what if this was a thrown saber?
 			//always switch to this enemy if I'm a jedi and hit by another saber
-			G_ClearEnemy( NPC );
-			G_SetEnemy( NPC, other );
+			G_ClearEnemy( NPCS.NPC );
+			G_SetEnemy( NPCS.NPC, other );
 			return;
 		}
 	}
+
 	//[CoOp]
 	/* RAFIXME - this is weird stuff that needs to be fixed for MP.
 		//I think this might be for setting the player's look target.
+	//OJKFIXME: clientnum 0
 	//Special case player interactions
 	if ( other == &g_entities[0] )
 	{
 		//Account for the skill level to skew the results
 		float	luckThreshold;
 
-		switch ( g_spskill.integer )
+		switch ( g_npcspskill.integer )
 		{
 		//Easiest difficulty, mild chance of picking up the player
 		case 0:
@@ -123,10 +141,10 @@ static void NPC_CheckAttacker( gentity_t *other, int mod )
 		}
 
 		//Randomly pick up the target
-		if ( random() > luckThreshold )
+		if ( Q_flrand(0.0f, 1.0f) > luckThreshold )
 		{
 			G_ClearEnemy( other );
-			other->enemy = NPC;
+			other->enemy = NPCS.NPC;
 		}
 
 		return;
@@ -139,17 +157,13 @@ void NPC_SetPainEvent( gentity_t *self )
 {
 	if ( !self->NPC || !(self->NPC->aiFlags&NPCAI_DIE_ON_IMPACT) )
 	{
-	// no more borg
-	//	if( self->client->playerTeam != TEAM_BORG )
-	//	{
-			//if ( !Q3_TaskIDPending( self, TID_CHAN_VOICE ) )
-			if (!trap_ICARUS_TaskIDPending(self, TID_CHAN_VOICE) && self->client)
-			{
-				//G_AddEvent( self, EV_PAIN, floor((float)self->health/self->max_health*100.0f) );
-				G_AddEvent( self, EV_PAIN, floor((float)self->health/self->client->ps.stats[STAT_MAX_HEALTH]*100.0f) );
-				//rwwFIXMEFIXME: Do this properly?
-			}
-	//	}
+		//if ( !Q3_TaskIDPending( self, TID_CHAN_VOICE ) )
+		if (!trap->ICARUS_TaskIDPending((sharedEntity_t *)self, TID_CHAN_VOICE) && self->client)
+		{
+			//G_AddEvent( self, EV_PAIN, floor((float)self->health/self->max_health*100.0f) );
+			G_AddEvent( self, EV_PAIN, floor((float)self->health/self->client->ps.stats[STAT_MAX_HEALTH]*100.0f) );
+			//rwwFIXMEFIXME: Do this properly?
+		}
 	}
 }
 
@@ -179,7 +193,7 @@ float NPC_GetPainChance( gentity_t *self, int damage )
 	}
 
 	pain_chance = (float)(self->client->ps.stats[STAT_MAX_HEALTH]-self->health)/(self->client->ps.stats[STAT_MAX_HEALTH]*2.0f) + (float)damage/(self->client->ps.stats[STAT_MAX_HEALTH]/2.0f);
-	switch ( g_spskill.integer )
+	switch ( g_npcspskill.integer )
 	{
 	case 0:	//easy
 		//return 0.75f;
@@ -213,13 +227,13 @@ void NPC_ChoosePainAnimation( gentity_t *self, gentity_t *other, vec3_t point, i
 {
 	int		pain_anim = -1;
 	float	pain_chance;
-	
+
 	//If we've already taken pain, then don't take it again
 	if ( level.time < self->painDebounceTime && /*mod != MOD_ELECTROCUTE &&*/ mod != MOD_MELEE ) //rwwFIXMEFIXME: MOD_ELECTROCUTE
 	{//FIXME: if hit while recoving from losing a saber lock, we should still play a pain anim?
 		return;
 	}
-	
+
 	if ( self->s.weapon == WP_THERMAL && self->client->ps.weaponTime > 0 )
 	{//don't interrupt thermal throwing anim
 		return;
@@ -251,9 +265,9 @@ void NPC_ChoosePainAnimation( gentity_t *self, gentity_t *other, vec3_t point, i
 	{//ally shot by player always complains
 		pain_chance = 1.1f;
 	}
-	else 
+	else
 	{
-		if ( other && other->s.weapon == WP_SABER || /*mod == MOD_ELECTROCUTE ||*/ mod == MOD_CRUSH/*FIXME:MOD_FORCE_GRIP*/ )
+		if ( other && (other->s.weapon == WP_SABER || /*mod == MOD_ELECTROCUTE ||*/ mod == MOD_CRUSH/*FIXME:MOD_FORCE_GRIP*/ ) )
 		{
 			pain_chance = 1.0f;//always take pain from saber
 		}
@@ -276,7 +290,7 @@ void NPC_ChoosePainAnimation( gentity_t *self, gentity_t *other, vec3_t point, i
 	}
 
 	//See if we're going to flinch
-	if ( random() < pain_chance )
+	if ( Q_flrand(0.0f, 1.0f) < pain_chance )
 	{
 		int animLength;
 
@@ -290,6 +304,7 @@ void NPC_ChoosePainAnimation( gentity_t *self, gentity_t *other, vec3_t point, i
 				|| PM_RollingAnim( self->client->ps.legsAnim )
 				|| (BG_FlippingAnim( self->client->ps.legsAnim )&&!PM_InCartwheel( self->client->ps.legsAnim )) )
 			{//strong attacks, rolls, knockdowns, flips and spins cannot be interrupted by pain
+				return;
 			}
 			else
 			{//play an anim
@@ -345,7 +360,7 @@ void NPC_ChoosePainAnimation( gentity_t *self, gentity_t *other, vec3_t point, i
 		{
 			G_AddVoiceEvent( self, Q_irand(EV_CHOKE1, EV_CHOKE3), 0 );
 		}
-		
+
 		//Setup the timing for it
 		/*
 		if ( mod == MOD_ELECTROCUTE )
@@ -392,7 +407,7 @@ NPC_Pain
 */
 void NPC_Pain(gentity_t *self, gentity_t *attacker, int damage)
 {
-	team_t otherTeam = TEAM_FREE;
+	npcteam_t otherTeam = NPCTEAM_FREE;
 	int		voiceEvent = -1;
 	gentity_t *other = attacker;
 	int mod = gPainMOD;
@@ -401,17 +416,17 @@ void NPC_Pain(gentity_t *self, gentity_t *attacker, int damage)
 
 	VectorCopy(gPainPoint, point);
 
-	if ( self->NPC == NULL ) 
+	if ( self->NPC == NULL )
 		return;
 
-	if ( other == NULL ) 
+	if ( other == NULL )
 		return;
 
 	//or just remove ->pain in player_die?
 	if ( self->client->ps.pm_type == PM_DEAD )
 		return;
 
-	if ( other == self ) 
+	if ( other == self )
 		return;
 
 	//MCG: Ignore damage from your own team for now
@@ -424,17 +439,17 @@ void NPC_Pain(gentity_t *self, gentity_t *attacker, int damage)
 	//	}
 	}
 
-	if ( self->client->playerTeam 
-		&& other->client 
-		&& otherTeam == self->client->playerTeam 
-	/*	&& (!player->client->ps.viewEntity || other->s.number != player->client->ps.viewEntity)*/) 
+	if ( self->client->playerTeam
+		&& other->client
+		&& otherTeam == self->client->playerTeam
+	/*	&& (!player->client->ps.viewEntity || other->s.number != player->client->ps.viewEntity)*/)
 	//rwwFIXMEFIXME: Will need modification when player controllable npcs are done
 	{//hit by a teammate
 		if ( other != self->enemy && self != other->enemy )
 		{//we weren't already enemies
-			if ( self->enemy || other->enemy 
-				
-				//|| (other->s.number&&other->s.number!=player->client->ps.viewEntity) 
+			if ( self->enemy || other->enemy
+
+				//|| (other->s.number&&other->s.number!=player->client->ps.viewEntity)
 				//rwwFIXMEFIXME: same
 
 				/*|| (!other->s.number&&Q_irand( 0, 3 ))*/ )
@@ -445,7 +460,7 @@ void NPC_Pain(gentity_t *self, gentity_t *attacker, int damage)
 				{//Run any pain instructions
 					if ( self->health <= (self->client->ps.stats[STAT_MAX_HEALTH]/3) && G_ActivateBehavior(self, BSET_FLEE) )
 					{
-						
+
 					}
 					else// if( VALIDSTRING( self->behaviorSet[BSET_PAIN] ) )
 					{
@@ -472,9 +487,9 @@ void NPC_Pain(gentity_t *self, gentity_t *attacker, int damage)
 				{//mindtricked
 					return;
 				}
-				else if ( self->NPC->ffireCount < 3+((2-g_spskill.integer)*2) )
+				else if ( self->NPC->ffireCount < 3+((2-g_npcspskill.integer)*2) )
 				{//not mad enough yet
-					//Com_Printf( "chck: %d < %d\n", self->NPC->ffireCount, 3+((2-g_spskill.integer)*2) );
+					//Com_Printf( "chck: %d < %d\n", self->NPC->ffireCount, 3+((2-g_npcspskill.integer)*2) );
 					if ( damage != -1 )
 					{//-1 == don't play pain anim
 						//Set our proper pain animation
@@ -525,16 +540,16 @@ void NPC_Pain(gentity_t *self, gentity_t *attacker, int damage)
 	SetNPCGlobals( self );
 
 	//Do extra bits
-	if ( NPCInfo->ignorePain == qfalse )
+	if ( NPCS.NPCInfo->ignorePain == qfalse )
 	{
-		NPCInfo->confusionTime = 0;//clear any charm or confusion, regardless
+		NPCS.NPCInfo->confusionTime = 0;//clear any charm or confusion, regardless
 		if ( damage != -1 )
 		{//-1 == don't play pain anim
 			//Set our proper pain animation
 			NPC_ChoosePainAnimation( self, other, point, damage, mod, hitLoc, voiceEvent );
 		}
 		//Check to take a new enemy
-		if ( NPC->enemy != other && NPC != other )
+		if ( NPCS.NPC->enemy != other && NPCS.NPC != other )
 		{//not already mad at them
 			NPC_CheckAttacker( other, mod );
 		}
@@ -578,7 +593,7 @@ void npc_push(gentity_t *self, gentity_t *other, trace_t *trace )
 		float speed = (vec_t)sqrt (other->client->ps.velocity[0]*
 			other->client->ps.velocity[0] + other->client->ps.velocity[1]*
 			other->client->ps.velocity[1])/2;
-		G_Printf("Speed %f\n",speed);
+		Com_Printf("Speed %f\n",speed);
 		if(speed > 50)
 		{
 			int damage = (speed >= 100 ? 35 : 10);
@@ -602,7 +617,7 @@ void npc_push(gentity_t *self, gentity_t *other, trace_t *trace )
 			if(gripper == NULL)
 				return;
 
-			G_Printf("Damage: %i\n",damage);
+			Com_Printf("Damage: %i\n",damage);
 			//G_Damage(gripEnt, self, self, NULL, NULL, 2, DAMAGE_NO_ARMOR, MOD_FORCE_DARK);
 			G_Damage(other,gripper,gripper,NULL,NULL,damage,DAMAGE_NO_ARMOR,MOD_FORCE_DARK);
 			G_Damage(self,other,other,NULL,NULL,damage,DAMAGE_NO_ARMOR,0);
@@ -621,8 +636,9 @@ qboolean INV_GoodieKeyGive( gentity_t *target );
 #define TURN_OFF			0x00000100
 //[/CoOp]
 extern qboolean INV_SecurityKeyGive( gentity_t *target, const char *keyname );
-void NPC_Touch(gentity_t *self, gentity_t *other, trace_t *trace) 
+void NPC_Touch(gentity_t *self, gentity_t *other, trace_t *trace)
 {
+
 	if(!self->NPC)
 		return;
 
@@ -674,22 +690,22 @@ void NPC_Touch(gentity_t *self, gentity_t *other, trace_t *trace)
 				//FIXME: need some event to pass to cgame for sound/graphic/message?
 			}
 			//FIXME: temp message
-			trap_SendServerCommand( sendnum, text );
+			trap->SendServerCommand( sendnum, text );
 			//[/CoOp]
 		}
 	}
 
-	if ( other->client ) 
+	if ( other->client )
 	{//FIXME:  if pushing against another bot, both ucmd.rightmove = 127???
 		//Except if not facing one another...
-		if ( other->health > 0 ) 
+		if ( other->health > 0 )
 		{
-			NPCInfo->touchedByPlayer = other;
+			NPCS.NPCInfo->touchedByPlayer = other;
 		}
 
-		if ( other == NPCInfo->goalEntity ) 
+		if ( other == NPCS.NPCInfo->goalEntity )
 		{
-			NPCInfo->aiFlags |= NPCAI_TOUCHED_GOAL;
+			NPCS.NPCInfo->aiFlags |= NPCAI_TOUCHED_GOAL;
 		}
 
 		//[CoOp]
@@ -701,12 +717,12 @@ void NPC_Touch(gentity_t *self, gentity_t *other, trace_t *trace)
 			{//See if we bumped into an enemy
 				if ( other->client->playerTeam == self->client->enemyTeam )
 				{//bumped into an enemy
-					if( NPCInfo->behaviorState != BS_HUNT_AND_KILL && !NPCInfo->tempBehavior )
+					if( NPCS.NPCInfo->behaviorState != BS_HUNT_AND_KILL && !NPCS.NPCInfo->tempBehavior )
 					{//MCG - Begin: checking specific BS mode here, this is bad, a HACK
 						//FIXME: not medics?
-						if ( NPC->enemy != other )
+						if ( NPCS.NPC->enemy != other )
 						{//not already mad at them
-							G_SetEnemy( NPC, other );
+							G_SetEnemy( NPCS.NPC, other );
 						}
 		//				NPCInfo->tempBehavior = BS_HUNT_AND_KILL;
 					}
@@ -722,20 +738,20 @@ void NPC_Touch(gentity_t *self, gentity_t *other, trace_t *trace)
 		}
 		*/
 	}
-	else 
+	else
 	{//FIXME: check for SVF_NONNPC_ENEMY flag here?
-		if ( other->health > 0 ) 
+		if ( other->health > 0 )
 		{
 			//if ( NPC->enemy == other && (other->svFlags&SVF_NONNPC_ENEMY) )
 			if (0) //rwwFIXMEFIXME: Can probably just check if num < MAX_CLIENTS for non-npc enemy stuff
 			{
-				NPCInfo->touchedByPlayer = other;
+				NPCS.NPCInfo->touchedByPlayer = other;
 			}
 		}
 
-		if ( other == NPCInfo->goalEntity ) 
+		if ( other == NPCS.NPCInfo->goalEntity )
 		{
-			NPCInfo->aiFlags |= NPCAI_TOUCHED_GOAL;
+			NPCS.NPCInfo->aiFlags |= NPCAI_TOUCHED_GOAL;
 		}
 	}
 
@@ -1014,8 +1030,10 @@ void NPC_Respond( gentity_t *self, int userNum )
 	case CLASS_GONK:				// droid
 		G_Sound(self, CHAN_AUTO, G_SoundIndex(va("sound/chars/gonk/misc/gonktalk%d.wav",Q_irand(1, 2))));
 		break;
+	default:
+		break;
 	}
-	
+
 	if ( event != -1 )
 	{
 		//hack here because we reuse some "combat" and "extra" sounds
@@ -1044,7 +1062,7 @@ void NPC_UseResponse( gentity_t *self, gentity_t *user, qboolean useWhenDone )
 		return;
 	}
 
-	if ( user->s.number != 0 )
+	if ( user->s.number >= MAX_CLIENTS )
 	{//not used by the player
 		if ( useWhenDone )
 		{
@@ -1068,7 +1086,7 @@ void NPC_UseResponse( gentity_t *self, gentity_t *user, qboolean useWhenDone )
 	}
 
 	/*
-	if ( gi.VoiceVolume[self->s.number] )
+	if ( trap->VoiceVolume[self->s.number] )
 	{//I'm talking already
 		if ( !useWhenDone )
 		{//you're not trying to use me
@@ -1095,7 +1113,7 @@ NPC_Use
 */
 extern void Add_Batteries( gentity_t *ent, int *count );
 
-void NPC_Use( gentity_t *self, gentity_t *other, gentity_t *activator ) 
+void NPC_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
 {
 	if (self->client->ps.pm_type == PM_DEAD)
 	{//or just remove ->pain in player_die?
@@ -1131,12 +1149,12 @@ void NPC_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
 				}
 			}
 		}
-		else if ( Jedi_WaitingAmbush( NPC ) )
+		else if ( Jedi_WaitingAmbush( NPCS.NPC ) )
 		{
-			Jedi_Ambush( NPC );
+			Jedi_Ambush( NPCS.NPC );
 		}
 		//Run any use instructions
-		if ( activator && activator->s.number == 0 && self->client->NPC_class == CLASS_GONK )
+		if ( activator && activator->s.number >= 0 && activator->s.number < MAX_CLIENTS && self->client->NPC_class == CLASS_GONK )
 		{
 			// must be using the gonk, so attempt to give battery power.
 			// NOTE: this will steal up to MAX_BATTERIES for the activator, leaving the residual on the gonk for potential later use.
@@ -1155,7 +1173,7 @@ void NPC_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
 					G_ActivateBehavior( self, BSET_USE );
 				}
 			}
-			else if ( !self->enemy && activator->s.number == 0 && !gi.VoiceVolume[self->s.number] && !(self->NPC->scriptFlags&SCF_NO_RESPONSE) )
+			else if ( !self->enemy && activator->s.number == 0 && !trap->VoiceVolume[self->s.number] && !(self->NPC->scriptFlags&SCF_NO_RESPONSE) )
 			{//I don't have an enemy and I'm not talking and I was used by the player
 				NPC_UseResponse( self, other, qfalse );
 			}
@@ -1170,9 +1188,9 @@ void NPC_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
 //		{//Heal me NOW, dammit!
 //			NPC_TakePatient( activator );
 //		}
-		else if ( !self->enemy 
-			&& activator->s.number == 0 
-			&& /*!gi.VoiceVolume[self->s.number] &&*/ !(self->NPC->scriptFlags&SCF_NO_RESPONSE) )
+		else if ( activator && !self->enemy
+			&& activator->s.number >= 0 && activator->s.number < MAX_CLIENTS
+			&& !(self->NPC->scriptFlags&SCF_NO_RESPONSE) )
 			//rwwFIXMEFIXME: voice volume support?
 		{//I don't have an enemy and I'm not talking and I was used by the player
 			NPC_UseResponse( self, other, qfalse );
@@ -1192,7 +1210,7 @@ void NPC_CheckPlayerAim( void )
 
 	if ( player && player->client && player->client->ps.weapon > (int)(WP_NONE) && player->client->ps.weapon < (int)(WP_TRICORDER) )
 	{//player has a weapon ready
-		if ( g_crosshairEntNum == NPC->s.number && level.time - g_crosshairEntTime < 200 
+		if ( g_crosshairEntNum == NPC->s.number && level.time - g_crosshairEntTime < 200
 			&& g_crosshairSameEntTime >= 3000 && g_crosshairEntDist < 256 )
 		{//if the player holds the crosshair on you for a few seconds
 			//ask them what the fuck they're doing

@@ -1,3 +1,25 @@
+/*
+===========================================================================
+Copyright (C) 1999 - 2005, Id Software, Inc.
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2015, OpenJK contributors
+
+This file is part of the OpenJK source code.
+
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
+*/
 
 /*****************************************************************************
  * name:		be_aas_routealt.c
@@ -5,14 +27,14 @@
  * desc:		AAS
  *
  * $Archive: /MissionPack/code/botlib/be_aas_routealt.c $
- * $Author: Zaphod $ 
+ * $Author: Zaphod $
  * $Revision: 5 $
  * $Modtime: 11/22/00 8:47a $
  * $Date: 11/22/00 8:55a $
  *
  *****************************************************************************/
 
-#include "../game/q_shared.h"
+#include "qcommon/q_shared.h"
 #include "l_utils.h"
 #include "l_memory.h"
 #include "l_log.h"
@@ -20,8 +42,8 @@
 #include "l_precomp.h"
 #include "l_struct.h"
 #include "aasfile.h"
-#include "../game/botlib.h"
-#include "../game/be_aas.h"
+#include "botlib.h"
+#include "be_aas.h"
 #include "be_aas_funcs.h"
 #include "be_interface.h"
 #include "be_aas_def.h"

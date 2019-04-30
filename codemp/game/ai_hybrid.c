@@ -115,13 +115,13 @@ void HYBRID_StandardBotAI(bot_state_t *bs, float thinktime)
 		|| g_entities[bs->client].client->sess.sessionTeam == TEAM_SPECTATOR)
 	{//in intermission
 		//Mash the button to prevent the game from sticking on one level.
-		if(g_gametype.integer == GT_SIEGE)
+		if(level.gametype == GT_SIEGE)
 		{//hack to get the bots to spawn into seige games after the game has started
 			SelectBestSiegeClass(bs->client, qtrue);
 			//siegeClass_t *holdClass = BG_GetClassOnBaseClass( g_entities[bs->client].client->sess.siegeDesiredTeam, irand(SPC_INFANTRY, SPC_HEAVY_WEAPONS), 0);
-			//trap_EA_Command(bs->client, va("siegeclass \"%s\"\n", holdClass->name));
+			//trap->EA_Command(bs->client, va("siegeclass \"%s\"\n", holdClass->name));
 		}
-		trap_EA_Attack(bs->client);
+		trap->EA_Attack(bs->client);
 		return;
 	}
 
@@ -180,7 +180,7 @@ void HYBRID_StandardBotAI(bot_state_t *bs, float thinktime)
 		if (rand()%10 < 5 &&
 			(!bs->doChat || bs->chatTime < level.time))
 		{
-			trap_EA_Attack(bs->client);
+			trap->EA_Attack(bs->client);
 		}
 
 		return;
@@ -197,11 +197,11 @@ void HYBRID_StandardBotAI(bot_state_t *bs, float thinktime)
 		if(bs->currentTactic)
 		{//already have a tactic, use it.
 		}
-		else if(g_gametype.integer == GT_SIEGE)
+		else if(level.gametype == GT_SIEGE)
 		{//hack do objectives
 			bs->currentTactic = BOTORDER_OBJECTIVE;
 		}
-		else if(g_gametype.integer == GT_CTF || g_gametype.integer == GT_CTY)
+		else if(level.gametype == GT_CTF || level.gametype == GT_CTY)
 		{
 			DetermineCTFGoal(bs);
 		}
@@ -435,7 +435,7 @@ void HYBRID_StandardBotAI(bot_state_t *bs, float thinktime)
 				bs->duckTime = level.time + 300;
 				if(!bs->lastucmd.forwardmove && !bs->lastucmd.rightmove)
 				{//not trying to move at all so we should at least attempt to move
-					trap_EA_MoveForward(bs->client);
+					trap->EA_MoveForward(bs->client);
 				}
 			}
 		}
@@ -447,12 +447,12 @@ void HYBRID_StandardBotAI(bot_state_t *bs, float thinktime)
 	{
 		if (bs->chatTeam)
 		{
-			trap_EA_SayTeam(bs->client, bs->currentChat);
+			trap->EA_SayTeam(bs->client, bs->currentChat);
 			bs->chatTeam = 0;
 		}
 		else
 		{
-			trap_EA_Say(bs->client, bs->currentChat);
+			trap->EA_Say(bs->client, bs->currentChat);
 		}
 		if (bs->doChat == 2)
 		{
@@ -463,12 +463,12 @@ void HYBRID_StandardBotAI(bot_state_t *bs, float thinktime)
 	
 	if(bs->duckTime > level.time)
 	{
-		trap_EA_Crouch(bs->client);
+		trap->EA_Crouch(bs->client);
 	}
 
 	if(bs->jumpTime > level.time)
 	{
-		trap_EA_Jump(bs->client);
+		trap->EA_Jump(bs->client);
 
 		if (g_entities[bs->client].client->ps.groundEntityNum == ENTITYNUM_NONE)
 		{
@@ -479,18 +479,18 @@ void HYBRID_StandardBotAI(bot_state_t *bs, float thinktime)
 	//use action
 	if(bs->useTime >level.time)
 	{
-		trap_EA_Use(bs->client);
+		trap->EA_Use(bs->client);
 	}
 
 	//attack actions
 	if(bs->doAttack)
 	{
-		trap_EA_Attack(bs->client);
+		trap->EA_Attack(bs->client);
 	}
 
 	if(bs->doAltAttack)
 	{
-		trap_EA_Alt_Attack(bs->client);
+		trap->EA_Alt_Attack(bs->client);
 	}
 
 	//Force powers are listed in terms of priority
@@ -676,7 +676,7 @@ void HYBRID_StandardBotAI(bot_state_t *bs, float thinktime)
 	{
 		if (bot_forcepowers.integer && !g_forcePowerDisable.integer)
 		{
-			trap_EA_ForcePower(bs->client);
+			trap->EA_ForcePower(bs->client);
 		}
 	}
 

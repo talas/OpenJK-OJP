@@ -157,24 +157,24 @@ void CG_LoadHolsterData (clientInfo_t *ci)
 
 	if ( !ci->skinName || !Q_stricmp( "default", ci->skinName ) )
 	{//try default holster.cfg first
-		fLen = trap_FS_FOpenFile(va("models/players/%s/holster.cfg", ci->modelName), &f, FS_READ);
+		fLen = trap->FS_Open(va("models/players/%s/holster.cfg", ci->modelName), &f, FS_READ);
 
 		if( !f )
 		{//no file, use kyle's then.
-			fLen = trap_FS_FOpenFile("models/players/kyle/holster.cfg", &f, FS_READ);
+			fLen = trap->FS_Open("models/players/kyle/holster.cfg", &f, FS_READ);
 		}
 	}
 	else
 	{//use the holster.cfg associated with this skin
-		fLen = trap_FS_FOpenFile(va("models/players/%s/holster_%s.cfg", ci->modelName, ci->skinName), &f, FS_READ);
+		fLen = trap->FS_Open(va("models/players/%s/holster_%s.cfg", ci->modelName, ci->skinName), &f, FS_READ);
 		if ( !f )
 		{//fall back to default holster.cfg
-			fLen = trap_FS_FOpenFile(va("models/players/%s/holster.cfg", ci->modelName), &f, FS_READ);
+			fLen = trap->FS_Open(va("models/players/%s/holster.cfg", ci->modelName), &f, FS_READ);
 		}
 
 		if( !f )
 		{//still no dice, use kyle's then.
-			fLen = trap_FS_FOpenFile("models/players/kyle/holster.cfg", &f, FS_READ);
+			fLen = trap->FS_Open("models/players/kyle/holster.cfg", &f, FS_READ);
 		}
 	}
 
@@ -185,14 +185,14 @@ void CG_LoadHolsterData (clientInfo_t *ci)
 
 	if( fLen >= MAX_HOLSTER_INFO_SIZE )
 	{
-		CG_Printf("Error: holster.cfg for %s is over the holster.cfg filesize limit.\n", ci->modelName);
-		trap_FS_FCloseFile( f );
+		trap->Print("Error: holster.cfg for %s is over the holster.cfg filesize limit.\n", ci->modelName);
+		trap->FS_Close( f );
 		return;
 	}
 
-	trap_FS_Read(fileBuffer, fLen, f);
+	trap->FS_Read(fileBuffer, fLen, f);
 
-	trap_FS_FCloseFile( f );
+	trap->FS_Close( f );
 
 	s = fileBuffer;
 
@@ -201,7 +201,7 @@ void CG_LoadHolsterData (clientInfo_t *ci)
 	{
 		if( !BG_SiegeGetPairedValue(holsterTypeGroup, "holsterType", holsterTypeValue) )
 		{//couldn't find holster type in group
-			CG_Printf("Error:  The holster.cfg for %s appears to be missing a holsterType in one of its define groups.\n", 
+			trap->Print("Error:  The holster.cfg for %s appears to be missing a holsterType in one of its define groups.\n", 
 				ci->modelName);
 			continue;
 		}
@@ -210,7 +210,7 @@ void CG_LoadHolsterData (clientInfo_t *ci)
 
 		if( i == -1 )
 		{//bad holster type
-			CG_Printf("Error:  The holster.cfg for %s has a bad holsterType in one of the define groups.\n", 
+			trap->Print("Error:  The holster.cfg for %s has a bad holsterType in one of the define groups.\n", 
 				ci->modelName);
 			continue;
 		}
@@ -243,7 +243,7 @@ void CG_LoadHolsterData (clientInfo_t *ci)
 		}
 	}
 #ifdef _DEBUG
-	CG_Printf("Holstered Weapon Data Loaded for %s.\n", ci->modelName);
+	trap->Print("Holstered Weapon Data Loaded for %s.\n", ci->modelName);
 #endif
 }
 

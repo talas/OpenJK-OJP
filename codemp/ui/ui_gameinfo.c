@@ -1,5 +1,26 @@
-// Copyright (C) 1999-2000 Id Software, Inc.
-//
+/*
+===========================================================================
+Copyright (C) 1999 - 2005, Id Software, Inc.
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2015, OpenJK contributors
+
+This file is part of the OpenJK source code.
+
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
+*/
+
 //
 // gameinfo.c
 //
@@ -31,6 +52,7 @@ int UI_ParseInfos( char *buf, int max, char *infos[] ) {
 
 	count = 0;
 
+	COM_BeginParseSession ("UI_ParseInfos");
 	while ( 1 ) {
 		token = COM_Parse( (const char **)&buf );
 		if ( !token[0] ) {
@@ -69,16 +91,16 @@ int UI_ParseInfos( char *buf, int max, char *infos[] ) {
 		if (infos[count]) {
 			strcpy(infos[count], info);
 #ifndef FINAL_BUILD
-			if (trap_Cvar_VariableValue("com_buildScript"))
+			if (trap->Cvar_VariableValue("com_buildScript"))
 			{
 				char *botFile = Info_ValueForKey(info, "personality");
 				if (botFile && botFile[0])
 				{
 					int fh = 0;
-					trap_FS_FOpenFile(botFile, &fh, FS_READ);
+					trap->FS_Open(botFile, &fh, FS_READ);
 					if (fh)
 					{
-						trap_FS_FCloseFile(fh);
+						trap->FS_Close(fh);
 					}
 				}
 			}
@@ -99,20 +121,20 @@ static void UI_LoadArenasFromFile( char *filename ) {
 	fileHandle_t	f;
 	char			buf[MAX_ARENAS_TEXT];
 
-	len = trap_FS_FOpenFile( filename, &f, FS_READ );
+	len = trap->FS_Open( filename, &f, FS_READ );
 	if ( !f ) {
-		trap_Print( va( S_COLOR_RED "file not found: %s\n", filename ) );
+		trap->Print( S_COLOR_RED "file not found: %s\n", filename );
 		return;
 	}
 	if ( len >= MAX_ARENAS_TEXT ) {
-		trap_Print( va( S_COLOR_RED "file too large: %s is %i, max allowed is %i", filename, len, MAX_ARENAS_TEXT ) );
-		trap_FS_FCloseFile( f );
+		trap->Print( S_COLOR_RED "file too large: %s is %i, max allowed is %i", filename, len, MAX_ARENAS_TEXT );
+		trap->FS_Close( f );
 		return;
 	}
 
-	trap_FS_Read( buf, len, f );
+	trap->FS_Read( buf, len, f );
 	buf[len] = 0;
-	trap_FS_FCloseFile( f );
+	trap->FS_Close( f );
 
 	ui_numArenas += UI_ParseInfos( buf, MAX_ARENAS - ui_numArenas, &ui_arenaInfos[ui_numArenas] );
 }
@@ -122,10 +144,12 @@ static void UI_LoadArenasFromFile( char *filename ) {
 UI_LoadArenas
 ===============
 */
+
+#define MAPSBUFSIZE (MAX_MAPS * 64)
 void UI_LoadArenas( void ) {
 	int			numdirs;
-	char		filename[128];
-	char		dirlist[1024];
+	char		filename[MAX_QPATH];
+	char		dirlist[MAPSBUFSIZE];
 	char*		dirptr;
 	int			i, n;
 	int			dirlen;
@@ -135,7 +159,7 @@ void UI_LoadArenas( void ) {
 	uiInfo.mapCount = 0;
 
 	// get all arenas from .arena files
-	numdirs = trap_FS_GetFileList("scripts", ".arena", dirlist, 1024 );
+	numdirs = trap->FS_GetFileList( "scripts", ".arena", dirlist, ARRAY_LEN( dirlist ) );
 	dirptr  = dirlist;
 	for (i = 0; i < numdirs; i++, dirptr += dirlen+1) {
 		dirlen = strlen(dirptr);
@@ -143,9 +167,9 @@ void UI_LoadArenas( void ) {
 		strcat(filename, dirptr);
 		UI_LoadArenasFromFile(filename);
 	}
-//	trap_Print( va( "%i arenas parsed\n", ui_numArenas ) );
+//	trap->Print( "%i arenas parsed\n", ui_numArenas );
 	if (UI_OutOfMemory()) {
-		trap_Print(S_COLOR_YELLOW"WARNING: not anough memory in pool to load all arenas\n");
+		trap->Print(S_COLOR_YELLOW"WARNING: not anough memory in pool to load all arenas\n");
 	}
 
 	for( n = 0; n < ui_numArenas; n++ ) {
@@ -163,9 +187,8 @@ void UI_LoadArenas( void ) {
 		if( *type ) {
 			if( strstr( type, "ffa" ) ) {
 				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_FFA);
-			}
-			if( strstr( type, "team" ) ) {
 				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_TEAM);
+				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_JEDIMASTER);
 			}
 			//[CoOp]
 			if( strstr( type, "coop" ) ) {
@@ -191,12 +214,14 @@ void UI_LoadArenas( void ) {
 			}
 			if( strstr( type, "ctf" ) ) {
 				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_CTF);
+				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_CTY);
 			}
 			if( strstr( type, "cty" ) ) {
 				uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_CTY);
 			}
 		} else {
 			uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_FFA);
+			uiInfo.mapList[uiInfo.mapCount].typeBits |= (1 << GT_JEDIMASTER);
 		}
 
 		uiInfo.mapCount++;
@@ -218,18 +243,18 @@ static void UI_LoadBotsFromFile( char *filename ) {
 	char			buf[MAX_BOTS_TEXT];
 	char			*stopMark;
 
-	len = trap_FS_FOpenFile( filename, &f, FS_READ );
+	len = trap->FS_Open( filename, &f, FS_READ );
 	if ( !f ) {
-		trap_Print( va( S_COLOR_RED "file not found: %s\n", filename ) );
+		trap->Print( S_COLOR_RED "file not found: %s\n", filename );
 		return;
 	}
 	if ( len >= MAX_BOTS_TEXT ) {
-		trap_Print( va( S_COLOR_RED "file too large: %s is %i, max allowed is %i", filename, len, MAX_BOTS_TEXT ) );
-		trap_FS_FCloseFile( f );
+		trap->Print( S_COLOR_RED "file too large: %s is %i, max allowed is %i", filename, len, MAX_BOTS_TEXT );
+		trap->FS_Close( f );
 		return;
 	}
 
-	trap_FS_Read( buf, len, f );
+	trap->FS_Read( buf, len, f );
 	buf[len] = 0;
 
 	stopMark = strstr(buf, "@STOPHERE");
@@ -250,7 +275,7 @@ static void UI_LoadBotsFromFile( char *filename ) {
 		buf[startPoint] = 0;
 	}
 
-	trap_FS_FCloseFile( f );
+	trap->FS_Close( f );
 
 	COM_Compress(buf);
 
@@ -273,7 +298,7 @@ void UI_LoadBots( void ) {
 
 	ui_numBots = 0;
 
-	trap_Cvar_Register( &botsFile, "g_botsFile", "", CVAR_INIT|CVAR_ROM );
+	trap->Cvar_Register( &botsFile, "g_botsFile", "", CVAR_INIT|CVAR_ROM );
 	if( *botsFile.string ) {
 		UI_LoadBotsFromFile(botsFile.string);
 	}
@@ -282,7 +307,7 @@ void UI_LoadBots( void ) {
 	}
 
 	// get all bots from .bot files
-	numdirs = trap_FS_GetFileList("scripts", ".bot", dirlist, 1024 );
+	numdirs = trap->FS_GetFileList("scripts", ".bot", dirlist, 1024 );
 	dirptr  = dirlist;
 	for (i = 0; i < numdirs; i++, dirptr += dirlen+1) {
 		dirlen = strlen(dirptr);
@@ -290,7 +315,7 @@ void UI_LoadBots( void ) {
 		strcat(filename, dirptr);
 		UI_LoadBotsFromFile(filename);
 	}
-//	trap_Print( va( "%i bots parsed\n", ui_numBots ) );
+//	trap->Print( "%i bots parsed\n", ui_numBots );
 }
 
 
@@ -301,7 +326,7 @@ UI_GetBotInfoByNumber
 */
 char *UI_GetBotInfoByNumber( int num ) {
 	if( num < 0 || num >= ui_numBots ) {
-		trap_Print( va( S_COLOR_RED "Invalid bot number: %i\n", num ) );
+		trap->Print( S_COLOR_RED "Invalid bot number: %i\n", num );
 		return NULL;
 	}
 	return ui_botInfos[num];

@@ -1,5 +1,25 @@
-// Copyright (C) 1999-2000 Id Software, Inc.
-//
+/*
+===========================================================================
+Copyright (C) 1999 - 2005, Id Software, Inc.
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2015, OpenJK contributors
+
+This file is part of the OpenJK source code.
+
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
+*/
 
 #include "g_local.h"
 
@@ -8,7 +28,7 @@ qboolean	G_SpawnString( const char *key, const char *defaultString, char **out )
 
 	if ( !level.spawning ) {
 		*out = (char *)defaultString;
-//		G_Error( "G_SpawnString() called while not spawning" );
+//		trap->Error( ERR_DROP, "G_SpawnString() called while not spawning" );
 	}
 
 	for ( i = 0 ; i < level.numSpawnVars ; i++ ) {
@@ -45,114 +65,153 @@ qboolean	G_SpawnVector( const char *key, const char *defaultString, float *out )
 	qboolean	present;
 
 	present = G_SpawnString( key, defaultString, &s );
-	sscanf( s, "%f %f %f", &out[0], &out[1], &out[2] );
+	if ( sscanf( s, "%f %f %f", &out[0], &out[1], &out[2] ) != 3 ) {
+		trap->Print( "G_SpawnVector: Failed sscanf on %s (default: %s)\n", key, defaultString );
+		VectorClear( out );
+		return qfalse;
+	}
 	return present;
 }
 
+qboolean	G_SpawnBoolean( const char *key, const char *defaultString, qboolean *out ) {
+	char		*s;
+	qboolean	present;
 
+	present = G_SpawnString( key, defaultString, &s );
 
-BG_field_t fields[] = {
-	{"classname", FOFS(classname), F_LSTRING},
-	{"teamnodmg", FOFS(teamnodmg), F_INT},
-	{"teamowner", FOFS(s.teamowner), F_INT},
-	{"teamuser", FOFS(alliedTeam), F_INT},
-	{"alliedTeam", FOFS(alliedTeam), F_INT},//for misc_turrets
-	{"roffname", FOFS(roffname), F_LSTRING},
-	{"rofftarget", FOFS(rofftarget), F_LSTRING},
-	{"healingclass", FOFS(healingclass), F_LSTRING},
-	{"healingsound", FOFS(healingsound), F_LSTRING},
-	{"healingrate", FOFS(healingrate), F_INT},
-	{"ownername", FOFS(ownername), F_LSTRING},
-	{"origin", FOFS(s.origin), F_VECTOR},
-	{"model", FOFS(model), F_LSTRING},
-	{"model2", FOFS(model2), F_LSTRING},
-	{"spawnflags", FOFS(spawnflags), F_INT},
-	{"speed", FOFS(speed), F_FLOAT},
-	{"target", FOFS(target), F_LSTRING},
-	{"target2", FOFS(target2), F_LSTRING},
-	{"target3", FOFS(target3), F_LSTRING},
-	{"target4", FOFS(target4), F_LSTRING},
-	{"target5", FOFS(target5), F_LSTRING},
-	{"target6", FOFS(target6), F_LSTRING},
-	{"NPC_targetname", FOFS(NPC_targetname), F_LSTRING},
-	{"NPC_target", FOFS(NPC_target), F_LSTRING},
-	{"NPC_target2", FOFS(target2), F_LSTRING},//NPC_spawner only
-	{"NPC_target4", FOFS(target4), F_LSTRING},//NPC_spawner only
-	{"NPC_type", FOFS(NPC_type), F_LSTRING},
-	{"targetname", FOFS(targetname), F_LSTRING},
-	{"message", FOFS(message), F_LSTRING},
-	{"team", FOFS(team), F_LSTRING},
-	{"wait", FOFS(wait), F_FLOAT},
-	{"delay", FOFS(delay), F_INT},
-	{"random", FOFS(random), F_FLOAT},
-	{"count", FOFS(count), F_INT},
-	{"health", FOFS(health), F_INT},
-	{"light", 0, F_IGNORE},
-	{"dmg", FOFS(damage), F_INT},
-	{"angles", FOFS(s.angles), F_VECTOR},
-	{"angle", FOFS(s.angles), F_ANGLEHACK},
-	{"targetShaderName", FOFS(targetShaderName), F_LSTRING},
-	{"targetShaderNewName", FOFS(targetShaderNewName), F_LSTRING},
-	{"linear", FOFS(alt_fire), F_INT},//for movers to use linear movement
+	if ( !Q_stricmp( s, "qtrue" ) || !Q_stricmp( s, "true" ) || !Q_stricmp( s, "yes" ) || !Q_stricmp( s, "1" ) )
+		*out = qtrue;
+	else if ( !Q_stricmp( s, "qfalse" ) || !Q_stricmp( s, "false" ) || !Q_stricmp( s, "no" ) || !Q_stricmp( s, "0" ) )
+		*out = qfalse;
+	else
+		*out = qfalse;
 
-	{"closetarget", FOFS(closetarget), F_LSTRING},//for doors
-	{"opentarget", FOFS(opentarget), F_LSTRING},//for doors
-	{"paintarget", FOFS(paintarget), F_LSTRING},//for doors
+	return present;
+}
 
-	{"goaltarget", FOFS(goaltarget), F_LSTRING},//for siege
-	{"idealclass", FOFS(idealclass), F_LSTRING},//for siege spawnpoints
+//
+// fields are needed for spawning from the entity string
+//
+typedef enum {
+	F_INT,
+	F_FLOAT,
+	F_STRING,			// string on disk, pointer in memory
+	F_VECTOR,
+	F_ANGLEHACK,
+	F_PARM1,			// Special case for parms
+	F_PARM2,			// Special case for parms
+	F_PARM3,			// Special case for parms
+	F_PARM4,			// Special case for parms
+	F_PARM5,			// Special case for parms
+	F_PARM6,			// Special case for parms
+	F_PARM7,			// Special case for parms
+	F_PARM8,			// Special case for parms
+	F_PARM9,			// Special case for parms
+	F_PARM10,			// Special case for parms
+	F_PARM11,			// Special case for parms
+	F_PARM12,			// Special case for parms
+	F_PARM13,			// Special case for parms
+	F_PARM14,			// Special case for parms
+	F_PARM15,			// Special case for parms
+	F_PARM16			// Special case for parms
+} fieldtype_t;
 
-	//rww - icarus stuff:
-	{"spawnscript", FOFS(behaviorSet[BSET_SPAWN]), F_LSTRING},//name of script to run
-	{"usescript", FOFS(behaviorSet[BSET_USE]), F_LSTRING},//name of script to run
-	{"awakescript", FOFS(behaviorSet[BSET_AWAKE]), F_LSTRING},//name of script to run
-	{"angerscript", FOFS(behaviorSet[BSET_ANGER]), F_LSTRING},//name of script to run
-	{"attackscript", FOFS(behaviorSet[BSET_ATTACK]), F_LSTRING},//name of script to run
-	{"victoryscript", FOFS(behaviorSet[BSET_VICTORY]), F_LSTRING},//name of script to run
-	{"lostenemyscript", FOFS(behaviorSet[BSET_LOSTENEMY]), F_LSTRING},//name of script to run
-	{"painscript", FOFS(behaviorSet[BSET_PAIN]), F_LSTRING},//name of script to run
-	{"fleescript", FOFS(behaviorSet[BSET_FLEE]), F_LSTRING},//name of script to run
-	{"deathscript", FOFS(behaviorSet[BSET_DEATH]), F_LSTRING},//name of script to run
-	{"delayscript", FOFS(behaviorSet[BSET_DELAYED]), F_LSTRING},//name of script to run
-	{"delayscripttime", FOFS(delayScriptTime), F_INT},//name of script to run
-	{"blockedscript", FOFS(behaviorSet[BSET_BLOCKED]), F_LSTRING},//name of script to run
-	{"ffirescript", FOFS(behaviorSet[BSET_FFIRE]), F_LSTRING},//name of script to run
-	{"ffdeathscript", FOFS(behaviorSet[BSET_FFDEATH]), F_LSTRING},//name of script to run
-	{"mindtrickscript", FOFS(behaviorSet[BSET_MINDTRICK]), F_LSTRING},//name of script to run
-	{"script_targetname", FOFS(script_targetname), F_LSTRING},//scripts look for this when "affecting"
+typedef struct field_s {
+	const char	*name;
+	size_t		ofs;
+	fieldtype_t	type;
+} field_t;
 
-	{"fullName", FOFS(fullName), F_LSTRING},
-
-	{"soundSet", FOFS(soundSet), F_LSTRING},
-	{"radius", FOFS(radius), F_FLOAT},
-	{"numchunks", FOFS(radius), F_FLOAT},//for func_breakables
-	{"chunksize", FOFS(mass), F_FLOAT},//for func_breakables
-
-//Script parms - will this handle clamping to 16 or whatever length of parm[0] is?
-	{"parm1", 0, F_PARM1},
-	{"parm2", 0, F_PARM2},
-	{"parm3", 0, F_PARM3},
-	{"parm4", 0, F_PARM4},
-	{"parm5", 0, F_PARM5},
-	{"parm6", 0, F_PARM6},
-	{"parm7", 0, F_PARM7},
-	{"parm8", 0, F_PARM8},
-	{"parm9", 0, F_PARM9},
-	{"parm10", 0, F_PARM10},
-	{"parm11", 0, F_PARM11},
-	{"parm12", 0, F_PARM12},
-	{"parm13", 0, F_PARM13},
-	{"parm14", 0, F_PARM14},
-	{"parm15", 0, F_PARM15},
-	{"parm16", 0, F_PARM16},
-
-	{NULL}
+field_t fields[] = {
+	{ "alliedteam",				FOFS( alliedTeam ),						F_INT },//for misc_turrets
+	{ "angerscript",			FOFS( behaviorSet[BSET_ANGER] ),		F_STRING },//name of script to run
+	{ "angle",					FOFS( s.angles ),						F_ANGLEHACK },
+	{ "angles",					FOFS( s.angles ),						F_VECTOR },
+	{ "attackscript",			FOFS( behaviorSet[BSET_ATTACK] ),		F_STRING },//name of script to run
+	{ "awakescript",			FOFS( behaviorSet[BSET_AWAKE] ),		F_STRING },//name of script to run
+	{ "blockedscript",			FOFS( behaviorSet[BSET_BLOCKED] ),		F_STRING },//name of script to run
+	{ "chunksize",				FOFS( mass ),							F_FLOAT },//for func_breakables
+	{ "classname",				FOFS( classname ),						F_STRING },
+	{ "closetarget",			FOFS( closetarget ),					F_STRING },//for doors
+	{ "count",					FOFS( count ),							F_INT },
+	{ "deathscript",			FOFS( behaviorSet[BSET_DEATH] ),		F_STRING },//name of script to run
+	{ "delay",					FOFS( delay ),							F_INT },
+	{ "delayscript",			FOFS( behaviorSet[BSET_DELAYED] ),		F_STRING },//name of script to run
+	{ "delayscripttime",		FOFS( delayScriptTime ),				F_INT },//name of script to run
+	{ "dmg",					FOFS( damage ),							F_INT },
+	{ "ffdeathscript",			FOFS( behaviorSet[BSET_FFDEATH] ),		F_STRING },//name of script to run
+	{ "ffirescript",			FOFS( behaviorSet[BSET_FFIRE] ),		F_STRING },//name of script to run
+	{ "fleescript",				FOFS( behaviorSet[BSET_FLEE] ),			F_STRING },//name of script to run
+	{ "fullname",				FOFS( fullName ),						F_STRING },
+	{ "goaltarget",				FOFS( goaltarget ),						F_STRING },//for siege
+	{ "healingclass",			FOFS( healingclass ),					F_STRING },
+	{ "healingrate",			FOFS( healingrate ),					F_INT },
+	{ "healingsound",			FOFS( healingsound ),					F_STRING },
+	{ "health",					FOFS( health ),							F_INT },
+	{ "idealclass",				FOFS( idealclass ),						F_STRING },//for siege spawnpoints
+	{ "linear",					FOFS( alt_fire ),						F_INT },//for movers to use linear movement
+	{ "lostenemyscript",		FOFS( behaviorSet[BSET_LOSTENEMY] ),	F_STRING },//name of script to run
+	{ "message",				FOFS( message ),						F_STRING },
+	{ "mindtrickscript",		FOFS( behaviorSet[BSET_MINDTRICK] ),	F_STRING },//name of script to run
+	{ "model",					FOFS( model ),							F_STRING },
+	{ "model2",					FOFS( model2 ),							F_STRING },
+	{ "npc_target",				FOFS( NPC_target ),						F_STRING },
+	{ "npc_target2",			FOFS( target2 ),						F_STRING },//NPC_spawner only
+	{ "npc_target4",			FOFS( target4 ),						F_STRING },//NPC_spawner only
+	{ "npc_targetname",			FOFS( NPC_targetname ),					F_STRING },
+	{ "npc_type",				FOFS( NPC_type ),						F_STRING },
+	{ "numchunks",				FOFS( radius ),							F_FLOAT },//for func_breakables
+	{ "opentarget",				FOFS( opentarget ),						F_STRING },//for doors
+	{ "origin",					FOFS( s.origin ),						F_VECTOR },
+	{ "ownername",				FOFS( ownername ),						F_STRING },
+	{ "painscript",				FOFS( behaviorSet[BSET_PAIN] ),			F_STRING },//name of script to run
+	{ "paintarget",				FOFS( paintarget ),						F_STRING },//for doors
+	{ "parm1",					0,										F_PARM1 },
+	{ "parm10",					0,										F_PARM10 },
+	{ "parm11",					0,										F_PARM11 },
+	{ "parm12",					0,										F_PARM12 },
+	{ "parm13",					0,										F_PARM13 },
+	{ "parm14",					0,										F_PARM14 },
+	{ "parm15",					0,										F_PARM15 },
+	{ "parm16",					0,										F_PARM16 },
+	{ "parm2",					0,										F_PARM2 },
+	{ "parm3",					0,										F_PARM3 },
+	{ "parm4",					0,										F_PARM4 },
+	{ "parm5",					0,										F_PARM5 },
+	{ "parm6",					0,										F_PARM6 },
+	{ "parm7",					0,										F_PARM7 },
+	{ "parm8",					0,										F_PARM8 },
+	{ "parm9",					0,										F_PARM9 },
+	{ "radius",					FOFS( radius ),							F_FLOAT },
+	{ "random",					FOFS( random ),							F_FLOAT },
+	{ "roffname",				FOFS( roffname ),						F_STRING },
+	{ "rofftarget",				FOFS( rofftarget ),						F_STRING },
+	{ "script_targetname",		FOFS( script_targetname ),				F_STRING },//scripts look for this when "affecting"
+	{ "soundset",				FOFS( soundSet ),						F_STRING },
+	{ "spawnflags",				FOFS( spawnflags ),						F_INT },
+	{ "spawnscript",			FOFS( behaviorSet[BSET_SPAWN] ),		F_STRING },//name of script to run
+	{ "speed",					FOFS( speed ),							F_FLOAT },
+	{ "target",					FOFS( target ),							F_STRING },
+	{ "target2",				FOFS( target2 ),						F_STRING },
+	{ "target3",				FOFS( target3 ),						F_STRING },
+	{ "target4",				FOFS( target4 ),						F_STRING },
+	{ "target5",				FOFS( target5 ),						F_STRING },
+	{ "target6",				FOFS( target6 ),						F_STRING },
+	{ "targetname",				FOFS( targetname ),						F_STRING },
+	{ "targetshadername",		FOFS( targetShaderName ),				F_STRING },
+	{ "targetshadernewname",	FOFS( targetShaderNewName ),			F_STRING },
+	{ "team",					FOFS( team ),							F_STRING },
+	{ "teamnodmg",				FOFS( teamnodmg ),						F_INT },
+	{ "teamowner",				FOFS( s.teamowner ),					F_INT },
+	{ "teamuser",				FOFS( alliedTeam ),						F_INT },
+	{ "usescript",				FOFS( behaviorSet[BSET_USE] ),			F_STRING },//name of script to run
+	{ "victoryscript",			FOFS( behaviorSet[BSET_VICTORY] ),		F_STRING },//name of script to run
+	{ "wait",					FOFS( wait ),							F_FLOAT },
 };
 
-
-typedef struct {
-	char	*name;
-	void	(*spawn)(gentity_t *ent);
+typedef struct spawn_s {
+	const char	*name;
+	void		(*spawn)(gentity_t *ent);
 } spawn_t;
 
 void SP_info_player_start (gentity_t *ent);
@@ -246,6 +305,7 @@ void SP_path_corner (gentity_t *self);
 void SP_misc_teleporter_dest (gentity_t *self);
 void SP_misc_model(gentity_t *ent);
 void SP_misc_model_static(gentity_t *ent);
+void SP_misc_model_breakable( gentity_t *ent ) ;
 void SP_misc_G2model(gentity_t *ent);
 void SP_misc_portal_camera(gentity_t *ent);
 void SP_misc_portal_surface(gentity_t *ent);
@@ -290,6 +350,8 @@ void SP_reference_tag ( gentity_t *ent );
 
 void SP_misc_weapon_shooter( gentity_t *self );
 
+void SP_misc_cubemap( gentity_t *ent );
+
 void SP_NPC_spawner( gentity_t *self );
 
 void SP_NPC_Vehicle( gentity_t *self);
@@ -314,6 +376,7 @@ void SP_NPC_MorganKatarn( gentity_t *self );
 void SP_NPC_Jedi( gentity_t *self );
 void SP_NPC_Prisoner( gentity_t *self );
 void SP_NPC_Rebel( gentity_t *self );
+void SP_NPC_Human_Merc( gentity_t *self );
 void SP_NPC_Stormtrooper( gentity_t *self );
 void SP_NPC_StormtrooperOfficer( gentity_t *self );
 void SP_NPC_Snowtrooper( gentity_t *self);
@@ -388,6 +451,7 @@ void SP_waypoint_navgoal_4 (gentity_t *ent);
 void SP_waypoint_navgoal_2 (gentity_t *ent);
 void SP_waypoint_navgoal_1 (gentity_t *ent);
 
+void SP_CreateWind( gentity_t *ent );
 void SP_CreateSpaceDust( gentity_t *ent );
 void SP_CreateSnow( gentity_t *ent );
 void SP_CreateRain( gentity_t *ent );
@@ -405,10 +469,7 @@ void SP_team_CTF_bluespawn( gentity_t *ent );
 void SP_misc_turret( gentity_t *ent );
 void SP_misc_turretG2( gentity_t *base );
 
-
-void SP_item_botroam( gentity_t *ent )
-{
-}
+void SP_item_botroam( gentity_t *ent ) { }
 
 void SP_gametype_item ( gentity_t* ent )
 {
@@ -477,289 +538,222 @@ extern void SP_emplaced_eweb( gentity_t *ent );
 //[/CoOp]
 
 spawn_t	spawns[] = {
-	// info entities don't do anything at all, but provide positional
-	// information for things controlled by other processes
-	{"info_player_start", SP_info_player_start},
-	{"info_player_duel", SP_info_player_duel},
-	{"info_player_duel1", SP_info_player_duel1},
-	{"info_player_duel2", SP_info_player_duel2},
-	{"info_player_deathmatch", SP_info_player_deathmatch},
-	{"info_player_siegeteam1", SP_info_player_siegeteam1},
-	{"info_player_siegeteam2", SP_info_player_siegeteam2},
-	{"info_player_intermission", SP_info_player_intermission},
-	{"info_player_intermission_red", SP_info_player_intermission_red},
-	{"info_player_intermission_blue", SP_info_player_intermission_blue},
-	{"info_jedimaster_start", SP_info_jedimaster_start},
-	{"info_player_start_red", SP_info_player_start_red},
-	{"info_player_start_blue", SP_info_player_start_blue},
-	{"info_null", SP_info_null},
-	{"info_notnull", SP_info_notnull},		// use target_position instead
-	{"info_camp", SP_info_camp},
-
-	{"info_siege_objective", SP_info_siege_objective},
-	{"info_siege_radaricon", SP_info_siege_radaricon},
-	{"info_siege_decomplete", SP_info_siege_decomplete},
-	{"target_siege_end", SP_target_siege_end},
-	{"misc_siege_item", SP_misc_siege_item},
-
-	{"func_plat", SP_func_plat},
-	{"func_button", SP_func_button},
-	{"func_door", SP_func_door},
-	{"func_static", SP_func_static},
-	{"func_rotating", SP_func_rotating},
-	{"func_bobbing", SP_func_bobbing},
-	{"func_pendulum", SP_func_pendulum},
-	{"func_train", SP_func_train},
-	{"func_group", SP_info_null},
-	{"func_timer", SP_func_timer},			// rename trigger_timer?
-	{"func_breakable", SP_func_breakable},
-	{"func_glass", SP_func_glass},
-	{"func_usable", SP_func_usable},
-	{"func_wall", SP_func_wall},
-
-	// Triggers are brush objects that cause an effect when contacted
-	// by a living player, usually involving firing targets.
-	// While almost everything could be done with
-	// a single trigger class and different targets, triggered effects
-	// could not be client side predicted (push and teleport).
-	{"trigger_lightningstrike", SP_trigger_lightningstrike},
-
-	{"trigger_always", SP_trigger_always},
-	{"trigger_multiple", SP_trigger_multiple},
-	{"trigger_once", SP_trigger_once},
-	{"trigger_push", SP_trigger_push},
-	{"trigger_teleport", SP_trigger_teleport},
-	{"trigger_hurt", SP_trigger_hurt},
-	{"trigger_space", SP_trigger_space},
-	{"trigger_shipboundary", SP_trigger_shipboundary},
-	{"trigger_hyperspace", SP_trigger_hyperspace},
-	{"trigger_asteroid_field", SP_trigger_asteroid_field},
-	//[CoOp]
-	{"trigger_visible", SP_trigger_visible},
-	{"trigger_location", SP_trigger_location},
-	//[/CoOp]
-
-	// targets perform no action by themselves, but must be triggered
-	// by another entity
-	{"target_give", SP_target_give},
-	{"target_remove_powerups", SP_target_remove_powerups},
-	{"target_delay", SP_target_delay},
-	{"target_speaker", SP_target_speaker},
-	{"target_print", SP_target_print},
-	{"target_laser", SP_target_laser},
-	{"target_score", SP_target_score},
-	{"target_teleporter", SP_target_teleporter},
-	{"target_relay", SP_target_relay},
-	{"target_kill", SP_target_kill},
-	{"target_position", SP_target_position},
-	{"target_location", SP_target_location},
-	{"target_counter", SP_target_counter},
-	{"target_random", SP_target_random},
-	{"target_scriptrunner", SP_target_scriptrunner},
-	{"target_interest", SP_target_interest},
-	{"target_activate", SP_target_activate},
-	{"target_deactivate", SP_target_deactivate},
-	{"target_level_change", SP_target_level_change},
-	{"target_play_music", SP_target_play_music},
-	{"target_push", SP_target_push},
-	//[CoOp]
-	{"target_autosave", SP_target_autosave},
-	{"target_secret", SP_target_secret},
-	//[/CoOp]
-
-	{"light", SP_light},
-	{"path_corner", SP_path_corner},
-
-	{"misc_teleporter_dest", SP_misc_teleporter_dest},
-	{"misc_model", SP_misc_model},
-	{"misc_model_static", SP_misc_model_static},
-	{"misc_G2model", SP_misc_G2model},
-	{"misc_portal_surface", SP_misc_portal_surface},
-	{"misc_portal_camera", SP_misc_portal_camera},
-	{"misc_weather_zone", SP_misc_weather_zone},
-
-	{"misc_bsp", SP_misc_bsp},
-	{"terrain", SP_terrain},
-	{"misc_skyportal_orient", SP_misc_skyportal_orient},
-	{"misc_skyportal", SP_misc_skyportal},
-
-	//rwwFIXMEFIXME: only for testing rmg team stuff
-	{"gametype_item", SP_gametype_item },
-
-	{"misc_ammo_floor_unit", SP_misc_ammo_floor_unit},
-	{"misc_shield_floor_unit", SP_misc_shield_floor_unit},
-	{"misc_model_shield_power_converter", SP_misc_model_shield_power_converter},
-	{"misc_model_ammo_power_converter", SP_misc_model_ammo_power_converter},
-	{"misc_model_health_power_converter", SP_misc_model_health_power_converter},
-	//[CoOp]	
-	{"misc_exploding_crate", SP_misc_exploding_crate},
-	{"misc_gas_tank", SP_misc_gas_tank},
-	{"misc_trip_mine", SP_misc_trip_mine},
-	{"misc_model_gun_rack", SP_misc_model_gun_rack},
-	{"misc_model_ammo_rack", SP_misc_model_ammo_rack},
-	{"misc_camera", SP_misc_camera},
-	{"misc_spotlight", SP_misc_spotlight},
-	{"misc_security_panel", SP_misc_security_panel},
-	{"misc_model_bomb_planted", SP_misc_model_bomb_planted},
-	{"misc_model_beacon", SP_misc_model_beacon},
-	{"misc_sentry_turret", SP_PAS},
-	//[/CoOp]
-
-	{"fx_runner", SP_fx_runner},
-
-	{"target_screenshake", SP_target_screenshake},
-	{"target_escapetrig", SP_target_escapetrig},
-
-	{"misc_maglock", SP_misc_maglock},
-
-	{"misc_faller", SP_misc_faller},
-
-	{"ref_tag",	SP_reference_tag},
-	{"ref_tag_huge",	SP_reference_tag},
-
-	{"misc_weapon_shooter", SP_misc_weapon_shooter},
-
-	//new NPC ents
-	{"NPC_spawner", SP_NPC_spawner},
-
-	{"NPC_Vehicle", SP_NPC_Vehicle },
-	//[CoOp]
-	{"NPC_Player", SP_NPC_Player },
-	//[/CoOp]
-	{"NPC_Kyle", SP_NPC_Kyle },
-	{"NPC_Lando", SP_NPC_Lando },
-	{"NPC_Jan", SP_NPC_Jan },
-	{"NPC_Luke", SP_NPC_Luke },
-	{"NPC_MonMothma", SP_NPC_MonMothma },
-	{"NPC_Tavion", SP_NPC_Tavion },
-	
-	//new tavion
-	{"NPC_Tavion_New", SP_NPC_Tavion_New },
-
-	//new alora
-	{"NPC_Alora", SP_NPC_Alora },
-
-	{"NPC_Reelo", SP_NPC_Reelo },
-	{"NPC_Galak", SP_NPC_Galak },
-	{"NPC_Desann", SP_NPC_Desann },
-	{"NPC_Bartender", SP_NPC_Bartender },
-	{"NPC_MorganKatarn", SP_NPC_MorganKatarn },
-	{"NPC_Jedi", SP_NPC_Jedi },
-	{"NPC_Prisoner", SP_NPC_Prisoner },
-	{"NPC_Rebel", SP_NPC_Rebel },
-	{"NPC_Stormtrooper", SP_NPC_Stormtrooper },
-	{"NPC_StormtrooperOfficer", SP_NPC_StormtrooperOfficer },
-	{"NPC_Snowtrooper", SP_NPC_Snowtrooper },
-	{"NPC_Tie_Pilot", SP_NPC_Tie_Pilot },
-	{"NPC_Ugnaught", SP_NPC_Ugnaught },
-	{"NPC_Jawa", SP_NPC_Jawa },
-	{"NPC_Gran", SP_NPC_Gran },
-	{"NPC_Rodian", SP_NPC_Rodian },
-	{"NPC_Weequay", SP_NPC_Weequay },
-	{"NPC_Trandoshan", SP_NPC_Trandoshan },
-	{"NPC_Tusken", SP_NPC_Tusken },
-	{"NPC_Noghri", SP_NPC_Noghri },
-	{"NPC_SwampTrooper", SP_NPC_SwampTrooper },
-	{"NPC_Imperial", SP_NPC_Imperial },
-	{"NPC_ImpWorker", SP_NPC_ImpWorker },
-	{"NPC_BespinCop", SP_NPC_BespinCop },
-	{"NPC_Reborn", SP_NPC_Reborn },
-	{"NPC_ShadowTrooper", SP_NPC_ShadowTrooper },
-	{"NPC_Monster_Murjj", SP_NPC_Monster_Murjj },
-	{"NPC_Monster_Swamp", SP_NPC_Monster_Swamp },
-	{"NPC_Monster_Howler", SP_NPC_Monster_Howler },
-	{"NPC_MineMonster",	SP_NPC_MineMonster },
-	{"NPC_Monster_Claw", SP_NPC_Monster_Claw },
-	{"NPC_Monster_Glider", SP_NPC_Monster_Glider },
-	{"NPC_Monster_Flier2", SP_NPC_Monster_Flier2 },
-	{"NPC_Monster_Lizard", SP_NPC_Monster_Lizard },
-	{"NPC_Monster_Fish", SP_NPC_Monster_Fish },
-	{"NPC_Monster_Wampa", SP_NPC_Monster_Wampa },
-	{"NPC_Monster_Rancor", SP_NPC_Monster_Rancor },
-	//[NPCSandCreature]
-	{"NPC_Monster_Sand_Creature", SP_NPC_Monster_Sand_Creature },
-	//[/NPCSandCreature]
-	{"NPC_Droid_Interrogator", SP_NPC_Droid_Interrogator },
-	{"NPC_Droid_Probe", SP_NPC_Droid_Probe },
-	{"NPC_Droid_Mark1", SP_NPC_Droid_Mark1 },
-	{"NPC_Droid_Mark2", SP_NPC_Droid_Mark2 },
-	{"NPC_Droid_ATST", SP_NPC_Droid_ATST },
-	{"NPC_Droid_Seeker", SP_NPC_Droid_Seeker },
-	{"NPC_Droid_Remote", SP_NPC_Droid_Remote },
-	{"NPC_Droid_Sentry", SP_NPC_Droid_Sentry },
-	{"NPC_Droid_Gonk", SP_NPC_Droid_Gonk },
-	{"NPC_Droid_Mouse", SP_NPC_Droid_Mouse },
-	{"NPC_Droid_R2D2", SP_NPC_Droid_R2D2 },
-	{"NPC_Droid_R5D2", SP_NPC_Droid_R5D2 },
-	{"NPC_Droid_Protocol", SP_NPC_Droid_Protocol },
-	//[CoOp]
-	{"NPC_Chewbacca", SP_NPC_Chewbacca },
-	{"NPC_Rosh_Penin", SP_NPC_Rosh_Penin },
-	{"NPC_Saboteur", SP_NPC_Saboteur},
-	{"NPC_Rax", SP_NPC_Rax},
-	{"NPC_Kothos", SP_NPC_Kothos},
-	{"NPC_Droid_Saber", SP_NPC_Droid_Saber},
-	{"NPC_Lannik_Racto", SP_NPC_Lannik_Racto},
-	{"NPC_Droid_Assassin", SP_NPC_Droid_Assassin},
-	//[/CoOp]
-
-
-	//maybe put these guys in some day, for now just spawn reborns in their place.
-	{"NPC_Reborn_New", SP_NPC_Reborn_New },
-	{"NPC_Cultist", SP_NPC_Cultist },
-	{"NPC_Cultist_Saber", SP_NPC_Cultist_Saber },
-	{"NPC_Cultist_Saber_Powers", SP_NPC_Cultist_Saber_Powers },
-	{"NPC_Cultist_Destroyer", SP_NPC_Cultist_Destroyer },
-	{"NPC_Cultist_Commando", SP_NPC_Cultist_Commando },
-
-	//[CoOp]	
-	{"NPC_HazardTrooper", SP_NPC_HazardTrooper },
-	//[/CoOp]
-
-	//rwwFIXMEFIXME: Faked for testing NPCs (another other things) in RMG with sof2 assets
-	{"NPC_Colombian_Soldier", SP_NPC_Reborn },
-	{"NPC_Colombian_Rebel", SP_NPC_Reborn },
-	{"NPC_Colombian_EmplacedGunner", SP_NPC_ShadowTrooper },
-	{"NPC_Manuel_Vergara_RMG", SP_NPC_Desann },
-//	{"info_NPCnav", SP_waypoint},
-
-	{"waypoint", SP_waypoint},
-	{"waypoint_small", SP_waypoint_small},
-	{"waypoint_navgoal", SP_waypoint_navgoal},
-	{"waypoint_navgoal_8", SP_waypoint_navgoal_8},
-	{"waypoint_navgoal_4", SP_waypoint_navgoal_4},
-	{"waypoint_navgoal_2", SP_waypoint_navgoal_2},
-	{"waypoint_navgoal_1", SP_waypoint_navgoal_1},
-
-	{"fx_spacedust", SP_CreateSpaceDust},
-	{"fx_rain", SP_CreateRain},
-	{"fx_snow", SP_CreateSnow},
-
-	{"point_combat", SP_point_combat},
-
-	{"misc_holocron", SP_misc_holocron},
-
-	{"shooter_blaster", SP_shooter_blaster},
-
-	{"team_CTF_redplayer", SP_team_CTF_redplayer},
-	{"team_CTF_blueplayer", SP_team_CTF_blueplayer},
-
-	{"team_CTF_redspawn", SP_team_CTF_redspawn},
-	{"team_CTF_bluespawn", SP_team_CTF_bluespawn},
-
-	{"item_botroam", SP_item_botroam},
-
-	{"emplaced_gun", SP_emplaced_gun},
-
-	//[CoOp]
-	{"emplaced_eweb", SP_emplaced_eweb},
-	//[/CoOp]
-
-	{"misc_turret", SP_misc_turret},
-	{"misc_turretG2", SP_misc_turretG2},
-
-
-	{0, 0}
+	{ "emplaced_eweb",						SP_emplaced_eweb }, //[CoOp]
+	{ "emplaced_gun",						SP_emplaced_gun },
+	{ "func_bobbing",						SP_func_bobbing },
+	{ "func_breakable",						SP_func_breakable },
+	{ "func_button",						SP_func_button },
+	{ "func_door",							SP_func_door },
+	{ "func_glass",							SP_func_glass },
+	{ "func_group",							SP_info_null },
+	{ "func_pendulum",						SP_func_pendulum },
+	{ "func_plat",							SP_func_plat },
+	{ "func_rotating",						SP_func_rotating },
+	{ "func_static",						SP_func_static },
+	{ "func_timer",							SP_func_timer }, // rename trigger_timer?
+	{ "func_train",							SP_func_train },
+	{ "func_usable",						SP_func_usable },
+	{ "func_wall",							SP_func_wall },
+	{ "fx_rain",							SP_CreateRain },
+	{ "fx_runner",							SP_fx_runner },
+	{ "fx_snow",							SP_CreateSnow },
+	{ "fx_spacedust",						SP_CreateSpaceDust },
+	{ "fx_wind",							SP_CreateWind },
+	{ "gametype_item",						SP_gametype_item },
+	{ "info_camp",							SP_info_camp },
+	{ "info_jedimaster_start",				SP_info_jedimaster_start },
+	{ "info_notnull",						SP_info_notnull }, // use target_position instead
+	{ "info_null",							SP_info_null },
+	{ "info_player_deathmatch",				SP_info_player_deathmatch },
+	{ "info_player_duel",					SP_info_player_duel },
+	{ "info_player_duel1",					SP_info_player_duel1 },
+	{ "info_player_duel2",					SP_info_player_duel2 },
+	{ "info_player_intermission",			SP_info_player_intermission },
+	{ "info_player_intermission_blue",		SP_info_player_intermission_blue },
+	{ "info_player_intermission_red",		SP_info_player_intermission_red },
+	{ "info_player_siegeteam1",				SP_info_player_siegeteam1 },
+	{ "info_player_siegeteam2",				SP_info_player_siegeteam2 },
+	{ "info_player_start",					SP_info_player_start },
+	{ "info_player_start_blue",				SP_info_player_start_blue },
+	{ "info_player_start_red",				SP_info_player_start_red },
+	{ "info_siege_decomplete",				SP_info_siege_decomplete },
+	{ "info_siege_objective",				SP_info_siege_objective },
+	{ "info_siege_radaricon",				SP_info_siege_radaricon },
+	{ "item_botroam",						SP_item_botroam },
+	{ "light",								SP_light },
+	{ "misc_ammo_floor_unit",				SP_misc_ammo_floor_unit },
+	{ "misc_bsp",							SP_misc_bsp },
+	{ "misc_camera",						SP_misc_camera }, //[CoOp]
+	{ "misc_cubemap",						SP_misc_cubemap },
+	{ "misc_exploding_crate",				SP_misc_exploding_crate }, //[CoOp]
+	{ "misc_faller",						SP_misc_faller },
+	{ "misc_G2model",						SP_misc_G2model },
+	{ "misc_gas_tank",						SP_misc_gas_tank }, //[CoOp]
+	{ "misc_holocron",						SP_misc_holocron },
+	{ "misc_maglock",						SP_misc_maglock },
+	{ "misc_model",							SP_misc_model },
+	{ "misc_model_ammo_power_converter",	SP_misc_model_ammo_power_converter },
+	{ "misc_model_ammo_rack",				SP_misc_model_ammo_rack }, //[CoOp]
+	{ "misc_model_beacon",					SP_misc_model_beacon }, //[CoOp]
+	{ "misc_model_bomb_planted",				SP_misc_model_bomb_planted }, //[CoOp]
+	{ "misc_model_breakable",				SP_misc_model_breakable },
+	{ "misc_model_gun_rack",				SP_misc_model_gun_rack }, //[CoOp]
+	{ "misc_model_health_power_converter",	SP_misc_model_health_power_converter },
+	{ "misc_model_shield_power_converter",	SP_misc_model_shield_power_converter },
+	{ "misc_model_static",					SP_misc_model_static },
+	{ "misc_portal_camera",					SP_misc_portal_camera },
+	{ "misc_portal_surface",				SP_misc_portal_surface },
+	{ "misc_security_panel",				SP_misc_security_panel }, //[CoOp]
+	{ "misc_sentry_turret",					SP_PAS }, //[CoOp]
+	{ "misc_shield_floor_unit",				SP_misc_shield_floor_unit },
+	{ "misc_siege_item",					SP_misc_siege_item },
+	{ "misc_skyportal",						SP_misc_skyportal },
+	{ "misc_skyportal_orient",				SP_misc_skyportal_orient },
+	{ "misc_spotlight",					SP_misc_spotlight }, //[CoOp]
+	{ "misc_teleporter_dest",				SP_misc_teleporter_dest },
+	{ "misc_trip_mine",					SP_misc_trip_mine }, //[CoOp]
+	{ "misc_turret",						SP_misc_turret },
+	{ "misc_turretG2",						SP_misc_turretG2 },
+	{ "misc_weapon_shooter",				SP_misc_weapon_shooter },
+	{ "misc_weather_zone",					SP_misc_weather_zone },
+	{ "npc_alora",							SP_NPC_Alora },
+	{ "npc_bartender",						SP_NPC_Bartender },
+	{ "npc_bespincop",						SP_NPC_BespinCop },
+	{ "npc_chewbacca",						SP_NPC_Chewbacca }, //[CoOp]
+	{ "npc_colombian_emplacedgunner",		SP_NPC_ShadowTrooper },
+	{ "npc_colombian_rebel",				SP_NPC_Reborn },
+	{ "npc_colombian_soldier",				SP_NPC_Reborn },
+	{ "npc_cultist",						SP_NPC_Cultist },
+	{ "npc_cultist_commando",				SP_NPC_Cultist_Commando },
+	{ "npc_cultist_destroyer",				SP_NPC_Cultist_Destroyer },
+	{ "npc_cultist_saber",					SP_NPC_Cultist_Saber },
+	{ "npc_cultist_saber_powers",			SP_NPC_Cultist_Saber_Powers },
+	{ "npc_desann",							SP_NPC_Desann },
+	{ "npc_droid_assassin",					SP_NPC_Droid_Assassin }, //[CoOp]
+	{ "npc_droid_atst",						SP_NPC_Droid_ATST },
+	{ "npc_droid_gonk",						SP_NPC_Droid_Gonk },
+	{ "npc_droid_interrogator",				SP_NPC_Droid_Interrogator },
+	{ "npc_droid_mark1",					SP_NPC_Droid_Mark1 },
+	{ "npc_droid_mark2",					SP_NPC_Droid_Mark2 },
+	{ "npc_droid_mouse",					SP_NPC_Droid_Mouse },
+	{ "npc_droid_probe",					SP_NPC_Droid_Probe },
+	{ "npc_droid_protocol",					SP_NPC_Droid_Protocol },
+	{ "npc_droid_r2d2",						SP_NPC_Droid_R2D2 },
+	{ "npc_droid_r5d2",						SP_NPC_Droid_R5D2 },
+	{ "npc_droid_remote",					SP_NPC_Droid_Remote },
+	{ "npc_droid_saber",					SP_NPC_Droid_Saber }, //[CoOp]
+	{ "npc_droid_seeker",					SP_NPC_Droid_Seeker },
+	{ "npc_droid_sentry",					SP_NPC_Droid_Sentry },
+	{ "npc_galak",							SP_NPC_Galak },
+	{ "npc_gran",							SP_NPC_Gran },
+	{ "npc_hazardtrooper",					SP_NPC_HazardTrooper }, //[CoOp]
+	{ "npc_human_merc",						SP_NPC_Human_Merc },
+	{ "npc_imperial",						SP_NPC_Imperial },
+	{ "npc_impworker",						SP_NPC_ImpWorker },
+	{ "npc_jan",							SP_NPC_Jan },
+	{ "npc_jawa",							SP_NPC_Jawa },
+	{ "npc_jedi",							SP_NPC_Jedi },
+	{ "npc_kyle",							SP_NPC_Kyle },
+	{ "npc_kothos",							SP_NPC_Kothos }, //[CoOp]
+	{ "npc_lando",							SP_NPC_Lando },
+	{ "npc_lannik_racto",						SP_NPC_Lannik_Racto }, //[CoOp]
+	{ "npc_luke",							SP_NPC_Luke },
+	{ "npc_manuel_vergara_rmg",				SP_NPC_Desann },
+	{ "npc_minemonster",					SP_NPC_MineMonster },
+	{ "npc_monmothma",						SP_NPC_MonMothma },
+	{ "npc_monster_claw",					SP_NPC_Monster_Claw },
+	{ "npc_monster_fish",					SP_NPC_Monster_Fish },
+	{ "npc_monster_flier2",					SP_NPC_Monster_Flier2 },
+	{ "npc_monster_glider",					SP_NPC_Monster_Glider },
+	{ "npc_monster_howler",					SP_NPC_Monster_Howler },
+	{ "npc_monster_lizard",					SP_NPC_Monster_Lizard },
+	{ "npc_monster_murjj",					SP_NPC_Monster_Murjj },
+	{ "npc_monster_rancor",					SP_NPC_Monster_Rancor },
+	{ "npc_monster_sand_creature",				SP_NPC_Monster_Sand_Creature }, //[NPCSandCreature]
+	{ "npc_monster_swamp",					SP_NPC_Monster_Swamp },
+	{ "npc_monster_wampa",					SP_NPC_Monster_Wampa },
+	{ "npc_morgankatarn",					SP_NPC_MorganKatarn },
+	{ "npc_noghri",							SP_NPC_Noghri },
+	{ "npc_player",							SP_NPC_Player }, //[CoOp]
+	{ "npc_prisoner",						SP_NPC_Prisoner },
+	{ "npc_rax",							SP_NPC_Rax }, //[CoOp]
+	{ "npc_rebel",							SP_NPC_Rebel },
+	{ "npc_reborn",							SP_NPC_Reborn },
+	{ "npc_reborn_new",						SP_NPC_Reborn_New },
+	{ "npc_reelo",							SP_NPC_Reelo },
+	{ "npc_rodian",							SP_NPC_Rodian },
+	{ "npc_rosh_penin",						SP_NPC_Rosh_Penin }, //[CoOp]
+	{ "npc_saboteur",						SP_NPC_Saboteur }, //[CoOp]
+	{ "npc_shadowtrooper",					SP_NPC_ShadowTrooper },
+	{ "npc_snowtrooper",					SP_NPC_Snowtrooper },
+	{ "npc_spawner",						SP_NPC_spawner },
+	{ "npc_stormtrooper",					SP_NPC_Stormtrooper },
+	{ "npc_stormtrooperofficer",			SP_NPC_StormtrooperOfficer },
+	{ "npc_swamptrooper",					SP_NPC_SwampTrooper },
+	{ "npc_tavion",							SP_NPC_Tavion },
+	{ "npc_tavion_new",						SP_NPC_Tavion_New },
+	{ "npc_tie_pilot",						SP_NPC_Tie_Pilot },
+	{ "npc_trandoshan",						SP_NPC_Trandoshan },
+	{ "npc_tusken",							SP_NPC_Tusken },
+	{ "npc_ugnaught",						SP_NPC_Ugnaught },
+	{ "npc_vehicle",						SP_NPC_Vehicle },
+	{ "npc_weequay",						SP_NPC_Weequay },
+	{ "path_corner",						SP_path_corner },
+	{ "point_combat",						SP_point_combat },
+	{ "ref_tag",							SP_reference_tag },
+	{ "ref_tag_huge",						SP_reference_tag },
+	{ "shooter_blaster",					SP_shooter_blaster },
+	{ "target_activate",					SP_target_activate },
+	{ "target_autosave",					SP_target_autosave }, //[CoOp]
+	{ "target_counter",						SP_target_counter },
+	{ "target_deactivate",					SP_target_deactivate },
+	{ "target_delay",						SP_target_delay },
+	{ "target_escapetrig",					SP_target_escapetrig },
+	{ "target_give",						SP_target_give },
+	{ "target_interest",					SP_target_interest },
+	{ "target_kill",						SP_target_kill },
+	{ "target_laser",						SP_target_laser },
+	{ "target_level_change",				SP_target_level_change },
+	{ "target_location",					SP_target_location },
+	{ "target_play_music",					SP_target_play_music },
+	{ "target_position",					SP_target_position },
+	{ "target_print",						SP_target_print },
+	{ "target_push",						SP_target_push },
+	{ "target_random",						SP_target_random },
+	{ "target_relay",						SP_target_relay },
+	{ "target_remove_powerups",				SP_target_remove_powerups },
+	{ "target_score",						SP_target_score },
+	{ "target_screenshake",					SP_target_screenshake },
+	{ "target_scriptrunner",				SP_target_scriptrunner },
+	{ "target_secret",					SP_target_secret }, //[CoOp]
+	{ "target_siege_end",					SP_target_siege_end },
+	{ "target_speaker",						SP_target_speaker },
+	{ "target_teleporter",					SP_target_teleporter },
+	{ "team_CTF_blueplayer",				SP_team_CTF_blueplayer },
+	{ "team_CTF_bluespawn",					SP_team_CTF_bluespawn },
+	{ "team_CTF_redplayer",					SP_team_CTF_redplayer },
+	{ "team_CTF_redspawn",					SP_team_CTF_redspawn },
+	{ "terrain",							SP_terrain },
+	{ "trigger_always",						SP_trigger_always },
+	{ "trigger_asteroid_field",				SP_trigger_asteroid_field },
+	{ "trigger_hurt",						SP_trigger_hurt },
+	{ "trigger_hyperspace",					SP_trigger_hyperspace },
+	{ "trigger_lightningstrike",			SP_trigger_lightningstrike },
+	{ "trigger_location",					SP_trigger_location }, //[CoOp]
+	{ "trigger_multiple",					SP_trigger_multiple },
+	{ "trigger_once",						SP_trigger_once },
+	{ "trigger_push",						SP_trigger_push },
+	{ "trigger_shipboundary",				SP_trigger_shipboundary },
+	{ "trigger_space",						SP_trigger_space },
+	{ "trigger_teleport",					SP_trigger_teleport },
+	{ "trigger_visible",					SP_trigger_visible }, //[CoOp]
+	{ "waypoint",							SP_waypoint },
+	{ "waypoint_navgoal",					SP_waypoint_navgoal },
+	{ "waypoint_navgoal_1",					SP_waypoint_navgoal_1 },
+	{ "waypoint_navgoal_2",					SP_waypoint_navgoal_2 },
+	{ "waypoint_navgoal_4",					SP_waypoint_navgoal_4 },
+	{ "waypoint_navgoal_8",					SP_waypoint_navgoal_8 },
+	{ "waypoint_small",						SP_waypoint_small },
 };
 
 /*
@@ -770,21 +764,26 @@ Finds the spawn function for the entity and calls it,
 returning qfalse if not found
 ===============
 */
+static int spawncmp( const void *a, const void *b ) {
+	return Q_stricmp( (const char *)a, ((spawn_t*)b)->name );
+}
+
 qboolean G_CallSpawn( gentity_t *ent ) {
 	spawn_t	*s;
 	gitem_t	*item;
 
 	if ( !ent->classname ) {
-		G_Printf ("G_CallSpawn: NULL classname\n");
+		trap->Print( "G_CallSpawn: NULL classname\n" );
 		return qfalse;
 	}
 
 	// check item spawn functions
+	//TODO: cant reorder items because compat so....?
 	for ( item=bg_itemlist+1 ; item->classname ; item++ ) {
 		if ( !strcmp(item->classname, ent->classname) ) {
 			//[ExpSys]
-			if(g_gametype.integer != GT_JEDIMASTER 
-				&& g_gametype.integer != GT_HOLOCRON
+			if(level.gametype != GT_JEDIMASTER 
+				&& level.gametype != GT_HOLOCRON
 				&& (item->giType == IT_WEAPON || item->giType == IT_AMMO) )
 			{//don't spawn weapons or their ammo as part of the map load.  
 				//Weapons are now given to players when they spawn.
@@ -800,18 +799,17 @@ qboolean G_CallSpawn( gentity_t *ent ) {
 	}
 
 	// check normal spawn functions
-	for ( s=spawns ; s->name ; s++ ) {
-		if ( !strcmp(s->name, ent->classname) ) {
-			// found it
-			if (ent->healingsound && ent->healingsound[0])
-			{ //yeah...this can be used for anything, so.. precache it if it's there
-				G_SoundIndex(ent->healingsound);
-			}
-			s->spawn(ent);
-			return qtrue;
-		}
+	s = (spawn_t *)Q_LinearSearch( ent->classname, spawns, ARRAY_LEN( spawns ), sizeof( spawn_t ), spawncmp );
+	if ( s )
+	{// found it
+		if ( VALIDSTRING( ent->healingsound ) )
+			G_SoundIndex( ent->healingsound );
+
+		s->spawn( ent );
+		return qtrue;
 	}
-	G_Printf ("%s doesn't have a spawn function\n", ent->classname);
+
+	trap->Print( "%s doesn't have a spawn function\n", ent->classname );
 	return qfalse;
 }
 
@@ -823,36 +821,145 @@ Builds a copy of the string, translating \n to real linefeeds
 so message texts can be multi-line
 =============
 */
-char *G_NewString( const char *string ) {
-	char	*newb, *new_p;
-	int		i,l;
-	
-	l = strlen(string) + 1;
+char *G_NewString( const char *string )
+{
+	char *newb=NULL, *new_p=NULL;
+	int i=0, len=0;
 
-	newb = (char *) G_Alloc( l );
+	len = strlen( string )+1;
+	new_p = newb = (char *)G_Alloc( len );
 
-	new_p = newb;
-
-	// turn \n into a real linefeed
-	for ( i=0 ; i< l ; i++ ) {
-		if (string[i] == '\\' && i < l-1) {
-			i++;
-			if (string[i] == 'n') {
+	for ( i=0; i<len; i++ )
+	{// turn \n into a real linefeed
+		if ( string[i] == '\\' && i < len-1 )
+		{
+			if ( string[i+1] == 'n' )
+			{
 				*new_p++ = '\n';
-			} else {
-				*new_p++ = '\\';
+				i++;
 			}
-		} else {
-			*new_p++ = string[i];
+			else
+				*new_p++ = '\\';
 		}
+		else
+			*new_p++ = string[i];
 	}
-	
+
 	return newb;
 }
 
+char *G_NewString_Safe( const char *string )
+{
+	char *newb=NULL, *new_p=NULL;
+	int i=0, len=0;
 
+	len = strlen( string )+1;
+	new_p = newb = (char *)malloc( len );
 
+	if ( !new_p )
+		return NULL;
 
+	for ( i=0; i<len; i++ )
+	{// turn \n into a real linefeed
+		if ( string[i] == '\\' && i < len-1 )
+		{
+			if ( string[i+1] == 'n' )
+			{
+				*new_p++ = '\n';
+				i++;
+			}
+			else
+				*new_p++ = '\\';
+		}
+		else
+			*new_p++ = string[i];
+	}
+
+	return newb;
+}
+
+/*
+===============
+G_ParseField
+
+Takes a key/value pair and sets the binary values
+in a gentity
+===============
+*/
+
+static int fieldcmp( const void *a, const void *b ) {
+	return Q_stricmp( (const char *)a, ((field_t*)b)->name );
+}
+
+void Q3_SetParm ( int entID, int parmNum, const char *parmValue );
+void G_ParseField( const char *key, const char *value, gentity_t *ent )
+{
+	field_t	*f;
+	byte	*b;
+	float	v;
+	vec3_t	vec;
+
+	f = (field_t *)Q_LinearSearch( key, fields, ARRAY_LEN( fields ), sizeof( field_t ), fieldcmp );
+	if ( f )
+	{// found it
+		b = (byte *)ent;
+
+		switch( f->type ) {
+		case F_STRING:
+			*(char **)(b+f->ofs) = G_NewString (value);
+			break;
+		case F_VECTOR:
+			if ( sscanf( value, "%f %f %f", &vec[0], &vec[1], &vec[2] ) == 3 ) {
+				((float *)(b+f->ofs))[0] = vec[0];
+				((float *)(b+f->ofs))[1] = vec[1];
+				((float *)(b+f->ofs))[2] = vec[2];
+			}
+			else {
+				trap->Print( "G_ParseField: Failed sscanf on F_VECTOR (key/value: %s/%s)\n", key, value );
+				((float *)(b+f->ofs))[0] = ((float *)(b+f->ofs))[1] = ((float *)(b+f->ofs))[2] = 0.0f;
+			}
+			break;
+		case F_INT:
+			*(int *)(b+f->ofs) = atoi(value);
+			break;
+		case F_FLOAT:
+			*(float *)(b+f->ofs) = atof(value);
+			break;
+		case F_ANGLEHACK:
+			v = atof(value);
+			((float *)(b+f->ofs))[0] = 0;
+			((float *)(b+f->ofs))[1] = v;
+			((float *)(b+f->ofs))[2] = 0;
+			break;
+		case F_PARM1:
+		case F_PARM2:
+		case F_PARM3:
+		case F_PARM4:
+		case F_PARM5:
+		case F_PARM6:
+		case F_PARM7:
+		case F_PARM8:
+		case F_PARM9:
+		case F_PARM10:
+		case F_PARM11:
+		case F_PARM12:
+		case F_PARM13:
+		case F_PARM14:
+		case F_PARM15:
+		case F_PARM16:
+			Q3_SetParm( ent->s.number, (f->type - F_PARM1), (char *) value );
+			break;
+		}
+		return;
+	}
+}
+
+#define ADJUST_AREAPORTAL() \
+	if(ent->s.eType == ET_MOVER) \
+	{ \
+		trap->LinkEntity((sharedEntity_t *)ent); \
+		trap->AdjustAreaPortalState((sharedEntity_t *)ent, qtrue); \
+	}
 
 /*
 ===================
@@ -862,9 +969,6 @@ Spawn an entity and fill in all of the level fields from
 level.spawnVars[], then call the class specfic spawn function
 ===================
 */
-#include "../namespace_begin.h"
-void BG_ParseField( BG_field_t *l_fields, const char *key, const char *value, byte *ent );
-#include "../namespace_end.h"
 void G_SpawnGEntityFromSpawnVars( qboolean inSubBSP ) {
 	int			i;
 	gentity_t	*ent;
@@ -875,44 +979,42 @@ void G_SpawnGEntityFromSpawnVars( qboolean inSubBSP ) {
 	ent = G_Spawn();
 
 	for ( i = 0 ; i < level.numSpawnVars ; i++ ) {
-		BG_ParseField( fields, level.spawnVars[i][0], level.spawnVars[i][1], (byte *)ent );
+		G_ParseField( level.spawnVars[i][0], level.spawnVars[i][1], ent );
 	}
 
 	// check for "notsingle" flag
-	if ( g_gametype.integer == GT_SINGLE_PLAYER ) {
+	if ( level.gametype == GT_SINGLE_PLAYER ) {
 		G_SpawnInt( "notsingle", "0", &i );
 		if ( i ) {
+			ADJUST_AREAPORTAL();
 			G_FreeEntity( ent );
 			return;
 		}
 	}
 	// check for "notteam" flag (GT_FFA, GT_DUEL, GT_SINGLE_PLAYER)
-	if ( g_gametype.integer >= GT_TEAM ) {
+	if ( level.gametype >= GT_TEAM ) {
 		G_SpawnInt( "notteam", "0", &i );
 		if ( i ) {
+			ADJUST_AREAPORTAL();
 			G_FreeEntity( ent );
 			return;
 		}
 	} else {
 		G_SpawnInt( "notfree", "0", &i );
 		if ( i ) {
+			ADJUST_AREAPORTAL();
 			G_FreeEntity( ent );
 			return;
 		}
 	}
 
-	G_SpawnInt( "notta", "0", &i );
-	if ( i ) {
-		G_FreeEntity( ent );
-		return;
-	}
-
 	if( G_SpawnString( "gametype", NULL, &value ) ) {
-		if( g_gametype.integer >= GT_FFA && g_gametype.integer < GT_MAX_GAME_TYPE ) {
-			gametypeName = gametypeNames[g_gametype.integer];
+		if( level.gametype >= GT_FFA && level.gametype < GT_MAX_GAME_TYPE ) {
+			gametypeName = gametypeNames[level.gametype];
 
 			s = strstr( value, gametypeName );
 			if( !s ) {
+				ADJUST_AREAPORTAL();
 				G_FreeEntity( ent );
 				return;
 			}
@@ -929,9 +1031,9 @@ void G_SpawnGEntityFromSpawnVars( qboolean inSubBSP ) {
 	}
 
 	//Tag on the ICARUS scripting information only to valid recipients
-	if ( trap_ICARUS_ValidEnt( ent ) )
+	if ( trap->ICARUS_ValidEnt( (sharedEntity_t *)ent ) )
 	{
-		trap_ICARUS_InitEnt( ent );
+		trap->ICARUS_InitEnt( (sharedEntity_t *)ent );
 
 		if ( ent->classname && ent->classname[0] )
 		{
@@ -942,8 +1044,6 @@ void G_SpawnGEntityFromSpawnVars( qboolean inSubBSP ) {
 		}
 	}
 }
-
-
 
 /*
 ====================
@@ -956,7 +1056,7 @@ char *G_AddSpawnVarToken( const char *string ) {
 
 	l = strlen( string );
 	if ( level.numSpawnVarChars + l + 1 > MAX_SPAWN_VARS_CHARS ) {
-		G_Error( "G_AddSpawnVarToken: MAX_SPAWN_CHARS" );
+		trap->Error( ERR_DROP, "G_AddSpawnVarToken: MAX_SPAWN_VARS_CHARS" );
 	}
 
 	dest = level.spawnVarChars + level.numSpawnVarChars;
@@ -997,7 +1097,10 @@ static void HandleEntityAdjustment(void)
 	G_SpawnString("origin", NOVALUE, &value);
 	if (Q_stricmp(value, NOVALUE) != 0)
 	{
-		sscanf( value, "%f %f %f", &origin[0], &origin[1], &origin[2] );
+		if ( sscanf( value, "%f %f %f", &origin[0], &origin[1], &origin[2] ) != 3 ) {
+			trap->Print( "HandleEntityAdjustment: failed sscanf on 'origin' (%s)\n", value );
+			VectorClear( origin );
+		}
 	}
 	else
 	{
@@ -1010,17 +1113,20 @@ static void HandleEntityAdjustment(void)
 	newOrigin[2] = origin[2];
 	VectorAdd(newOrigin, level.mOriginAdjust, newOrigin);
 	// damn VMs don't handle outputing a float that is compatible with sscanf in all cases
-	Com_sprintf(temp, MAX_QPATH, "%0.0f %0.0f %0.0f", newOrigin[0], newOrigin[1], newOrigin[2]);
+	Com_sprintf(temp, sizeof( temp ), "%0.0f %0.0f %0.0f", newOrigin[0], newOrigin[1], newOrigin[2]);
 	AddSpawnField("origin", temp);
 
 	G_SpawnString("angles", NOVALUE, &value);
 	if (Q_stricmp(value, NOVALUE) != 0)
 	{
-		sscanf( value, "%f %f %f", &angles[0], &angles[1], &angles[2] );
+		if ( sscanf( value, "%f %f %f", &angles[0], &angles[1], &angles[2] ) != 3 ) {
+			trap->Print( "HandleEntityAdjustment: failed sscanf on 'angles' (%s)\n", value );
+			VectorClear( angles );
+		}
 
-		angles[1] = fmod(angles[1] + level.mRotationAdjust, 360.0f);
+		angles[YAW] = fmod(angles[YAW] + level.mRotationAdjust, 360.0f);
 		// damn VMs don't handle outputing a float that is compatible with sscanf in all cases
-		Com_sprintf(temp, MAX_QPATH, "%0.0f %0.0f %0.0f", angles[0], angles[1], angles[2]);
+		Com_sprintf(temp, sizeof( temp ), "%0.0f %0.0f %0.0f", angles[0], angles[1], angles[2]);
 		AddSpawnField("angles", temp);
 	}
 	else
@@ -1028,14 +1134,14 @@ static void HandleEntityAdjustment(void)
 		G_SpawnString("angle", NOVALUE, &value);
 		if (Q_stricmp(value, NOVALUE) != 0)
 		{
-			sscanf( value, "%f", &angles[1] );
+			angles[YAW] = atof( value );
 		}
 		else
 		{
-			angles[1] = 0.0;
+			angles[YAW] = 0.0;
 		}
-		angles[1] = fmod(angles[1] + level.mRotationAdjust, 360.0f);
-		Com_sprintf(temp, MAX_QPATH, "%0.0f", angles[1]);
+		angles[YAW] = fmod(angles[YAW] + level.mRotationAdjust, 360.0f);
+		Com_sprintf(temp, sizeof( temp ), "%0.0f", angles[YAW]);
 		AddSpawnField("angle", temp);
 	}
 
@@ -1044,14 +1150,17 @@ static void HandleEntityAdjustment(void)
 	G_SpawnString("direction", NOVALUE, &value);
 	if (Q_stricmp(value, NOVALUE) != 0)
 	{
-		sscanf( value, "%f %f %f", &angles[0], &angles[1], &angles[2] );
+		if ( sscanf( value, "%f %f %f", &angles[0], &angles[1], &angles[2] ) != 3 ) {
+			trap->Print( "HandleEntityAdjustment: failed sscanf on 'direction' (%s)\n", value );
+			VectorClear( angles );
+		}
 	}
 	else
 	{
 		angles[0] = angles[1] = angles[2] = 0.0;
 	}
-	angles[1] = fmod(angles[1] + level.mRotationAdjust, 360.0f);
-	Com_sprintf(temp, MAX_QPATH, "%0.0f %0.0f %0.0f", angles[0], angles[1], angles[2]);
+	angles[YAW] = fmod(angles[YAW] + level.mRotationAdjust, 360.0f);
+	Com_sprintf(temp, sizeof( temp ), "%0.0f %0.0f %0.0f", angles[0], angles[1], angles[2]);
 	AddSpawnField("direction", temp);
 
 
@@ -1060,49 +1169,49 @@ static void HandleEntityAdjustment(void)
 	G_SpawnString("targetname", NOVALUE, &value);
 	if (Q_stricmp(value, NOVALUE) != 0)
 	{
-		Com_sprintf(temp, MAX_QPATH, "%s%s", level.mTargetAdjust, value);
+		Com_sprintf(temp, sizeof( temp ), "%s%s", level.mTargetAdjust, value);
 		AddSpawnField("targetname", temp);
 	}
 
 	G_SpawnString("target", NOVALUE, &value);
 	if (Q_stricmp(value, NOVALUE) != 0)
 	{
-		Com_sprintf(temp, MAX_QPATH, "%s%s", level.mTargetAdjust, value);
+		Com_sprintf(temp, sizeof( temp ), "%s%s", level.mTargetAdjust, value);
 		AddSpawnField("target", temp);
 	}
 
 	G_SpawnString("killtarget", NOVALUE, &value);
 	if (Q_stricmp(value, NOVALUE) != 0)
 	{
-		Com_sprintf(temp, MAX_QPATH, "%s%s", level.mTargetAdjust, value);
+		Com_sprintf(temp, sizeof( temp ), "%s%s", level.mTargetAdjust, value);
 		AddSpawnField("killtarget", temp);
 	}
 
 	G_SpawnString("brushparent", NOVALUE, &value);
 	if (Q_stricmp(value, NOVALUE) != 0)
 	{
-		Com_sprintf(temp, MAX_QPATH, "%s%s", level.mTargetAdjust, value);
+		Com_sprintf(temp, sizeof( temp ), "%s%s", level.mTargetAdjust, value);
 		AddSpawnField("brushparent", temp);
 	}
 
 	G_SpawnString("brushchild", NOVALUE, &value);
 	if (Q_stricmp(value, NOVALUE) != 0)
 	{
-		Com_sprintf(temp, MAX_QPATH, "%s%s", level.mTargetAdjust, value);
+		Com_sprintf(temp, sizeof( temp ), "%s%s", level.mTargetAdjust, value);
 		AddSpawnField("brushchild", temp);
 	}
 
 	G_SpawnString("enemy", NOVALUE, &value);
 	if (Q_stricmp(value, NOVALUE) != 0)
 	{
-		Com_sprintf(temp, MAX_QPATH, "%s%s", level.mTargetAdjust, value);
+		Com_sprintf(temp, sizeof( temp ), "%s%s", level.mTargetAdjust, value);
 		AddSpawnField("enemy", temp);
 	}
 
 	G_SpawnString("ICARUSname", NOVALUE, &value);
 	if (Q_stricmp(value, NOVALUE) != 0)
 	{
-		Com_sprintf(temp, MAX_QPATH, "%s%s", level.mTargetAdjust, value);
+		Com_sprintf(temp, sizeof( temp ), "%s%s", level.mTargetAdjust, value);
 		AddSpawnField("ICARUSname", temp);
 	}
 }
@@ -1125,35 +1234,35 @@ qboolean G_ParseSpawnVars( qboolean inSubBSP ) {
 	level.numSpawnVarChars = 0;
 
 	// parse the opening brace
-	if ( !trap_GetEntityToken( com_token, sizeof( com_token ) ) ) {
+	if ( !trap->GetEntityToken( com_token, sizeof( com_token ) ) ) {
 		// end of spawn string
 		return qfalse;
 	}
 	if ( com_token[0] != '{' ) {
-		G_Error( "G_ParseSpawnVars: found %s when expecting {",com_token );
+		trap->Error( ERR_DROP, "G_ParseSpawnVars: found %s when expecting {",com_token );
 	}
 
 	// go through all the key / value pairs
-	while ( 1 ) {	
+	while ( 1 ) {
 		// parse key
-		if ( !trap_GetEntityToken( keyname, sizeof( keyname ) ) ) {
-			G_Error( "G_ParseSpawnVars: EOF without closing brace" );
+		if ( !trap->GetEntityToken( keyname, sizeof( keyname ) ) ) {
+			trap->Error( ERR_DROP, "G_ParseSpawnVars: EOF without closing brace" );
 		}
 
 		if ( keyname[0] == '}' ) {
 			break;
 		}
-		
-		// parse value	
-		if ( !trap_GetEntityToken( com_token, sizeof( com_token ) ) ) {
-			G_Error( "G_ParseSpawnVars: EOF without closing brace" );
+
+		// parse value
+		if ( !trap->GetEntityToken( com_token, sizeof( com_token ) ) ) {
+			trap->Error( ERR_DROP, "G_ParseSpawnVars: EOF without closing brace" );
 		}
 
 		if ( com_token[0] == '}' ) {
-			G_Error( "G_ParseSpawnVars: closing brace without data" );
+			trap->Error( ERR_DROP, "G_ParseSpawnVars: closing brace without data" );
 		}
 		if ( level.numSpawnVars == MAX_SPAWN_VARS ) {
-			G_Error( "G_ParseSpawnVars: MAX_SPAWN_VARS" );
+			trap->Error( ERR_DROP, "G_ParseSpawnVars: MAX_SPAWN_VARS" );
 		}
 		level.spawnVars[ level.numSpawnVars ][0] = G_AddSpawnVarToken( keyname );
 		level.spawnVars[ level.numSpawnVars ][1] = G_AddSpawnVarToken( com_token );
@@ -1169,7 +1278,7 @@ qboolean G_ParseSpawnVars( qboolean inSubBSP ) {
 }
 
 
-static	char *defaultStyles[32][3] = 
+static	char *defaultStyles[32][3] =
 {
 	{	// 0 normal
 		"z",
@@ -1362,7 +1471,7 @@ void LoadDynamicMusic(void);
 
 extern void EWebPrecache(void); //g_items.c
 float g_cullDistance;
-void SP_worldspawn( void ) 
+void SP_worldspawn( void )
 {
 	char		*text, temp[32];
 	int			i;
@@ -1371,18 +1480,18 @@ void SP_worldspawn( void )
 	//I want to "cull" entities out of net sends to clients to reduce
 	//net traffic on our larger open maps -rww
 	G_SpawnFloat("distanceCull", "6000.0", &g_cullDistance);
-	trap_SetServerCull(g_cullDistance);
+	trap->SetServerCull(g_cullDistance);
 
 	G_SpawnString( "classname", "", &text );
 	if ( Q_stricmp( text, "worldspawn" ) ) {
-		G_Error( "SP_worldspawn: The first entity isn't 'worldspawn'" );
+		trap->Error( ERR_DROP, "SP_worldspawn: The first entity isn't 'worldspawn'" );
 	}
 
-	for ( i = 0 ; i < level.numSpawnVars ; i++ ) 
+	for ( i = 0 ; i < level.numSpawnVars ; i++ )
 	{
 		if ( Q_stricmp( "spawnscript", level.spawnVars[i][0] ) == 0 )
 		{//ONly let them set spawnscript, we don't want them setting an angle or something on the world.
-			BG_ParseField( fields, level.spawnVars[i][0], level.spawnVars[i][1], (byte *)&g_entities[ENTITYNUM_WORLD] );
+			G_ParseField( level.spawnVars[i][0], level.spawnVars[i][1], &g_entities[ENTITYNUM_WORLD] );
 		}
 	}
 	//The server will precache the standard model and animations, so that there is no hit
@@ -1396,37 +1505,37 @@ void SP_worldspawn( void )
 	{
 		int defSkin;
 
-		trap_G2API_InitGhoul2Model(&precachedKyle, "models/players/kyle/model.glm", 0, 0, -20, 0, 0);
+		trap->G2API_InitGhoul2Model(&precachedKyle, "models/players/kyle/model.glm", 0, 0, -20, 0, 0);
 
 		if (precachedKyle)
 		{
-			defSkin = trap_R_RegisterSkin("models/players/kyle/model_default.skin");
-			trap_G2API_SetSkin(precachedKyle, 0, defSkin, defSkin);
+			defSkin = trap->R_RegisterSkin("models/players/kyle/model_default.skin");
+			trap->G2API_SetSkin(precachedKyle, 0, defSkin, defSkin);
 		}
 	}
 
 	if (!g2SaberInstance)
 	{
-		trap_G2API_InitGhoul2Model(&g2SaberInstance, "models/weapons2/saber/saber_w.glm", 0, 0, -20, 0, 0);
+		trap->G2API_InitGhoul2Model(&g2SaberInstance, "models/weapons2/saber/saber_w.glm", 0, 0, -20, 0, 0);
 
 		if (g2SaberInstance)
 		{
 			// indicate we will be bolted to model 0 (ie the player) on bolt 0 (always the right hand) when we get copied
-			trap_G2API_SetBoltInfo(g2SaberInstance, 0, 0);
+			trap->G2API_SetBoltInfo(g2SaberInstance, 0, 0);
 			// now set up the gun bolt on it
-			trap_G2API_AddBolt(g2SaberInstance, 0, "*blade1");
+			trap->G2API_AddBolt(g2SaberInstance, 0, "*blade1");
 		}
 	}
 
-	if (g_gametype.integer == GT_SIEGE)
+	if (level.gametype == GT_SIEGE)
 	{ //a tad bit of a hack, but..
 		EWebPrecache();
 	}
 
 	// make some data visible to connecting client
-	trap_SetConfigstring( CS_GAME_VERSION, GAME_VERSION );
+	trap->SetConfigstring( CS_GAME_VERSION, GAME_VERSION );
 
-	trap_SetConfigstring( CS_LEVEL_START_TIME, va("%i", level.startTime ) );
+	trap->SetConfigstring( CS_LEVEL_START_TIME, va("%i", level.startTime ) );
 
 	G_SpawnString( "music", "", &text );
 	//[DynamicMusic]
@@ -1436,72 +1545,77 @@ void SP_worldspawn( void )
 	}
 	//[/DynamicMusic]
 
-	trap_SetConfigstring( CS_MUSIC, text );
+	trap->SetConfigstring( CS_MUSIC, text );
 
 	G_SpawnString( "message", "", &text );
-	trap_SetConfigstring( CS_MESSAGE, text );				// map specific message
+	trap->SetConfigstring( CS_MESSAGE, text );				// map specific message
 
-	trap_SetConfigstring( CS_MOTD, g_motd.string );		// message of the day
+	trap->SetConfigstring( CS_MOTD, g_motd.string );		// message of the day
 
 	G_SpawnString( "gravity", "800", &text );
-	trap_Cvar_Set( "g_gravity", text );
+	trap->Cvar_Set( "g_gravity", text );
+	trap->Cvar_Update( &g_gravity );
 
 	G_SpawnString( "enableBreath", "0", &text );
-	trap_Cvar_Set( "g_enableBreath", text );
 
 	G_SpawnString( "soundSet", "default", &text );
-	trap_SetConfigstring( CS_GLOBAL_AMBIENT_SET, text );
+	trap->SetConfigstring( CS_GLOBAL_AMBIENT_SET, text );
 
 	g_entities[ENTITYNUM_WORLD].s.number = ENTITYNUM_WORLD;
+	g_entities[ENTITYNUM_WORLD].r.ownerNum = ENTITYNUM_NONE;
 	g_entities[ENTITYNUM_WORLD].classname = "worldspawn";
 
+	g_entities[ENTITYNUM_NONE].s.number = ENTITYNUM_NONE;
+	g_entities[ENTITYNUM_NONE].r.ownerNum = ENTITYNUM_NONE;
+	g_entities[ENTITYNUM_NONE].classname = "nothing";
+
 	// see if we want a warmup time
-	trap_SetConfigstring( CS_WARMUP, "" );
+	trap->SetConfigstring( CS_WARMUP, "" );
 	if ( g_restarted.integer ) {
-		trap_Cvar_Set( "g_restarted", "0" );
+		trap->Cvar_Set( "g_restarted", "0" );
+		trap->Cvar_Update( &g_restarted );
 		level.warmupTime = 0;
 	} 
-	/*
 	//[CoOp]
 	//Don't use warm up in CoOp
-	else if ( g_doWarmup.integer && g_gametype.integer != GT_DUEL 
-		&& g_gametype.integer != GT_POWERDUEL
-		&& g_gametype.integer != GT_SINGLE_PLAYER ) 
+	else if ( g_doWarmup.integer && level.gametype != GT_DUEL
+		&& level.gametype != GT_POWERDUEL
+		&& level.gametype != GT_SINGLE_PLAYER
+		&& level.gametype != GT_SIEGE ) 
 	{ // Turn it on
 	//[/CoOp]
 		level.warmupTime = -1;
-		trap_SetConfigstring( CS_WARMUP, va("%i", level.warmupTime) );
+		trap->SetConfigstring( CS_WARMUP, va("%i", level.warmupTime) );
 		G_LogPrintf( "Warmup:\n" );
 	}
-	*/
 
-	trap_SetConfigstring(CS_LIGHT_STYLES+(LS_STYLES_START*3)+0, defaultStyles[0][0]);
-	trap_SetConfigstring(CS_LIGHT_STYLES+(LS_STYLES_START*3)+1, defaultStyles[0][1]);
-	trap_SetConfigstring(CS_LIGHT_STYLES+(LS_STYLES_START*3)+2, defaultStyles[0][2]);
-	
+	trap->SetConfigstring(CS_LIGHT_STYLES+(LS_STYLES_START*3)+0, defaultStyles[0][0]);
+	trap->SetConfigstring(CS_LIGHT_STYLES+(LS_STYLES_START*3)+1, defaultStyles[0][1]);
+	trap->SetConfigstring(CS_LIGHT_STYLES+(LS_STYLES_START*3)+2, defaultStyles[0][2]);
+
 	for(i=1;i<LS_NUM_STYLES;i++)
 	{
 		Com_sprintf(temp, sizeof(temp), "ls_%dr", i);
 		G_SpawnString(temp, defaultStyles[i][0], &text);
 		lengthRed = strlen(text);
-		trap_SetConfigstring(CS_LIGHT_STYLES+((i+LS_STYLES_START)*3)+0, text);
+		trap->SetConfigstring(CS_LIGHT_STYLES+((i+LS_STYLES_START)*3)+0, text);
 
 		Com_sprintf(temp, sizeof(temp), "ls_%dg", i);
 		G_SpawnString(temp, defaultStyles[i][1], &text);
 		lengthGreen = strlen(text);
-		trap_SetConfigstring(CS_LIGHT_STYLES+((i+LS_STYLES_START)*3)+1, text);
+		trap->SetConfigstring(CS_LIGHT_STYLES+((i+LS_STYLES_START)*3)+1, text);
 
 		Com_sprintf(temp, sizeof(temp), "ls_%db", i);
 		G_SpawnString(temp, defaultStyles[i][2], &text);
 		lengthBlue = strlen(text);
-		trap_SetConfigstring(CS_LIGHT_STYLES+((i+LS_STYLES_START)*3)+2, text);
+		trap->SetConfigstring(CS_LIGHT_STYLES+((i+LS_STYLES_START)*3)+2, text);
 
 		if (lengthRed != lengthGreen || lengthGreen != lengthBlue)
 		{
-			Com_Error(ERR_DROP, "Style %d has inconsistent lengths: R %d, G %d, B %d", 
+			Com_Error(ERR_DROP, "Style %d has inconsistent lengths: R %d, G %d, B %d",
 				i, lengthRed, lengthGreen, lengthBlue);
 		}
-	}		
+	}
 }
 
 //rww - Planning on having something here?
@@ -1533,6 +1647,24 @@ void G_PrecacheSoundsets( void )
 	}
 }
 
+void G_LinkLocations( void ) {
+	int i, n;
+
+	if ( level.locations.linked )
+		return;
+
+	level.locations.linked = qtrue;
+
+	trap->SetConfigstring( CS_LOCATIONS, "unknown" );
+
+	for ( i=0, n=1; i<level.locations.num; i++ ) {
+		level.locations.data[i].cs_index = n;
+		trap->SetConfigstring( CS_LOCATIONS + n, level.locations.data[i].message );
+		n++;
+	}
+	// All linked together now
+}
+
 /*
 ==============
 G_SpawnEntitiesFromString
@@ -1549,7 +1681,7 @@ void G_SpawnEntitiesFromString( qboolean inSubBSP ) {
 	// has a "spawn" function to perform any global setup
 	// needed by a level (setting configstrings or cvars, etc)
 	if ( !G_ParseSpawnVars(qfalse) ) {
-		G_Error( "SpawnEntities: no entities" );
+		trap->Error( ERR_DROP, "SpawnEntities: no entities" );
 	}
 
 	if (!inSubBSP)
@@ -1568,7 +1700,7 @@ void G_SpawnEntitiesFromString( qboolean inSubBSP ) {
 	// parse ents
 	while( G_ParseSpawnVars(inSubBSP) ) {
 		G_SpawnGEntityFromSpawnVars(inSubBSP);
-	}	
+	}
 
 	//[test]
 	//G_SpewEntList();
@@ -1587,7 +1719,7 @@ void G_SpawnEntitiesFromString( qboolean inSubBSP ) {
 
 			if ( script_runner->inuse )
 			{
-				trap_ICARUS_InitEnt( script_runner );
+				trap->ICARUS_InitEnt( (sharedEntity_t *)script_runner );
 			}
 		}
 	}
@@ -1596,6 +1728,8 @@ void G_SpawnEntitiesFromString( qboolean inSubBSP ) {
 	{
 		level.spawning = qfalse;			// any future calls to G_Spawn*() will be errors
 	}
+
+	G_LinkLocations();
 
 	G_PrecacheSoundsets();
 }

@@ -37,8 +37,7 @@ typedef enum
 	HC_RANDOM,
 	
 	NUM_HOLOCRON_TYPES
-};
-typedef int holocrontypes_t;
+} holocrontypes_t;
 
 typedef struct holocrons_s           // Holocon Structure
 {
@@ -63,19 +62,19 @@ void Init_Holocron_Table ( void )
 // Description  : Adds a holocron position to the array.
 void AOTCTC_Holocron_Add ( gentity_t *ent )
 {
-	if (g_gametype.integer != GT_HOLOCRON)
+	if (level.gametype != GT_HOLOCRON)
 		return;
 
 	if (number_of_holocronpositions > MAX_HOLOCRON_POSITIONS)
 	{
-		G_Printf("^3Warning! ^5Hit maximum holocron positions (^7%i^5)!\n", MAX_HOLOCRON_POSITIONS);
+		Com_Printf("^3Warning! ^5Hit maximum holocron positions (^7%i^5)!\n", MAX_HOLOCRON_POSITIONS);
 		return;
 	}
 
 	VectorCopy(ent->r.currentOrigin, holocrons[number_of_holocronpositions].origin);
 	holocrons[number_of_holocronpositions].type = HC_RANDOM; // For now randomly lay them from places in the list.
 
-	G_Printf("^5Holocron number ^7%i^5 added at position ^7%f %f %f^5.\n", 
+	Com_Printf("^5Holocron number ^7%i^5 added at position ^7%f %f %f^5.\n", 
 		number_of_holocronpositions, 
 		holocrons[number_of_holocronpositions].origin[0],
 		holocrons[number_of_holocronpositions].origin[1],
@@ -101,35 +100,35 @@ void AOTCTC_Holocron_Loadpositions( void )
 	int holocron_number = 0;
 	vmCvar_t		mapname;
 
-	G_Printf("^5Loading holocron position table...");
+	Com_Printf("^5Loading holocron position table...");
 
-	trap_Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
+	trap->Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
 
 	Com_sprintf(loadPath, sizeof(loadPath), "holocron_positions/%s.hpf", mapname.string);
 
-	len = trap_FS_FOpenFile( loadPath, &f, FS_READ );
+	len = trap->FS_Open( loadPath, &f, FS_READ );
 	if ( !f )
 	{
-		G_Printf(" ^3FAILED!!!\n");
-		G_Printf("^5No file exists! (^3%s^5)\n", loadPath);
+		Com_Printf(" ^3FAILED!!!\n");
+		Com_Printf("^5No file exists! (^3%s^5)\n", loadPath);
 		return;
 	}
 	if ( !len )
 	{ //empty file
-		G_Printf(" ^3FAILED!!!\n");
-		G_Printf("^5Empty file!\n");
-		trap_FS_FCloseFile( f );
+		Com_Printf(" ^3FAILED!!!\n");
+		Com_Printf("^5Empty file!\n");
+		trap->FS_Close( f );
 		return;
 	}
 
 	if ( (buf = BG_TempAlloc(len+1)) == 0 )
 	{//alloc memory for buffer
-		G_Printf(" ^3FAILED!!!\n");
-		G_Printf("^5Unable to allocate buffer.\n");
+		Com_Printf(" ^3FAILED!!!\n");
+		Com_Printf("^5Unable to allocate buffer.\n");
 		return;
 	}
-	trap_FS_Read( buf, len, f );
-	trap_FS_FCloseFile( f );
+	trap->FS_Read( buf, len, f );
+	trap->FS_Close( f );
 
 	for (t = s = buf; *t; /* */ ) 
 	{
@@ -149,8 +148,8 @@ void AOTCTC_Holocron_Loadpositions( void )
 				
 				if (number_of_holocronpositions <= 18)
 				{
-					G_Printf(" ^3FAILED!!!\n");
-					G_Printf("^5You need at least 18 holocron points!\n");
+					Com_Printf(" ^3FAILED!!!\n");
+					Com_Printf("^5You need at least 18 holocron points!\n");
 					return;
 				}
 			}
@@ -180,8 +179,8 @@ void AOTCTC_Holocron_Loadpositions( void )
 
 	BG_TempFree(len+1);
 
-	G_Printf(" ^3Completed OK.\n");
-	G_Printf("^5Total Holocron Positions: ^7%i^5.\n", number_of_holocronpositions);
+	Com_Printf(" ^3Completed OK.\n");
+	Com_Printf("^5Total Holocron Positions: ^7%i^5.\n", number_of_holocronpositions);
 	holocrons_loaded = qtrue;
 }
 
@@ -201,15 +200,15 @@ void AOTCTC_Holocron_Savepositions( void )
 
 	number_of_holocronpositions--;
 
-	G_Printf("^7Saving holocron position table.\n");
+	Com_Printf("^7Saving holocron position table.\n");
 
 	fileString = NULL;
 
-	trap_Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
+	trap->Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
 
 	Com_sprintf(savePath, sizeof(savePath), "holocron_positions/%s.hpf", mapname.string);
 
-	trap_FS_FOpenFile(savePath, &f, FS_WRITE);
+	trap->FS_Open(savePath, &f, FS_WRITE);
 
 	if ( !f )
 	{
@@ -217,7 +216,7 @@ void AOTCTC_Holocron_Savepositions( void )
 	}
 
 	Com_sprintf( lineout, sizeof(lineout), "%i ", number_of_holocronpositions);
-	trap_FS_Write( lineout, strlen(lineout), f);
+	trap->FS_Write( lineout, strlen(lineout), f);
 
 	while (loop < number_of_holocronpositions)
 	{
@@ -228,14 +227,14 @@ void AOTCTC_Holocron_Savepositions( void )
 				holocrons[loop].origin[1],
 				holocrons[loop].origin[2] );
 		
-		trap_FS_Write( lineout, strlen(lineout), f);
+		trap->FS_Write( lineout, strlen(lineout), f);
 
 		loop++;
 	}
 
-	G_Printf("^7Holocron Position table saved %i holocron positions to file %s.\n", number_of_holocronpositions, savePath);
+	Com_Printf("^7Holocron Position table saved %i holocron positions to file %s.\n", number_of_holocronpositions, savePath);
 
-	trap_FS_FCloseFile( f );
+	trap->FS_Close( f );
 }
 
 //===========================================================================
@@ -253,7 +252,7 @@ void AOTCTC_Create_Holocron( int type, vec3_t point )
 	holocron->classname = "misc_holocron";
 	VectorCopy(point, holocron->s.pos.trBase);
 	VectorCopy(point, holocron->s.origin);
-	trap_LinkEntity(holocron);
+	trap->LinkEntity((sharedEntity_t *)holocron);
 	SP_misc_holocron( holocron );
 }
 

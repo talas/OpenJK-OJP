@@ -1,3 +1,25 @@
+/*
+===========================================================================
+Copyright (C) 1999 - 2005, Id Software, Inc.
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2015, OpenJK contributors
+
+This file is part of the OpenJK source code.
+
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
+*/
 
 /*****************************************************************************
  * name:		l_precomp.h
@@ -5,26 +27,28 @@
  * desc:		pre compiler
  *
  * $Archive: /source/code/botlib/l_precomp.h $
- * $Author: Mrelusive $ 
+ * $Author: Mrelusive $
  * $Revision: 2 $
  * $Modtime: 10/05/99 3:32p $
  * $Date: 10/05/99 3:42p $
  *
  *****************************************************************************/
 
+#pragma once
+
 #ifndef MAX_PATH
 	#define MAX_PATH			MAX_QPATH
 #endif
 
 #ifndef PATH_SEPERATORSTR
-	#if defined(WIN32)|defined(_WIN32)|defined(__NT__)|defined(__WINDOWS__)|defined(__WINDOWS_386__)
+	#ifdef _WIN32
 		#define PATHSEPERATOR_STR		"\\"
 	#else
 		#define PATHSEPERATOR_STR		"/"
 	#endif
 #endif
 #ifndef PATH_SEPERATORCHAR
-	#if defined(WIN32)|defined(_WIN32)|defined(__NT__)|defined(__WINDOWS__)|defined(__WINDOWS_386__)
+	#ifdef _WIN32
 		#define PATHSEPERATOR_CHAR		'\\'
 	#else
 		#define PATHSEPERATOR_CHAR		'/'
@@ -102,7 +126,7 @@ int PC_ExpectTokenType(source_t *source, int type, int subtype, token_t *token);
 int PC_ExpectAnyToken(source_t *source, token_t *token);
 //returns true when the token is available
 int PC_CheckTokenString(source_t *source, char *string);
-//returns true an reads the token when a token with the given type is available
+//returns true and reads the token when a token with the given type is available
 int PC_CheckTokenType(source_t *source, int type, int subtype, token_t *token);
 //skip tokens until the given token string is read
 int PC_SkipUntilString(source_t *source, char *string);
@@ -142,7 +166,7 @@ void QDECL SourceError(source_t *source, char *str, ...);
 void QDECL SourceWarning(source_t *source, char *str, ...);
 
 #ifdef BSPC
-// some of BSPC source does include game/q_shared.h and some does not
+// some of BSPC source does include qcommon/q_shared.h and some does not
 // we define pc_token_s pc_token_t if needed (yes, it's ugly)
 #ifndef __Q_SHARED_H
 #define MAX_TOKENLENGTH		1024
@@ -165,4 +189,3 @@ int PC_SourceFileAndLine(int handle, char *filename, int *line);
 void PC_CheckOpenSourceHandles(void);
 int PC_LoadGlobalDefines ( const char* filename );
 void PC_RemoveAllGlobalDefines ( void );
-

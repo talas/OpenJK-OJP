@@ -1,46 +1,48 @@
-// Copyright (C) 1999-2000 Id Software, Inc.
-//
+/*
+===========================================================================
+Copyright (C) 1999 - 2005, Id Software, Inc.
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2015, OpenJK contributors
+
+This file is part of the OpenJK source code.
+
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
+*/
+
 // g_bot.c
 
 #include "g_local.h"
-
-
-static int		g_numBots;
-static char		*g_botInfos[MAX_BOTS];
-
-
-int				g_numArenas;
-static char		*g_arenaInfos[MAX_ARENAS];
-
 
 #define BOT_BEGIN_DELAY_BASE		2000
 #define BOT_BEGIN_DELAY_INCREMENT	1500
 
 #define BOT_SPAWN_QUEUE_DEPTH	16
 
-typedef struct {
+static struct botSpawnQueue_s {
 	int		clientNum;
 	int		spawnTime;
-} botSpawnQueue_t;
-
-//static int			botBeginDelay = 0;  // bk001206 - unused, init
-static botSpawnQueue_t	botSpawnQueue[BOT_SPAWN_QUEUE_DEPTH];
+} botSpawnQueue[BOT_SPAWN_QUEUE_DEPTH];
 
 vmCvar_t bot_minplayers;
 
-extern gentity_t	*podium1;
-extern gentity_t	*podium2;
-extern gentity_t	*podium3;
-
-#include "../namespace_begin.h"
 float trap_Cvar_VariableValue( const char *var_name ) {
-	char buf[128];
+	char buf[MAX_CVAR_VALUE_STRING];
 
-	trap_Cvar_VariableStringBuffer(var_name, buf, sizeof(buf));
+	trap->Cvar_VariableStringBuffer(var_name, buf, sizeof(buf));
 	return atof(buf);
 }
-#include "../namespace_end.h"
-
 
 /*
 ===============
@@ -55,6 +57,7 @@ int G_ParseInfos( char *buf, int max, char *infos[] ) {
 
 	count = 0;
 
+	COM_BeginParseSession ("G_ParseInfos");
 	while ( 1 ) {
 		token = COM_Parse( (const char **)(&buf) );
 		if ( !token[0] ) {
@@ -103,27 +106,27 @@ int G_ParseInfos( char *buf, int max, char *infos[] ) {
 G_LoadArenasFromFile
 ===============
 */
-static void G_LoadArenasFromFile( char *filename ) {
+void G_LoadArenasFromFile( char *filename ) {
 	int				len;
 	fileHandle_t	f;
 	char			buf[MAX_ARENAS_TEXT];
 
-	len = trap_FS_FOpenFile( filename, &f, FS_READ );
+	len = trap->FS_Open( filename, &f, FS_READ );
 	if ( !f ) {
-		trap_Printf( va( S_COLOR_RED "file not found: %s\n", filename ) );
+		trap->Print( S_COLOR_RED "file not found: %s\n", filename );
 		return;
 	}
 	if ( len >= MAX_ARENAS_TEXT ) {
-		trap_Printf( va( S_COLOR_RED "file too large: %s is %i, max allowed is %i", filename, len, MAX_ARENAS_TEXT ) );
-		trap_FS_FCloseFile( f );
+		trap->Print( S_COLOR_RED "file too large: %s is %i, max allowed is %i\n", filename, len, MAX_ARENAS_TEXT );
+		trap->FS_Close( f );
 		return;
 	}
 
-	trap_FS_Read( buf, len, f );
+	trap->FS_Read( buf, len, f );
 	buf[len] = 0;
-	trap_FS_FCloseFile( f );
+	trap->FS_Close( f );
 
-	g_numArenas += G_ParseInfos( buf, MAX_ARENAS - g_numArenas, &g_arenaInfos[g_numArenas] );
+	level.arenas.num += G_ParseInfos( buf, MAX_ARENAS - level.arenas.num, &level.arenas.infos[level.arenas.num] );
 }
 
 int G_GetMapTypeBits(char *type)
@@ -134,9 +137,7 @@ int G_GetMapTypeBits(char *type)
 		if( strstr( type, "ffa" ) ) {
 			typeBits |= (1 << GT_FFA);
 			typeBits |= (1 << GT_TEAM);
-		}
-		if( strstr( type, "team" ) ) {
-			typeBits |= (1 << GT_TEAM);
+			typeBits |= (1 << GT_JEDIMASTER);
 		}
 		if( strstr( type, "holocron" ) ) {
 			typeBits |= (1 << GT_HOLOCRON);
@@ -162,12 +163,14 @@ int G_GetMapTypeBits(char *type)
 		//[CoOp]
 		if( strstr( type, "ctf" ) ) {
 			typeBits |= (1 << GT_CTF);
+			typeBits |= (1 << GT_CTY);
 		}
 		if( strstr( type, "cty" ) ) {
 			typeBits |= (1 << GT_CTY);
 		}
 	} else {
 		typeBits |= (1 << GT_FFA);
+		typeBits |= (1 << GT_JEDIMASTER);
 	}
 
 	return typeBits;
@@ -180,7 +183,7 @@ qboolean G_DoesMapSupportGametype(const char *mapname, int gametype)
 	int			n = 0;
 	char		*type = NULL;
 
-	if (!g_arenaInfos[0])
+	if (!level.arenas.infos[0])
 	{
 		return qfalse;
 	}
@@ -190,9 +193,9 @@ qboolean G_DoesMapSupportGametype(const char *mapname, int gametype)
 		return qfalse;
 	}
 
-	for( n = 0; n < g_numArenas; n++ )
+	for( n = 0; n < level.arenas.num; n++ )
 	{
-		type = Info_ValueForKey( g_arenaInfos[n], "map" );
+		type = Info_ValueForKey( level.arenas.infos[n], "map" );
 
 		if (Q_stricmp(mapname, type) == 0)
 		{
@@ -206,7 +209,7 @@ qboolean G_DoesMapSupportGametype(const char *mapname, int gametype)
 		return qfalse;
 	}
 
-	type = Info_ValueForKey(g_arenaInfos[thisLevel], "type");
+	type = Info_ValueForKey(level.arenas.infos[thisLevel], "type");
 
 	typeBits = G_GetMapTypeBits(type);
 	if (typeBits & (1 << gametype))
@@ -233,15 +236,15 @@ const char *G_RefreshNextMap(int gametype, qboolean forced)
 		return NULL;
 	}
 
-	if (!g_arenaInfos[0])
+	if (!level.arenas.infos[0])
 	{
 		return NULL;
 	}
 
-	trap_Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
-	for( n = 0; n < g_numArenas; n++ )
+	trap->Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
+	for( n = 0; n < level.arenas.num; n++ )
 	{
-		type = Info_ValueForKey( g_arenaInfos[n], "map" );
+		type = Info_ValueForKey( level.arenas.infos[n], "map" );
 
 		if (Q_stricmp(mapname.string, type) == 0)
 		{
@@ -255,7 +258,7 @@ const char *G_RefreshNextMap(int gametype, qboolean forced)
 	n = thisLevel+1;
 	while (n != thisLevel)
 	{ //now cycle through the arena list and find the next map that matches the gametype we're in
-		if (!g_arenaInfos[n] || n >= g_numArenas)
+		if (!level.arenas.infos[n] || n >= level.arenas.num)
 		{
 			if (loopingUp)
 			{ //this shouldn't happen, but if it does we have a null entry break in the arena file
@@ -266,8 +269,8 @@ const char *G_RefreshNextMap(int gametype, qboolean forced)
 			loopingUp = qtrue;
 		}
 
-		type = Info_ValueForKey(g_arenaInfos[n], "type");
-		
+		type = Info_ValueForKey(level.arenas.infos[n], "type");
+
 		typeBits = G_GetMapTypeBits(type);
 		if (typeBits & (1 << gametype))
 		{
@@ -281,15 +284,15 @@ const char *G_RefreshNextMap(int gametype, qboolean forced)
 	if (desiredMap == thisLevel)
 	{ //If this is the only level for this game mode or we just can't find a map for this game mode, then nextmap
 	  //will always restart.
-		trap_Cvar_Set( "nextmap", "map_restart 0");
+		trap->Cvar_Set( "nextmap", "map_restart 0");
 	}
 	else
 	{ //otherwise we have a valid nextmap to cycle to, so use it.
-		type = Info_ValueForKey( g_arenaInfos[desiredMap], "map" );
-		trap_Cvar_Set( "nextmap", va("map %s", type));
+		type = Info_ValueForKey( level.arenas.infos[desiredMap], "map" );
+		trap->Cvar_Set( "nextmap", va("map %s", type));
 	}
 
-	return Info_ValueForKey( g_arenaInfos[desiredMap], "map" );
+	return Info_ValueForKey( level.arenas.infos[desiredMap], "map" );
 }
 
 /*
@@ -297,34 +300,74 @@ const char *G_RefreshNextMap(int gametype, qboolean forced)
 G_LoadArenas
 ===============
 */
-static void G_LoadArenas( void ) {
+
+#define MAX_MAPS 256
+#define MAPSBUFSIZE (MAX_MAPS * 64)
+
+void G_LoadArenas( void ) {
+#if 0
 	int			numdirs;
-	char		filename[128];
+	char		filename[MAX_QPATH];
 	char		dirlist[1024];
 	char*		dirptr;
 	int			i, n;
 	int			dirlen;
 
-	g_numArenas = 0;
+	level.arenas.num = 0;
 
 	// get all arenas from .arena files
-	numdirs = trap_FS_GetFileList("scripts", ".arena", dirlist, 1024 );
+	numdirs = trap->FS_GetFileList("scripts", ".arena", dirlist, 1024 );
 	dirptr  = dirlist;
 	for (i = 0; i < numdirs; i++, dirptr += dirlen+1) {
 		dirlen = strlen(dirptr);
-		strcpy(filename, "scripts/");
+		Q_strncpyz( filename, "scripts/", sizeof( filename ) );
 		strcat(filename, dirptr);
 		G_LoadArenasFromFile(filename);
 	}
-//	trap_Printf( va( "%i arenas parsed\n", g_numArenas ) );
-	
-	for( n = 0; n < g_numArenas; n++ ) {
-		Info_SetValueForKey( g_arenaInfos[n], "num", va( "%i", n ) );
+//	trap->Print( "%i arenas parsed\n", level.arenas.num );
+
+	for( n = 0; n < level.arenas.num; n++ ) {
+		Info_SetValueForKey( level.arenas.infos[n], "num", va( "%i", n ) );
 	}
 
-	G_RefreshNextMap(g_gametype.integer, qfalse);
-}
+	G_RefreshNextMap(level.gametype, qfalse);
 
+#else
+
+	int			numFiles;
+	char		filelist[MAPSBUFSIZE];
+	char		filename[MAX_QPATH];
+	char*		fileptr;
+	int			i, n;
+	int			len;
+
+	level.arenas.num = 0;
+
+	// get all arenas from .arena files
+	numFiles = trap->FS_GetFileList("scripts", ".arena", filelist, ARRAY_LEN(filelist) );
+
+	fileptr  = filelist;
+	i = 0;
+
+	if (numFiles > MAX_MAPS)
+		numFiles = MAX_MAPS;
+
+	for(; i < numFiles; i++) {
+		len = strlen(fileptr);
+		Com_sprintf(filename, sizeof(filename), "scripts/%s", fileptr);
+		G_LoadArenasFromFile(filename);
+		fileptr += len + 1;
+	}
+//	trap->Print( "%i arenas parsed\n", level.arenas.num );
+
+	for( n = 0; n < level.arenas.num; n++ ) {
+		Info_SetValueForKey( level.arenas.infos[n], "num", va( "%i", n ) );
+	}
+
+	G_RefreshNextMap(level.gametype, qfalse);
+#endif
+
+}
 
 /*
 ===============
@@ -334,9 +377,9 @@ G_GetArenaInfoByNumber
 const char *G_GetArenaInfoByMap( const char *map ) {
 	int			n;
 
-	for( n = 0; n < g_numArenas; n++ ) {
-		if( Q_stricmp( Info_ValueForKey( g_arenaInfos[n], "map" ), map ) == 0 ) {
-			return g_arenaInfos[n];
+	for( n = 0; n < level.arenas.num; n++ ) {
+		if( Q_stricmp( Info_ValueForKey( level.arenas.infos[n], "map" ), map ) == 0 ) {
+			return level.arenas.infos[n];
 		}
 	}
 
@@ -366,7 +409,7 @@ static void PlayerIntroSound( const char *modelAndSkin ) {
 		skin = model;
 	}
 
-	trap_SendConsoleCommand( EXEC_APPEND, va( "play sound/player/announce/%s.wav\n", skin ) );
+	trap->SendConsoleCommand( EXEC_APPEND, va( "play sound/player/announce/%s.wav\n", skin ) );
 }
 #endif
 //[RandomBotNames]
@@ -590,18 +633,18 @@ void G_AddRandomBot( int team ) {
 	gclient_t	*cl;
 
 	num = 0;
-	for ( n = 0; n < g_numBots ; n++ ) {
-		value = Info_ValueForKey( g_botInfos[n], "name" );
+	for ( n = 0; n < level.bots.num ; n++ ) {
+		value = Info_ValueForKey( level.bots.infos[n], "name" );
 		//
-		for ( i=0 ; i< g_maxclients.integer ; i++ ) {
+		for ( i=0 ; i< sv_maxclients.integer ; i++ ) {
 			cl = level.clients + i;
 			if ( cl->pers.connected != CON_CONNECTED ) {
 				continue;
 			}
-			if ( !(g_entities[cl->ps.clientNum].r.svFlags & SVF_BOT) ) {
+			if ( !(g_entities[i].r.svFlags & SVF_BOT) ) {
 				continue;
 			}
-			if (g_gametype.integer == GT_SIEGE)
+			if (level.gametype == GT_SIEGE)
 			{
 				if ( team >= 0 && cl->sess.siegeDesiredTeam != team ) {
 					continue;
@@ -617,23 +660,23 @@ void G_AddRandomBot( int team ) {
 				break;
 			}
 		}
-		if (i >= g_maxclients.integer) {
+		if (i >= sv_maxclients.integer) {
 			num++;
 		}
 	}
-	num = random() * num;
-	for ( n = 0; n < g_numBots ; n++ ) {
-		value = Info_ValueForKey( g_botInfos[n], "name" );
+	num = Q_flrand(0.0f, 1.0f) * num;
+	for ( n = 0; n < level.bots.num ; n++ ) {
+		value = Info_ValueForKey( level.bots.infos[n], "name" );
 		//
-		for ( i=0 ; i< g_maxclients.integer ; i++ ) {
+		for ( i=0 ; i< sv_maxclients.integer ; i++ ) {
 			cl = level.clients + i;
 			if ( cl->pers.connected != CON_CONNECTED ) {
 				continue;
 			}
-			if ( !(g_entities[cl->ps.clientNum].r.svFlags & SVF_BOT) ) {
+			if ( !(g_entities[i].r.svFlags & SVF_BOT) ) {
 				continue;
 			}
-			if (g_gametype.integer == GT_SIEGE)
+			if (level.gametype == GT_SIEGE)
 			{
 				if ( team >= 0 && cl->sess.siegeDesiredTeam != team ) {
 					continue;
@@ -649,21 +692,20 @@ void G_AddRandomBot( int team ) {
 				break;
 			}
 		}
-		if (i >= g_maxclients.integer) {
+		if (i >= sv_maxclients.integer) {
 			num--;
 			if (num <= 0) {
-				skill = trap_Cvar_VariableValue( "g_spSkill" );
+				skill = trap->Cvar_VariableIntegerValue( "g_npcspskill" );
 				if (team == TEAM_RED) teamstr = "red";
 				else if (team == TEAM_BLUE) teamstr = "blue";
 				else teamstr = "";
-				strncpy(netname, value, sizeof(netname)-1);
-				netname[sizeof(netname)-1] = '\0';
+				Q_strncpyz(netname, value, sizeof(netname));
 				Q_CleanStr(netname);
 				//[RandomBotNames]
 				strncpy(fullname, PickName(), sizeof(fullname)-1);
 				//[TABBots]
 				//make random bots be TABBots.
-				trap_SendConsoleCommand( EXEC_INSERT, va("addbot \"%s\" %f \"%s\" %i \"%s\" %i\n", netname, skill, teamstr, 0, fullname, BOT_TAB) );
+				trap->SendConsoleCommand( EXEC_INSERT, va("addbot \"%s\" %.2f \"%s\" %i \"%s\" %i\n", netname, skill, teamstr, 0, fullname, BOT_TAB) );
 				//[/TABBots]
 				//[RandomBotNames]
 				return;
@@ -679,38 +721,30 @@ G_RemoveRandomBot
 */
 int G_RemoveRandomBot( int team ) {
 	int i;
-	char netname[36];
 	gclient_t	*cl;
 
-	for ( i=0 ; i< g_maxclients.integer ; i++ ) {
+	for ( i=0 ; i< sv_maxclients.integer ; i++ ) {
 		cl = level.clients + i;
 		if ( cl->pers.connected != CON_CONNECTED ) {
 			continue;
 		}
-		if ( !(g_entities[cl->ps.clientNum].r.svFlags & SVF_BOT) ) {
+		if ( !(g_entities[i].r.svFlags & SVF_BOT) )
 			continue;
-		}
-		if (g_gametype.integer == GT_SIEGE)
-		{
-			if ( team >= 0 && cl->sess.siegeDesiredTeam != team ) {
-				continue;
-			}
-		}
-		else
-		{
-			if ( team >= 0 && cl->sess.sessionTeam != team ) {
-				continue;
-			}
-		}
-		strcpy(netname, cl->pers.netname);
-		Q_CleanStr(netname);
+
+		if ( cl->sess.sessionTeam == TEAM_SPECTATOR && cl->sess.spectatorState == SPECTATOR_FOLLOW )
+			continue;
+
+		if ( level.gametype == GT_SIEGE && team >= 0 && cl->sess.siegeDesiredTeam != team )
+			continue;
+		else if ( team >= 0 && cl->sess.sessionTeam != team )
+			continue;
 		//[test]
 		//hmmm, this method seems to be breaking stuff.  doublechecking.
 		//bots that left disconnect instead of being kicked.  I think it's scaring
 		//players
-		//trap_DropClient( cl->ps.clientNum, va(S_COLOR_WHITE "%s\n", G_GetStringEdString("MP_SVGAME", "DISCONNECTED")) );
+		//trap->DropClient( cl->ps.clientNum, va(S_COLOR_WHITE "%s\n", G_GetStringEdString("MP_SVGAME", "DISCONNECTED")) );
 		//[/test]
-		trap_SendConsoleCommand( EXEC_INSERT, va("kick \"%s\"\n", netname) );
+		trap->SendConsoleCommand( EXEC_INSERT, va("clientkick %d\n", i) );
 		return qtrue;
 	}
 	return qfalse;
@@ -728,7 +762,7 @@ int G_CountHumanPlayers( int ignoreClientNum, int team ) {
 	gclient_t	*cl;
 
 	num = 0;
-	for ( i=0 ; i< g_maxclients.integer ; i++ ) {
+	for ( i=0 ; i< sv_maxclients.integer ; i++ ) {
 		cl = level.clients + i;
 		//[AdminSys]
 		if ( i == ignoreClientNum ) {
@@ -739,7 +773,7 @@ int G_CountHumanPlayers( int ignoreClientNum, int team ) {
 		if ( cl->pers.connected != CON_CONNECTED ) {
 			continue;
 		}
-		if ( g_entities[cl->ps.clientNum].r.svFlags & SVF_BOT ) {
+		if ( g_entities[i].r.svFlags & SVF_BOT ) {
 			continue;
 		}
 		if ( team >= 0 && cl->sess.sessionTeam != team ) {
@@ -749,7 +783,7 @@ int G_CountHumanPlayers( int ignoreClientNum, int team ) {
 		//[BotTweaks]
 		//don't count as a human player (for the bot_minplayers stuff) until
 		//the player isn't a specator.
-		if(g_gametype.integer != GT_DUEL && g_gametype.integer != GT_POWERDUEL 
+		if(level.gametype != GT_DUEL && level.gametype != GT_POWERDUEL 
 			//human players in the game are specators while not in the duel.  Don't 
 			//use this rule for those gametypes.
 			&& cl->sess.sessionTeam == TEAM_SPECTATOR)
@@ -773,15 +807,15 @@ int G_CountBotPlayers( int team ) {
 	gclient_t	*cl;
 
 	num = 0;
-	for ( i=0 ; i< g_maxclients.integer ; i++ ) {
+	for ( i=0 ; i< sv_maxclients.integer ; i++ ) {
 		cl = level.clients + i;
 		if ( cl->pers.connected != CON_CONNECTED ) {
 			continue;
 		}
-		if ( !(g_entities[cl->ps.clientNum].r.svFlags & SVF_BOT) ) {
+		if ( !(g_entities[i].r.svFlags & SVF_BOT) ) {
 			continue;
 		}
-		if (g_gametype.integer == GT_SIEGE)
+		if (level.gametype == GT_SIEGE)
 		{
 			if ( team >= 0 && cl->sess.siegeDesiredTeam != team ) {
 				continue;
@@ -841,7 +875,7 @@ void G_CheckMinimumPlayers( void ) {
 		return;
 	}
 	checkminimumplayers_time = level.time;
-	trap_Cvar_Update(&bot_minplayers);
+	trap->Cvar_Update(&bot_minplayers);
 	minplayers = bot_minplayers.integer;
 	//[BotTweaks]	
 	//MJN - All that new fancy bot auto limiting code. :)
@@ -867,20 +901,20 @@ void G_CheckMinimumPlayers( void ) {
 	if(g_allowBotLimit.integer == 1)
 	{//use the new bot code that Chosen One did for us.
 		// Teams each get Max Bots specified
-		if (g_gametype.integer >= GT_TEAM) 
+		if (level.gametype >= GT_TEAM) 
 		{//team gametypes
 			// MJN - Make sure numbers don't exceed maxclients
-			if (minplayers >= g_maxclients.integer / 2) 
+			if (minplayers >= sv_maxclients.integer / 2) 
 			{
-				minplayers = (g_maxclients.integer / 2) -1;
+				minplayers = (sv_maxclients.integer / 2) -1;
 			}
-			if (g_maxBots.integer >= g_maxclients.integer / 2) 
+			if (g_maxBots.integer >= sv_maxclients.integer / 2) 
 			{
-				g_maxBots.integer = (g_maxclients.integer / 2) -1;
+				g_maxBots.integer = (sv_maxclients.integer / 2) -1;
 			}
-			if (g_minHumans.integer >= g_maxclients.integer / 2) 
+			if (g_minHumans.integer >= sv_maxclients.integer / 2) 
 			{
-				g_minHumans.integer = (g_maxclients.integer / 2) -1;
+				g_minHumans.integer = (sv_maxclients.integer / 2) -1;
 			}
 
 			//Handle Red Team Count
@@ -919,20 +953,20 @@ void G_CheckMinimumPlayers( void ) {
 				G_RemoveRandomBot( TEAM_BLUE );
 			} 
 		}
-		else if (g_gametype.integer == GT_DUEL || g_gametype.integer == GT_POWERDUEL) 
+		else if (level.gametype == GT_DUEL || level.gametype == GT_POWERDUEL) 
 		{//duel gametypes
 			// MJN - Make sure numbers don't exceed maxclients
-			if (minplayers >= g_maxclients.integer) 
+			if (minplayers >= sv_maxclients.integer) 
 			{
-				minplayers = g_maxclients.integer-1;
+				minplayers = sv_maxclients.integer-1;
 			}
-			if (g_maxBots.integer >= g_maxclients.integer) 
+			if (g_maxBots.integer >= sv_maxclients.integer) 
 			{
-				g_maxBots.integer = g_maxclients.integer-1;
+				g_maxBots.integer = sv_maxclients.integer-1;
 			}
-			if (g_minHumans.integer >= g_maxclients.integer) 
+			if (g_minHumans.integer >= sv_maxclients.integer) 
 			{
-				g_minHumans.integer = g_maxclients.integer-1;
+				g_minHumans.integer = sv_maxclients.integer-1;
 			}
 
 			//[AdminSys]
@@ -956,20 +990,20 @@ void G_CheckMinimumPlayers( void ) {
 				}
 			} 
 		}
-		else if (g_gametype.integer == GT_FFA) 
+		else if (level.gametype == GT_FFA) 
 		{//ffa gametype
 			// MJN - Make sure numbers don't exceed maxclients
-			if (minplayers >= g_maxclients.integer) 
+			if (minplayers >= sv_maxclients.integer) 
 			{
-				minplayers = g_maxclients.integer-1;
+				minplayers = sv_maxclients.integer-1;
 			}
-			if (g_maxBots.integer >= g_maxclients.integer) 
+			if (g_maxBots.integer >= sv_maxclients.integer) 
 			{
-				g_maxBots.integer = g_maxclients.integer-1;
+				g_maxBots.integer = sv_maxclients.integer-1;
 			}
-			if (g_minHumans.integer >= g_maxclients.integer) 
+			if (g_minHumans.integer >= sv_maxclients.integer) 
 			{
-				g_minHumans.integer = g_maxclients.integer-1;
+				g_minHumans.integer = sv_maxclients.integer-1;
 			}
 
 			//[AdminSys]
@@ -988,21 +1022,21 @@ void G_CheckMinimumPlayers( void ) {
 				G_RemoveRandomBot( TEAM_FREE );
 			} 
 		}
-		else if (g_gametype.integer == GT_HOLOCRON || g_gametype.integer == GT_JEDIMASTER) 
+		else if (level.gametype == GT_HOLOCRON || level.gametype == GT_JEDIMASTER) 
 		{//special ffa gametypes
 			// MJN - Make sure numbers don't exceed maxclients
-			if (minplayers >= g_maxclients.integer) 
+			if (minplayers >= sv_maxclients.integer) 
 			{
-				minplayers = g_maxclients.integer-1;
+				minplayers = sv_maxclients.integer-1;
 			}
 
-			if (g_maxBots.integer >= g_maxclients.integer) 
+			if (g_maxBots.integer >= sv_maxclients.integer) 
 			{
-				g_maxBots.integer = g_maxclients.integer-1;
+				g_maxBots.integer = sv_maxclients.integer-1;
 			}
-			if (g_minHumans.integer >= g_maxclients.integer) 
+			if (g_minHumans.integer >= sv_maxclients.integer) 
 			{
-				g_minHumans.integer = g_maxclients.integer-1;
+				g_minHumans.integer = sv_maxclients.integer-1;
 			}
 
 			//[AdminSys]
@@ -1025,9 +1059,9 @@ void G_CheckMinimumPlayers( void ) {
 	{//use the basejka system for redundency's sake.
 		if (minplayers <= 0) return;
 
-		if (minplayers > g_maxclients.integer)
+		if (minplayers > sv_maxclients.integer)
 		{
-			minplayers = g_maxclients.integer;
+			minplayers = sv_maxclients.integer;
 		}
 
 		//[AdminSys]
@@ -1046,7 +1080,7 @@ void G_CheckMinimumPlayers( void ) {
 			if (!G_RemoveRandomBot(TEAM_SPECTATOR))
 			{
 				//[AdminSys]
-				if(g_gametype.integer < GT_TEAM)
+				if(level.gametype < GT_TEAM)
 				{//no teams, just remove a bot.
 					G_RemoveRandomBot(-1);
 				}
@@ -1083,10 +1117,10 @@ void G_CheckMinimumPlayers( void ) {
 	//[/BotTweaks]
 
 	/*
-	if (g_gametype.integer >= GT_TEAM) {
+	if (level.gametype >= GT_TEAM) {
 		int humanplayers2, botplayers2;
-		if (minplayers >= g_maxclients.integer / 2) {
-			minplayers = (g_maxclients.integer / 2) -1;
+		if (minplayers >= sv_maxclients.integer / 2) {
+			minplayers = (sv_maxclients.integer / 2) -1;
 		}
 
 		humanplayers = G_CountHumanPlayers( TEAM_RED );
@@ -1117,9 +1151,9 @@ void G_CheckMinimumPlayers( void ) {
 			}
 		}
 	}
-	else if (g_gametype.integer == GT_DUEL || g_gametype.integer == GT_POWERDUEL) {
-		if (minplayers >= g_maxclients.integer) {
-			minplayers = g_maxclients.integer-1;
+	else if (level.gametype == GT_DUEL || level.gametype == GT_POWERDUEL) {
+		if (minplayers >= sv_maxclients.integer) {
+			minplayers = sv_maxclients.integer-1;
 		}
 		humanplayers = G_CountHumanPlayers( -1 );
 		botplayers = G_CountBotPlayers( -1 );
@@ -1134,9 +1168,9 @@ void G_CheckMinimumPlayers( void ) {
 			}
 		}
 	}
-	else if (g_gametype.integer == GT_FFA) {
-		if (minplayers >= g_maxclients.integer) {
-			minplayers = g_maxclients.integer-1;
+	else if (level.gametype == GT_FFA) {
+		if (minplayers >= sv_maxclients.integer) {
+			minplayers = sv_maxclients.integer-1;
 		}
 		humanplayers = G_CountHumanPlayers( TEAM_FREE );
 		botplayers = G_CountBotPlayers( TEAM_FREE );
@@ -1147,9 +1181,9 @@ void G_CheckMinimumPlayers( void ) {
 			G_RemoveRandomBot( TEAM_FREE );
 		}
 	}
-	else if (g_gametype.integer == GT_HOLOCRON || g_gametype.integer == GT_JEDIMASTER) {
-		if (minplayers >= g_maxclients.integer) {
-			minplayers = g_maxclients.integer-1;
+	else if (level.gametype == GT_HOLOCRON || level.gametype == GT_JEDIMASTER) {
+		if (minplayers >= sv_maxclients.integer) {
+			minplayers = sv_maxclients.integer-1;
 		}
 		humanplayers = G_CountHumanPlayers( TEAM_FREE );
 		botplayers = G_CountBotPlayers( TEAM_FREE );
@@ -1184,14 +1218,13 @@ void G_CheckBotSpawn( void ) {
 		botSpawnQueue[n].spawnTime = 0;
 
 		/*
-		if( g_gametype.integer == GT_SINGLE_PLAYER ) {
-			trap_GetUserinfo( botSpawnQueue[n].clientNum, userinfo, sizeof(userinfo) );
+		if( level.gametype == GT_SINGLE_PLAYER ) {
+			trap->GetUserinfo( botSpawnQueue[n].clientNum, userinfo, sizeof(userinfo) );
 			PlayerIntroSound( Info_ValueForKey (userinfo, "model") );
 		}
 		*/
 	}
 }
-
 
 /*
 ===============
@@ -1209,10 +1242,9 @@ static void AddBotToSpawnQueue( int clientNum, int delay ) {
 		}
 	}
 
-	G_Printf( S_COLOR_YELLOW "Unable to delay spawn\n" );
+	trap->Print( S_COLOR_YELLOW "Unable to delay spawn\n" );
 	ClientBegin( clientNum, qfalse );
 }
-
 
 /*
 ===============
@@ -1233,7 +1265,6 @@ void G_RemoveQueuedBotBegin( int clientNum ) {
 	}
 }
 
-
 /*
 ===============
 G_BotConnect
@@ -1243,7 +1274,7 @@ qboolean G_BotConnect( int clientNum, qboolean restart ) {
 	bot_settings_t	settings;
 	char			userinfo[MAX_INFO_STRING];
 
-	trap_GetUserinfo( clientNum, userinfo, sizeof(userinfo) );
+	trap->GetUserinfo( clientNum, userinfo, sizeof(userinfo) );
 
 	Q_strncpyz( settings.personalityfile, Info_ValueForKey( userinfo, "personality" ), sizeof(settings.personalityfile) );
 	settings.skill = atof( Info_ValueForKey( userinfo, "skill" ) );
@@ -1253,13 +1284,12 @@ qboolean G_BotConnect( int clientNum, qboolean restart ) {
 	//[/TABBot]
 
 	if (!BotAISetupClient( clientNum, &settings, restart )) {
-		trap_DropClient( clientNum, "BotAISetupClient failed" );
+		trap->DropClient( clientNum, "BotAISetupClient failed" );
 		return qfalse;
 	}
 
 	return qtrue;
 }
-
 
 /*
 ===============
@@ -1270,21 +1300,25 @@ G_AddBot
 //added bot type varible
 static void G_AddBot( const char *name, float skill, const char *team, int delay, char *altname, int bottype) {
 //[/TABBot]
-	int				clientNum;
-	char			*botinfo;
-	gentity_t		*bot;
-	char			*key;
-	char			*s;
-	char			*botname;
-	char			*model;
-//	char			*headmodel;
-	char			userinfo[MAX_INFO_STRING];
-	int				preTeam = 0;
+	gentity_t		*bot = NULL;
+	int				clientNum, preTeam = TEAM_FREE;
+	char			userinfo[MAX_INFO_STRING] = {0},
+					*botinfo = NULL, *key = NULL, *s = NULL, *botname = NULL, *model = NULL;
+
+	// have the server allocate a client slot
+	clientNum = trap->BotAllocateClient();
+	if ( clientNum == -1 ) {
+//		trap->Print( S_COLOR_RED "Unable to add bot.  All player slots are in use.\n" );
+//		trap->Print( S_COLOR_RED "Start server with more 'open' slots.\n" );
+		trap->SendServerCommand( -1, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "UNABLE_TO_ADD_BOT")));
+		return;
+	}
 
 	// get the botinfo from bots.txt
 	botinfo = G_GetBotInfoByName( name );
 	if ( !botinfo ) {
-		G_Printf( S_COLOR_RED "Error: Bot '%s' not defined\n", name );
+		trap->Print( S_COLOR_RED "Error: Bot '%s' not defined\n", name );
+		trap->BotFreeClient( clientNum );
 		return;
 	}
 
@@ -1292,88 +1326,88 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 	userinfo[0] = '\0';
 
 	botname = Info_ValueForKey( botinfo, "funname" );
-	if( !botname[0] ) {
+	if( !botname[0] )
 		botname = Info_ValueForKey( botinfo, "name" );
-	}
 	// check for an alternative name
-	if (altname && altname[0]) {
+	if ( altname && altname[0] )
 		botname = altname;
-	}
+
 	Info_SetValueForKey( userinfo, "name", botname );
 	Info_SetValueForKey( userinfo, "rate", "25000" );
 	Info_SetValueForKey( userinfo, "snaps", "20" );
-	Info_SetValueForKey( userinfo, "skill", va("%1.2f", skill) );
+	Info_SetValueForKey( userinfo, "ip", "localhost" );
+	Info_SetValueForKey( userinfo, "skill", va("%.2f", skill) );
 
-	if ( skill >= 1 && skill < 2 ) {
-		Info_SetValueForKey( userinfo, "handicap", "50" );
-	}
-	else if ( skill >= 2 && skill < 3 ) {
-		Info_SetValueForKey( userinfo, "handicap", "70" );
-	}
-	else if ( skill >= 3 && skill < 4 ) {
-		Info_SetValueForKey( userinfo, "handicap", "90" );
-	}
+		 if ( skill >= 1 && skill < 2 )		Info_SetValueForKey( userinfo, "handicap", "50" );
+	else if ( skill >= 2 && skill < 3 )		Info_SetValueForKey( userinfo, "handicap", "70" );
+	else if ( skill >= 3 && skill < 4 )		Info_SetValueForKey( userinfo, "handicap", "90" );
+	else									Info_SetValueForKey( userinfo, "handicap", "100" );
 
 	key = "model";
 	model = Info_ValueForKey( botinfo, key );
-	if ( !*model ) {
-		model = "kyle/default";
-	}
+	if ( !*model )	model = DEFAULT_MODEL"/default";
 	Info_SetValueForKey( userinfo, key, model );
 
-/*	key = "headmodel";
-	headmodel = Info_ValueForKey( botinfo, key );
-	if ( !*headmodel ) {
-		headmodel = model;
-	}
-	Info_SetValueForKey( userinfo, key, headmodel );
-	key = "team_headmodel";
-	Info_SetValueForKey( userinfo, key, headmodel );
-*/
-	key = "gender";
+	key = "sex";
 	s = Info_ValueForKey( botinfo, key );
-	if ( !*s ) {
-		s = "male";
-	}
-	Info_SetValueForKey( userinfo, "sex", s );
+	if ( !*s )	s = Info_ValueForKey( botinfo, "gender" );
+	if ( !*s )	s = "male";
+	Info_SetValueForKey( userinfo, key, s );
 
 	key = "color1";
 	s = Info_ValueForKey( botinfo, key );
-	if ( !*s ) {
-		s = "4";
-	}
+	if ( !*s )	s = "4";
 	Info_SetValueForKey( userinfo, key, s );
 
 	key = "color2";
 	s = Info_ValueForKey( botinfo, key );
-	if ( !*s ) {
-		s = "4";
-	}
+	if ( !*s )	s = "4";
 	Info_SetValueForKey( userinfo, key, s );
 
 	key = "saber1";
 	s = Info_ValueForKey( botinfo, key );
-	if ( !*s ) {
-		s = "single_1";
-	}
+	if ( !*s )	s = DEFAULT_SABER;
 	Info_SetValueForKey( userinfo, key, s );
 
 	key = "saber2";
 	s = Info_ValueForKey( botinfo, key );
-	if ( !*s ) {
-		s = "none";
-	}
+	if ( !*s )	s = "none";
 	Info_SetValueForKey( userinfo, key, s );
 
-	s = Info_ValueForKey(botinfo, "personality");
-	if (!*s )
-	{
-		Info_SetValueForKey( userinfo, "personality", "botfiles/default.jkb" );
-	}
-	else
-	{
-		Info_SetValueForKey( userinfo, "personality", s );
-	}
+	key = "forcepowers";
+	s = Info_ValueForKey( botinfo, key );
+	if ( !*s )	s = DEFAULT_FORCEPOWERS;
+	Info_SetValueForKey( userinfo, key, s );
+
+	key = "cg_predictItems";
+	s = Info_ValueForKey( botinfo, key );
+	if ( !*s )	s = "1";
+	Info_SetValueForKey( userinfo, key, s );
+
+	key = "char_color_red";
+	s = Info_ValueForKey( botinfo, key );
+	if ( !*s )	s = "255";
+	Info_SetValueForKey( userinfo, key, s );
+
+	key = "char_color_green";
+	s = Info_ValueForKey( botinfo, key );
+	if ( !*s )	s = "255";
+	Info_SetValueForKey( userinfo, key, s );
+
+	key = "char_color_blue";
+	s = Info_ValueForKey( botinfo, key );
+	if ( !*s )	s = "255";
+	Info_SetValueForKey( userinfo, key, s );
+
+	key = "teamtask";
+	s = Info_ValueForKey( botinfo, key );
+	if ( !*s )	s = "0";
+	Info_SetValueForKey( userinfo, key, s );
+
+	key = "personality";
+	s = Info_ValueForKey( botinfo, key );
+	if ( !*s )	s = "botfiles/default.jkb";
+	Info_SetValueForKey( userinfo, key, s );
 
 	//[RGBSabers]
 	key = "rgb_saber1";
@@ -1405,55 +1439,37 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 	Info_SetValueForKey( userinfo, key, s );
 	//[/RGBSabers]
 
-	// have the server allocate a client slot
-	clientNum = trap_BotAllocateClient();
-	if ( clientNum == -1 ) {
-//		G_Printf( S_COLOR_RED "Unable to add bot.  All player slots are in use.\n" );
-//		G_Printf( S_COLOR_RED "Start server with more 'open' slots.\n" );
-		trap_SendServerCommand( -1, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "UNABLE_TO_ADD_BOT")));
-		return;
-	}
-
 	// initialize the bot settings
 	if( !team || !*team ) {
-		if( g_gametype.integer >= GT_TEAM ) {
+		if( level.gametype >= GT_TEAM ) {
 			//[AdminSys]
-			if( PickTeam(clientNum, qtrue) == TEAM_RED) {
+			if( PickTeam( clientNum, qtrue ) == TEAM_RED )
 			//[/AdminSys]
 				team = "red";
-			}
-			else {
+			else
 				team = "blue";
-			}
 		}
-		else {
+		else
 			team = "red";
-		}
 	}
-//	Info_SetValueForKey( userinfo, "characterfile", Info_ValueForKey( botinfo, "aifile" ) );
-	Info_SetValueForKey( userinfo, "skill", va( "%5.2f", skill ) );
 	Info_SetValueForKey( userinfo, "team", team );
 	//[TABBot]
 	Info_SetValueForKey( userinfo, "bottype", va( "%i", bottype) );
 	//[/TABBot]
 
 	bot = &g_entities[ clientNum ];
-	bot->r.svFlags |= SVF_BOT;
-	bot->inuse = qtrue;
+//	bot->r.svFlags |= SVF_BOT;
+//	bot->inuse = qtrue;
 
 	// register the userinfo
-	trap_SetUserinfo( clientNum, userinfo );
+	trap->SetUserinfo( clientNum, userinfo );
 
-	if (g_gametype.integer >= GT_TEAM)
+	if ( level.gametype >= GT_TEAM )
 	{
-		if (team && Q_stricmp(team, "red") == 0)
-		{
+		if ( team && !Q_stricmp( team, "red" ) )
 			bot->client->sess.sessionTeam = TEAM_RED;
-		}
-		else if (team && Q_stricmp(team, "blue") == 0)
-		{
+		else if ( team && !Q_stricmp( team, "blue" ) )
 			bot->client->sess.sessionTeam = TEAM_BLUE;
-		}
 		else
 		{
 			//[AdminSys]
@@ -1462,7 +1478,7 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 		}
 	}
 
-	if (g_gametype.integer == GT_SIEGE)
+	if ( level.gametype == GT_SIEGE )
 	{
 		bot->client->sess.siegeDesiredTeam = bot->client->sess.sessionTeam;
 		bot->client->sess.sessionTeam = TEAM_SPECTATOR;
@@ -1471,54 +1487,39 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 	preTeam = bot->client->sess.sessionTeam;
 
 	// have it connect to the game as a normal client
-	if ( ClientConnect( clientNum, qtrue, qtrue ) ) {
+	if ( ClientConnect( clientNum, qtrue, qtrue ) )
 		return;
-	}
 
-	if (bot->client->sess.sessionTeam != preTeam)
+	if ( bot->client->sess.sessionTeam != preTeam )
 	{
-		trap_GetUserinfo(clientNum, userinfo, MAX_INFO_STRING);
+		trap->GetUserinfo( clientNum, userinfo, sizeof( userinfo ) );
 
-		if (bot->client->sess.sessionTeam == TEAM_SPECTATOR)
-		{
+		if ( bot->client->sess.sessionTeam == TEAM_SPECTATOR )
 			bot->client->sess.sessionTeam = preTeam;
-		}
 
-		if (bot->client->sess.sessionTeam == TEAM_RED)
-		{
+		if ( bot->client->sess.sessionTeam == TEAM_RED )
 			team = "Red";
-		}
 		else
 		{
-			if (g_gametype.integer == GT_SIEGE)
-			{
-				if (bot->client->sess.sessionTeam == TEAM_BLUE)
-				{
-					team = "Blue";
-				}
-				else
-				{
-					team = "s";
-				}
-			}
+			if ( level.gametype == GT_SIEGE )
+				team = (bot->client->sess.sessionTeam == TEAM_BLUE) ? "Blue" : "s";
 			else
-			{
 				team = "Blue";
-			}
 		}
 
 		Info_SetValueForKey( userinfo, "team", team );
 
-		trap_SetUserinfo( clientNum, userinfo );
+		trap->SetUserinfo( clientNum, userinfo );
 
 		bot->client->ps.persistant[ PERS_TEAM ] = bot->client->sess.sessionTeam;
 
 		G_ReadSessionData( bot->client );
-		ClientUserinfoChanged( clientNum );
+		if ( !ClientUserinfoChanged( clientNum ) )
+			return;
 	}
 
-	if (g_gametype.integer == GT_DUEL ||
-		g_gametype.integer == GT_POWERDUEL)
+	if (level.gametype == GT_DUEL ||
+		level.gametype == GT_POWERDUEL)
 	{
 		int loners = 0;
 		int doubles = 0;
@@ -1549,7 +1550,6 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 	}
 }
 
-
 /*
 ===============
 Svcmd_AddBot_f
@@ -1567,21 +1567,21 @@ void Svcmd_AddBot_f( void ) {
 	//[/TABBot]
 
 	// are bots enabled?
-	if ( !trap_Cvar_VariableIntegerValue( "bot_enable" ) ) {
+	if ( !trap->Cvar_VariableIntegerValue( "bot_enable" ) ) {
 		return;
 	}
 
 	// name
-	trap_Argv( 1, name, sizeof( name ) );
+	trap->Argv( 1, name, sizeof( name ) );
 	if ( !name[0] ) {
 		//[TABBots]
-		trap_Printf( "Usage: Addbot <botname> [skill 1-5] [team] [msec delay] [altname] [bottype]\n" );
+		trap->Print( "Usage: Addbot <botname> [skill 1-5] [team] [msec delay] [altname] [bottype]\n" );
 		//[/TABBots]
 		return;
 	}
 
 	// skill
-	trap_Argv( 2, string, sizeof( string ) );
+	trap->Argv( 2, string, sizeof( string ) );
 	if ( !string[0] ) {
 		skill = 4;
 	}
@@ -1590,10 +1590,10 @@ void Svcmd_AddBot_f( void ) {
 	}
 
 	// team
-	trap_Argv( 3, team, sizeof( team ) );
+	trap->Argv( 3, team, sizeof( team ) );
 
 	// delay
-	trap_Argv( 4, string, sizeof( string ) );
+	trap->Argv( 4, string, sizeof( string ) );
 	if ( !string[0] ) {
 		delay = 0;
 	}
@@ -1602,10 +1602,10 @@ void Svcmd_AddBot_f( void ) {
 	}
 
 	// alternative name
-	trap_Argv( 5, altname, sizeof( altname ) );
+	trap->Argv( 5, altname, sizeof( altname ) );
 
 	//[TABBot]
-	trap_Argv( 6, string, sizeof( string ) );
+	trap->Argv( 6, string, sizeof( string ) );
 	if ( !string[0] ) 
 	{
 		bottype = BOT_TAB;
@@ -1620,8 +1620,8 @@ void Svcmd_AddBot_f( void ) {
 	// if this was issued during gameplay and we are playing locally,
 	// go ahead and load the bot's media immediately
 	if ( level.time - level.startTime > 1000 &&
-		trap_Cvar_VariableIntegerValue( "cl_running" ) ) {
-		trap_SendServerCommand( -1, "loaddefered\n" );	// FIXME: spelled wrong, but not changing for demo
+		trap->Cvar_VariableIntegerValue( "cl_running" ) ) {
+		trap->SendServerCommand( -1, "loaddefered\n" );	// FIXME: spelled wrong, but not changing for demo
 	}
 }
 
@@ -1632,30 +1632,30 @@ Svcmd_BotList_f
 */
 void Svcmd_BotList_f( void ) {
 	int i;
-	char name[MAX_TOKEN_CHARS];
-	char funname[MAX_TOKEN_CHARS];
-	char model[MAX_TOKEN_CHARS];
-	char personality[MAX_TOKEN_CHARS];
+	char name[MAX_NETNAME];
+	char funname[MAX_NETNAME];
+	char model[MAX_QPATH];
+	char personality[MAX_QPATH];
 
-	trap_Printf("^1name             model            personality              funname\n");
-	for (i = 0; i < g_numBots; i++) {
-		strcpy(name, Info_ValueForKey( g_botInfos[i], "name" ));
+	trap->Print("name             model            personality              funname\n");
+	for (i = 0; i < level.bots.num; i++) {
+		Q_strncpyz(name, Info_ValueForKey( level.bots.infos[i], "name" ), sizeof( name ));
 		if ( !*name ) {
-			strcpy(name, "Padawan");
+			Q_strncpyz(name, "Padawan", sizeof( name ));
 		}
-		strcpy(funname, Info_ValueForKey( g_botInfos[i], "funname" ));
+		Q_strncpyz(funname, Info_ValueForKey( level.bots.infos[i], "funname"), sizeof( funname ));
 		if ( !*funname ) {
-			strcpy(funname, "");
+			funname[0] = '\0';
 		}
-		strcpy(model, Info_ValueForKey( g_botInfos[i], "model" ));
+		Q_strncpyz(model, Info_ValueForKey( level.bots.infos[i], "model" ), sizeof( model ));
 		if ( !*model ) {
-			strcpy(model, "kyle/default");
+			Q_strncpyz(model, DEFAULT_MODEL"/default", sizeof( model ));
 		}
-		strcpy(personality, Info_ValueForKey( g_botInfos[i], "personality"));
+		Q_strncpyz(personality, Info_ValueForKey( level.bots.infos[i], "personality"), sizeof( personality ));
 		if (!*personality ) {
-			strcpy(personality, "botfiles/kyle.jkb");
+			Q_strncpyz(personality, "botfiles/kyle.jkb", sizeof( personality ));
 		}
-		trap_Printf(va("%-16s %-16s %-20s %-20s\n", name, model, personality, funname));
+		trap->Print("%-16s %-16s %-20s %-20s\n", name, model, COM_SkipPath(personality), funname);
 	}
 }
 
@@ -1672,17 +1672,13 @@ static void G_SpawnBots( char *botList, int baseDelay ) {
 	int			delay;
 	char		bots[MAX_INFO_VALUE];
 
-	podium1 = NULL;
-	podium2 = NULL;
-	podium3 = NULL;
-
-	skill = trap_Cvar_VariableValue( "g_spSkill" );
+	skill = trap->Cvar_VariableIntegerValue( "g_npcspskill" );
 	if( skill < 1 ) {
-		trap_Cvar_Set( "g_spSkill", "1" );
+		trap->Cvar_Set( "g_npcspskill", "1" );
 		skill = 1;
 	}
 	else if ( skill > 5 ) {
-		trap_Cvar_Set( "g_spSkill", "5" );
+		trap->Cvar_Set( "g_npcspskill", "5" );
 		skill = 5;
 	}
 
@@ -1694,7 +1690,7 @@ static void G_SpawnBots( char *botList, int baseDelay ) {
 		while( *p && *p == ' ' ) {
 			p++;
 		}
-		if( !p ) {
+		if( !*p ) {
 			break;
 		}
 
@@ -1711,13 +1707,12 @@ static void G_SpawnBots( char *botList, int baseDelay ) {
 
 		// we must add the bot this way, calling G_AddBot directly at this stage
 		// does "Bad Things"
-		trap_SendConsoleCommand( EXEC_INSERT, va("addbot \"%s\" %f free %i\n", bot, skill, delay) );
+		trap->SendConsoleCommand( EXEC_INSERT, va("addbot \"%s\" %f free %i\n", bot, skill, delay) );
 
 		delay += BOT_BEGIN_DELAY_INCREMENT;
 	}
 }
 #endif
-
 
 /*
 ===============
@@ -1729,22 +1724,22 @@ static void G_LoadBotsFromFile( char *filename ) {
 	fileHandle_t	f;
 	char			buf[MAX_BOTS_TEXT];
 
-	len = trap_FS_FOpenFile( filename, &f, FS_READ );
+	len = trap->FS_Open( filename, &f, FS_READ );
 	if ( !f ) {
-		trap_Printf( va( S_COLOR_RED "file not found: %s\n", filename ) );
+		trap->Print( S_COLOR_RED "file not found: %s\n", filename );
 		return;
 	}
 	if ( len >= MAX_BOTS_TEXT ) {
-		trap_Printf( va( S_COLOR_RED "file too large: %s is %i, max allowed is %i", filename, len, MAX_BOTS_TEXT ) );
-		trap_FS_FCloseFile( f );
+		trap->Print( S_COLOR_RED "file too large: %s is %i, max allowed is %i\n", filename, len, MAX_BOTS_TEXT );
+		trap->FS_Close( f );
 		return;
 	}
 
-	trap_FS_Read( buf, len, f );
+	trap->FS_Read( buf, len, f );
 	buf[len] = 0;
-	trap_FS_FCloseFile( f );
+	trap->FS_Close( f );
 
-	g_numBots += G_ParseInfos( buf, MAX_BOTS - g_numBots, &g_botInfos[g_numBots] );
+	level.bots.num += G_ParseInfos( buf, MAX_BOTS - level.bots.num, &level.bots.infos[level.bots.num] );
 }
 
 /*
@@ -1761,13 +1756,13 @@ static void G_LoadBots( void ) {
 	int			i;
 	int			dirlen;
 
-	if ( !trap_Cvar_VariableIntegerValue( "bot_enable" ) ) {
+	if ( !trap->Cvar_VariableIntegerValue( "bot_enable" ) ) {
 		return;
 	}
 
-	g_numBots = 0;
+	level.bots.num = 0;
 
-	trap_Cvar_Register( &botsFile, "g_botsFile", "", CVAR_INIT|CVAR_ROM );
+	trap->Cvar_Register( &botsFile, "g_botsFile", "", CVAR_INIT|CVAR_ROM );
 	if( *botsFile.string ) {
 		G_LoadBotsFromFile(botsFile.string);
 	}
@@ -1777,7 +1772,7 @@ static void G_LoadBots( void ) {
 	}
 
 	// get all bots from .bot files
-	numdirs = trap_FS_GetFileList("scripts", ".bot", dirlist, 1024 );
+	numdirs = trap->FS_GetFileList("scripts", ".bot", dirlist, 1024 );
 	dirptr  = dirlist;
 	for (i = 0; i < numdirs; i++, dirptr += dirlen+1) {
 		dirlen = strlen(dirptr);
@@ -1785,10 +1780,8 @@ static void G_LoadBots( void ) {
 		strcat(filename, dirptr);
 		G_LoadBotsFromFile(filename);
 	}
-//	trap_Printf( va( "%i bots parsed\n", g_numBots ) );
+//	trap->Print( "%i bots parsed\n", level.bots.num );
 }
-
-
 
 /*
 ===============
@@ -1796,13 +1789,12 @@ G_GetBotInfoByNumber
 ===============
 */
 char *G_GetBotInfoByNumber( int num ) {
-	if( num < 0 || num >= g_numBots ) {
-		trap_Printf( va( S_COLOR_RED "Invalid bot number: %i\n", num ) );
+	if( num < 0 || num >= level.bots.num ) {
+		trap->Print( S_COLOR_RED "Invalid bot number: %i\n", num );
 		return NULL;
 	}
-	return g_botInfos[num];
+	return level.bots.infos[num];
 }
-
 
 /*
 ===============
@@ -1813,10 +1805,10 @@ char *G_GetBotInfoByName( const char *name ) {
 	int		n;
 	char	*value;
 
-	for ( n = 0; n < g_numBots ; n++ ) {
-		value = Info_ValueForKey( g_botInfos[n], "name" );
+	for ( n = 0; n < level.bots.num ; n++ ) {
+		value = Info_ValueForKey( level.bots.infos[n], "name" );
 		if ( !Q_stricmp( value, name ) ) {
-			return g_botInfos[n];
+			return level.bots.infos[n];
 		}
 	}
 
@@ -1832,11 +1824,11 @@ void LoadPath_ThisLevel(void);
 G_InitBots
 ===============
 */
-void G_InitBots( qboolean restart ) {
+void G_InitBots( void ) {
 	G_LoadBots();
 	G_LoadArenas();
 
-	trap_Cvar_Register( &bot_minplayers, "bot_minplayers", "0", CVAR_SERVERINFO );
+	trap->Cvar_Register( &bot_minplayers, "bot_minplayers", "0", CVAR_SERVERINFO );
 
 	//rww - new bot route stuff
 	LoadPath_ThisLevel();

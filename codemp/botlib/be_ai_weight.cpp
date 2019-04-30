@@ -1,3 +1,25 @@
+/*
+===========================================================================
+Copyright (C) 1999 - 2005, Id Software, Inc.
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2015, OpenJK contributors
+
+This file is part of the OpenJK source code.
+
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
+*/
 
 /*****************************************************************************
  * name:		be_ai_weight.c
@@ -5,14 +27,14 @@
  * desc:		fuzzy logic
  *
  * $Archive: /MissionPack/code/botlib/be_ai_weight.c $
- * $Author: Mrelusive $ 
+ * $Author: Mrelusive $
  * $Revision: 3 $
  * $Modtime: 8/06/00 5:25p $
  * $Date: 8/06/00 11:07p $
  *
  *****************************************************************************/
 
-#include "../game/q_shared.h"
+#include "qcommon/q_shared.h"
 #include "l_memory.h"
 #include "l_log.h"
 #include "l_utils.h"
@@ -21,8 +43,8 @@
 #include "l_struct.h"
 #include "l_libvar.h"
 #include "aasfile.h"
-#include "../game/botlib.h"
-#include "../game/be_aas.h"
+#include "botlib.h"
+#include "be_aas.h"
 #include "be_aas_funcs.h"
 #include "be_interface.h"
 #include "be_ai_weight.h"
@@ -46,14 +68,21 @@ int ReadValue(source_t *source, float *value)
 	if (!PC_ExpectAnyToken(source, &token)) return qfalse;
 	if (!strcmp(token.string, "-"))
 	{
-		SourceWarning(source, "negative value set to zero\n");
-		if (!PC_ExpectTokenType(source, TT_NUMBER, 0, &token)) return qfalse;
-	} //end if
+		SourceWarning(source, "negative value set to zero");
+
+		if(!PC_ExpectAnyToken(source, &token))
+		{
+			SourceError(source, "Missing return value");
+			return qfalse;
+		}
+	}
+
 	if (token.type != TT_NUMBER)
 	{
-		SourceError(source, "invalid return value %s\n", token.string);
+		SourceError(source, "invalid return value %s", token.string);
 		return qfalse;
-	} //end if
+	}
+
 	*value = token.floatvalue;
 	return qtrue;
 } //end of the function ReadValue
@@ -162,7 +191,7 @@ fuzzyseperator_t *ReadFuzzySeperators_r(source_t *source)
 			{
 				if (founddefault)
 				{
-					SourceError(source, "switch already has a default\n");
+					SourceError(source, "switch already has a default");
 					FreeFuzzySeperators_r(firstfs);
 					return NULL;
 				} //end if
@@ -212,7 +241,7 @@ fuzzyseperator_t *ReadFuzzySeperators_r(source_t *source)
 			} //end else if
 			else
 			{
-				SourceError(source, "invalid name %s\n", token.string);
+				SourceError(source, "invalid name %s", token.string);
 				return NULL;
 			} //end else
 			if (newindent)
@@ -227,7 +256,7 @@ fuzzyseperator_t *ReadFuzzySeperators_r(source_t *source)
 		else
 		{
 			FreeFuzzySeperators_r(firstfs);
-			SourceError(source, "invalid name %s\n", token.string);
+			SourceError(source, "invalid name %s", token.string);
 			return NULL;
 		} //end else
 		if (!PC_ExpectAnyToken(source, &token))
@@ -239,7 +268,7 @@ fuzzyseperator_t *ReadFuzzySeperators_r(source_t *source)
 	//
 	if (!founddefault)
 	{
-		SourceWarning(source, "switch without default\n");
+		SourceWarning(source, "switch without default");
 		fs = (fuzzyseperator_t *) GetClearedMemory(sizeof(fuzzyseperator_t));
 		fs->index = index;
 		fs->value = MAX_INVENTORYVALUE;
@@ -318,7 +347,7 @@ weightconfig_t *ReadWeightConfig(char *filename)
 		{
 			if (config->numweights >= MAX_WEIGHTS)
 			{
-				SourceWarning(source, "too many fuzzy weights\n");
+				SourceWarning(source, "too many fuzzy weights");
 				break;
 			} //end if
 			if (!PC_ExpectTokenType(source, TT_STRING, 0, &token))
@@ -376,7 +405,7 @@ weightconfig_t *ReadWeightConfig(char *filename)
 			} //end else if
 			else
 			{
-				SourceError(source, "invalid name %s\n", token.string);
+				SourceError(source, "invalid name %s", token.string);
 				FreeWeightConfig(config);
 				FreeSource(source);
 				return NULL;
@@ -394,7 +423,7 @@ weightconfig_t *ReadWeightConfig(char *filename)
 		} //end if
 		else
 		{
-			SourceError(source, "invalid name %s\n", token.string);
+			SourceError(source, "invalid name %s", token.string);
 			FreeWeightConfig(config);
 			FreeSource(source);
 			return NULL;
@@ -405,7 +434,7 @@ weightconfig_t *ReadWeightConfig(char *filename)
 	//if the file was located in a pak file
 	botimport.Print(PRT_MESSAGE, "loaded %s\n", filename);
 #ifdef DEBUG
-	if (bot_developer)
+	if (botDeveloper)
 	{
 		botimport.Print(PRT_MESSAGE, "weights loaded in %d msec\n", Sys_MilliSeconds() - starttime);
 	} //end if
@@ -576,9 +605,12 @@ float FuzzyWeight_r(int *inventory, fuzzyseperator_t *fs)
 			if (fs->next->child) w2 = FuzzyWeight_r(inventory, fs->next->child);
 			else w2 = fs->next->weight;
 			//the scale factor
-			scale = (inventory[fs->index] - fs->value) / (fs->next->value - fs->value);
+			if(fs->next->value == MAX_INVENTORYVALUE) // is fs->next the default case?
+        		return w2;      // can't interpolate, return default weight
+			else
+				scale = (float) (inventory[fs->index] - fs->value) / (fs->next->value - fs->value);
 			//scale between the two weights
-			return scale * w1 + (1 - scale) * w2;
+			return (1 - scale) * w1 + scale * w2;
 		} //end if
 		return FuzzyWeight_r(inventory, fs->next);
 	} //end else if
@@ -597,7 +629,7 @@ float FuzzyWeightUndecided_r(int *inventory, fuzzyseperator_t *fs)
 	if (inventory[fs->index] < fs->value)
 	{
 		if (fs->child) return FuzzyWeightUndecided_r(inventory, fs->child);
-		else return fs->minweight + random() * (fs->maxweight - fs->minweight);
+		else return fs->minweight + Q_flrand(0.0f, 1.0f) * (fs->maxweight - fs->minweight);
 	} //end if
 	else if (fs->next)
 	{
@@ -605,14 +637,17 @@ float FuzzyWeightUndecided_r(int *inventory, fuzzyseperator_t *fs)
 		{
 			//first weight
 			if (fs->child) w1 = FuzzyWeightUndecided_r(inventory, fs->child);
-			else w1 = fs->minweight + random() * (fs->maxweight - fs->minweight);
+			else w1 = fs->minweight + Q_flrand(0.0f, 1.0f) * (fs->maxweight - fs->minweight);
 			//second weight
 			if (fs->next->child) w2 = FuzzyWeight_r(inventory, fs->next->child);
-			else w2 = fs->next->minweight + random() * (fs->next->maxweight - fs->next->minweight);
+			else w2 = fs->next->minweight + Q_flrand(0.0f, 1.0f) * (fs->next->maxweight - fs->next->minweight);
 			//the scale factor
-			scale = (inventory[fs->index] - fs->value) / (fs->next->value - fs->value);
+			if(fs->next->value == MAX_INVENTORYVALUE) // is fs->next the default case?
+        		return w2;      // can't interpolate, return default weight
+			else
+				scale = (float) (inventory[fs->index] - fs->value) / (fs->next->value - fs->value);
 			//scale between the two weights
-			return scale * w1 + (1 - scale) * w2;
+			return (1 - scale) * w1 + scale * w2;
 		} //end if
 		return FuzzyWeightUndecided_r(inventory, fs->next);
 	} //end else if
@@ -669,12 +704,12 @@ float FuzzyWeightUndecided(int *inventory, weightconfig_t *wc, int weightnum)
 		if (inventory[s->index] < s->value)
 		{
 			if (s->child) s = s->child;
-			else return s->minweight + random() * (s->maxweight - s->minweight);
+			else return s->minweight + Q_flrand(0.0f, 1.0f) * (s->maxweight - s->minweight);
 		} //end if
 		else
 		{
 			if (s->next) s = s->next;
-			else return s->minweight + random() * (s->maxweight - s->minweight);
+			else return s->minweight + Q_flrand(0.0f, 1.0f) * (s->maxweight - s->minweight);
 		} //end else
 	} //end if
 	return 0;
@@ -695,8 +730,8 @@ void EvolveFuzzySeperator_r(fuzzyseperator_t *fs)
 	else if (fs->type == WT_BALANCE)
 	{
 		//every once in a while an evolution leap occurs, mutation
-		if (random() < 0.01) fs->weight += crandom() * (fs->maxweight - fs->minweight);
-		else fs->weight += crandom() * (fs->maxweight - fs->minweight) * 0.5;
+		if (Q_flrand(0.0f, 1.0f) < 0.01) fs->weight += Q_flrand(-1.0f, 1.0f) * (fs->maxweight - fs->minweight);
+		else fs->weight += Q_flrand(-1.0f, 1.0f) * (fs->maxweight - fs->minweight) * 0.5;
 		//modify bounds if necesary because of mutation
 		if (fs->weight < fs->minweight) fs->minweight = fs->weight;
 		else if (fs->weight > fs->maxweight) fs->maxweight = fs->weight;
@@ -733,7 +768,7 @@ void ScaleFuzzySeperator_r(fuzzyseperator_t *fs, float scale)
 	else if (fs->type == WT_BALANCE)
 	{
 		//
-		fs->weight = (fs->maxweight + fs->minweight) * scale;
+		fs->weight = (float) (fs->maxweight + fs->minweight) * scale;
 		//get the weight between bounds
 		if (fs->weight < fs->minweight) fs->weight = fs->minweight;
 		else if (fs->weight > fs->maxweight) fs->weight = fs->maxweight;

@@ -1,12 +1,9 @@
 //[NPCSandCreature]
-// leave this line at the top of all AI_xxxx.cpp files for PCH reasons...
-#include "g_headers.h"
-   
 #include "b_local.h"
 
 extern void G_Knockdown( gentity_t *self, gentity_t *attacker, const vec3_t pushDir, float strength, qboolean breakSaberLock );
 extern void G_SoundOnEnt(gentity_t *ent, int channel, const char *soundPath);
-extern int Q_flrand(float min, float max);
+//extern float Q_flrand(float min, float max);
 extern void G_GetBoltPosition(gentity_t *self, int boltIndex, vec3_t pos, int modelIndix);
 extern void Rancor_DropVictim( gentity_t *self );//wahoo - :p
 
@@ -34,12 +31,12 @@ void SandCreature_Precache( void )
 
 void SandCreature_ClearTimers( gentity_t *ent )
 {
-	TIMER_Set( NPC, "speaking", -level.time );
-	TIMER_Set( NPC, "breaching", -level.time );
-	TIMER_Set( NPC, "breachDebounce", -level.time );
-	TIMER_Set( NPC, "pain", -level.time );
-	TIMER_Set( NPC, "attacking", -level.time );
-	TIMER_Set( NPC, "missDebounce", -level.time );
+	TIMER_Set( NPCS.NPC, "speaking", -level.time );
+	TIMER_Set( NPCS.NPC, "breaching", -level.time );
+	TIMER_Set( NPCS.NPC, "breachDebounce", -level.time );
+	TIMER_Set( NPCS.NPC, "pain", -level.time );
+	TIMER_Set( NPCS.NPC, "attacking", -level.time );
+	TIMER_Set( NPCS.NPC, "missDebounce", -level.time );
 }
 
 /* SP NUAM
@@ -85,15 +82,15 @@ void SandCreature_MoveEffect( void )
 	vec3_t shakePos;
 	vec3_t	org;
 	int i;
-	org[0] = NPC->r.currentOrigin[0];
-	org[1] = NPC->r.currentOrigin[1];
-	org[2] = NPC->r.absmin[2]+2;
+	org[0] = NPCS.NPC->r.currentOrigin[0];
+	org[1] = NPCS.NPC->r.currentOrigin[1];
+	org[2] = NPCS.NPC->r.absmin[2]+2;
 
-	//float playerDist = Distance( /*wahoo change*/NPC->enemy->r.currentOrigin, NPC->r.currentOrigin );
+	//float playerDist = Distance( /*wahoo change*/NPCS.NPC->enemy->r.currentOrigin, NPCS.NPC->r.currentOrigin );
 	//if ( playerDist < 256 )
 	//{
 		//CGCam_Shake( 0.75f*playerDist/256.0f, 250 );
-		G_GetBoltPosition( NPC, NPC->client->renderInfo.headBolt, shakePos, 0 );
+		G_GetBoltPosition( NPCS.NPC, NPCS.NPC->client->renderInfo.headBolt, shakePos, 0 );
 	//}
 	for(i = 0; i < MAX_CLIENTS; i++)
 	{
@@ -101,43 +98,43 @@ void SandCreature_MoveEffect( void )
 		gentity_t *radiusEnt = &g_entities[i];
 		if(radiusEnt && radiusEnt->client)
 		{
-			playerDist = Distance( radiusEnt->r.currentOrigin, NPC->r.currentOrigin );
+			playerDist = Distance( radiusEnt->r.currentOrigin, NPCS.NPC->r.currentOrigin );
 			if ( playerDist < 256 )
 				G_ScreenShake( shakePos, radiusEnt, 2.0f, 250, qfalse );
 		}
 	}
 
 	
-	if ( level.time-NPC->client->ps.legsTimer > 2000 )
+	if ( level.time-NPCS.NPC->client->ps.legsTimer > 2000 )
 	{//first time moving for at least 2 seconds
 		//clear speakingtime
-		TIMER_Set( NPC, "speaking", -level.time );
+		TIMER_Set( NPCS.NPC, "speaking", -level.time );
 	}
 
-	if ( TIMER_Done( NPC, "breaching" ) 
-		&& TIMER_Done( NPC, "breachDebounce" )
-		&& TIMER_Done( NPC, "pain" )
-		&& TIMER_Done( NPC, "attacking" )
+	if ( TIMER_Done( NPCS.NPC, "breaching" ) 
+		&& TIMER_Done( NPCS.NPC, "breachDebounce" )
+		&& TIMER_Done( NPCS.NPC, "pain" )
+		&& TIMER_Done( NPCS.NPC, "attacking" )
 		&& !Q_irand( 0, 10 ) )
 	{//Breach!
 		//FIXME: only do this while moving forward?
 		trace_t	trace;
 		//make him solid here so he can be hit/gets blocked on stuff. Check clear first.
-		trap_Trace( &trace, NPC->r.currentOrigin, NPC->r.mins, NPC->r.maxs, NPC->r.currentOrigin, NPC->s.number, MASK_NPCSOLID );
+		trap->Trace( &trace, NPCS.NPC->r.currentOrigin, NPCS.NPC->r.mins, NPCS.NPC->r.maxs, NPCS.NPC->r.currentOrigin, NPCS.NPC->s.number, MASK_NPCSOLID, qfalse, 0, 0 );
 		if ( !trace.allsolid && !trace.startsolid )
 		{
-			NPC->clipmask = MASK_NPCSOLID;//turn solid for a little bit
-			NPC->r.contents = CONTENTS_BODY;
+			NPCS.NPC->clipmask = MASK_NPCSOLID;//turn solid for a little bit
+			NPCS.NPC->r.contents = CONTENTS_BODY;
 			//NPC->takedamage = qtrue;//can be shot?
 
 			//FIXME: Breach sound?
 			//FIXME: Breach effect?
-			NPC_SetAnim( NPC, SETANIM_LEGS, BOTH_WALK2, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD|SETANIM_FLAG_RESTART );
-			TIMER_Set( NPC, "breaching", NPC->client->ps.legsTimer );
-			TIMER_Set( NPC, "breachDebounce", NPC->client->ps.legsTimer+Q_irand( 0, 10000 ) );
+			NPC_SetAnim( NPCS.NPC, SETANIM_LEGS, BOTH_WALK2, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD|SETANIM_FLAG_RESTART );
+			TIMER_Set( NPCS.NPC, "breaching", NPCS.NPC->client->ps.legsTimer );
+			TIMER_Set( NPCS.NPC, "breachDebounce", NPCS.NPC->client->ps.legsTimer+Q_irand( 0, 10000 ) );
 		}
 	}
-	if ( !TIMER_Done( NPC, "breaching" ) )
+	if ( !TIMER_Done( NPCS.NPC, "breaching" ) )
 	{//different effect when breaching
 		//FIXME: make effect
 		/*wahoo change to effect id*/G_PlayEffectID( G_EffectIndex( "env/sand_move_breach" ), org, up );
@@ -146,7 +143,7 @@ void SandCreature_MoveEffect( void )
 	{
 		/*wahoo change to effect id*/G_PlayEffectID( G_EffectIndex( "env/sand_move" ), org, up );
 	}
-	NPC->s.loopSound = G_SoundIndex( "sound/chars/sand_creature/slither.wav" );
+	NPCS.NPC->s.loopSound = G_SoundIndex( "sound/chars/sand_creature/slither.wav" );
 }
 
 qboolean SandCreature_CheckAhead( vec3_t end )
@@ -155,25 +152,25 @@ qboolean SandCreature_CheckAhead( vec3_t end )
 	float	dist;
 	float	tFrac; 
 	trace_t	trace;
-	int clipmask = NPC->clipmask|CONTENTS_BOTCLIP;
+	int clipmask = NPCS.NPC->clipmask|CONTENTS_BOTCLIP;
 
 	//make sure our goal isn't underground (else the trace will fail)
 	vec3_t	bottom;
 	bottom[0] = end[0];
 	bottom[1] = end[1];
-	bottom[2] = end[2]+NPC->r.mins[2];
-	trap_Trace( &trace, end, vec3_origin, vec3_origin, bottom, NPC->s.number, NPC->clipmask );
+	bottom[2] = end[2]+NPCS.NPC->r.mins[2];
+	trap->Trace( &trace, end, vec3_origin, vec3_origin, bottom, NPCS.NPC->s.number, NPCS.NPC->clipmask, qfalse, 0, 0 );
 	if ( trace.fraction < 1.0f )
 	{//in the ground, raise it up
-		end[2] -= NPC->r.mins[2]*(1.0f-trace.fraction)-0.125f;
+		end[2] -= NPCS.NPC->r.mins[2]*(1.0f-trace.fraction)-0.125f;
 	}
 
-	trap_Trace( &trace, NPC->r.currentOrigin, NPC->r.mins, NPC->r.maxs, end, NPC->s.number, clipmask );
+	trap->Trace( &trace, NPCS.NPC->r.currentOrigin, NPCS.NPC->r.mins, NPCS.NPC->r.maxs, end, NPCS.NPC->s.number, clipmask, qfalse, 0, 0 );
 
 	if ( trace.startsolid&&(trace.contents&CONTENTS_BOTCLIP) )
 	{//started inside do not enter, so ignore them
 		clipmask &= ~CONTENTS_BOTCLIP;
-		trap_Trace( &trace, NPC->r.currentOrigin, NPC->r.mins, NPC->r.maxs, end, NPC->s.number, clipmask );
+		trap->Trace( &trace, NPCS.NPC->r.currentOrigin, NPCS.NPC->r.mins, NPCS.NPC->r.maxs, end, NPCS.NPC->s.number, clipmask, qfalse, 0, 0 );
 	}
 	//Do a simple check
 	if ( ( trace.allsolid == qfalse ) && ( trace.startsolid == qfalse ) && ( trace.fraction == 1.0f ) )
@@ -185,8 +182,8 @@ qboolean SandCreature_CheckAhead( vec3_t end )
 	}
 
 	//This is a work around
-	radius = ( NPC->r.maxs[0] > NPC->r.maxs[1] ) ? NPC->r.maxs[0] : NPC->r.maxs[1];
-	dist = Distance( NPC->r.currentOrigin, end );
+	radius = ( NPCS.NPC->r.maxs[0] > NPCS.NPC->r.maxs[1] ) ? NPCS.NPC->r.maxs[0] : NPCS.NPC->r.maxs[1];
+	dist = Distance( NPCS.NPC->r.currentOrigin, end );
 	tFrac = 1.0f - ( radius / dist );
 
 	if ( trace.fraction >= tFrac )
@@ -200,29 +197,29 @@ qboolean SandCreature_Move( void )
 	qboolean moved = qfalse;
 	//FIXME should ignore doors..?
 	vec3_t dest;
-	VectorCopy( NPCInfo->goalEntity->r.currentOrigin, dest );
+	VectorCopy( NPCS.NPCInfo->goalEntity->r.currentOrigin, dest );
 	//Sand Creatures look silly using waypoints when they can go straight to the goal
 	if ( SandCreature_CheckAhead( dest ) )
 	{//use our temp move straight to goal check
-		VectorSubtract( dest, NPC->r.currentOrigin, NPC->client->ps.moveDir );
-		NPC->client->ps.speed = VectorNormalize( NPC->client->ps.moveDir );
-		if ( (ucmd.buttons&BUTTON_WALKING) && NPC->client->ps.speed > NPCInfo->stats.walkSpeed )
+		VectorSubtract( dest, NPCS.NPC->r.currentOrigin, NPCS.NPC->client->ps.moveDir );
+		NPCS.NPC->client->ps.speed = VectorNormalize( NPCS.NPC->client->ps.moveDir );
+		if ( (NPCS.ucmd.buttons&BUTTON_WALKING) && NPCS.NPC->client->ps.speed > NPCS.NPCInfo->stats.walkSpeed )
 		{
-			NPC->client->ps.speed = NPCInfo->stats.walkSpeed;
+			NPCS.NPC->client->ps.speed = NPCS.NPCInfo->stats.walkSpeed;
 		}
 		else
 		{
-			if ( NPC->client->ps.speed < NPCInfo->stats.walkSpeed )
+			if ( NPCS.NPC->client->ps.speed < NPCS.NPCInfo->stats.walkSpeed )
 			{
-				NPC->client->ps.speed = NPCInfo->stats.walkSpeed;
+				NPCS.NPC->client->ps.speed = NPCS.NPCInfo->stats.walkSpeed;
 			}
-			if ( !(ucmd.buttons&BUTTON_WALKING) && NPC->client->ps.speed < NPCInfo->stats.runSpeed )
+			if ( !(NPCS.ucmd.buttons&BUTTON_WALKING) && NPCS.NPC->client->ps.speed < NPCS.NPCInfo->stats.runSpeed )
 			{
-				NPC->client->ps.speed = NPCInfo->stats.runSpeed;
+				NPCS.NPC->client->ps.speed = NPCS.NPCInfo->stats.runSpeed;
 			}
-			else if ( NPC->client->ps.speed > NPCInfo->stats.runSpeed )
+			else if ( NPCS.NPC->client->ps.speed > NPCS.NPCInfo->stats.runSpeed )
 			{
-				NPC->client->ps.speed = NPCInfo->stats.runSpeed;
+				NPCS.NPC->client->ps.speed = NPCS.NPCInfo->stats.runSpeed;
 			}
 		}
 		moved = qtrue;
@@ -231,19 +228,19 @@ qboolean SandCreature_Move( void )
 	{
 		moved = NPC_MoveToGoal( qtrue );
 	}
-	if ( moved && NPC->radius )
+	if ( moved && NPCS.NPC->radius )
 	{
 		vec3_t	newPos;
 		float curTurfRange, newTurfRange;
-		curTurfRange = DistanceHorizontal( NPC->r.currentOrigin, NPC->s.origin );
-		VectorMA( NPC->r.currentOrigin, NPC->client->ps.speed/100.0f, NPC->client->ps.moveDir, newPos );
-		newTurfRange = DistanceHorizontal( newPos, NPC->s.origin );
-		if ( newTurfRange > NPC->radius && newTurfRange > curTurfRange )
+		curTurfRange = DistanceHorizontal( NPCS.NPC->r.currentOrigin, NPCS.NPC->s.origin );
+		VectorMA( NPCS.NPC->r.currentOrigin, NPCS.NPC->client->ps.speed/100.0f, NPCS.NPC->client->ps.moveDir, newPos );
+		newTurfRange = DistanceHorizontal( newPos, NPCS.NPC->s.origin );
+		if ( newTurfRange > NPCS.NPC->radius && newTurfRange > curTurfRange )
 		{//would leave our range
 			//stop
-			NPC->client->ps.speed = 0.0f;
-			VectorClear( NPC->client->ps.moveDir );
-			ucmd.forwardmove = ucmd.rightmove = 0;
+			NPCS.NPC->client->ps.speed = 0.0f;
+			VectorClear( NPCS.NPC->client->ps.moveDir );
+			NPCS.ucmd.forwardmove = NPCS.ucmd.rightmove = 0;
 			moved = qfalse;
 		}
 	}
@@ -263,16 +260,16 @@ void SandCreature_Attack( qboolean miss )
 
 	//FIXME: effect and sound
 	//FIXME: shootable during this anim?
-	if ( !NPC->enemy->client )
+	if ( !NPCS.NPC->enemy->client )
 	{
-		NPC_SetAnim( NPC, SETANIM_LEGS, BOTH_ATTACK1, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD|SETANIM_FLAG_RESTART );
+		NPC_SetAnim( NPCS.NPC, SETANIM_LEGS, BOTH_ATTACK1, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD|SETANIM_FLAG_RESTART );
 	}
 	else
 	{
-		NPC_SetAnim( NPC, SETANIM_LEGS, Q_irand( BOTH_ATTACK1, BOTH_ATTACK2 ), SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD|SETANIM_FLAG_RESTART );
+		NPC_SetAnim( NPCS.NPC, SETANIM_LEGS, Q_irand( BOTH_ATTACK1, BOTH_ATTACK2 ), SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD|SETANIM_FLAG_RESTART );
 	}
 	//don't do anything else while in this anim
-	TIMER_Set( NPC, "attacking", NPC->client->ps.legsTimer );
+	TIMER_Set( NPCS.NPC, "attacking", NPCS.NPC->client->ps.legsTimer );
 	//playerDist = Distance( /*wahoo change player->r.currentOrigin*/NPC->enemy->r.currentOrigin, NPC->r.currentOrigin );
 	//if ( playerDist < 256 )
 	//{
@@ -280,7 +277,7 @@ void SandCreature_Attack( qboolean miss )
 		//CGCam_Shake( 0.75f*playerDist/128.0f, NPC->client->ps.legsTimer );
 		//CGCam_Shake( 1.0f*playerDist/128.0f, self->client->ps.legsTimer );
 		//CGCam_Shake( 0.75f*playerDist/256.0f, 250 );
-		G_GetBoltPosition( NPC, NPC->client->renderInfo.headBolt, shakePos, 0 );
+		G_GetBoltPosition( NPCS.NPC, NPCS.NPC->client->renderInfo.headBolt, shakePos, 0 );
 		//G_ScreenShake( shakePos, NULL, 1.0f, NPC->client->ps.legsTimer, qfalse );
 
 	for(i = 0; i < MAX_CLIENTS; i++)
@@ -289,9 +286,9 @@ void SandCreature_Attack( qboolean miss )
 		gentity_t *radiusEnt = &g_entities[i];
 		if(radiusEnt && radiusEnt->client)
 		{
-			playerDist = Distance( radiusEnt->r.currentOrigin, NPC->r.currentOrigin );
+			playerDist = Distance( radiusEnt->r.currentOrigin, NPCS.NPC->r.currentOrigin );
 			if ( playerDist < 256 )
-				G_ScreenShake( shakePos, radiusEnt, 1.0f, NPC->client->ps.legsTimer, qfalse );
+				G_ScreenShake( shakePos, radiusEnt, 1.0f, NPCS.NPC->client->ps.legsTimer, qfalse );
 		}
 	}
 
@@ -301,38 +298,38 @@ void SandCreature_Attack( qboolean miss )
 	if ( miss )
 	{//purposely missed him, chance of knocking him down
 		//FIXME: if, during the attack anim, I do end up catching him close to my mouth, then snatch him anyway...
-		if ( NPC->enemy && NPC->enemy->client )
+		if ( NPCS.NPC->enemy && NPCS.NPC->enemy->client )
 		{
 			vec3_t dir2Enemy;
-			VectorSubtract( NPC->enemy->r.currentOrigin, NPC->r.currentOrigin, dir2Enemy );
+			VectorSubtract( NPCS.NPC->enemy->r.currentOrigin, NPCS.NPC->r.currentOrigin, dir2Enemy );
 			if ( dir2Enemy[2] < 30 )
 			{
 				dir2Enemy[2] = 30;
 			}
-			if ( g_spskill.integer > 0 )
+			if ( g_npcspskill.integer > 0 )
 			{
 				float enemyDist = VectorNormalize( dir2Enemy );
 				//FIXME: tone this down, smaller radius
-				if ( enemyDist < 200 && NPC->enemy->client->ps.groundEntityNum != ENTITYNUM_NONE )
+				if ( enemyDist < 200 && NPCS.NPC->enemy->client->ps.groundEntityNum != ENTITYNUM_NONE )
 				{
 					float throwStr = ((200-enemyDist)*0.4f)+20;
 					if ( throwStr > 45 )
 					{
 						throwStr = 45;
 					}
-					G_Throw( NPC->enemy, dir2Enemy, throwStr );
-					if ( g_spskill.integer > 1 )
+					G_Throw( NPCS.NPC->enemy, dir2Enemy, throwStr );
+					if ( g_npcspskill.integer > 1 )
 					{//knock them down, too
-						if ( NPC->enemy->health > 0 
+						if ( NPCS.NPC->enemy->health > 0 
 							&& Q_flrand( 50, 150 ) > enemyDist )
 						{//knock them down
-							G_Knockdown( NPC->enemy, NPC, dir2Enemy, 300, qtrue );
-							if ( NPC->enemy->s.number < MAX_CLIENTS )
+							G_Knockdown( NPCS.NPC->enemy, NPCS.NPC, dir2Enemy, 300, qtrue );
+							if ( NPCS.NPC->enemy->s.number < MAX_CLIENTS )
 							{//make the player look up at me
 								vec3_t vAng;
 								vectoangles( dir2Enemy, vAng );
-								VectorSet( vAng, AngleNormalize180(vAng[PITCH])*-1, NPC->enemy->client->ps.viewangles[YAW], 0 );
-								SetClientViewAngle( NPC->enemy, vAng );
+								VectorSet( vAng, AngleNormalize180(vAng[PITCH])*-1, NPCS.NPC->enemy->client->ps.viewangles[YAW], 0 );
+								SetClientViewAngle( NPCS.NPC->enemy, vAng );
 							}
 						}
 					}
@@ -342,26 +339,26 @@ void SandCreature_Attack( qboolean miss )
 	}
 	else
 	{
-		NPC->enemy->activator = NPC; // kind of dumb, but when we are locked to the Rancor, we are owned by it.
-		NPC->activator = NPC->enemy;//remember him
+		NPCS.NPC->enemy->activator = NPCS.NPC; // kind of dumb, but when we are locked to the Rancor, we are owned by it.
+		NPCS.NPC->activator = NPCS.NPC->enemy;//remember him
 		//this guy isn't going anywhere anymore
-		NPC->enemy->r.contents = 0;
-		NPC->enemy->clipmask = 0;
+		NPCS.NPC->enemy->r.contents = 0;
+		NPCS.NPC->enemy->clipmask = 0;
 
-		if ( NPC->activator->client )
+		if ( NPCS.NPC->activator->client )
 		{
 			//NPC->activator->client->ps.SaberDeactivateTrail(0);
-			NPC->client->ps.eFlags2 |= EF2_GENERIC_NPC_FLAG;//wahoo fix - to get it to stick in the mouth
-			NPC->activator->client->ps.eFlags2 |= EF2_HELD_BY_MONSTER;//EF_HELD_BY_SAND_CREATURE;//wahoo fix
-			if ( NPC->activator->health > 0 && NPC->activator->client )
+			NPCS.NPC->client->ps.eFlags2 |= EF2_GENERIC_NPC_FLAG;//wahoo fix - to get it to stick in the mouth
+			NPCS.NPC->activator->client->ps.eFlags2 |= EF2_HELD_BY_MONSTER;//EF_HELD_BY_SAND_CREATURE;//wahoo fix
+			if ( NPCS.NPC->activator->health > 0 && NPCS.NPC->activator->client )
 			{
-				G_AddEvent( NPC->activator, Q_irand(EV_DEATH1, EV_DEATH3), 0 );
-				NPC_SetAnim( NPC->activator, SETANIM_LEGS, BOTH_SWIM_IDLE1, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD );
-				NPC_SetAnim( NPC->activator, SETANIM_TORSO, BOTH_FALLDEATH1, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD );
-				TossClientItems( NPC );
-				if ( NPC->activator->NPC )
+				G_AddEvent( NPCS.NPC->activator, Q_irand(EV_DEATH1, EV_DEATH3), 0 );
+				NPC_SetAnim( NPCS.NPC->activator, SETANIM_LEGS, BOTH_SWIM_IDLE1, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD );
+				NPC_SetAnim( NPCS.NPC->activator, SETANIM_TORSO, BOTH_FALLDEATH1, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD );
+				TossClientItems( NPCS.NPC );
+				if ( NPCS.NPC->activator->NPC )
 				{//no more thinking for you
-					NPC->activator->NPC->nextBStateThink = Q3_INFINITE;
+					NPCS.NPC->activator->NPC->nextBStateThink = Q3_INFINITE;
 				}
 			}
 			/*
@@ -375,8 +372,8 @@ void SandCreature_Attack( qboolean miss )
 		}
 		else
 		{
-			NPC->client->ps.eFlags2 |= EF2_GENERIC_NPC_FLAG;//wahoo fix - to get it to stick in the mouth
-			NPC->activator->s.eFlags2 |= EF2_HELD_BY_MONSTER;//EF_HELD_BY_SAND_CREATURE;//wahoo fix
+			NPCS.NPC->client->ps.eFlags2 |= EF2_GENERIC_NPC_FLAG;//wahoo fix - to get it to stick in the mouth
+			NPCS.NPC->activator->s.eFlags2 |= EF2_HELD_BY_MONSTER;//EF_HELD_BY_SAND_CREATURE;//wahoo fix
 		}
 	}
 }
@@ -393,18 +390,18 @@ float SandCreature_EntScore( gentity_t *ent )
 	{
 		moveSpeed = VectorLengthSquared( ent->s.pos.trDelta );
 	}
-	dist = DistanceSquared( NPC->r.currentOrigin, ent->r.currentOrigin );
+	dist = DistanceSquared( NPCS.NPC->r.currentOrigin, ent->r.currentOrigin );
 	return (moveSpeed-dist);
 }
 
 void SandCreature_SeekEnt( gentity_t *bestEnt, float score )
 {
-	NPCInfo->enemyLastSeenTime = level.time;
-	VectorCopy( bestEnt->r.currentOrigin, NPCInfo->enemyLastSeenLocation );
-	NPC_SetMoveGoal( NPC, NPCInfo->enemyLastSeenLocation, 0, qfalse, -1, NULL );
+	NPCS.NPCInfo->enemyLastSeenTime = level.time;
+	VectorCopy( bestEnt->r.currentOrigin, NPCS.NPCInfo->enemyLastSeenLocation );
+	NPC_SetMoveGoal( NPCS.NPC, NPCS.NPCInfo->enemyLastSeenLocation, 0, qfalse, -1, NULL );
 	if ( score > MIN_SCORE )
 	{
-		NPC->enemy = bestEnt;
+		NPCS.NPC->enemy = bestEnt;
 	}
 }
 
@@ -412,7 +409,7 @@ void SandCreature_CheckMovingEnts( void )
 {
 	gentity_t	*radiusEnts[ 128 ];
 	int			numEnts;
-	const float	radius = NPCInfo->stats.earshot;
+	const float	radius = NPCS.NPCInfo->stats.earshot;
 	int			i;
 	vec3_t		mins, maxs;
 	int bestEnt = -1;
@@ -422,11 +419,11 @@ void SandCreature_CheckMovingEnts( void )
 
 	for ( i = 0; i < 3; i++ )
 	{
-		mins[i] = NPC->r.currentOrigin[i] - radius;
-		maxs[i] = NPC->r.currentOrigin[i] + radius;
+		mins[i] = NPCS.NPC->r.currentOrigin[i] - radius;
+		maxs[i] = NPCS.NPC->r.currentOrigin[i] + radius;
 	}
 
-	numEnts = trap_EntitiesInBox( mins, maxs, /*radiusEnts*/iradiusEnts, 128 );
+	numEnts = trap->EntitiesInBox( mins, maxs, /*radiusEnts*/iradiusEnts, 128 );
 
 	for ( i = 0; i < numEnts; i++ )
 	{
@@ -438,7 +435,7 @@ void SandCreature_CheckMovingEnts( void )
 			continue;
 		}
 		
-		if ( radiusEnts[i] == NPC )
+		if ( radiusEnts[i] == NPCS.NPC )
 		{//Skip the itself
 			continue;
 		}
@@ -513,16 +510,16 @@ void SandCreature_SeekAlert( int alertEvent )
 	alertEvent_t *alert = &level.alertEvents[alertEvent];
 
 	//FIXME: check for higher alert status or closer than last location?
-	NPCInfo->enemyLastSeenTime = level.time;
-	VectorCopy( alert->position, NPCInfo->enemyLastSeenLocation );
-	NPC_SetMoveGoal( NPC, NPCInfo->enemyLastSeenLocation, 0, qfalse, -1, NULL );
+	NPCS.NPCInfo->enemyLastSeenTime = level.time;
+	VectorCopy( alert->position, NPCS.NPCInfo->enemyLastSeenLocation );
+	NPC_SetMoveGoal( NPCS.NPC, NPCS.NPCInfo->enemyLastSeenLocation, 0, qfalse, -1, NULL );
 }
 
 void SandCreature_CheckAlerts( void )
 {
-	if ( !(NPCInfo->scriptFlags&SCF_IGNORE_ALERTS) )
+	if ( !(NPCS.NPCInfo->scriptFlags&SCF_IGNORE_ALERTS) )
 	{
-		int alertEvent = NPC_CheckAlertEvents( qfalse, qtrue, NPCInfo->lastAlertID, qfalse, AEL_MINOR, qtrue );
+		int alertEvent = NPC_CheckAlertEvents( qfalse, qtrue, NPCS.NPCInfo->lastAlertID, qfalse, AEL_MINOR, qtrue );
 
 		//There is an event to look at
 		if ( alertEvent >= 0 )
@@ -538,25 +535,25 @@ void SandCreature_CheckAlerts( void )
 float SandCreature_DistSqToGoal( qboolean goalIsEnemy )
 {
 	float goalDistSq;
-	if ( !NPCInfo->goalEntity || goalIsEnemy )
+	if ( !NPCS.NPCInfo->goalEntity || goalIsEnemy )
 	{
-		if ( !NPC->enemy )
+		if ( !NPCS.NPC->enemy )
 		{
 			return Q3_INFINITE;
 		}
-		NPCInfo->goalEntity = NPC->enemy;
+		NPCS.NPCInfo->goalEntity = NPCS.NPC->enemy;
 	}
 
-	if ( NPCInfo->goalEntity->client )
+	if ( NPCS.NPCInfo->goalEntity->client )
 	{
-		goalDistSq = DistanceSquared( NPC->r.currentOrigin, NPCInfo->goalEntity->r.currentOrigin );
+		goalDistSq = DistanceSquared( NPCS.NPC->r.currentOrigin, NPCS.NPCInfo->goalEntity->r.currentOrigin );
 	}
 	else
 	{
 		vec3_t gOrg;
-		VectorCopy( NPCInfo->goalEntity->r.currentOrigin, gOrg );
-		gOrg[2] -= (NPC->r.mins[2]-NPCInfo->goalEntity->r.mins[2]);//moves the gOrg up/down to make it's origin seem at the proper height as if it had my mins
-		goalDistSq = DistanceSquared( NPC->r.currentOrigin, gOrg );
+		VectorCopy( NPCS.NPCInfo->goalEntity->r.currentOrigin, gOrg );
+		gOrg[2] -= (NPCS.NPC->r.mins[2]-NPCS.NPCInfo->goalEntity->r.mins[2]);//moves the gOrg up/down to make it's origin seem at the proper height as if it had my mins
+		goalDistSq = DistanceSquared( NPCS.NPC->r.currentOrigin, gOrg );
 	}
 	return goalDistSq;
 }
@@ -565,73 +562,73 @@ void SandCreature_Chase( void )
 {
 	float enemyDistSq = SandCreature_DistSqToGoal( qtrue );
 
-	if ( !NPC->enemy->inuse )
+	if ( !NPCS.NPC->enemy->inuse )
 	{//freed
-		NPC->enemy = NULL;
+		NPCS.NPC->enemy = NULL;
 		return;
 	}
 	
-	if ( /*wahoo change  r.svFlags&SVF_LOCKEDENEMY*/(NPC->NPC->aiFlags&NPCAI_LOCKEDENEMY) )
+	if ( /*wahoo change  r.svFlags&SVF_LOCKEDENEMY*/(NPCS.NPC->NPC->aiFlags&NPCAI_LOCKEDENEMY) )
 	{//always know where he is
-		NPCInfo->enemyLastSeenTime = level.time;
+		NPCS.NPCInfo->enemyLastSeenTime = level.time;
 	}
 
-	if ( /*wahoo change  r.svFlags&SVF_LOCKEDENEMY*/!(NPC->NPC->aiFlags&NPCAI_LOCKEDENEMY) )
+	if ( /*wahoo change  r.svFlags&SVF_LOCKEDENEMY*/!(NPCS.NPC->NPC->aiFlags&NPCAI_LOCKEDENEMY) )
 	{
-		if ( level.time-NPCInfo->enemyLastSeenTime > 10000 )
+		if ( level.time-NPCS.NPCInfo->enemyLastSeenTime > 10000 )
 		{
-			NPC->enemy = NULL;
+			NPCS.NPC->enemy = NULL;
 			return;
 		}
 	}
 
-	if ( NPC->enemy->client )
+	if ( NPCS.NPC->enemy->client )
 	{
-		if ( NPC->enemy->client->ps.eFlags&EF2_HELD_BY_MONSTER)
+		if ( NPCS.NPC->enemy->client->ps.eFlags&EF2_HELD_BY_MONSTER)
 			//|| (NPC->enemy->client->ps.eFlags&EF_HELD_BY_RANCOR)
 			//|| (NPC->enemy->client->ps.eFlags&EF_HELD_BY_WAMPA) )
 		{//was picked up by another monster, forget about him
-			NPC->enemy = NULL;
+			NPCS.NPC->enemy = NULL;
 			//wahoo changeNPC->r.svFlags &= ~SVF_LOCKEDENEMY;
-			NPC->NPC->aiFlags &= ~NPCAI_LOCKEDENEMY;
+			NPCS.NPC->NPC->aiFlags &= ~NPCAI_LOCKEDENEMY;
 			return;
 		}
 	}
 	//chase the enemy
-	if ( NPC->enemy->client 
-		&& NPC->enemy->client->ps.groundEntityNum != ENTITYNUM_WORLD 
-		&& !(/*NPC->r.svFlags&SVF_LOCKEDENEMY wahoo fix*/NPC->NPC->aiFlags&NPCAI_LOCKEDENEMY) )
+	if ( NPCS.NPC->enemy->client 
+		&& NPCS.NPC->enemy->client->ps.groundEntityNum != ENTITYNUM_WORLD 
+		&& !(/*NPC->r.svFlags&SVF_LOCKEDENEMY wahoo fix*/NPCS.NPC->NPC->aiFlags&NPCAI_LOCKEDENEMY) )
 	{//off the ground!
 		//FIXME: keep moving in the dir we were moving for a little bit...
 	}
 	else
 	{
-		float enemyScore = SandCreature_EntScore( NPC->enemy );
+		float enemyScore = SandCreature_EntScore( NPCS.NPC->enemy );
 		if ( enemyScore < MIN_SCORE 
-			&& !(/*NPC->r.svFlags&SVF_LOCKEDENEMY wahoo fix*/NPC->NPC->aiFlags&NPCAI_LOCKEDENEMY) )
+			&& !(/*NPC->r.svFlags&SVF_LOCKEDENEMY wahoo fix*/NPCS.NPC->NPC->aiFlags&NPCAI_LOCKEDENEMY) )
 		{//too slow or too far away
 		}
 		else
 		{
 			float moveSpeed;
-			if ( NPC->enemy->client )
+			if ( NPCS.NPC->enemy->client )
 			{
-				moveSpeed = VectorLengthSquared( NPC->enemy->client->ps.velocity );
+				moveSpeed = VectorLengthSquared( NPCS.NPC->enemy->client->ps.velocity );
 			}
 			else
 			{
-				moveSpeed = VectorLengthSquared( NPC->enemy->s.pos.trDelta );
+				moveSpeed = VectorLengthSquared( NPCS.NPC->enemy->s.pos.trDelta );
 			}
 			if ( moveSpeed )
 			{//he's still moving, update my goalEntity's origin
-				SandCreature_SeekEnt( NPC->enemy, 0 );
-				NPCInfo->enemyLastSeenTime = level.time;
+				SandCreature_SeekEnt( NPCS.NPC->enemy, 0 );
+				NPCS.NPCInfo->enemyLastSeenTime = level.time;
 			}
 		}
 	}
 
-	if ( (level.time-NPCInfo->enemyLastSeenTime) > 5000 
-		&& !(/*NPC->r.svFlags&SVF_LOCKEDENEMY wahoo fix*/NPC->NPC->aiFlags&NPCAI_LOCKEDENEMY) )
+	if ( (level.time-NPCS.NPCInfo->enemyLastSeenTime) > 5000 
+		&& !(/*NPC->r.svFlags&SVF_LOCKEDENEMY wahoo fix*/NPCS.NPC->NPC->aiFlags&NPCAI_LOCKEDENEMY) )
 	{//enemy hasn't moved in about 5 seconds, see if there's anything else of interest
 		SandCreature_CheckAlerts();
 		SandCreature_CheckMovingEnts();
@@ -640,20 +637,20 @@ void SandCreature_Chase( void )
 
 
 	//FIXME: keeps chasing goalEntity even when it's already reached it...?
-	if ( enemyDistSq >= MIN_ATTACK_DIST_SQ//NPCInfo->goalEntity &&
-		&& (level.time-NPCInfo->enemyLastSeenTime) <= 3000 )
+	if ( enemyDistSq >= MIN_ATTACK_DIST_SQ//NPCS.NPCInfo->goalEntity &&
+		&& (level.time-NPCS.NPCInfo->enemyLastSeenTime) <= 3000 )
 	{//sensed enemy (or something) less than 3 seconds ago
-		ucmd.buttons &= ~BUTTON_WALKING;
+		NPCS.ucmd.buttons &= ~BUTTON_WALKING;
 		if ( SandCreature_Move() )
 		{
 			SandCreature_MoveEffect();
 		}
 	}
-	else if ( (level.time-NPCInfo->enemyLastSeenTime) <= 5000 
-		&& !(/*NPC->r.svFlags&SVF_LOCKEDENEMY wahoo fix*/NPC->NPC->aiFlags&NPCAI_LOCKEDENEMY) )
+	else if ( (level.time-NPCS.NPCInfo->enemyLastSeenTime) <= 5000 
+		&& !(/*NPC->r.svFlags&SVF_LOCKEDENEMY wahoo fix*/NPCS.NPC->NPC->aiFlags&NPCAI_LOCKEDENEMY) )
 	{//NOTE: this leaves a 2-second dead zone in which they'll just sit there unless their enemy moves
 		//If there is an event we might be interested in if we weren't still interested in our enemy
-		if ( NPC_CheckAlertEvents( qfalse, qtrue, NPCInfo->lastAlertID, qfalse, AEL_MINOR, qtrue ) >= 0 )
+		if ( NPC_CheckAlertEvents( qfalse, qtrue, NPCS.NPCInfo->lastAlertID, qfalse, AEL_MINOR, qtrue ) >= 0 )
 		{//just stir
 			SandCreature_MoveEffect();
 		}
@@ -661,11 +658,11 @@ void SandCreature_Chase( void )
 
 	if ( enemyDistSq < MIN_ATTACK_DIST_SQ )
 	{
-		if ( NPC->enemy->client )
+		if ( NPCS.NPC->enemy->client )
 		{
-			NPC->client->ps.viewangles[YAW] = NPC->enemy->client->ps.viewangles[YAW];
+			NPCS.NPC->client->ps.viewangles[YAW] = NPCS.NPC->enemy->client->ps.viewangles[YAW];
 		}
-		if ( TIMER_Done( NPC, "breaching" ) )
+		if ( TIMER_Done( NPCS.NPC, "breaching" ) )
 		{
 			//okay to attack
 			SandCreature_Attack( qfalse );
@@ -673,18 +670,18 @@ void SandCreature_Chase( void )
 	}
 	else if ( enemyDistSq < MAX_MISS_DIST_SQ 
 		&& enemyDistSq > MIN_MISS_DIST_SQ
-		&& NPC->enemy->client 
-		&& TIMER_Done( NPC, "breaching" )
-		&& TIMER_Done( NPC, "missDebounce" )
-		&& !VectorCompare( NPC->pos1, NPC->r.currentOrigin ) //so we don't come up again in the same spot
+		&& NPCS.NPC->enemy->client 
+		&& TIMER_Done( NPCS.NPC, "breaching" )
+		&& TIMER_Done( NPCS.NPC, "missDebounce" )
+		&& !VectorCompare( NPCS.NPC->pos1, NPCS.NPC->r.currentOrigin ) //so we don't come up again in the same spot
 		&& !Q_irand( 0, 10 ) )
 	{
-		if ( !(/*NPC->r.svFlags&SVF_LOCKEDENEMY wahoo fix*/NPC->NPC->aiFlags&NPCAI_LOCKEDENEMY) )
+		if ( !(/*NPC->r.svFlags&SVF_LOCKEDENEMY wahoo fix*/NPCS.NPC->NPC->aiFlags&NPCAI_LOCKEDENEMY) )
 		{
 			//miss them
 			SandCreature_Attack( qtrue );
-			VectorCopy( NPC->r.currentOrigin, NPC->pos1 );
-			TIMER_Set( NPC, "missDebounce", Q_irand( 3000, 10000 ) );
+			VectorCopy( NPCS.NPC->r.currentOrigin, NPCS.NPC->pos1 );
+			TIMER_Set( NPCS.NPC, "missDebounce", Q_irand( 3000, 10000 ) );
 		}
 	}
 }
@@ -695,10 +692,10 @@ void SandCreature_Hunt( void )
 	SandCreature_CheckMovingEnts();
 	//If we have somewhere to go, then do that
 	//FIXME: keeps chasing goalEntity even when it's already reached it...?
-	if ( NPCInfo->goalEntity 
+	if ( NPCS.NPCInfo->goalEntity 
 		&& SandCreature_DistSqToGoal( qfalse ) >= MIN_ATTACK_DIST_SQ )
 	{
-		ucmd.buttons |= BUTTON_WALKING;
+		NPCS.ucmd.buttons |= BUTTON_WALKING;
 		if ( SandCreature_Move() )
 		{
 			SandCreature_MoveEffect();
@@ -715,10 +712,10 @@ void SandCreature_Sleep( void )
 	SandCreature_CheckAlerts();
 	SandCreature_CheckMovingEnts();
 	//FIXME: keeps chasing goalEntity even when it's already reached it!
-	if ( NPCInfo->goalEntity 
+	if ( NPCS.NPCInfo->goalEntity 
 		&& SandCreature_DistSqToGoal( qfalse ) >= MIN_ATTACK_DIST_SQ )
 	{
-		ucmd.buttons |= BUTTON_WALKING;
+		NPCS.ucmd.buttons |= BUTTON_WALKING;
 		if ( SandCreature_Move() )
 		{
 			SandCreature_MoveEffect();
@@ -754,11 +751,11 @@ void	SandCreature_PushEnts()
 
 	for (i = 0; i < 3; i++ )
 	{
-		mins[i] = NPC->r.currentOrigin[i] - radius;
-		maxs[i] = NPC->r.currentOrigin[i] + radius;
+		mins[i] = NPCS.NPC->r.currentOrigin[i] - radius;
+		maxs[i] = NPCS.NPC->r.currentOrigin[i] + radius;
 	}
 
-	numEnts = trap_EntitiesInBox(mins, maxs, /*radiusEnts*/iradiusEnts, 128);
+	numEnts = trap->EntitiesInBox(mins, maxs, /*radiusEnts*/iradiusEnts, 128);
 	for (entIndex=0; entIndex<numEnts; entIndex++)
 	{
 		radiusEnts[ entIndex ] = &g_entities[iradiusEnts[entIndex]];
@@ -766,14 +763,14 @@ void	SandCreature_PushEnts()
 
 		// Only Clients
 		//--------------
-		if (!radiusEnts[entIndex] || !radiusEnts[entIndex]->client || radiusEnts[entIndex]==NPC)
+		if (!radiusEnts[entIndex] || !radiusEnts[entIndex]->client || radiusEnts[entIndex]==NPCS.NPC)
 		{
 			continue;
 		}
 
 		// Do The Vector Distance Test
 		//-----------------------------
-		VectorSubtract(radiusEnts[entIndex]->r.currentOrigin, NPC->r.currentOrigin, smackDir);
+		VectorSubtract(radiusEnts[entIndex]->r.currentOrigin, NPCS.NPC->r.currentOrigin, smackDir);
 		smackDist = VectorNormalize(smackDir);
 		if (smackDist<radius)
 		{
@@ -787,22 +784,22 @@ void NPC_BSSandCreature_Default( void )
 	qboolean visible = qfalse;
 	
 	//clear it every frame, will be set if we actually move this frame...
-	NPC->s.loopSound = 0;
+	NPCS.NPC->s.loopSound = 0;
 
-	if ( NPC->health > 0 && TIMER_Done( NPC, "breaching" ) )
+	if ( NPCS.NPC->health > 0 && TIMER_Done( NPCS.NPC, "breaching" ) )
 	{//go back to non-solid mode
-		if ( NPC->r.contents )
+		if ( NPCS.NPC->r.contents )
 		{
-			NPC->r.contents = 0;
+			NPCS.NPC->r.contents = 0;
 		}
-		if ( NPC->clipmask == MASK_NPCSOLID )
+		if ( NPCS.NPC->clipmask == MASK_NPCSOLID )
 		{
-			NPC->clipmask = CONTENTS_SOLID|CONTENTS_MONSTERCLIP;
+			NPCS.NPC->clipmask = CONTENTS_SOLID|CONTENTS_MONSTERCLIP;
 		}
-		if ( TIMER_Done( NPC, "speaking" ) )
+		if ( TIMER_Done( NPCS.NPC, "speaking" ) )
 		{
-			G_SoundOnEnt( NPC, CHAN_VOICE, va( "sound/chars/sand_creature/voice%d.mp3", Q_irand( 1, 3 ) ) );
-			TIMER_Set( NPC, "speaking", Q_irand( 3000, 10000 ) );
+			G_SoundOnEnt( NPCS.NPC, CHAN_VOICE, va( "sound/chars/sand_creature/voice%d.mp3", Q_irand( 1, 3 ) ) );
+			TIMER_Set( NPCS.NPC, "speaking", Q_irand( 3000, 10000 ) );
 		}
 	}
 	else
@@ -817,19 +814,19 @@ void NPC_BSSandCreature_Default( void )
 	//FIXME: when in start and end of attack/pain anims, need ground disturbance effect around him
 	// NOTENOTE: someone stubbed this code in, so I figured I'd use it.  The timers are all weird, ie, magic numbers that sort of work, 
 	//	but maybe I'll try and figure out real values later if I have time.
-	if ( NPC->client->ps.legsAnim == BOTH_ATTACK1
-		|| NPC->client->ps.legsAnim == BOTH_ATTACK2 ) 
+	if ( NPCS.NPC->client->ps.legsAnim == BOTH_ATTACK1
+		|| NPCS.NPC->client->ps.legsAnim == BOTH_ATTACK2 ) 
 	{//FIXME: get start and end frame numbers for this effect for each of these anims
 		vec3_t	up={0,0,1};
 		vec3_t org;
-		VectorCopy( NPC->r.currentOrigin, org );
+		VectorCopy( NPCS.NPC->r.currentOrigin, org );
 		org[2] -= 40; 
-		if ( NPC->client->ps.legsTimer > 3700 )
+		if ( NPCS.NPC->client->ps.legsTimer > 3700 )
 		{
 //			/*wahoo change to effect id*/G_PlayEffectID( G_EffectIndex( "env/sand_dive"  ), NPC->r.currentOrigin, up );
 			/*wahoo change to effect id*/G_PlayEffectID( G_EffectIndex( "env/sand_spray"  ), org, up );
 		}
-		else if ( NPC->client->ps.legsTimer > 1600 	&& NPC->client->ps.legsTimer < 1900 )
+		else if ( NPCS.NPC->client->ps.legsTimer > 1600 	&& NPCS.NPC->client->ps.legsTimer < 1900 )
 		{
 			/*wahoo change to effect id*/G_PlayEffectID( G_EffectIndex( "env/sand_spray"  ), org, up );
 		}
@@ -837,34 +834,34 @@ void NPC_BSSandCreature_Default( void )
 	}
 	
 
-	if ( !TIMER_Done( NPC, "pain" ) )
+	if ( !TIMER_Done( NPCS.NPC, "pain" ) )
 	{
 		visible = qtrue;
 	}
-	else if ( !TIMER_Done( NPC, "attacking" ) )
+	else if ( !TIMER_Done( NPCS.NPC, "attacking" ) )
 	{
 		visible = qtrue;
 	}
 	else
 	{
-		if ( NPC->activator )
+		if ( NPCS.NPC->activator )
 		{//kill and remove the guy we ate
 			//FIXME: want to play ...?  What was I going to say?
-			G_Damage(NPC->activator, NPC, NPC, NULL, NPC->activator->s.origin, NPC->activator->health*2, DAMAGE_NO_PROTECTION|DAMAGE_NO_KNOCKBACK, MOD_MELEE);
-			if ( NPC->activator->client )
+			G_Damage(NPCS.NPC->activator, NPCS.NPC, NPCS.NPC, NULL, NPCS.NPC->activator->s.origin, NPCS.NPC->activator->health*2, DAMAGE_NO_PROTECTION|DAMAGE_NO_KNOCKBACK, MOD_MELEE);
+			if ( NPCS.NPC->activator->client )
 			{//racc - picked up an NPC or client, make them non-visible and then drop them.
-				NPC->client->ps.eFlags |= EF_NODRAW;//wahoofix - fix so that the person doesn't just jump out of the game entirely
-				Rancor_DropVictim(NPC);//wahoo - drop the dude after you go back down
+				NPCS.NPC->client->ps.eFlags |= EF_NODRAW;//wahoofix - fix so that the person doesn't just jump out of the game entirely
+				Rancor_DropVictim(NPCS.NPC);//wahoo - drop the dude after you go back down
 			}
 
-			NPC->activator = NPC->enemy = NPCInfo->goalEntity = NULL;
+			NPCS.NPC->activator = NPCS.NPC->enemy = NPCS.NPCInfo->goalEntity = NULL;
 		}
 
-		if ( NPC->enemy )
+		if ( NPCS.NPC->enemy )
 		{
 			SandCreature_Chase();
 		}
-		else if ( (level.time - NPCInfo->enemyLastSeenTime) < 5000 )//FIXME: should make this able to be variable
+		else if ( (level.time - NPCS.NPCInfo->enemyLastSeenTime) < 5000 )//FIXME: should make this able to be variable
 		{//we were alerted recently, move towards there and look for footsteps, etc.
 			SandCreature_Hunt();
 		}
@@ -877,13 +874,13 @@ void NPC_BSSandCreature_Default( void )
 	NPC_UpdateAngles( qtrue, qtrue );
 	if ( !visible )
 	{
-		NPC->client->ps.eFlags |= EF_NODRAW;
-		NPC->s.eFlags |= EF_NODRAW;
+		NPCS.NPC->client->ps.eFlags |= EF_NODRAW;
+		NPCS.NPC->s.eFlags |= EF_NODRAW;
 	}
 	else
 	{
-		NPC->client->ps.eFlags &= ~EF_NODRAW;
-		NPC->s.eFlags &= ~EF_NODRAW;
+		NPCS.NPC->client->ps.eFlags &= ~EF_NODRAW;
+		NPCS.NPC->s.eFlags &= ~EF_NODRAW;
 
 		SandCreature_PushEnts();
 	}

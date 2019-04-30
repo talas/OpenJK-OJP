@@ -3,7 +3,7 @@
 #include "g_saberbeh.h"
 #include "ai_main.h"
 
-static GAME_INLINE void ClearSabMech( sabmech_t *sabmech)
+static QINLINE void ClearSabMech( sabmech_t *sabmech)
 {
 	sabmech->doStun = qfalse;
 	sabmech->doKnockdown = qfalse;
@@ -71,7 +71,7 @@ qboolean SabBeh_RollBalance(gentity_t *self, sabmech_t *mechSelf, qboolean force
 
 
 //[WeapAccuracy]
-extern qboolean GAME_INLINE WalkCheck( gentity_t * self );
+extern qboolean WalkCheck( gentity_t * self );
 void G_AddMercBalance(gentity_t *self, int amount)
 {//mercs don't suffer mishaps, but they do lose/gain MP
 	/*

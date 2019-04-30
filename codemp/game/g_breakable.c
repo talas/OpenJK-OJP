@@ -84,7 +84,7 @@ void misc_model_breakable_die( gentity_t *self, gentity_t *inflictor, gentity_t 
 			NAV::WayEdgesNowClear(self);
 		}
 		*/
-		trap_LinkEntity(self);
+		trap->LinkEntity((sharedEntity_t *)self);
 	}
 
 	VectorSet(up, 0, 0, 1);
@@ -340,7 +340,7 @@ void health_shutdown( gentity_t *self )
 			self->s.modelindex = self->s.modelindex2;
 		}
 
-		trap_LinkEntity (self);
+		trap->LinkEntity ((sharedEntity_t *)self);
 	}
 }
 
@@ -541,7 +541,7 @@ void ammo_shutdown( gentity_t *self )
 		self->s.eFlags &= ~ EF_ANIM_ALLFAST;
 		self->s.eFlags |= EF_ANIM_ONCE;
 
-		trap_LinkEntity (self);
+		trap->LinkEntity ((sharedEntity_t *)self);
 	}
 }
 
@@ -667,7 +667,7 @@ void misc_model_breakable_init( gentity_t *ent )
 	type = MDL_OTHER;
 
 	if (!ent->model) {
-		G_Error("no model set on %s at (%.1f %.1f %.1f)\n", ent->classname, ent->s.origin[0],ent->s.origin[1],ent->s.origin[2]);
+		trap->Error(ERR_DROP, "no model set on %s at (%.1f %.1f %.1f)\n", ent->classname, ent->s.origin[0],ent->s.origin[1],ent->s.origin[2]);
 	}
 	//Main model
 	ent->s.modelindex = ent->sound2to1 = G_ModelIndex( ent->model );
@@ -759,17 +759,17 @@ void misc_model_breakable_gravity_init( gentity_t *ent, qboolean dropToFloor )
 		top[2] += 1;
 		VectorCopy( ent->r.currentOrigin, bottom );
 		bottom[2] = MIN_WORLD_COORD;
-		trap_Trace( &tr, top, ent->r.mins, ent->r.maxs, bottom, ent->s.number, MASK_NPCSOLID );
+		trap->Trace( &tr, top, ent->r.mins, ent->r.maxs, bottom, ent->s.number, MASK_NPCSOLID, qfalse, 0, 0 );
 		if ( !tr.allsolid && !tr.startsolid && tr.fraction < 1.0 )
 		{
 			G_SetOrigin( ent, tr.endpos );
-			trap_LinkEntity( ent );
+			trap->LinkEntity( (sharedEntity_t *)ent );
 		}
 	}
 	else
 	{
 		G_SetOrigin( ent, ent->r.currentOrigin );
-		trap_LinkEntity( ent );
+		trap->LinkEntity( (sharedEntity_t *)ent );
 	}
 	//set up for object thinking
 	if ( VectorCompare( ent->s.pos.trDelta, vec3_origin ) )
@@ -966,7 +966,7 @@ void SP_misc_model_breakable( gentity_t *ent )
 
 	G_SetOrigin( ent, ent->s.origin );
 	G_SetAngles( ent, ent->s.angles );
-	trap_LinkEntity(ent);
+	trap->LinkEntity((sharedEntity_t *)ent);
 
 	if ( ent->spawnflags & 128 )
 	{//Can be used by the player's BUTTON_USE
@@ -978,7 +978,7 @@ void SP_misc_model_breakable( gentity_t *ent )
 		ent->teamnodmg= (team_t)GetIDForString( TeamTable, ent->team );
 		if ( ent->teamnodmg == TEAM_FREE )
 		{
-			G_Error("team name %s not recognized\n", ent->team);
+			trap->Error(ERR_DROP, "team name %s not recognized\n", ent->team);
 		}
 	}
 	

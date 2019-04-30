@@ -1,8 +1,4 @@
 //[ROFF]
-// leave this line at the top for all g_xxxx.cpp files...
-#include "g_headers.h"
-
-
 #include "g_local.h"
 #include "g_roff.h"
 #include "g_ICARUScb.h"
@@ -437,7 +433,7 @@ int G_LoadRoff( const char *fileName )
 	// See if I'm already precached
 	for ( i = 0; i < num_roffs; i++ )
 	{
-		if ( stricmp( file, roffs[i].fileName ) == 0 )
+		if ( Q_stricmp( file, roffs[i].fileName ) == 0 )
 		{
 			// Good, just return me...avoid zero index
 			return i + 1;
@@ -449,7 +445,7 @@ int G_LoadRoff( const char *fileName )
 #endif
 
 	// Read the file in one fell swoop
-	len = trap_FS_FOpenFile(file, &f, FS_READ);
+	len = trap->FS_Open(file, &f, FS_READ);
 
 	if ( len <= 0 )
 	{
@@ -463,9 +459,9 @@ int G_LoadRoff( const char *fileName )
 		return roff_id;
 	}
 
-	trap_FS_Read(data, len, f);	//read data in buffer
+	trap->FS_Read(data, len, f);	//read data in buffer
 
-	trap_FS_FCloseFile(f);	//close file
+	trap->FS_Close(f);	//close file
 
 	// Now let's check the header info...
 	header = (roff_hdr2_t *)data;
@@ -483,7 +479,7 @@ int G_LoadRoff( const char *fileName )
 		roff_id = ++num_roffs;
 	}
 
-	//trap_FS_FCloseFile( data );
+	//trap->FS_Close( data );
 
 	return roff_id;
 }
@@ -553,7 +549,7 @@ void G_Roff( gentity_t *ent )
 	}
 
 #ifdef _DEBUG
-	if ( g_developer.integer )
+	if ( developer.integer )
 	{
 		Com_Printf( S_COLOR_GREEN"ROFF dat: num: %d o:<%.2f %.2f %.2f> a:<%.2f %.2f %.2f>\n", 
 					ent->roff_ctr,
@@ -629,7 +625,7 @@ void G_Roff( gentity_t *ent )
 	}
 
 	// Link just in case.
-	trap_LinkEntity( ent );
+	trap->LinkEntity( (sharedEntity_t *)ent );
 
 	// See if the ROFF playback is done
 	//-------------------------------------
@@ -642,7 +638,7 @@ void G_Roff( gentity_t *ent )
 		VectorClear( ent->s.pos.trDelta );
 		VectorClear( ent->s.apos.trDelta );
 
-		trap_ICARUS_TaskIDComplete( ent, TID_MOVE_NAV );
+		trap->ICARUS_TaskIDComplete( (sharedEntity_t *)ent, TID_MOVE_NAV );
 
 		return;
 	}

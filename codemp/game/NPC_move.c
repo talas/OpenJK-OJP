@@ -1,3 +1,25 @@
+/*
+===========================================================================
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2015, OpenJK contributors
+
+This file is part of the OpenJK source code.
+
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
+*/
+
 //
 // NPC_move.cpp
 //
@@ -14,10 +36,7 @@ extern int GetTime ( int lastTime );
 navInfo_t	frameNavInfo;
 extern qboolean FlyingCreature( gentity_t *ent );
 
-#include "../namespace_begin.h"
 extern qboolean PM_InKnockDown( playerState_t *ps );
-#include "../namespace_end.h"
-
 //[CoOp]
 static qboolean NPC_TryJump_Final();
 extern void G_DrawEdge( vec3_t start, vec3_t end, int type );
@@ -34,10 +53,10 @@ static qboolean NPC_Jump( vec3_t dest, int goalEntNum )
 	int		elapsedTime, timeStep = 250, hitCount = 0, aboveTries = 0, belowTries = 0, maxHits = 10;
 	vec3_t	lastPos, testPos, bottom;
 
-	VectorSubtract( dest, NPC->r.currentOrigin, targetDir );
+	VectorSubtract( dest, NPCS.NPC->r.currentOrigin, targetDir );
 	targetDist = VectorNormalize( targetDir );
 	//make our shotSpeed reliant on the distance
-	originalShotSpeed = targetDist;//DistanceHorizontal( dest, NPC->currentOrigin )/2.0f;
+	originalShotSpeed = targetDist;//DistanceHorizontal( dest, NPCS.NPC->currentOrigin )/2.0f;
 	if ( originalShotSpeed > maxShotSpeed )
 	{
 		originalShotSpeed = maxShotSpeed;
@@ -52,7 +71,7 @@ static qboolean NPC_Jump( vec3_t dest, int goalEntNum )
 	{
 		VectorScale( targetDir, shotSpeed, shotVel );
 		travelTime = targetDist/shotSpeed;
-		shotVel[2] += travelTime * 0.5 * NPC->client->ps.gravity;
+		shotVel[2] += travelTime * 0.5 * NPCS.NPC->client->ps.gravity;
 
 		if ( !hitCount )		
 		{//save the first one as the worst case scenario
@@ -63,12 +82,12 @@ static qboolean NPC_Jump( vec3_t dest, int goalEntNum )
 		{//do a rough trace of the path
 			blocked = qfalse;
 
-			VectorCopy( NPC->r.currentOrigin, tr.trBase );
+			VectorCopy( NPCS.NPC->r.currentOrigin, tr.trBase );
 			VectorCopy( shotVel, tr.trDelta );
 			tr.trType = TR_GRAVITY;
 			tr.trTime = level.time;
 			travelTime *= 1000.0f;
-			VectorCopy( NPC->r.currentOrigin, lastPos );
+			VectorCopy( NPCS.NPC->r.currentOrigin, lastPos );
 			
 			//This may be kind of wasteful, especially on long throws... use larger steps?  Divide the travelTime into a certain hard number of slices?  Trace just to apex and down?
 			for ( elapsedTime = timeStep; elapsedTime < floor(travelTime)+timeStep; elapsedTime += timeStep )
@@ -79,16 +98,16 @@ static qboolean NPC_Jump( vec3_t dest, int goalEntNum )
 				}
 				BG_EvaluateTrajectory( &tr, level.time + elapsedTime, testPos );
 				//FUCK IT, always check for do not enter...
-				trap_Trace( &trace, lastPos, NPC->r.mins, NPC->r.maxs, testPos, NPC->s.number, NPC->clipmask|CONTENTS_BOTCLIP );
+				trap->Trace( &trace, lastPos, NPCS.NPC->r.mins, NPCS.NPC->r.maxs, testPos, NPCS.NPC->s.number, NPCS.NPC->clipmask|CONTENTS_BOTCLIP, qfalse, 0, 0 );
 				/*
 				if ( testPos[2] < lastPos[2] 
 					&& elapsedTime < floor( travelTime ) )
 				{//going down, haven't reached end, ignore botclip
-					gi.trace( &trace, lastPos, NPC->mins, NPC->maxs, testPos, NPC->s.number, NPC->clipmask );
+					gi.trace( &trace, lastPos, NPCS.NPC->mins, NPCS.NPC->maxs, testPos, NPCS.NPC->s.number, NPCS.NPC->clipmask );
 				}
 				else
 				{//going up, check for botclip
-					gi.trace( &trace, lastPos, NPC->mins, NPC->maxs, testPos, NPC->s.number, NPC->clipmask|CONTENTS_BOTCLIP );
+					gi.trace( &trace, lastPos, NPCS.NPC->mins, NPCS.NPC->maxs, testPos, NPCS.NPC->s.number, NPCS.NPC->clipmask|CONTENTS_BOTCLIP );
 				}
 				*/
 
@@ -159,7 +178,7 @@ static qboolean NPC_Jump( vec3_t dest, int goalEntNum )
 						//FIXME: do we care how far below ourselves or our dest we'll land?
 						VectorCopy( trace.endpos, bottom );
 						bottom[2] -= 128;
-						trap_Trace( &trace, trace.endpos, NPC->r.mins, NPC->r.maxs, bottom, NPC->s.number, NPC->clipmask );
+						trap->Trace( &trace, trace.endpos, NPCS.NPC->r.mins, NPCS.NPC->r.maxs, bottom, NPCS.NPC->s.number, NPCS.NPC->clipmask, qfalse, 0, 0 );
 						if ( trace.fraction >= 1.0f )
 						{//would fall too far
 							blocked = qtrue;
@@ -218,10 +237,10 @@ static qboolean NPC_Jump( vec3_t dest, int goalEntNum )
 	{//NOTE: worst case scenario, use the one that impacted closest to the target (or just use the first try...?)
 		return qfalse;
 		//NOTE: or try failcase?
-		//VectorCopy( failCase, NPC->client->ps.velocity );
+		//VectorCopy( failCase, NPCS.NPC->client->ps.velocity );
 		//return qtrue;
 	}
-	VectorCopy( shotVel, NPC->client->ps.velocity );
+	VectorCopy( shotVel, NPCS.NPC->client->ps.velocity );
 	return qtrue;
 }
 
@@ -231,14 +250,14 @@ trace_t		mJumpTrace;
 
 qboolean NPC_CanTryJump()
 {
-	if (!(NPCInfo->scriptFlags&SCF_NAV_CAN_JUMP)	||		// Can't Jump
-		(NPCInfo->scriptFlags&SCF_NO_ACROBATICS)	||		// If Can't Jump At All
-		(level.time<NPCInfo->jumpBackupTime)		||		// If Backing Up, Don't Try The Jump Again
-		(level.time<NPCInfo->jumpNextCheckTime)		||		// Don't Even Try To Jump Again For This Amount Of Time
-		(NPCInfo->jumpTime)							||		// Don't Jump If Already Going
-		(PM_InKnockDown(&NPC->client->ps))			||		// Don't Jump If In Knockdown
-		(BG_InRoll(&NPC->client->ps, NPC->client->ps.legsAnim))	||		// ... Or Roll
-		(NPC->client->ps.groundEntityNum==ENTITYNUM_NONE)	// ... Or In The Air
+	if (!(NPCS.NPCInfo->scriptFlags&SCF_NAV_CAN_JUMP)	||		// Can't Jump
+		(NPCS.NPCInfo->scriptFlags&SCF_NO_ACROBATICS)	||		// If Can't Jump At All
+		(level.time<NPCS.NPCInfo->jumpBackupTime)		||		// If Backing Up, Don't Try The Jump Again
+		(level.time<NPCS.NPCInfo->jumpNextCheckTime)		||		// Don't Even Try To Jump Again For This Amount Of Time
+		(NPCS.NPCInfo->jumpTime)							||		// Don't Jump If Already Going
+		(PM_InKnockDown(&NPCS.NPC->client->ps))			||		// Don't Jump If In Knockdown
+		(BG_InRoll(&NPCS.NPC->client->ps, NPCS.NPC->client->ps.legsAnim))	||		// ... Or Roll
+		(NPCS.NPC->client->ps.groundEntityNum==ENTITYNUM_NONE)	// ... Or In The Air
 		)
 	{
 		return qfalse;
@@ -253,28 +272,28 @@ qboolean NPC_TryJump3(const vec3_t pos,	float max_xy_dist, float max_z_diff)
 {
 	if (NPC_CanTryJump())
 	{
-		NPCInfo->jumpNextCheckTime	= level.time + Q_irand(1000, 2000);
+		NPCS.NPCInfo->jumpNextCheckTime	= level.time + Q_irand(1000, 2000);
 
-		VectorCopy(pos, NPCInfo->jumpDest);
+		VectorCopy(pos, NPCS.NPCInfo->jumpDest);
 
 		// Can't Try To Jump At A Point In The Air
 		//-----------------------------------------
 		{
 			vec3_t	groundTest;
 			VectorCopy(pos, groundTest);
-			groundTest[2]	+= (NPC->r.mins[2]*3);
-			trap_Trace(&mJumpTrace, NPCInfo->jumpDest, vec3_origin, vec3_origin, 
-				groundTest, NPC->s.number, NPC->clipmask );
+			groundTest[2]	+= (NPCS.NPC->r.mins[2]*3);
+			trap->Trace(&mJumpTrace, NPCS.NPCInfo->jumpDest, vec3_origin, vec3_origin, 
+				groundTest, NPCS.NPC->s.number, NPCS.NPC->clipmask, qfalse, 0, 0 );
 			if (mJumpTrace.fraction >= 1.0f)
 			{
 				return qfalse;	//no ground = no jump
 			}
 		}
-		NPCInfo->jumpTarget			= 0;
-		NPCInfo->jumpMaxXYDist		= (max_xy_dist)?(max_xy_dist):((NPC->client->NPC_class==CLASS_ROCKETTROOPER)?1200:750);
-		NPCInfo->jumpMazZDist		= (max_z_diff)?(max_z_diff):((NPC->client->NPC_class==CLASS_ROCKETTROOPER)?-1000:-450);
-		NPCInfo->jumpTime			= 0;
-		NPCInfo->jumpBackupTime		= 0;
+		NPCS.NPCInfo->jumpTarget			= 0;
+		NPCS.NPCInfo->jumpMaxXYDist		= (max_xy_dist)?(max_xy_dist):((NPCS.NPC->client->NPC_class==CLASS_ROCKETTROOPER)?1200:750);
+		NPCS.NPCInfo->jumpMazZDist		= (max_z_diff)?(max_z_diff):((NPCS.NPC->client->NPC_class==CLASS_ROCKETTROOPER)?-1000:-450);
+		NPCS.NPCInfo->jumpTime			= 0;
+		NPCS.NPCInfo->jumpBackupTime		= 0;
 		return NPC_TryJump();
 	}
 	return qfalse;
@@ -284,7 +303,7 @@ qboolean NPC_TryJump2(gentity_t *goal, float max_xy_dist, float max_z_diff)
 {
 	if (NPC_CanTryJump())
 	{
-		NPCInfo->jumpNextCheckTime	= level.time + Q_irand(1000, 3000);
+		NPCS.NPCInfo->jumpNextCheckTime	= level.time + Q_irand(1000, 3000);
 
 		// Can't Jump At Targets In The Air
 		//---------------------------------
@@ -292,12 +311,12 @@ qboolean NPC_TryJump2(gentity_t *goal, float max_xy_dist, float max_z_diff)
 		{
 			return qfalse;
 		}
-		VectorCopy(goal->r.currentOrigin, NPCInfo->jumpDest);
-		NPCInfo->jumpTarget			= goal;
-		NPCInfo->jumpMaxXYDist		= (max_xy_dist)?(max_xy_dist):((NPC->client->NPC_class==CLASS_ROCKETTROOPER)?1200:750);
-		NPCInfo->jumpMazZDist		= (max_z_diff)?(max_z_diff):((NPC->client->NPC_class==CLASS_ROCKETTROOPER)?-1000:-400);
-		NPCInfo->jumpTime			= 0;
-		NPCInfo->jumpBackupTime		= 0;
+		VectorCopy(goal->r.currentOrigin, NPCS.NPCInfo->jumpDest);
+		NPCS.NPCInfo->jumpTarget			= goal;
+		NPCS.NPCInfo->jumpMaxXYDist		= (max_xy_dist)?(max_xy_dist):((NPCS.NPC->client->NPC_class==CLASS_ROCKETTROOPER)?1200:750);
+		NPCS.NPCInfo->jumpMazZDist		= (max_z_diff)?(max_z_diff):((NPCS.NPC->client->NPC_class==CLASS_ROCKETTROOPER)?-1000:-400);
+		NPCS.NPCInfo->jumpTime			= 0;
+		NPCS.NPCInfo->jumpBackupTime		= 0;
 		return NPC_TryJump();
 	}
 	return qfalse;
@@ -314,13 +333,13 @@ qboolean NPC_TryJump(void)
 
 	// Get The Direction And Distances To The Target
 	//-----------------------------------------------
-	VectorSubtract(NPCInfo->jumpDest, NPC->r.currentOrigin, targetDirection);
+	VectorSubtract(NPCS.NPCInfo->jumpDest, NPCS.NPC->r.currentOrigin, targetDirection);
 	targetDirection[2]	= 0.0f;
 	targetDistanceXY	= VectorNormalize(targetDirection);
-	targetDistanceZ		= NPCInfo->jumpDest[2] - NPC->r.currentOrigin[2];
+	targetDistanceZ		= NPCS.NPCInfo->jumpDest[2] - NPCS.NPC->r.currentOrigin[2];
 
-	if ((targetDistanceXY>NPCInfo->jumpMaxXYDist) ||
-		(targetDistanceZ<NPCInfo->jumpMazZDist))
+	if ((targetDistanceXY>NPCS.NPCInfo->jumpMaxXYDist) ||
+		(targetDistanceZ<NPCS.NPCInfo->jumpMazZDist))
 	{
 		return qfalse;
 	}
@@ -328,29 +347,29 @@ qboolean NPC_TryJump(void)
 
 	// Test To See If There Is A Wall Directly In Front Of Actor, If So, Backup Some
 	//-------------------------------------------------------------------------------
-	if (TIMER_Done(NPC, "jumpBackupDebounce"))
+	if (TIMER_Done(NPCS.NPC, "jumpBackupDebounce"))
 	{
 		vec3_t	actorProjectedTowardTarget;
-		VectorMA(NPC->r.currentOrigin, NPC_JUMP_PREP_BACKUP_DIST, targetDirection, actorProjectedTowardTarget);
-		trap_Trace(&mJumpTrace, NPC->r.currentOrigin, vec3_origin, vec3_origin, actorProjectedTowardTarget, NPC->s.number, NPC->clipmask);
+		VectorMA(NPCS.NPC->r.currentOrigin, NPC_JUMP_PREP_BACKUP_DIST, targetDirection, actorProjectedTowardTarget);
+		trap->Trace(&mJumpTrace, NPCS.NPC->r.currentOrigin, vec3_origin, vec3_origin, actorProjectedTowardTarget, NPCS.NPC->s.number, NPCS.NPC->clipmask, qfalse, 0, 0);
 		if ((mJumpTrace.fraction < 1.0f) ||
 			(mJumpTrace.allsolid) ||
 			(mJumpTrace.startsolid))
 		{
 			if (NAVDEBUG_showCollision)
 			{
-				G_DrawEdge(NPC->r.currentOrigin, actorProjectedTowardTarget, EDGE_RED_TWOSECOND);	// TryJump
+				G_DrawEdge(NPCS.NPC->r.currentOrigin, actorProjectedTowardTarget, EDGE_RED_TWOSECOND);	// TryJump
 			}
 
 			// TODO: We may want to test to see if it is safe to back up here?
-			NPCInfo->jumpBackupTime = level.time + 1000;
-			TIMER_Set(NPC, "jumpBackupDebounce", 5000);
+			NPCS.NPCInfo->jumpBackupTime = level.time + 1000;
+			TIMER_Set(NPCS.NPC, "jumpBackupDebounce", 5000);
 			return qtrue;
 		}
 	}
 
 
-//	bool	Wounded					= (NPC->health < 150);
+//	bool	Wounded					= (NPCS.NPC->health < 150);
 //	bool	OnLowerLedge			= ((targetDistanceZ<-80.0f) && (targetDistanceZ>-200.0f));
 //	bool	WithinNormalJumpRange	= ((targetDistanceZ<32.0f)  && (targetDistanceXY<200.0f));
 	
@@ -359,18 +378,18 @@ qboolean NPC_TryJump(void)
 
 /*	if (Wounded && OnLowerLedge)
 	{
-		ucmd.forwardmove	= 127;
-		VectorClear(NPC->client->ps.moveDir);
-		TIMER_Set(NPC, "duck", -level.time);
+		NPCS.ucmd.forwardmove	= 127;
+		VectorClear(NPCS.NPC->client->ps.moveDir);
+		TIMER_Set(NPCS.NPC, "duck", -level.time);
 		return qtrue;
 	}
 	
 	if (WithinNormalJumpRange)
 	{
-		ucmd.upmove			= 127;
-		ucmd.forwardmove	= 127;
-		VectorClear(NPC->client->ps.moveDir);
-		TIMER_Set(NPC, "duck", -level.time);
+		NPCS.ucmd.upmove			= 127;
+		NPCS.ucmd.forwardmove	= 127;
+		VectorClear(NPCS.NPC->client->ps.moveDir);
+		TIMER_Set(NPCS.NPC, "duck", -level.time);
 		return qtrue;
 	}
 */
@@ -384,68 +403,68 @@ qboolean NPC_TryJump(void)
 
 	// If There Is Any Chance That This Jump Will Land On An Enemy, Try 8 Different Traces Around The Target
 	//-------------------------------------------------------------------------------------------------------
-	if (NPCInfo->jumpTarget)
+	if (NPCS.NPCInfo->jumpTarget)
 	{//racc - We're jumping to an entity
-		float	minSafeRadius	= (NPC->r.maxs[0]*1.5f) + (NPCInfo->jumpTarget->r.maxs[0]*1.5f);
+		float	minSafeRadius	= (NPCS.NPC->r.maxs[0]*1.5f) + (NPCS.NPCInfo->jumpTarget->r.maxs[0]*1.5f);
 		float	minSafeRadiusSq	= (minSafeRadius * minSafeRadius);
 
-		if (DistanceSquared(NPCInfo->jumpDest, NPCInfo->jumpTarget->r.currentOrigin)<minSafeRadiusSq)
+		if (DistanceSquared(NPCS.NPCInfo->jumpDest, NPCS.NPCInfo->jumpTarget->r.currentOrigin)<minSafeRadiusSq)
 		{
 			int		sideTryCount;
 			vec3_t	startPos;
 			vec3_t	floorPos;
-			VectorCopy(NPCInfo->jumpDest, startPos);
+			VectorCopy(NPCS.NPCInfo->jumpDest, startPos);
 
-			floorPos[2] = NPCInfo->jumpDest[2] + (NPC->r.mins[2]-32);
+			floorPos[2] = NPCS.NPCInfo->jumpDest[2] + (NPCS.NPC->r.mins[2]-32);
 
 			for (sideTryCount=0; sideTryCount<8; sideTryCount++)
 			{
-				NPCInfo->jumpSide++;
-				if ( NPCInfo->jumpSide > 7 )
+				NPCS.NPCInfo->jumpSide++;
+				if ( NPCS.NPCInfo->jumpSide > 7 )
 				{
-					NPCInfo->jumpSide = 0;
+					NPCS.NPCInfo->jumpSide = 0;
 				}
 
-				switch ( NPCInfo->jumpSide )
+				switch ( NPCS.NPCInfo->jumpSide )
 				{
 				case 0:
-					NPCInfo->jumpDest[0] = startPos[0] + minSafeRadius;
-					NPCInfo->jumpDest[1] = startPos[1];
+					NPCS.NPCInfo->jumpDest[0] = startPos[0] + minSafeRadius;
+					NPCS.NPCInfo->jumpDest[1] = startPos[1];
 					break;
 				case 1:
-					NPCInfo->jumpDest[0] = startPos[0] + minSafeRadius;
-					NPCInfo->jumpDest[1] = startPos[1] + minSafeRadius;
+					NPCS.NPCInfo->jumpDest[0] = startPos[0] + minSafeRadius;
+					NPCS.NPCInfo->jumpDest[1] = startPos[1] + minSafeRadius;
 					break;
 				case 2:
-					NPCInfo->jumpDest[0] = startPos[0];
-					NPCInfo->jumpDest[1] = startPos[1] + minSafeRadius;
+					NPCS.NPCInfo->jumpDest[0] = startPos[0];
+					NPCS.NPCInfo->jumpDest[1] = startPos[1] + minSafeRadius;
 					break;
 				case 3:
-					NPCInfo->jumpDest[0] = startPos[0] - minSafeRadius;
-					NPCInfo->jumpDest[1] = startPos[1] + minSafeRadius;
+					NPCS.NPCInfo->jumpDest[0] = startPos[0] - minSafeRadius;
+					NPCS.NPCInfo->jumpDest[1] = startPos[1] + minSafeRadius;
 					break;
 				case 4:
-					NPCInfo->jumpDest[0] = startPos[0] - minSafeRadius;
-					NPCInfo->jumpDest[1] = startPos[1];
+					NPCS.NPCInfo->jumpDest[0] = startPos[0] - minSafeRadius;
+					NPCS.NPCInfo->jumpDest[1] = startPos[1];
 					break;
 				case 5:
-					NPCInfo->jumpDest[0] = startPos[0] - minSafeRadius;
-					NPCInfo->jumpDest[1] = startPos[1] - minSafeRadius;
+					NPCS.NPCInfo->jumpDest[0] = startPos[0] - minSafeRadius;
+					NPCS.NPCInfo->jumpDest[1] = startPos[1] - minSafeRadius;
 					break;
 				case 6:
-					NPCInfo->jumpDest[0] = startPos[0];
-					NPCInfo->jumpDest[1] = startPos[1] - minSafeRadius;
+					NPCS.NPCInfo->jumpDest[0] = startPos[0];
+					NPCS.NPCInfo->jumpDest[1] = startPos[1] - minSafeRadius;
 					break;
 				case 7:
-					NPCInfo->jumpDest[0] = startPos[0] + minSafeRadius;
-					NPCInfo->jumpDest[1] = startPos[1] -=minSafeRadius;
+					NPCS.NPCInfo->jumpDest[0] = startPos[0] + minSafeRadius;
+					NPCS.NPCInfo->jumpDest[1] = startPos[1] -=minSafeRadius;
 					break;
 				};
 
-				floorPos[0] = NPCInfo->jumpDest[0];
-				floorPos[1] = NPCInfo->jumpDest[1];
+				floorPos[0] = NPCS.NPCInfo->jumpDest[0];
+				floorPos[1] = NPCS.NPCInfo->jumpDest[1];
 
-				trap_Trace(&mJumpTrace, NPCInfo->jumpDest, NPC->r.mins, NPC->r.maxs, floorPos, (NPCInfo->jumpTarget)?(NPCInfo->jumpTarget->s.number):(NPC->s.number), (NPC->clipmask|CONTENTS_BOTCLIP));
+				trap->Trace(&mJumpTrace, NPCS.NPCInfo->jumpDest, NPCS.NPC->r.mins, NPCS.NPC->r.maxs, floorPos, (NPCS.NPCInfo->jumpTarget)?(NPCS.NPCInfo->jumpTarget->s.number):(NPCS.NPC->s.number), (NPCS.NPC->clipmask|CONTENTS_BOTCLIP), qfalse, 0, 0);
 				if ((mJumpTrace.fraction<1.0f) && 
 					(!mJumpTrace.allsolid) && 
 					(!mJumpTrace.startsolid))
@@ -455,7 +474,7 @@ qboolean NPC_TryJump(void)
 
 				if ( NAVDEBUG_showCollision )
 				{	
-					G_DrawEdge( NPCInfo->jumpDest, floorPos, EDGE_RED_TWOSECOND );
+					G_DrawEdge( NPCS.NPCInfo->jumpDest, floorPos, EDGE_RED_TWOSECOND );
 				}
 			}
 
@@ -465,30 +484,30 @@ qboolean NPC_TryJump(void)
 				(mJumpTrace.allsolid) || 
 				(mJumpTrace.startsolid))
 			{
-				VectorCopy(startPos, NPCInfo->jumpDest);
+				VectorCopy(startPos, NPCS.NPCInfo->jumpDest);
 			}
 		}
 	}
 	
 	// Now, Actually Try The Jump To The Dest Target
 	//-----------------------------------------------
-	if (NPC_Jump(NPCInfo->jumpDest, (NPCInfo->jumpTarget)?(NPCInfo->jumpTarget->s.number):(NPC->s.number)))
+	if (NPC_Jump(NPCS.NPCInfo->jumpDest, (NPCS.NPCInfo->jumpTarget)?(NPCS.NPCInfo->jumpTarget->s.number):(NPCS.NPC->s.number)))
 	{
 		// We Made IT!
 		//-------------
 		NPC_JumpAnimation();
 		NPC_JumpSound();
 
-		NPC->client->ps.fd.forceJumpZStart	  = NPC->r.currentOrigin[2];
+		NPCS.NPC->client->ps.fd.forceJumpZStart	  = NPCS.NPC->r.currentOrigin[2];
 		//RAFIXME - Impliment flag?
-		//NPC->client->ps.pm_flags			 |= PMF_JUMPING;
-		NPC->client->ps.weaponTime			  = NPC->client->ps.torsoTimer;
-		NPC->client->ps.fd.forcePowersActive |= ( 1 << FP_LEVITATION );
-		ucmd.forwardmove					  = 0;
-		NPCInfo->jumpTime					  = 1;
+		//NPCS.NPC->client->ps.pm_flags			 |= PMF_JUMPING;
+		NPCS.NPC->client->ps.weaponTime			  = NPCS.NPC->client->ps.torsoTimer;
+		NPCS.NPC->client->ps.fd.forcePowersActive |= ( 1 << FP_LEVITATION );
+		NPCS.ucmd.forwardmove					  = 0;
+		NPCS.NPCInfo->jumpTime					  = 1;
 
-		VectorClear(NPC->client->ps.moveDir);
-		TIMER_Set(NPC, "duck", -level.time);
+		VectorClear(NPCS.NPC->client->ps.moveDir);
+		TIMER_Set(NPCS.NPC, "duck", -level.time);
 
 		return qtrue;
 	}
@@ -501,27 +520,27 @@ qboolean NPC_TryJump_Pos(const vec3_t pos,	float max_xy_dist, float max_z_diff)
 {
 	if (NPC_CanTryJump())
 	{
-		NPCInfo->jumpNextCheckTime	= level.time + Q_irand(1000, 2000);
+		NPCS.NPCInfo->jumpNextCheckTime	= level.time + Q_irand(1000, 2000);
 
-		VectorCopy(pos, NPCInfo->jumpDest);
+		VectorCopy(pos, NPCS.NPCInfo->jumpDest);
 
 		// Can't Try To Jump At A Point In The Air
 		//-----------------------------------------
 		{
 			vec3_t	groundTest;
 			VectorCopy(pos, groundTest);
-			groundTest[2]	+= (NPC->r.mins[2]*3);
-			trap_Trace(&mJumpTrace, NPCInfo->jumpDest, vec3_origin, vec3_origin, groundTest, NPC->s.number, NPC->clipmask );
+			groundTest[2]	+= (NPCS.NPC->r.mins[2]*3);
+			trap->Trace(&mJumpTrace, NPCS.NPCInfo->jumpDest, vec3_origin, vec3_origin, groundTest, NPCS.NPC->s.number, NPCS.NPC->clipmask, qfalse, 0, 0 );
 			if (mJumpTrace.fraction >= 1.0f)
 			{
 				return qfalse;	//no ground = no jump
 			}
 		}
-		NPCInfo->jumpTarget			= 0;
-		NPCInfo->jumpMaxXYDist		= (max_xy_dist)?(max_xy_dist):((NPC->client->NPC_class==CLASS_ROCKETTROOPER)?1200:750);
-		NPCInfo->jumpMazZDist		= (max_z_diff)?(max_z_diff):((NPC->client->NPC_class==CLASS_ROCKETTROOPER)?-1000:-450);
-		NPCInfo->jumpTime			= 0;
-		NPCInfo->jumpBackupTime		= 0;
+		NPCS.NPCInfo->jumpTarget			= 0;
+		NPCS.NPCInfo->jumpMaxXYDist		= (max_xy_dist)?(max_xy_dist):((NPCS.NPC->client->NPC_class==CLASS_ROCKETTROOPER)?1200:750);
+		NPCS.NPCInfo->jumpMazZDist		= (max_z_diff)?(max_z_diff):((NPCS.NPC->client->NPC_class==CLASS_ROCKETTROOPER)?-1000:-450);
+		NPCS.NPCInfo->jumpTime			= 0;
+		NPCS.NPCInfo->jumpBackupTime		= 0;
 		return NPC_TryJump_Final();
 	}
 	return qfalse;
@@ -531,7 +550,7 @@ qboolean NPC_TryJump_Gent(gentity_t *goal,	float max_xy_dist, float max_z_diff)
 {
 	if (NPC_CanTryJump())
 	{
-		NPCInfo->jumpNextCheckTime	= level.time + Q_irand(1000, 3000);
+		NPCS.NPCInfo->jumpNextCheckTime	= level.time + Q_irand(1000, 3000);
 
 		// Can't Jump At Targets In The Air
 		//---------------------------------
@@ -539,12 +558,12 @@ qboolean NPC_TryJump_Gent(gentity_t *goal,	float max_xy_dist, float max_z_diff)
 		{
 			return qfalse;
 		}
-		VectorCopy(goal->r.currentOrigin, NPCInfo->jumpDest);
-		NPCInfo->jumpTarget			= goal;
-		NPCInfo->jumpMaxXYDist		= (max_xy_dist)?(max_xy_dist):((NPC->client->NPC_class==CLASS_ROCKETTROOPER)?1200:750);
-		NPCInfo->jumpMazZDist		= (max_z_diff)?(max_z_diff):((NPC->client->NPC_class==CLASS_ROCKETTROOPER)?-1000:-400);
-		NPCInfo->jumpTime			= 0;
-		NPCInfo->jumpBackupTime		= 0;
+		VectorCopy(goal->r.currentOrigin, NPCS.NPCInfo->jumpDest);
+		NPCS.NPCInfo->jumpTarget			= goal;
+		NPCS.NPCInfo->jumpMaxXYDist		= (max_xy_dist)?(max_xy_dist):((NPCS.NPC->client->NPC_class==CLASS_ROCKETTROOPER)?1200:750);
+		NPCS.NPCInfo->jumpMazZDist		= (max_z_diff)?(max_z_diff):((NPCS.NPC->client->NPC_class==CLASS_ROCKETTROOPER)?-1000:-400);
+		NPCS.NPCInfo->jumpTime			= 0;
+		NPCS.NPCInfo->jumpBackupTime		= 0;
 		return NPC_TryJump_Final();
 	}
 	return qfalse;
@@ -556,16 +575,16 @@ void	 NPC_JumpAnimation()
 {
 	int	jumpAnim = BOTH_JUMP1;
 
-	if ( NPC->client->NPC_class == CLASS_BOBAFETT 
-		|| (NPC->client->NPC_class == CLASS_REBORN && NPC->s.weapon != WP_SABER)
-		|| NPC->client->NPC_class == CLASS_ROCKETTROOPER
-		||( NPCInfo->rank != RANK_CREWMAN && NPCInfo->rank <= RANK_LT_JG ) )
+	if ( NPCS.NPC->client->NPC_class == CLASS_BOBAFETT 
+		|| (NPCS.NPC->client->NPC_class == CLASS_REBORN && NPCS.NPC->s.weapon != WP_SABER)
+		|| NPCS.NPC->client->NPC_class == CLASS_ROCKETTROOPER
+		||( NPCS.NPCInfo->rank != RANK_CREWMAN && NPCS.NPCInfo->rank <= RANK_LT_JG ) )
 	{//can't do acrobatics
 		jumpAnim = BOTH_FORCEJUMP1;
 	}
-	else if (NPC->client->NPC_class != CLASS_HOWLER)
+	else if (NPCS.NPC->client->NPC_class != CLASS_HOWLER)
 	{
-		if ( NPC->client->NPC_class == CLASS_ALORA && Q_irand( 0, 3 ) )
+		if ( NPCS.NPC->client->NPC_class == CLASS_ALORA && Q_irand( 0, 3 ) )
 		{
 			jumpAnim = Q_irand( BOTH_ALORA_FLIP_1, BOTH_ALORA_FLIP_3 );
 		}
@@ -574,7 +593,7 @@ void	 NPC_JumpAnimation()
 			jumpAnim = BOTH_FLIP_F;
 		}
 	}
-	NPC_SetAnim( NPC, SETANIM_BOTH, jumpAnim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+	NPC_SetAnim( NPCS.NPC, SETANIM_BOTH, jumpAnim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
 }
 
 //RAFIXME - CLASS_ROCKETTROOPER|CLASS_BOBAFETT
@@ -584,20 +603,20 @@ void	 NPC_JumpAnimation()
 extern void G_SoundOnEnt( gentity_t *ent, soundChannel_t channel, const char *soundPath );
 void	 NPC_JumpSound()
 {
-	if ( NPC->client->NPC_class == CLASS_HOWLER )
+	if ( NPCS.NPC->client->NPC_class == CLASS_HOWLER )
 	{
 		//FIXME: can I delay the actual jump so that it matches the anim...?
 	}
-	else if ( NPC->client->NPC_class == CLASS_BOBAFETT 
-		|| NPC->client->NPC_class == CLASS_ROCKETTROOPER )
+	else if ( NPCS.NPC->client->NPC_class == CLASS_BOBAFETT 
+		|| NPCS.NPC->client->NPC_class == CLASS_ROCKETTROOPER )
 	{
 		// does this really need to be here?
 		//RAFIXME - CLASS_ROCKETTROOPER|CLASS_BOBAFETT
-		//JET_FlyStart(NPC);
+		//JET_FlyStart(NPCS.NPC);
 	}
 	else
 	{
-		G_SoundOnEnt( NPC, CHAN_BODY, "sound/weapons/force/jump.wav" );
+		G_SoundOnEnt( NPCS.NPC, CHAN_BODY, "sound/weapons/force/jump.wav" );
 	}
 }
 
@@ -605,19 +624,19 @@ void	 NPC_JumpSound()
 //[CoOp]
 qboolean NPC_Jumping()
 {//checks to see if we're jumping
-	if ( NPCInfo->jumpTime )
+	if ( NPCS.NPCInfo->jumpTime )
 	{
-		if(NPC->client->ps.groundEntityNum != ENTITYNUM_NONE)
+		if(NPCS.NPC->client->ps.groundEntityNum != ENTITYNUM_NONE)
 		/* RAFIXME - not exactly sure how to do this.
-		if ( !(NPC->client->ps.pm_flags & PMF_JUMPING )//forceJumpZStart )
-			&& !(NPC->client->ps.pm_flags&PMF_TRIGGER_PUSHED))
+		if ( !(NPCS.NPC->client->ps.pm_flags & PMF_JUMPING )//forceJumpZStart )
+			&& !(NPCS.NPC->client->ps.pm_flags&PMF_TRIGGER_PUSHED))
 		*/
 		{//landed
-			NPCInfo->jumpTime = 0;
+			NPCS.NPCInfo->jumpTime = 0;
 		}
 		else
 		{
-			NPC_FacePosition(NPCInfo->jumpDest, qtrue);
+			NPC_FacePosition(NPCS.NPCInfo->jumpDest, qtrue);
 			return qtrue;
 		}
 	}
@@ -627,21 +646,21 @@ qboolean NPC_Jumping()
 
 qboolean NPC_JumpBackingUp()
 {//check for and back up before a large jump if we're supposed to.
-	if (NPCInfo->jumpBackupTime)
+	if (NPCS.NPCInfo->jumpBackupTime)
 	{
-		if (level.time<NPCInfo->jumpBackupTime)
+		if (level.time<NPCS.NPCInfo->jumpBackupTime)
 		{
 			/*  RAFIXME - impliment nav code.
-			STEER::Activate(NPC);
-			STEER::Flee(NPC, NPCInfo->jumpDest);
-			STEER::DeActivate(NPC, &ucmd);
+			STEER::Activate(NPCS.NPC);
+			STEER::Flee(NPCS.NPC, NPCS.NPCInfo->jumpDest);
+			STEER::DeActivate(NPCS.NPC, &NPCS.ucmd);
 			*/
-			NPC_FacePosition(NPCInfo->jumpDest, qtrue);
+			NPC_FacePosition(NPCS.NPCInfo->jumpDest, qtrue);
 			NPC_UpdateAngles( qfalse, qtrue );
 			return qtrue;
 		}
 
-		NPCInfo->jumpBackupTime = 0;
+		NPCS.NPCInfo->jumpBackupTime = 0;
 		return NPC_TryJump();
 	}
 	return qfalse;
@@ -660,13 +679,13 @@ qboolean NPC_TryJump_Final()
 
 	// Get The Direction And Distances To The Target
 	//-----------------------------------------------
-	VectorSubtract(NPCInfo->jumpDest, NPC->r.currentOrigin, targetDirection);
+	VectorSubtract(NPCS.NPCInfo->jumpDest, NPCS.NPC->r.currentOrigin, targetDirection);
 	targetDirection[2]	= 0.0f;
 	targetDistanceXY	= VectorNormalize(targetDirection);
-	targetDistanceZ		= NPCInfo->jumpDest[2] - NPC->r.currentOrigin[2];
+	targetDistanceZ		= NPCS.NPCInfo->jumpDest[2] - NPCS.NPC->r.currentOrigin[2];
 
-	if ((targetDistanceXY>NPCInfo->jumpMaxXYDist) ||
-		(targetDistanceZ<NPCInfo->jumpMazZDist))
+	if ((targetDistanceXY>NPCS.NPCInfo->jumpMaxXYDist) ||
+		(targetDistanceZ<NPCS.NPCInfo->jumpMazZDist))
 	{
 		return qfalse;
 	}
@@ -674,47 +693,47 @@ qboolean NPC_TryJump_Final()
 
 	// Test To See If There Is A Wall Directly In Front Of Actor, If So, Backup Some
 	//-------------------------------------------------------------------------------
-	if (TIMER_Done(NPC, "jumpBackupDebounce"))
+	if (TIMER_Done(NPCS.NPC, "jumpBackupDebounce"))
 	{
 		vec3_t	actorProjectedTowardTarget;
-		VectorMA(NPC->r.currentOrigin, NPC_JUMP_PREP_BACKUP_DIST, targetDirection, actorProjectedTowardTarget);
-		trap_Trace(&mJumpTrace, NPC->r.currentOrigin, vec3_origin, vec3_origin, actorProjectedTowardTarget, NPC->s.number, NPC->clipmask);
+		VectorMA(NPCS.NPC->r.currentOrigin, NPC_JUMP_PREP_BACKUP_DIST, targetDirection, actorProjectedTowardTarget);
+		trap->Trace(&mJumpTrace, NPCS.NPC->r.currentOrigin, vec3_origin, vec3_origin, actorProjectedTowardTarget, NPCS.NPC->s.number, NPCS.NPC->clipmask, qfalse, 0, 0);
 		if ((mJumpTrace.fraction < 1.0f) ||
 			(mJumpTrace.allsolid) ||
 			(mJumpTrace.startsolid))
 		{
 			if (NAVDEBUG_showCollision)
 			{
-				G_DrawEdge(NPC->r.currentOrigin, actorProjectedTowardTarget, EDGE_RED_TWOSECOND);	// TryJump
+				G_DrawEdge(NPCS.NPC->r.currentOrigin, actorProjectedTowardTarget, EDGE_RED_TWOSECOND);	// TryJump
 			}
 
 			// TODO: We may want to test to see if it is safe to back up here?
-			NPCInfo->jumpBackupTime = level.time + 1000;
-			TIMER_Set(NPC, "jumpBackupDebounce", 5000);
+			NPCS.NPCInfo->jumpBackupTime = level.time + 1000;
+			TIMER_Set(NPCS.NPC, "jumpBackupDebounce", 5000);
 			return qtrue;
 		}
 	}
 
 
-//	bool	Wounded					= (NPC->health < 150);
+//	bool	Wounded					= (NPCS.NPC->health < 150);
 //	bool	OnLowerLedge			= ((targetDistanceZ<-80.0f) && (targetDistanceZ>-200.0f));
 //	bool	WithinNormalJumpRange	= ((targetDistanceZ<32.0f)  && (targetDistanceXY<200.0f));
 	WithinForceJumpRange = (((float)fabs(targetDistanceZ)>0) || (targetDistanceXY>128));
 
 /*	if (Wounded && OnLowerLedge)
 	{
-		ucmd.forwardmove	= 127;
-		VectorClear(NPC->client->ps.moveDir);
-		TIMER_Set(NPC, "duck", -level.time);
+		NPCS.ucmd.forwardmove	= 127;
+		VectorClear(NPCS.NPC->client->ps.moveDir);
+		TIMER_Set(NPCS.NPC, "duck", -level.time);
 		return qtrue;
 	}
 	
 	if (WithinNormalJumpRange)
 	{
-		ucmd.upmove			= 127;
-		ucmd.forwardmove	= 127;
-		VectorClear(NPC->client->ps.moveDir);
-		TIMER_Set(NPC, "duck", -level.time);
+		NPCS.ucmd.upmove			= 127;
+		NPCS.ucmd.forwardmove	= 127;
+		VectorClear(NPCS.NPC->client->ps.moveDir);
+		TIMER_Set(NPCS.NPC, "duck", -level.time);
 		return qtrue;
 	}
 */
@@ -728,67 +747,67 @@ qboolean NPC_TryJump_Final()
 
 	// If There Is Any Chance That This Jump Will Land On An Enemy, Try 8 Different Traces Around The Target
 	//-------------------------------------------------------------------------------------------------------
-	if (NPCInfo->jumpTarget)
+	if (NPCS.NPCInfo->jumpTarget)
 	{
-		float	minSafeRadius	= (NPC->r.maxs[0]*1.5f) + (NPCInfo->jumpTarget->r.maxs[0]*1.5f);
+		float	minSafeRadius	= (NPCS.NPC->r.maxs[0]*1.5f) + (NPCS.NPCInfo->jumpTarget->r.maxs[0]*1.5f);
 		float	minSafeRadiusSq	= (minSafeRadius * minSafeRadius);
 
-		if (DistanceSquared(NPCInfo->jumpDest, NPCInfo->jumpTarget->r.currentOrigin)<minSafeRadiusSq)
+		if (DistanceSquared(NPCS.NPCInfo->jumpDest, NPCS.NPCInfo->jumpTarget->r.currentOrigin)<minSafeRadiusSq)
 		{
 			vec3_t	startPos;
 			vec3_t	floorPos;
-			VectorCopy(NPCInfo->jumpDest, startPos);
+			VectorCopy(NPCS.NPCInfo->jumpDest, startPos);
 
-			floorPos[2] = NPCInfo->jumpDest[2] + (NPC->r.mins[2]-32);
+			floorPos[2] = NPCS.NPCInfo->jumpDest[2] + (NPCS.NPC->r.mins[2]-32);
 
 			for (sideTryCount=0; sideTryCount<8; sideTryCount++)
 			{
-				NPCInfo->jumpSide++;
-				if ( NPCInfo->jumpSide > 7 )
+				NPCS.NPCInfo->jumpSide++;
+				if ( NPCS.NPCInfo->jumpSide > 7 )
 				{
-					NPCInfo->jumpSide = 0;
+					NPCS.NPCInfo->jumpSide = 0;
 				}
 
-				switch ( NPCInfo->jumpSide )
+				switch ( NPCS.NPCInfo->jumpSide )
 				{
 				case 0:
-					NPCInfo->jumpDest[0] = startPos[0] + minSafeRadius;
-					NPCInfo->jumpDest[1] = startPos[1];
+					NPCS.NPCInfo->jumpDest[0] = startPos[0] + minSafeRadius;
+					NPCS.NPCInfo->jumpDest[1] = startPos[1];
 					break;
 				case 1:
-					NPCInfo->jumpDest[0] = startPos[0] + minSafeRadius;
-					NPCInfo->jumpDest[1] = startPos[1] + minSafeRadius;
+					NPCS.NPCInfo->jumpDest[0] = startPos[0] + minSafeRadius;
+					NPCS.NPCInfo->jumpDest[1] = startPos[1] + minSafeRadius;
 					break;
 				case 2:
-					NPCInfo->jumpDest[0] = startPos[0];
-					NPCInfo->jumpDest[1] = startPos[1] + minSafeRadius;
+					NPCS.NPCInfo->jumpDest[0] = startPos[0];
+					NPCS.NPCInfo->jumpDest[1] = startPos[1] + minSafeRadius;
 					break;
 				case 3:
-					NPCInfo->jumpDest[0] = startPos[0] - minSafeRadius;
-					NPCInfo->jumpDest[1] = startPos[1] + minSafeRadius;
+					NPCS.NPCInfo->jumpDest[0] = startPos[0] - minSafeRadius;
+					NPCS.NPCInfo->jumpDest[1] = startPos[1] + minSafeRadius;
 					break;
 				case 4:
-					NPCInfo->jumpDest[0] = startPos[0] - minSafeRadius;
-					NPCInfo->jumpDest[1] = startPos[1];
+					NPCS.NPCInfo->jumpDest[0] = startPos[0] - minSafeRadius;
+					NPCS.NPCInfo->jumpDest[1] = startPos[1];
 					break;
 				case 5:
-					NPCInfo->jumpDest[0] = startPos[0] - minSafeRadius;
-					NPCInfo->jumpDest[1] = startPos[1] - minSafeRadius;
+					NPCS.NPCInfo->jumpDest[0] = startPos[0] - minSafeRadius;
+					NPCS.NPCInfo->jumpDest[1] = startPos[1] - minSafeRadius;
 					break;
 				case 6:
-					NPCInfo->jumpDest[0] = startPos[0];
-					NPCInfo->jumpDest[1] = startPos[1] - minSafeRadius;
+					NPCS.NPCInfo->jumpDest[0] = startPos[0];
+					NPCS.NPCInfo->jumpDest[1] = startPos[1] - minSafeRadius;
 					break;
 				case 7:
-					NPCInfo->jumpDest[0] = startPos[0] + minSafeRadius;
-					NPCInfo->jumpDest[1] = startPos[1] -=minSafeRadius;
+					NPCS.NPCInfo->jumpDest[0] = startPos[0] + minSafeRadius;
+					NPCS.NPCInfo->jumpDest[1] = startPos[1] -=minSafeRadius;
 					break;
 				}
 
-				floorPos[0] = NPCInfo->jumpDest[0];
-				floorPos[1] = NPCInfo->jumpDest[1];
+				floorPos[0] = NPCS.NPCInfo->jumpDest[0];
+				floorPos[1] = NPCS.NPCInfo->jumpDest[1];
 
-				trap_Trace(&mJumpTrace, NPCInfo->jumpDest, NPC->r.mins, NPC->r.maxs, floorPos, (NPCInfo->jumpTarget)?(NPCInfo->jumpTarget->s.number):(NPC->s.number), (NPC->clipmask|CONTENTS_BOTCLIP));
+				trap->Trace(&mJumpTrace, NPCS.NPCInfo->jumpDest, NPCS.NPC->r.mins, NPCS.NPC->r.maxs, floorPos, (NPCS.NPCInfo->jumpTarget)?(NPCS.NPCInfo->jumpTarget->s.number):(NPCS.NPC->s.number), (NPCS.NPC->clipmask|CONTENTS_BOTCLIP), qfalse, 0, 0);
 				if ((mJumpTrace.fraction<1.0f) && 
 					(!mJumpTrace.allsolid) && 
 					(!mJumpTrace.startsolid))
@@ -798,7 +817,7 @@ qboolean NPC_TryJump_Final()
 
 				if ( NAVDEBUG_showCollision )
 				{
-					G_DrawEdge( NPCInfo->jumpDest, floorPos, EDGE_RED_TWOSECOND );
+					G_DrawEdge( NPCS.NPCInfo->jumpDest, floorPos, EDGE_RED_TWOSECOND );
 				}
 			}
 
@@ -808,29 +827,29 @@ qboolean NPC_TryJump_Final()
 				(mJumpTrace.allsolid) || 
 				(mJumpTrace.startsolid))
 			{
-				VectorCopy(startPos, NPCInfo->jumpDest);
+				VectorCopy(startPos, NPCS.NPCInfo->jumpDest);
 			}
 		}
 	}
 	
 	// Now, Actually Try The Jump To The Dest Target
 	//-----------------------------------------------
-	if (NPC_Jump(NPCInfo->jumpDest, (NPCInfo->jumpTarget)?(NPCInfo->jumpTarget->s.number):(NPC->s.number)))
+	if (NPC_Jump(NPCS.NPCInfo->jumpDest, (NPCS.NPCInfo->jumpTarget)?(NPCS.NPCInfo->jumpTarget->s.number):(NPCS.NPC->s.number)))
 	{
 		// We Made IT!
 		//-------------
 		NPC_JumpAnimation();
 		NPC_JumpSound();
 
-		NPC->client->ps.fd.forceJumpZStart	 = NPC->r.currentOrigin[2];
-		//NPC->client->ps.pm_flags			|= PMF_JUMPING;
-		NPC->client->ps.weaponTime			 = NPC->client->ps.torsoTimer;
-		NPC->client->ps.fd.forcePowersActive	|= ( 1 << FP_LEVITATION );
-		ucmd.forwardmove					 = 0;
-		NPCInfo->jumpTime					 = 1;
+		NPCS.NPC->client->ps.fd.forceJumpZStart	 = NPCS.NPC->r.currentOrigin[2];
+		//NPCS.NPC->client->ps.pm_flags			|= PMF_JUMPING;
+		NPCS.NPC->client->ps.weaponTime			 = NPCS.NPC->client->ps.torsoTimer;
+		NPCS.NPC->client->ps.fd.forcePowersActive	|= ( 1 << FP_LEVITATION );
+		NPCS.ucmd.forwardmove					 = 0;
+		NPCS.NPCInfo->jumpTime					 = 1;
 
-		VectorClear(NPC->client->ps.moveDir);
-		TIMER_Set(NPC, "duck", -level.time);
+		VectorClear(NPCS.NPC->client->ps.moveDir);
+		TIMER_Set(NPCS.NPC, "duck", -level.time);
 
 		return qtrue;
 	}
@@ -850,26 +869,26 @@ qboolean NPC_ClearPathToGoal( vec3_t dir, gentity_t *goal )
 	float radius, dist, tFrac;
 
 	//FIXME: What does do about area portals?  THIS IS BROKEN
-	//if ( gi.inPVS( NPC->r.currentOrigin, goal->r.currentOrigin ) == qfalse )
+	//if ( trap->inPVS( NPC->r.currentOrigin, goal->r.currentOrigin ) == qfalse )
 	//	return qfalse;
 
 	//Look ahead and see if we're clear to move to our goal position
-	if ( NAV_CheckAhead( NPC, goal->r.currentOrigin, &trace, ( NPC->clipmask & ~CONTENTS_BODY )|CONTENTS_BOTCLIP ) )
+	if ( NAV_CheckAhead( NPCS.NPC, goal->r.currentOrigin, &trace, ( NPCS.NPC->clipmask & ~CONTENTS_BODY )|CONTENTS_BOTCLIP ) )
 	{
 		//VectorSubtract( goal->r.currentOrigin, NPC->r.currentOrigin, dir );
 		return qtrue;
 	}
 
-	if (!FlyingCreature(NPC))
+	if (!FlyingCreature(NPCS.NPC))
 	{
 		//See if we're too far above
-		if ( fabs( NPC->r.currentOrigin[2] - goal->r.currentOrigin[2] ) > 48 )
+		if ( fabs( NPCS.NPC->r.currentOrigin[2] - goal->r.currentOrigin[2] ) > 48 )
 			return qfalse;
 	}
 
 	//This is a work around
-	radius = ( NPC->r.maxs[0] > NPC->r.maxs[1] ) ? NPC->r.maxs[0] : NPC->r.maxs[1];
-	dist = Distance( NPC->r.currentOrigin, goal->r.currentOrigin );
+	radius = ( NPCS.NPC->r.maxs[0] > NPCS.NPC->r.maxs[1] ) ? NPCS.NPC->r.maxs[0] : NPCS.NPC->r.maxs[1];
+	dist = Distance( NPCS.NPC->r.currentOrigin, goal->r.currentOrigin );
 	tFrac = 1.0f - ( radius / dist );
 
 	if ( trace.fraction >= tFrac )
@@ -879,7 +898,7 @@ qboolean NPC_ClearPathToGoal( vec3_t dir, gentity_t *goal )
 	if ( goal->flags & FL_NAVGOAL )
 	{
 		//Okay, didn't get all the way there, let's see if we got close enough:
-		if ( NAV_HitNavGoal( trace.endpos, NPC->r.mins, NPC->r.maxs, goal->r.currentOrigin, NPCInfo->goalRadius, FlyingCreature( NPC ) ) )
+		if ( NAV_HitNavGoal( trace.endpos, NPCS.NPC->r.mins, NPCS.NPC->r.maxs, goal->r.currentOrigin, NPCS.NPCInfo->goalRadius, FlyingCreature( NPCS.NPC ) ) )
 		{
 			//VectorSubtract(goal->r.currentOrigin, NPC->r.currentOrigin, dir);
 			return qtrue;
@@ -900,7 +919,7 @@ qboolean NAV_DirSafe( gentity_t *self, vec3_t dir, float dist )
 	//Offset the step height
 	VectorSet( mins, self->r.mins[0], self->r.mins[1], self->r.mins[2] + STEPSIZE );
 	
-	trap_Trace( &trace, self->r.currentOrigin, mins, self->r.maxs, end, self->s.number, CONTENTS_BOTCLIP );
+	trap->Trace( &trace, self->r.currentOrigin, mins, self->r.maxs, end, self->s.number, CONTENTS_BOTCLIP, qfalse, 0, 0 );
 
 	//Do a simple check
 	if ( ( trace.allsolid == qfalse ) && ( trace.startsolid == qfalse ) && ( trace.fraction == 1.0f ) )
@@ -918,17 +937,17 @@ NPC_CheckCombatMove
 -------------------------
 */
 
-ID_INLINE qboolean NPC_CheckCombatMove( void )
+static QINLINE qboolean NPC_CheckCombatMove( void )
 {
 	//return NPCInfo->combatMove;
-	if ( ( NPCInfo->goalEntity && NPC->enemy && NPCInfo->goalEntity == NPC->enemy ) || ( NPCInfo->combatMove ) )
+	if ( ( NPCS.NPCInfo->goalEntity && NPCS.NPC->enemy && NPCS.NPCInfo->goalEntity == NPCS.NPC->enemy ) || ( NPCS.NPCInfo->combatMove ) )
 	{
 		return qtrue;
 	}
 
-	if ( NPCInfo->goalEntity && NPCInfo->watchTarget )
+	if ( NPCS.NPCInfo->goalEntity && NPCS.NPCInfo->watchTarget )
 	{
-		if ( NPCInfo->goalEntity != NPCInfo->watchTarget )
+		if ( NPCS.NPCInfo->goalEntity != NPCS.NPCInfo->watchTarget )
 		{
 			return qtrue;
 		}
@@ -949,14 +968,14 @@ static void NPC_LadderMove( vec3_t dir )
 	//ALSO: Need to be able to get off at top
 	//ALSO: Need to play an anim
 	//ALSO: Need transitionary anims?
-	
-	if ( ( dir[2] > 0 ) || ( dir[2] < 0 && NPC->client->ps.groundEntityNum == ENTITYNUM_NONE ) )
+
+	if ( ( dir[2] > 0 ) || ( dir[2] < 0 && NPCS.NPC->client->ps.groundEntityNum == ENTITYNUM_NONE ) )
 	{
 		//Set our movement direction
-		ucmd.upmove = (dir[2] > 0) ? 127 : -127;
+		NPCS.ucmd.upmove = (dir[2] > 0) ? 127 : -127;
 
 		//Don't move around on XY
-		ucmd.forwardmove = ucmd.rightmove = 0;
+		NPCS.ucmd.forwardmove = NPCS.ucmd.rightmove = 0;
 	}
 }
 
@@ -966,19 +985,19 @@ NPC_GetMoveInformation
 -------------------------
 */
 
-ID_INLINE qboolean NPC_GetMoveInformation( vec3_t dir, float *distance )
+static QINLINE qboolean NPC_GetMoveInformation( vec3_t dir, float *distance )
 {
 	//NOTENOTE: Use path stacks!
 
 	//Make sure we have somewhere to go
-	if ( NPCInfo->goalEntity == NULL )
+	if ( NPCS.NPCInfo->goalEntity == NULL )
 		return qfalse;
 
 	//Get our move info
-	VectorSubtract( NPCInfo->goalEntity->r.currentOrigin, NPC->r.currentOrigin, dir );
+	VectorSubtract( NPCS.NPCInfo->goalEntity->r.currentOrigin, NPCS.NPC->r.currentOrigin, dir );
 	*distance = VectorNormalize( dir );
-	
-	VectorCopy( NPCInfo->goalEntity->r.currentOrigin, NPCInfo->blockedDest );
+
+	VectorCopy( NPCS.NPCInfo->goalEntity->r.currentOrigin, NPCS.NPCInfo->blockedDest );
 
 	return qtrue;
 }
@@ -1018,21 +1037,21 @@ qboolean NPC_GetMoveDirection( vec3_t out, float *distance )
 	VectorCopy( frameNavInfo.direction, frameNavInfo.pathDirection );
 
 	//If on a ladder, move appropriately
-	if ( NPC->watertype & CONTENTS_LADDER )
+	if ( NPCS.NPC->watertype & CONTENTS_LADDER )
 	{
 		NPC_LadderMove( frameNavInfo.direction );
 		return qtrue;
 	}
 
 	//Attempt a straight move to goal
-	if ( NPC_ClearPathToGoal( frameNavInfo.direction, NPCInfo->goalEntity ) == qfalse )
+	if ( NPC_ClearPathToGoal( frameNavInfo.direction, NPCS.NPCInfo->goalEntity ) == qfalse )
 	{
 		//See if we're just stuck
-		if ( NAV_MoveToGoal( NPC, &frameNavInfo ) == WAYPOINT_NONE )
+		if ( NAV_MoveToGoal( NPCS.NPC, &frameNavInfo ) == WAYPOINT_NONE )
 		{
 			//Can't reach goal, just face
 			vectoangles( frameNavInfo.direction, angles );
-			NPCInfo->desiredYaw	= AngleNormalize360( angles[YAW] );		
+			NPCS.NPCInfo->desiredYaw	= AngleNormalize360( angles[YAW] );
 			VectorCopy( frameNavInfo.direction, out );
 			*distance = frameNavInfo.distance;
 			return qfalse;
@@ -1042,20 +1061,20 @@ qboolean NPC_GetMoveDirection( vec3_t out, float *distance )
 	}
 
 	//Avoid any collisions on the way
-	if ( NAV_AvoidCollision( NPC, NPCInfo->goalEntity, &frameNavInfo ) == qfalse )
+	if ( NAV_AvoidCollision( NPCS.NPC, NPCS.NPCInfo->goalEntity, &frameNavInfo ) == qfalse )
 	{
 		//FIXME: Emit a warning, this is a worst case scenario
 		//FIXME: if we have a clear path to our goal (exluding bodies), but then this
-		//			check (against bodies only) fails, shouldn't we fall back 
+		//			check (against bodies only) fails, shouldn't we fall back
 		//			to macro navigation?  Like so:
 		if ( !(frameNavInfo.flags&NIF_MACRO_NAV) )
 		{//we had a clear path to goal and didn't try macro nav, but can't avoid collision so try macro nav here
 			//See if we're just stuck
-			if ( NAV_MoveToGoal( NPC, &frameNavInfo ) == WAYPOINT_NONE )
+			if ( NAV_MoveToGoal( NPCS.NPC, &frameNavInfo ) == WAYPOINT_NONE )
 			{
 				//Can't reach goal, just face
 				vectoangles( frameNavInfo.direction, angles );
-				NPCInfo->desiredYaw	= AngleNormalize360( angles[YAW] );		
+				NPCS.NPCInfo->desiredYaw	= AngleNormalize360( angles[YAW] );
 				VectorCopy( frameNavInfo.direction, out );
 				*distance = frameNavInfo.distance;
 				return qfalse;
@@ -1083,7 +1102,7 @@ qboolean NPC_GetMoveDirectionAltRoute( vec3_t out, float *distance, qboolean try
 {
 	vec3_t		angles;
 
-	NPCInfo->aiFlags &= ~NPCAI_BLOCKED;
+	NPCS.NPCInfo->aiFlags &= ~NPCAI_BLOCKED;
 
 	//Clear the struct
 	memset( &frameNavInfo, 0, sizeof( frameNavInfo ) );
@@ -1099,21 +1118,21 @@ qboolean NPC_GetMoveDirectionAltRoute( vec3_t out, float *distance, qboolean try
 	VectorCopy( frameNavInfo.direction, frameNavInfo.pathDirection );
 
 	//If on a ladder, move appropriately
-	if ( NPC->watertype & CONTENTS_LADDER )
+	if ( NPCS.NPC->watertype & CONTENTS_LADDER )
 	{
 		NPC_LadderMove( frameNavInfo.direction );
 		return qtrue;
 	}
 
 	//Attempt a straight move to goal
-	if ( !tryStraight || NPC_ClearPathToGoal( frameNavInfo.direction, NPCInfo->goalEntity ) == qfalse )
+	if ( !tryStraight || NPC_ClearPathToGoal( frameNavInfo.direction, NPCS.NPCInfo->goalEntity ) == qfalse )
 	{//blocked
 		//Can't get straight to goal, use macro nav
-		if ( NAVNEW_MoveToGoal( NPC, &frameNavInfo ) == WAYPOINT_NONE )
+		if ( NAVNEW_MoveToGoal( NPCS.NPC, &frameNavInfo ) == WAYPOINT_NONE )
 		{
 			//Can't reach goal, just face
 			vectoangles( frameNavInfo.direction, angles );
-			NPCInfo->desiredYaw	= AngleNormalize360( angles[YAW] );		
+			NPCS.NPCInfo->desiredYaw	= AngleNormalize360( angles[YAW] );
 			VectorCopy( frameNavInfo.direction, out );
 			*distance = frameNavInfo.distance;
 			return qfalse;
@@ -1128,14 +1147,14 @@ qboolean NPC_GetMoveDirectionAltRoute( vec3_t out, float *distance, qboolean try
 		{//try macro nav
 			navInfo_t	tempInfo;
 			memcpy( &tempInfo, &frameNavInfo, sizeof( tempInfo ) );
-			if ( NAVNEW_AvoidCollision( NPC, NPCInfo->goalEntity, &tempInfo, qtrue, 5 ) == qfalse )
+			if ( NAVNEW_AvoidCollision( NPCS.NPC, NPCS.NPCInfo->goalEntity, &tempInfo, qtrue, 5 ) == qfalse )
 			{//revert to macro nav
 				//Can't get straight to goal, dump tempInfo and use macro nav
-				if ( NAVNEW_MoveToGoal( NPC, &frameNavInfo ) == WAYPOINT_NONE )
+				if ( NAVNEW_MoveToGoal( NPCS.NPC, &frameNavInfo ) == WAYPOINT_NONE )
 				{
 					//Can't reach goal, just face
 					vectoangles( frameNavInfo.direction, angles );
-					NPCInfo->desiredYaw	= AngleNormalize360( angles[YAW] );		
+					NPCS.NPCInfo->desiredYaw	= AngleNormalize360( angles[YAW] );
 					VectorCopy( frameNavInfo.direction, out );
 					*distance = frameNavInfo.distance;
 					return qfalse;
@@ -1150,7 +1169,7 @@ qboolean NPC_GetMoveDirectionAltRoute( vec3_t out, float *distance, qboolean try
 		}
 		else
 		{//OR: just give up
-			if ( NAVNEW_AvoidCollision( NPC, NPCInfo->goalEntity, &frameNavInfo, qtrue, 30 ) == qfalse )
+			if ( NAVNEW_AvoidCollision( NPCS.NPC, NPCS.NPCInfo->goalEntity, &frameNavInfo, qtrue, 30 ) == qfalse )
 			{//give up
 				return qfalse;
 			}
@@ -1200,7 +1219,7 @@ void G_UcmdMoveForDir( gentity_t *self, usercmd_t *cmd, vec3_t dir )
 
 	/*
 	vec3_t	wishvel;
-	for ( int i = 0 ; i < 3 ; i++ ) 
+	for ( int i = 0 ; i < 3 ; i++ )
 	{
 		wishvel[i] = forward[i]*cmd->forwardmove + right[i]*cmd->rightmove;
 	}
@@ -1222,7 +1241,7 @@ NPC_MoveToGoal
 #if	AI_TIMERS
 extern int navTime;
 #endif//	AI_TIMERS
-qboolean NPC_MoveToGoal( qboolean tryStraight ) 
+qboolean NPC_MoveToGoal( qboolean tryStraight )
 {
 	float	distance;
 	vec3_t	dir;
@@ -1231,7 +1250,7 @@ qboolean NPC_MoveToGoal( qboolean tryStraight )
 	int	startTime = GetTime(0);
 #endif//	AI_TIMERS
 	//If taking full body pain, don't move
-	if ( PM_InKnockDown( &NPC->client->ps ) || ( ( NPC->s.legsAnim >= BOTH_PAIN1 ) && ( NPC->s.legsAnim <= BOTH_PAIN18 ) ) )
+	if ( PM_InKnockDown( &NPCS.NPC->client->ps ) || ( ( NPCS.NPC->s.legsAnim >= BOTH_PAIN1 ) && ( NPCS.NPC->s.legsAnim <= BOTH_PAIN18 ) ) )
 	{
 		return qtrue;
 	}
@@ -1253,36 +1272,36 @@ qboolean NPC_MoveToGoal( qboolean tryStraight )
 #endif
 		return qfalse;
 
-	NPCInfo->distToGoal		= distance;
+	NPCS.NPCInfo->distToGoal		= distance;
 
 	//Convert the move to angles
-	vectoangles( dir, NPCInfo->lastPathAngles );
-	if ( (ucmd.buttons&BUTTON_WALKING) )
+	vectoangles( dir, NPCS.NPCInfo->lastPathAngles );
+	if ( (NPCS.ucmd.buttons&BUTTON_WALKING) )
 	{
-		NPC->client->ps.speed = NPCInfo->stats.walkSpeed;
+		NPCS.NPC->client->ps.speed = NPCS.NPCInfo->stats.walkSpeed;
 	}
 	else
 	{
-		NPC->client->ps.speed = NPCInfo->stats.runSpeed;
+		NPCS.NPC->client->ps.speed = NPCS.NPCInfo->stats.runSpeed;
 	}
 
 	//FIXME: still getting ping-ponging in certain cases... !!!  Nav/avoidance error?  WTF???!!!
 	//If in combat move, then move directly towards our goal
 	if ( NPC_CheckCombatMove() )
 	{//keep current facing
-		G_UcmdMoveForDir( NPC, &ucmd, dir );
+		G_UcmdMoveForDir( NPCS.NPC, &NPCS.ucmd, dir );
 	}
 	else
 	{//face our goal
 		//FIXME: strafe instead of turn if change in dir is small and temporary
-		NPCInfo->desiredPitch	= 0.0f;
-		NPCInfo->desiredYaw		= AngleNormalize360( NPCInfo->lastPathAngles[YAW] );
-		
+		NPCS.NPCInfo->desiredPitch	= 0.0f;
+		NPCS.NPCInfo->desiredYaw		= AngleNormalize360( NPCS.NPCInfo->lastPathAngles[YAW] );
+
 		//Pitch towards the goal and also update if flying or swimming
-		if ( (NPC->client->ps.eFlags2&EF2_FLYING) )//moveType == MT_FLYSWIM )
+		if ( (NPCS.NPC->client->ps.eFlags2&EF2_FLYING) )//moveType == MT_FLYSWIM )
 		{
-			NPCInfo->desiredPitch = AngleNormalize360( NPCInfo->lastPathAngles[PITCH] );
-			
+			NPCS.NPCInfo->desiredPitch = AngleNormalize360( NPCS.NPCInfo->lastPathAngles[PITCH] );
+
 			if ( dir[2] )
 			{
 				float scale = (dir[2] * distance);
@@ -1294,13 +1313,13 @@ qboolean NPC_MoveToGoal( qboolean tryStraight )
 				{
 					scale = -64;
 				}
-				NPC->client->ps.velocity[2] = scale;
+				NPCS.NPC->client->ps.velocity[2] = scale;
 				//NPC->client->ps.velocity[2] = (dir[2] > 0) ? 64 : -64;
 			}
 		}
 
 		//Set any final info
-		ucmd.forwardmove = 127;
+		NPCS.ucmd.forwardmove = 127;
 	}
 
 #if	AI_TIMERS
@@ -1318,14 +1337,14 @@ void NPC_SlideMoveToGoal( void )
 */
 qboolean NPC_SlideMoveToGoal( void )
 {
-	float	saveYaw = NPC->client->ps.viewangles[YAW];
+	float	saveYaw = NPCS.NPC->client->ps.viewangles[YAW];
 	qboolean ret;
 
-	NPCInfo->combatMove = qtrue;
-	
+	NPCS.NPCInfo->combatMove = qtrue;
+
 	ret = NPC_MoveToGoal( qtrue );
 
-	NPCInfo->desiredYaw	= saveYaw;
+	NPCS.NPCInfo->desiredYaw	= saveYaw;
 
 	return ret;
 }
@@ -1339,10 +1358,10 @@ NPC_ApplyRoff
 
 void NPC_ApplyRoff(void)
 {
-	BG_PlayerStateToEntityState( &NPC->client->ps, &NPC->s, qfalse );
+	BG_PlayerStateToEntityState( &NPCS.NPC->client->ps, &NPCS.NPC->s, qfalse );
 	//VectorCopy ( NPC->r.currentOrigin, NPC->lastOrigin );
 	//rwwFIXMEFIXME: Any significance to this?
 
 	// use the precise origin for linking
-	trap_LinkEntity(NPC);
+	trap->LinkEntity((sharedEntity_t *)NPCS.NPC);
 }

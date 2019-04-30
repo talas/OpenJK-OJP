@@ -142,7 +142,7 @@
 			array[1] = (void *)ctx->uc_mcontext.gregs[EIP];
 		#else
 			G_LogPrintf("Stack frames: %zd entries\n", size-1);
-			array[1] = (void *)ctx->uc_mcontext.gregs[REG_EIP];
+			array[1] = (void *)ctx->uc_mcontext.gregs[REG_RIP];
 		#endif
 		G_LogPrintf("Backtrace:\n");
 
@@ -194,7 +194,7 @@
 			}
 		} else {
 			//end this madness we are looping.
-			G_Error("Recursive segfault. Bailing out.");
+			trap->Error(ERR_DROP, "Recursive segfault. Bailing out.");
 			OldHandler = (void *)oldact[SIGSEGV].sa_sigaction;
 			(*OldHandler)(signal);
 		}
@@ -350,8 +350,8 @@
 		char basepath[MAX_PATH];
 		char gamepath[MAX_PATH];
 		//search path for symbols...
-		trap_Cvar_VariableStringBuffer("fs_basepath", basepath, sizeof(basepath));
-		trap_Cvar_VariableStringBuffer("fs_game", gamepath, sizeof(gamepath));
+		trap->Cvar_VariableStringBuffer("fs_basepath", basepath, sizeof(basepath));
+		trap->Cvar_VariableStringBuffer("fs_game", gamepath, sizeof(gamepath));
 		pfnSymInitialize(GetCurrentProcess(), va("%s\\%s", basepath, gamepath), TRUE);
 		G_LogPrintf("-8<------- Crash Information ------->8-\n");
 		G_LogPrintf("    Please forward to the OJP team.    \n");

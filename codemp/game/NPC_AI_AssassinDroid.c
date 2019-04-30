@@ -57,7 +57,7 @@ void BubbleShield_TurnOff(gentity_t *self)
 void BubbleShield_PushEnt(gentity_t* pushed, vec3_t smackDir)
 {
 	//RAFIXME - add MOD_ELECTROCUTE?
-	G_Damage(pushed, NPC, NPC, smackDir, NPC->r.currentOrigin, (g_spskill.integer+1)*Q_irand( 5, 10), DAMAGE_NO_KNOCKBACK, MOD_UNKNOWN/*MOD_ELECTROCUTE*/); 
+	G_Damage(pushed, NPCS.NPC, NPCS.NPC, smackDir, NPCS.NPC->r.currentOrigin, (g_npcspskill.integer+1)*Q_irand( 5, 10), DAMAGE_NO_KNOCKBACK, MOD_UNKNOWN/*MOD_ELECTROCUTE*/); 
 	G_Throw(pushed, smackDir, 10);
 
 	// Make Em Electric
@@ -90,11 +90,11 @@ void BubbleShield_PushRadiusEnts()
 
 	for ( i = 0; i < 3; i++ )
 	{
-		mins[i] = NPC->r.currentOrigin[i] - radius;
-		maxs[i] = NPC->r.currentOrigin[i] + radius;
+		mins[i] = NPCS.NPC->r.currentOrigin[i] - radius;
+		maxs[i] = NPCS.NPC->r.currentOrigin[i] + radius;
 	}
 
-	numEnts = trap_EntitiesInBox(mins, maxs, entityList, 128);
+	numEnts = trap->EntitiesInBox(mins, maxs, entityList, 128);
 	for (i=0; i<numEnts; i++)
 	{
 		radiusEnt = &g_entities[entityList[i]];
@@ -107,21 +107,21 @@ void BubbleShield_PushRadiusEnts()
 
 		// Don't Push Away Other Assassin Droids
 		//---------------------------------------
-		if (radiusEnt->client->NPC_class==NPC->client->NPC_class)
+		if (radiusEnt->client->NPC_class==NPCS.NPC->client->NPC_class)
 		{
 			continue;
 		}
 
 		// Should Have Already Pushed The Enemy If He Touched Us
 		//-------------------------------------------------------
-		if (NPC->enemy &&  NPCInfo->touchedByPlayer==NPC->enemy && radiusEnt==NPC->enemy)
+		if (NPCS.NPC->enemy &&  NPCS.NPCInfo->touchedByPlayer==NPCS.NPC->enemy && radiusEnt==NPCS.NPC->enemy)
 		{
 			continue;
 		}
 
 		// Do The Vector Distance Test
 		//-----------------------------
-		VectorSubtract(radiusEnt->r.currentOrigin, NPC->r.currentOrigin, smackDir);
+		VectorSubtract(radiusEnt->r.currentOrigin, NPCS.NPC->r.currentOrigin, smackDir);
 		smackDist = VectorNormalize(smackDir);
 		if (smackDist<radius)
 		{
@@ -137,19 +137,19 @@ void BubbleShield_Update(void)
 {
 	// Shields Go When You Die
 	//-------------------------
-	if (NPC->health<=0)
+	if (NPCS.NPC->health<=0)
 	{
-		BubbleShield_TurnOff(NPC);
+		BubbleShield_TurnOff(NPCS.NPC);
 		return;
 	}
 
 
 	// Recharge Shields
 	//------------------
- 	NPC->client->ps.stats[STAT_ARMOR] += 1;
-	if (NPC->client->ps.stats[STAT_ARMOR]>250)
+ 	NPCS.NPC->client->ps.stats[STAT_ARMOR] += 1;
+	if (NPCS.NPC->client->ps.stats[STAT_ARMOR]>250)
 	{
-		NPC->client->ps.stats[STAT_ARMOR] = 250;
+		NPCS.NPC->client->ps.stats[STAT_ARMOR] = 250;
 	}
 
 
@@ -157,35 +157,35 @@ void BubbleShield_Update(void)
 
 	// If We Have Enough Armor And Are Not Shooting Right Now, Kick The Shield On
 	//----------------------------------------------------------------------------
- 	if (NPC->client->ps.stats[STAT_ARMOR]>100 && TIMER_Done(NPC, "ShieldsDown"))
+ 	if (NPCS.NPC->client->ps.stats[STAT_ARMOR]>100 && TIMER_Done(NPCS.NPC, "ShieldsDown"))
 	{
 		// Check On Timers To Raise And Lower Shields
 		//--------------------------------------------
-		if ((level.time - NPCInfo->enemyLastSeenTime)<1000 && TIMER_Done(NPC, "ShieldsUp"))
+		if ((level.time - NPCS.NPCInfo->enemyLastSeenTime)<1000 && TIMER_Done(NPCS.NPC, "ShieldsUp"))
 		{
-			TIMER_Set(NPC, "ShieldsDown", 2000);		// Drop Shields
-			TIMER_Set(NPC, "ShieldsUp", Q_irand(4000, 5000));	// Then Bring Them Back Up For At Least 3 sec
+			TIMER_Set(NPCS.NPC, "ShieldsDown", 2000);		// Drop Shields
+			TIMER_Set(NPCS.NPC, "ShieldsUp", Q_irand(4000, 5000));	// Then Bring Them Back Up For At Least 3 sec
 		} 
 
-		BubbleShield_TurnOn(NPC);
-		if (BubbleShield_IsOn(NPC))
+		BubbleShield_TurnOn(NPCS.NPC);
+		if (BubbleShield_IsOn(NPCS.NPC))
 		{
 			// Update Our Shader Value
 			//-------------------------
-	 	 	NPC->s.customRGBA[0] = 
-			NPC->s.customRGBA[1] = 
-			NPC->s.customRGBA[2] =
-  			NPC->s.customRGBA[3] = (NPC->client->ps.stats[STAT_ARMOR] - 100);
+	 	 	NPCS.NPC->s.customRGBA[0] = 
+			NPCS.NPC->s.customRGBA[1] = 
+			NPCS.NPC->s.customRGBA[2] =
+  			NPCS.NPC->s.customRGBA[3] = (NPCS.NPC->client->ps.stats[STAT_ARMOR] - 100);
 
 
 			// If Touched By An Enemy, ALWAYS Shove Them
 			//-------------------------------------------
-			if (NPC->enemy &&  NPCInfo->touchedByPlayer==NPC->enemy)
+			if (NPCS.NPC->enemy &&  NPCS.NPCInfo->touchedByPlayer==NPCS.NPC->enemy)
 			{
 				vec3_t dir;
-				VectorSubtract(NPC->enemy->r.currentOrigin, NPC->r.currentOrigin, dir);
+				VectorSubtract(NPCS.NPC->enemy->r.currentOrigin, NPCS.NPC->r.currentOrigin, dir);
 				VectorNormalize(dir);
-				BubbleShield_PushEnt(NPC->enemy, dir);
+				BubbleShield_PushEnt(NPCS.NPC->enemy, dir);
 			}
 
 			// Push Anybody Else Near
@@ -199,7 +199,7 @@ void BubbleShield_Update(void)
 	//--------------
 	else
 	{
-		BubbleShield_TurnOff(NPC);
+		BubbleShield_TurnOff(NPCS.NPC);
 	}
 }
 //[/CoOp]

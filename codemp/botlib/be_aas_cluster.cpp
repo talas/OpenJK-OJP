@@ -1,3 +1,25 @@
+/*
+===========================================================================
+Copyright (C) 1999 - 2005, Id Software, Inc.
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2015, OpenJK contributors
+
+This file is part of the OpenJK source code.
+
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
+*/
 
 /*****************************************************************************
  * name:		be_aas_cluster.c
@@ -5,14 +27,14 @@
  * desc:		area clustering
  *
  * $Archive: /MissionPack/code/botlib/be_aas_cluster.c $
- * $Author: Ttimo $ 
+ * $Author: Ttimo $
  * $Revision: 10 $
  * $Modtime: 4/21/01 9:15a $
  * $Date: 4/21/01 9:15a $
  *
  *****************************************************************************/
 
-#include "../game/q_shared.h"
+#include "qcommon/q_shared.h"
 #include "l_memory.h"
 #include "l_script.h"
 #include "l_precomp.h"
@@ -21,8 +43,8 @@
 #include "l_memory.h"
 #include "l_libvar.h"
 #include "aasfile.h"
-#include "../game/botlib.h"
-#include "../game/be_aas.h"
+#include "botlib.h"
+#include "be_aas.h"
 #include "be_aas_funcs.h"
 #include "be_aas_def.h"
 
@@ -112,7 +134,7 @@ int AAS_UpdatePortal(int areanum, int clusternum)
 	//
 	if (portalnum == aasworld.numportals)
 	{
-		AAS_Error("no portal of area %d", areanum);
+		AAS_Error("no portal of area %d\n", areanum);
 		return qtrue;
 	} //end if
 	//
@@ -134,12 +156,12 @@ int AAS_UpdatePortal(int areanum, int clusternum)
 	{
 		//remove the cluster portal flag contents
 		aasworld.areasettings[areanum].contents &= ~AREACONTENTS_CLUSTERPORTAL;
-		Log_Write("portal area %d is seperating more than two clusters\r\n", areanum);
+		Log_Write("portal area %d is separating more than two clusters\r\n", areanum);
 		return qfalse;
 	} //end else
 	if (aasworld.portalindexsize >= AAS_MAX_PORTALINDEXSIZE)
 	{
-		AAS_Error("AAS_MAX_PORTALINDEXSIZE");
+		AAS_Error("AAS_MAX_PORTALINDEXSIZE\n");
 		return qtrue;
 	} //end if
 	//set the area cluster number to the negative portal number
@@ -166,7 +188,7 @@ int AAS_FloodClusterAreas_r(int areanum, int clusternum)
 	//
 	if (areanum <= 0 || areanum >= aasworld.numareas)
 	{
-		AAS_Error("AAS_FloodClusterAreas_r: areanum out of range");
+		AAS_Error("AAS_FloodClusterAreas_r: areanum out of range\n");
 		return qfalse;
 	} //end if
 	//if the area is already part of a cluster
@@ -176,7 +198,7 @@ int AAS_FloodClusterAreas_r(int areanum, int clusternum)
 		//
 		//there's a reachability going from one cluster to another only in one direction
 		//
-		AAS_Error("cluster %d touched cluster %d at area %d\r\n",
+		AAS_Error("cluster %d touched cluster %d at area %d\n",
 				clusternum, aasworld.areasettings[areanum].cluster, areanum);
 		return qfalse;
 	} //end if
@@ -392,7 +414,7 @@ int AAS_FindClusters(void)
 			continue;
 		if (aasworld.numclusters >= AAS_MAX_CLUSTERS)
 		{
-			AAS_Error("AAS_MAX_CLUSTERS");
+			AAS_Error("AAS_MAX_CLUSTERS\n");
 			return qfalse;
 		} //end if
 		cluster = &aasworld.clusters[aasworld.numclusters];
@@ -431,7 +453,7 @@ void AAS_CreatePortals(void)
 		{
 			if (aasworld.numportals >= AAS_MAX_PORTALS)
 			{
-				AAS_Error("AAS_MAX_PORTALS");
+				AAS_Error("AAS_MAX_PORTALS\n");
 				return;
 			} //end if
 			portal = &aasworld.portals[aasworld.numportals];
@@ -478,7 +500,7 @@ int AAS_NonConvexFaces(aas_face_t *face1, aas_face_t *face2, int side1, int side
 	int i, j, edgenum;
 	aas_plane_t *plane1, *plane2;
 	aas_edge_t *edge;
-	
+
 
 	plane1 = &aasworld.planes[face1->planenum ^ side1];
 	plane2 = &aasworld.planes[face2->planenum ^ side2];
@@ -758,7 +780,7 @@ int AAS_GetAdjacentAreasWithLessPresenceTypes_r(int *areanums, int numareas, int
 			{
 				if (numareas >= MAX_PORTALAREAS)
 				{
-					AAS_Error("MAX_PORTALAREAS");
+					AAS_Error("MAX_PORTALAREAS\n");
 					return numareas;
 				} //end if
 				numareas = AAS_GetAdjacentAreasWithLessPresenceTypes_r(areanums, numareas, otherareanum);

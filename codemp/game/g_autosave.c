@@ -75,7 +75,7 @@ void SP_trigger_autosave(gentity_t *self)
 
 	self->classname = "trigger_autosave";
 
-	trap_LinkEntity(self);
+	trap->LinkEntity((sharedEntity_t *)self);
 }
 
 
@@ -134,29 +134,29 @@ void Load_Autosaves(void)
 	vec3_t			positionData;
 	int				sizeData;
 	vmCvar_t		mapname;
-	qboolean		teleportPlayers = qfalse;
+	int		teleportPlayers = 0;
 
-	G_Printf("^5Loading Autosave File Data...");
+	Com_Printf("^5Loading Autosave File Data...");
 
-	trap_Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
+	trap->Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
 
 	Com_sprintf(loadPath, sizeof(loadPath), "maps/%s.autosp", mapname.string);
 
-	len = trap_FS_FOpenFile( loadPath, &f, FS_READ );
+	len = trap->FS_Open( loadPath, &f, FS_READ );
 	if ( !f )
 	{
-		G_Printf("^5No autosave file found.\n");
+		Com_Printf("^5No autosave file found.\n");
 		return;
 	}
 	if ( !len )
 	{ //empty file
-		G_Printf("^5Empty autosave file!\n");
-		trap_FS_FCloseFile( f );
+		Com_Printf("^5Empty autosave file!\n");
+		trap->FS_Close( f );
 		return;
 	}
 
-	trap_FS_Read( buf, len, f );
-	trap_FS_FCloseFile( f );
+	trap->FS_Read( buf, len, f );
+	trap->FS_Close( f );
 
 	s = buf;
 
@@ -170,7 +170,7 @@ void Load_Autosaves(void)
 
 		sscanf(s, "%f %f %f %i %i", &positionData[0], &positionData[1], &positionData[2], &sizeData, &teleportPlayers);
 
-		Create_Autosave( positionData, sizeData, teleportPlayers );
+		Create_Autosave( positionData, sizeData, (qboolean)teleportPlayers );
 
 		//advance to the end of the line
 		while(*s != '\n' && *s != '\0' && s-buf < len)
@@ -179,7 +179,7 @@ void Load_Autosaves(void)
 		}
 	}
 
-	G_Printf("^5Done.\n");
+	Com_Printf("^5Done.\n");
 }
 
 
@@ -195,16 +195,16 @@ void Save_Autosaves(void)
 
 	fileBuf[0] = '\0';
 
-	G_Printf("^5Saving Autosave File Data...");
+	Com_Printf("^5Saving Autosave File Data...");
 
-	trap_Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
+	trap->Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
 
 	Com_sprintf(loadPath, sizeof(loadPath), "maps/%s.autosp", mapname.string);
 
-	len = trap_FS_FOpenFile( loadPath, &f, FS_WRITE );
+	len = trap->FS_Open( loadPath, &f, FS_WRITE );
 	if ( !f )
 	{
-		G_Printf("^5Couldn't create autosave file.\n");
+		Com_Printf("^5Couldn't create autosave file.\n");
 		return;
 	}
 
@@ -235,10 +235,10 @@ void Save_Autosaves(void)
 
 	if(fileBuf[0] != '\0')
 	{//actually written something
-		trap_FS_Write( fileBuf, strlen(fileBuf), f );
+		trap->FS_Write( fileBuf, strlen(fileBuf), f );
 	}
-	trap_FS_FCloseFile( f );
-	G_Printf("^5Done.\n");
+	trap->FS_Close( f );
+	Com_Printf("^5Done.\n");
 }
 
 
@@ -252,7 +252,7 @@ void Delete_Autosaves(gentity_t* ent)
 
 	VectorAdd( ent->r.currentOrigin, ent->r.mins, mins );
 	VectorAdd( ent->r.currentOrigin, ent->r.maxs, maxs );
-	num = trap_EntitiesInBox( mins, maxs, touch, MAX_GENTITIES );
+	num = trap->EntitiesInBox( mins, maxs, touch, MAX_GENTITIES );
 
 	for (i=0 ; i<num ; i++) 
 	{

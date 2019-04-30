@@ -16,25 +16,25 @@ void LoadDynamicMusic(void)
 	vmCvar_t	mapname;
 
 	//Open up the dynamic music file
-	len = trap_FS_FOpenFile("ext_data/dms.dat", &f, FS_READ);
+	len = trap->FS_Open("ext_data/dms.dat", &f, FS_READ);
 
 	if (!f)
 	{//file open error
-		G_Printf("LoadDynamicMusic() Error: Couldn't open ext_data/dms.dat\n");
+		Com_Printf("LoadDynamicMusic() Error: Couldn't open ext_data/dms.dat\n");
 		return;
 	}
 
 	if(len >= DMS_INFO_SIZE)
 	{//file too large for buffer
-		G_Printf("LoadDynamicMusic() Error: dms.dat too big.\n");
+		Com_Printf("LoadDynamicMusic() Error: dms.dat too big.\n");
 		return;
 	}
 
-	trap_FS_Read(buffer, len, f);	//read data in buffer
+	trap->FS_Read(buffer, len, f);	//read data in buffer
 
-	trap_FS_FCloseFile(f);	//close file
+	trap->FS_Close(f);	//close file
 
-	trap_Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
+	trap->Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
 	
 	LoadDynamicMusicGroup(mapname.string, buffer);
 }
@@ -57,7 +57,7 @@ void LoadDMSSongData(char *buffer, char *song, DynamicMusicSet_t *songData, char
 	//find our specific song
 	if(!BG_SiegeGetValueGroup(SongGroup, song, SongGroup))
 	{
-		G_Printf("LoadDMSSongData Error: Couldn't find song data for DMS song %s.\n",
+		Com_Printf("LoadDMSSongData Error: Couldn't find song data for DMS song %s.\n",
 			song);
 		return;
 	}
@@ -74,7 +74,7 @@ void LoadDMSSongData(char *buffer, char *song, DynamicMusicSet_t *songData, char
 
 		if(numTransitions >= MAX_DMS_TRANSITIONS)
 		{//too many transitions!
-			G_Printf("LoadDMSSongData Error:  Too many transitions found.\n");
+			Com_Printf("LoadDMSSongData Error:  Too many transitions found.\n");
 			return;
 		}
 
@@ -94,7 +94,7 @@ void LoadDMSSongData(char *buffer, char *song, DynamicMusicSet_t *songData, char
 		{
 			if(numExits >= MAX_DMS_EXITPOINTS)
 			{//too many transitions!
-				G_Printf("LoadDMSSongData Error:  Too many transitions found.\n");
+				Com_Printf("LoadDMSSongData Error:  Too many transitions found.\n");
 				return;
 			}
 
@@ -153,7 +153,7 @@ void LoadLengthforSong(char *buffer, DynamicMusicSet_t *song)
 		}
 		else
 		{//couldn't find this music file's length, use default
-			G_Printf("LoadLengthforSong Warning: Couldn't find length for %s.\n", 
+			Com_Printf("LoadLengthforSong Warning: Couldn't find length for %s.\n", 
 				token);
 			song->Transitions[transNum-1].fileLength = DMS_MUSICFILE_DEFAULT;
 		}
@@ -175,27 +175,27 @@ void LoadDMSSongLengths(void)
 	}
 
 	//Open up the dynamic music file
-	len = trap_FS_FOpenFile(DMS_MUSICLENGTH_FILENAME, &f, FS_READ);
+	len = trap->FS_Open(DMS_MUSICLENGTH_FILENAME, &f, FS_READ);
 
 	if (!f)
 	{//file open error
-		G_Printf("LoadDynamicMusic() Error: Couldn't open ext_data/dms.dat\n");
+		Com_Printf("LoadDynamicMusic() Error: Couldn't open ext_data/dms.dat\n");
 		return;
 	}
 
 	if(len >= DMS_INFO_SIZE)
 	{//file too large for buffer
-		G_Printf("LoadDynamicMusic() Error: dms.dat too big.\n");
+		Com_Printf("LoadDynamicMusic() Error: dms.dat too big.\n");
 		return;
 	}
 
-	trap_FS_Read(buffer, len, f);	//read data in buffer
+	trap->FS_Read(buffer, len, f);	//read data in buffer
 
-	trap_FS_FCloseFile(f);	//close file
+	trap->FS_Close(f);	//close file
 
 	if(!BG_SiegeGetValueGroup(buffer, "musiclengths", buffer))
 	{
-		G_Printf("LoadDMSSongLengths Error:  Couldn't find musiclengths define group in musiclength.dat.\n");
+		Com_Printf("LoadDMSSongLengths Error:  Couldn't find musiclengths define group in musiclength.dat.\n");
 	}
 
 	if(DMSData.actionMusic.valid)
@@ -231,7 +231,7 @@ void LoadDynamicMusicGroup(char *mapname, char *buffer)
 
 	if(!BG_SiegeGetValueGroup(MapMusicGroup, mapname, MapMusicGroup))
 	{
-		G_Printf("LoadDynamicMusicGroup Error:  Couldn't find DMS entry for this map.\n");
+		Com_Printf("LoadDynamicMusicGroup Error:  Couldn't find DMS entry for this map.\n");
 		return;
 	}
 
@@ -285,11 +285,11 @@ void TransitionBetweenState(void)
 	{//not transitioning between action and explore, just start the music
 		if(DMSData.dmState == DM_ACTION)
 		{//want to switch to action
- 			trap_SetConfigstring( CS_MUSIC, DMSData.actionMusic.fileName );
+ 			trap->SetConfigstring( CS_MUSIC, DMSData.actionMusic.fileName );
 		}
 		else
 		{//want to switch to explore
-			trap_SetConfigstring( CS_MUSIC, DMSData.exploreMusic.fileName );
+			trap->SetConfigstring( CS_MUSIC, DMSData.exploreMusic.fileName );
 		}
 		DMSData.olddmState = DMSData.dmState;
 		DMSData.dmStartTime = level.time;
@@ -323,7 +323,7 @@ void TransitionBetweenState(void)
 			if( TransitionTime == 0 
 				|| (TransitionTime > 0 && TransitionTime < DMS_TRANSITIONFUDGEFACTOR))
 			{//on the money or close enough
-				trap_SetConfigstring( CS_MUSIC, va("%s %s", 
+				trap->SetConfigstring( CS_MUSIC, va("%s %s", 
 					oldSongGroup->Transitions[i].fileName, 
 					newSongGroup->fileName));
 				DMSData.olddmState = DMSData.dmState;
@@ -361,7 +361,7 @@ void G_DynamicMusicUpdate( void )
 	{//Play the death music
 		if(DMSData.olddmState != DM_DEATH)
 		{//haven't set the state yet
-			trap_SetConfigstring( CS_MUSIC, DMS_DEATH_MUSIC );
+			trap->SetConfigstring( CS_MUSIC, DMS_DEATH_MUSIC );
 			DMSData.olddmState = DM_DEATH;
 			DMSData.dmDebounceTime = level.time + DMS_DEATH_MUSIC_TIME;
 		}
@@ -372,7 +372,7 @@ void G_DynamicMusicUpdate( void )
 	{
 		if(DMSData.olddmState != DM_BOSS)
 		{
-			trap_SetConfigstring( CS_MUSIC, DMSData.bossMusic.fileName );
+			trap->SetConfigstring( CS_MUSIC, DMSData.bossMusic.fileName );
 			DMSData.olddmState = DM_BOSS;
 		}
 		return;
@@ -382,7 +382,7 @@ void G_DynamicMusicUpdate( void )
 	{//turn off the music
 		if(DMSData.olddmState != DM_SILENCE)
 		{
-			trap_SetConfigstring( CS_MUSIC, "" );
+			trap->SetConfigstring( CS_MUSIC, "" );
 			DMSData.olddmState = DM_SILENCE;
 		}
 		return;
@@ -415,7 +415,7 @@ void G_DynamicMusicUpdate( void )
 			maxs[x] = center[x] + radius;
 		}
 	
-		numListedEntities = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
+		numListedEntities = trap->EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
 		for ( e = 0 ; e < numListedEntities ; e++ ) 
 		{
 			ent = &g_entities[entityList[e]];
@@ -451,7 +451,7 @@ void G_DynamicMusicUpdate( void )
 				continue;
 			}
 
-			if ( !trap_InPVS( player->r.currentOrigin, ent->r.currentOrigin ) )
+			if ( !trap->InPVS( player->r.currentOrigin, ent->r.currentOrigin ) )
 			{//not potentially visible
 				continue;
 			}

@@ -1,3 +1,25 @@
+/*
+===========================================================================
+Copyright (C) 1999 - 2005, Id Software, Inc.
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2015, OpenJK contributors
+
+This file is part of the OpenJK source code.
+
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
+*/
 
 /*****************************************************************************
  * name:		be_aas_def.h
@@ -5,30 +27,18 @@
  * desc:		AAS
  *
  * $Archive: /source/code/botlib/be_aas_def.h $
- * $Author: osman $ 
+ * $Author: osman $
  * $Revision: 1.4 $
  * $Modtime: 10/05/99 3:32p $
  * $Date: 2003/03/15 23:43:54 $
  *
  *****************************************************************************/
+#pragma once
+
+#include "../qcommon/q_shared.h"
 
 //debugging on
 #define AAS_DEBUG
-
-// these are also in q_shared.h - argh (rjr)
-#ifdef _XBOX
-#define MAX_CLIENTS			16
-#else
-#define MAX_CLIENTS			32
-#endif
-#define MAX_RADAR_ENTITIES	MAX_GENTITIES
-#define	MAX_MODELS			512		// these are sent over the net as 8 bits
-#define	MAX_SOUNDS			256		// so they cannot be blindly increased
-
-// these are also in bg_public.h - argh (rjr)
-#define	CS_SCORES			32
-#define	CS_MODELS			(CS_SCORES+MAX_CLIENTS)
-#define	CS_SOUNDS			(CS_MODELS+MAX_MODELS)
 
 #define DF_AASENTNUMBER(x)		(x - aasworld.entities)
 #define DF_NUMBERAASENT(x)		(&aasworld.entities[x])
@@ -38,13 +48,6 @@
 #ifndef MAX_PATH
 	#define MAX_PATH				MAX_QPATH
 #endif
-
-//string index (for model, sound and image index)
-typedef struct aas_stringindex_s
-{
-	int numindexes;
-	char **index;
-} aas_stringindex_t;
 
 //structure to link entities to areas and areas to entities
 typedef struct aas_link_s
@@ -246,9 +249,6 @@ typedef struct aas_s
 	int maxentities;
 	int maxclients;
 	aas_entity_t *entities;
-	//string indexes
-	char *configstrings[MAX_CONFIGSTRINGS];
-	int indexessetup;
 	//index to retrieve travel flag for a travel type
 	int travelflagfortype[MAX_TRAVELTYPES];
 	//travel flags for each area based on contents
@@ -274,8 +274,6 @@ typedef struct aas_s
 	int *reachabilityareaindex;
 	aas_reachabilityareas_t *reachabilityareas;
 } aas_t;
-
-#define AASINTERN
 
 #ifndef BSPCINCLUDE
 

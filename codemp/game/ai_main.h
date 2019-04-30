@@ -1,6 +1,29 @@
-#include "bg_saga.h"
+/*
+===========================================================================
+Copyright (C) 1999 - 2005, Id Software, Inc.
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2015, OpenJK contributors
 
-#define DEFAULT_FORCEPOWERS		"5-1-000000000000000000"
+This file is part of the OpenJK source code.
+
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
+*/
+
+#pragma once
+
+#include "bg_saga.h"
 
 //#define FORCEJUMP_INSTANTMETHOD 1
 
@@ -550,10 +573,8 @@ extern float gDeactivated;
 extern float gBotEdit;
 extern int gWPRenderedFrame;
 
-#include "../namespace_begin.h"
 extern wpobject_t *gWPArray[MAX_WPARRAY_SIZE];
 extern int gWPNum;
-#include "../namespace_end.h"
 
 extern int gLastPrintedIndex;
 extern nodeobject_t nodetable[MAX_NODETABLE_SIZE];
@@ -564,7 +585,6 @@ extern int gLevelFlags;
 extern float floattime;
 #define FloatTime() floattime
 
-
 //[TABBots]
 //TAB bot Behaviors
 typedef enum
@@ -574,8 +594,5 @@ typedef enum
 	BBEHAVE_MOVETO, //Move to the current inputted goalPosition;
 	BBEHAVE_ATTACK,  //Attack given entity
 	BBEHAVE_VISUALSCAN	//visually scanning around
-};
+} bot_behave_t;
 //[/TABBots]
-
-
-

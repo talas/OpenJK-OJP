@@ -1,7 +1,29 @@
+/*
+===========================================================================
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2015, OpenJK contributors
+
+This file is part of the OpenJK source code.
+
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
+*/
+
+#pragma once
+
 //B_local.h
 //re-added by MCG
-#ifndef __B_LOCAL_H__
-#define __B_LOCAL_H__
 
 #include "g_local.h"
 #include "b_public.h"
@@ -36,14 +58,6 @@
 void SetNPCGlobals( gentity_t *ent );
 void SaveNPCGlobals(void);
 void RestoreNPCGlobals(void);
-extern vmCvar_t		debugNPCAI;			// used to print out debug info about the NPC AI
-extern vmCvar_t		debugNPCFreeze;		// set to disable NPC ai and temporarily freeze them in place
-extern vmCvar_t		debugNPCAimingBeam;
-extern vmCvar_t		debugBreak;
-extern vmCvar_t		debugNoRoam;
-extern vmCvar_t		d_JediAI;
-extern vmCvar_t		d_saberCombat;
-
 extern void NPC_Think ( gentity_t *self);
 
 //NPC_reactions.cpp
@@ -59,12 +73,16 @@ extern void Debug_Printf( vmCvar_t *cv, int level, char *fmt, ... );
 extern void Debug_NPCPrintf( gentity_t *printNPC, vmCvar_t *cv, int debugLevel, char *fmt, ... );
 
 //MCG - Begin============================================================
-//NPC_ai variables - shared by NPC.cpp andf the following modules
-extern gentity_t	*NPC;
-extern gNPC_t		*NPCInfo;
-extern gclient_t	*client;
-extern usercmd_t	ucmd;
-extern visibility_t	enemyVisibility;
+//NPC_ai variables - shared by NPC.cpp and the following modules
+//OJKFIXME: Should probably construct these at the NPC entry points and pass as arguments to any function that needs them
+typedef struct npcStatic_s {
+	gentity_t		*NPC;
+	gNPC_t			*NPCInfo;
+	gclient_t		*client;
+	usercmd_t		 ucmd;
+	visibility_t	 enemyVisibility;
+} npcStatic_t;
+extern npcStatic_t NPCS;
 
 //AI_Default
 extern qboolean NPC_CheckInvestigate( int alertEventNum );
@@ -134,15 +152,8 @@ extern void NPC_DeleteFromFormation (gentity_t *self);
 #define NUM_POSITIONS 30
 
 //NPC spawnflags
-#define SFB_SMALLHULL	1
-
 #define SFB_RIFLEMAN	2
-#define SFB_OLDBORG		2//Borg
 #define SFB_PHASER		4
-#define SFB_GUN			4//Borg
-#define	SFB_TRICORDER	8
-#define	SFB_TASER		8//Borg
-#define	SFB_DRILL		16//Borg
 
 #define	SFB_CINEMATIC	32
 #define	SFB_NOTSOLID	64
@@ -186,9 +197,6 @@ extern float G_GroundDistance( gentity_t *self );
 //[/SuperDindon]
 //[/CoOp]
 
-//NPC_sounds
-//extern void NPC_AngerSound(void);
-
 //NPC_spawn
 extern void NPC_Spawn ( gentity_t *ent, gentity_t *other, gentity_t *activator );
 
@@ -208,6 +216,7 @@ extern qboolean NPC_UpdateFiringAngles ( qboolean doPitch, qboolean doYaw );
 extern void SetTeamNumbers (void);
 extern qboolean G_ActivateBehavior (gentity_t *self, int bset );
 extern void NPC_AimWiggle( vec3_t enemy_org );
+extern void NPC_ClearLookTarget( gentity_t *self );
 extern void NPC_SetLookTarget( gentity_t *self, int entNum, int clearTime );
 
 //g_nav.cpp
@@ -321,7 +330,7 @@ extern qboolean NPC_FaceEntity( gentity_t *ent, qboolean doPitch ); //doPitch = 
 extern qboolean NPC_FaceEnemy( qboolean doPitch ); //doPitch = qtrue
 
 //Skill level cvar
-extern vmCvar_t	g_spskill;
+extern vmCvar_t	g_npcspskill;
 
 #define	NIF_NONE		0x00000000
 #define	NIF_FAILED		0x00000001	//failed to find a way to the goal
@@ -348,6 +357,3 @@ typedef struct navInfo_s
 extern int	NAV_MoveToGoal( gentity_t *self, navInfo_t *info );
 extern void NAV_GetLastMove( navInfo_t *info );
 extern qboolean NAV_AvoidCollision( gentity_t *self, gentity_t *goal, navInfo_t *info );
-
-
-#endif

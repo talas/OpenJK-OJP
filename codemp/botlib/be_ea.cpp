@@ -1,3 +1,25 @@
+/*
+===========================================================================
+Copyright (C) 1999 - 2005, Id Software, Inc.
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2015, OpenJK contributors
+
+This file is part of the OpenJK source code.
+
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
+*/
 
 /*****************************************************************************
  * name:		be_ea.c
@@ -5,20 +27,21 @@
  * desc:		elementary actions
  *
  * $Archive: /MissionPack/code/botlib/be_ea.c $
- * $Author: Zaphod $ 
+ * $Author: Zaphod $
  * $Revision: 5 $
  * $Modtime: 11/22/00 8:50a $
  * $Date: 11/22/00 8:55a $
  *
  *****************************************************************************/
 
-#include "../game/q_shared.h"
+#include "qcommon/q_shared.h"
 #include "l_memory.h"
 #include "l_script.h"
 #include "l_precomp.h"
 #include "l_struct.h"
-#include "../game/botlib.h"
+#include "botlib.h"
 #include "be_interface.h"
+#include "be_ea.h"
 
 #define MAX_USERMOVE				400
 #define MAX_COMMANDARGUMENTS		10
@@ -426,24 +449,6 @@ void EA_View(int client, vec3_t viewangles)
 //===========================================================================
 void EA_EndRegular(int client, float thinktime)
 {
-/*
-	bot_input_t *bi;
-	int jumped = qfalse;
-
-	bi = &botinputs[client];
-
-	bi->actionflags &= ~ACTION_JUMPEDLASTFRAME;
-
-	bi->thinktime = thinktime;
-	botimport.BotInput(client, bi);
-
-	bi->thinktime = 0;
-	VectorClear(bi->dir);
-	bi->speed = 0;
-	jumped = bi->actionflags & ACTION_JUMP;
-	bi->actionflags = 0;
-	if (jumped) bi->actionflags |= ACTION_JUMPEDLASTFRAME;
-*/
 } //end of the function EA_EndRegular
 //===========================================================================
 //
@@ -454,23 +459,10 @@ void EA_EndRegular(int client, float thinktime)
 void EA_GetInput(int client, float thinktime, bot_input_t *input)
 {
 	bot_input_t *bi;
-//	int jumped = qfalse;
 
 	bi = &botinputs[client];
-
-//	bi->actionflags &= ~ACTION_JUMPEDLASTFRAME;
-
 	bi->thinktime = thinktime;
 	Com_Memcpy(input, bi, sizeof(bot_input_t));
-
-	/*
-	bi->thinktime = 0;
-	VectorClear(bi->dir);
-	bi->speed = 0;
-	jumped = bi->actionflags & ACTION_JUMP;
-	bi->actionflags = 0;
-	if (jumped) bi->actionflags |= ACTION_JUMPEDLASTFRAME;
-	*/
 } //end of the function EA_GetInput
 //===========================================================================
 //

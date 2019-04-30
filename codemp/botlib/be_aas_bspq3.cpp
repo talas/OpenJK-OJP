@@ -1,3 +1,25 @@
+/*
+===========================================================================
+Copyright (C) 1999 - 2005, Id Software, Inc.
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2015, OpenJK contributors
+
+This file is part of the OpenJK source code.
+
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
+*/
 
 /*****************************************************************************
  * name:		be_aas_bspq3.c
@@ -5,21 +27,21 @@
  * desc:		BSP, Environment Sampling
  *
  * $Archive: /MissionPack/code/botlib/be_aas_bspq3.c $
- * $Author: Ttimo $ 
+ * $Author: Ttimo $
  * $Revision: 5 $
  * $Modtime: 4/22/01 8:52a $
  * $Date: 4/22/01 8:52a $
  *
  *****************************************************************************/
 
-#include "../game/q_shared.h"
+#include "qcommon/q_shared.h"
 #include "l_memory.h"
 #include "l_script.h"
 #include "l_precomp.h"
 #include "l_struct.h"
 #include "aasfile.h"
-#include "../game/botlib.h"
-#include "../game/be_aas.h"
+#include "botlib.h"
+#include "be_aas.h"
 #include "be_aas_funcs.h"
 #include "be_aas_def.h"
 
@@ -28,7 +50,6 @@ extern botlib_import_t botimport;
 //#define TRACE_DEBUG
 
 #define ON_EPSILON		0.005
-//#define DEG2RAD( a ) (( a * M_PI ) / 180.0F)
 
 #define MAX_BSPENTITIES		2048
 
@@ -289,7 +310,7 @@ int AAS_VectorForBSPEpairKey(int ent, char *key, vec3_t v)
 
 	VectorClear(v);
 	if (!AAS_ValueForBSPEpairKey(ent, key, buf, MAX_EPAIRKEY)) return qfalse;
-	//scanf into doubles, then assign, so it is vec_t size independent
+	//scanf into doubles, then assign, so it is float size independent
 	v1 = v2 = v3 = 0;
 	sscanf(buf, "%lf %lf %lf", &v1, &v2, &v3);
 	v[0] = v1;
@@ -306,7 +327,7 @@ int AAS_VectorForBSPEpairKey(int ent, char *key, vec3_t v)
 int AAS_FloatForBSPEpairKey(int ent, char *key, float *value)
 {
 	char buf[MAX_EPAIRKEY];
-	
+
 	*value = 0;
 	if (!AAS_ValueForBSPEpairKey(ent, key, buf, MAX_EPAIRKEY)) return qfalse;
 	*value = atof(buf);
@@ -321,7 +342,7 @@ int AAS_FloatForBSPEpairKey(int ent, char *key, float *value)
 int AAS_IntForBSPEpairKey(int ent, char *key, int *value)
 {
 	char buf[MAX_EPAIRKEY];
-	
+
 	*value = 0;
 	if (!AAS_ValueForBSPEpairKey(ent, key, buf, MAX_EPAIRKEY)) return qfalse;
 	*value = atoi(buf);
@@ -375,7 +396,7 @@ void AAS_ParseBSPEntities(void)
 	{
 		if (strcmp(token.string, "{"))
 		{
-			ScriptError(script, "invalid %s\n", token.string);
+			ScriptError(script, "invalid %s", token.string);
 			AAS_FreeBSPEntities();
 			FreeScript(script);
 			return;
@@ -396,7 +417,7 @@ void AAS_ParseBSPEntities(void)
 			ent->epairs = epair;
 			if (token.type != TT_STRING)
 			{
-				ScriptError(script, "invalid %s\n", token.string);
+				ScriptError(script, "invalid %s", token.string);
 				AAS_FreeBSPEntities();
 				FreeScript(script);
 				return;
@@ -416,7 +437,7 @@ void AAS_ParseBSPEntities(void)
 		} //end while
 		if (strcmp(token.string, "}"))
 		{
-			ScriptError(script, "missing }\n");
+			ScriptError(script, "missing }");
 			AAS_FreeBSPEntities();
 			FreeScript(script);
 			return;
@@ -452,7 +473,7 @@ void AAS_DumpBSPData(void)
 	Com_Memset( &bspworld, 0, sizeof(bspworld) );
 } //end of the function AAS_DumpBSPData
 //===========================================================================
-// load an bsp file
+// load a .bsp file
 //
 // Parameter:				-
 // Returns:					-

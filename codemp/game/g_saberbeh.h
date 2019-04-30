@@ -2,7 +2,7 @@
 #ifndef _SABERBEH_H
 #define _SABERBEH_H
 
-#include "q_shared.h"
+#include "qcommon/q_shared.h"
 
 //This is the attack parry rate for the bots since bots don't block intelligently
 //This is multipled by the bot's skill level (which can be 1-5) and is actually a percentage of the total parries as

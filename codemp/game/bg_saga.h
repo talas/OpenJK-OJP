@@ -1,3 +1,27 @@
+/*
+===========================================================================
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2015, OpenJK contributors
+
+This file is part of the OpenJK source code.
+
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
+*/
+
+#pragma once
+
 #define		MAX_SIEGE_INFO_SIZE					16384
 
 #define		SIEGETEAM_TEAM1						1 //e.g. TEAM_RED
@@ -42,19 +66,15 @@ typedef enum
 
 
 #define SIEGE_CLASS_DESC_LEN  4096
-
-typedef struct
-{
+typedef struct siegeClassDesc_s {
 	char		desc[SIEGE_CLASS_DESC_LEN];
 } siegeClassDesc_t;
 
-typedef struct
-{
+typedef struct siegeClass_s {
 	char		name[512];
 	char		forcedModel[256];
 	char		forcedSkin[256];
-	char		saber1[64];
-	char		saber2[64];
+	char		saber1[SABER_NAME_LENGTH], saber2[SABER_NAME_LENGTH];
 	int			saberStance;
 	int			weapons;
 	int			forcePowerLevels[NUM_FORCE_POWERS];
@@ -73,18 +93,16 @@ typedef struct
 	int			uiPortraitShader;
 	char		uiPortrait[256];
 	int			classShader;
-	short		playerClass;		// SPC_INFANTRY . .. 
+	short		playerClass;		// SPC_INFANTRY . ..
 } siegeClass_t;
 
-typedef struct
-{
+typedef struct siegeTeam_s {
 	char		name[512];
 	siegeClass_t	*classes[MAX_SIEGE_CLASSES_PER_TEAM];
 	int			numClasses;
 	int			friendlyShader;
 } siegeTeam_t;
 
-#include "../namespace_begin.h"
 
 extern siegeClass_t bgSiegeClasses[MAX_SIEGE_CLASSES];
 extern int bgNumSiegeClasses;
@@ -107,7 +125,11 @@ qboolean BG_SiegeCheckClassLegality(int team, char *classname);
 void BG_SiegeSetTeamTheme(int team, char *themeName);
 int BG_SiegeFindClassIndexByName(const char *classname);
 
+// for ui
+int BG_GetUIPortrait( const int team, const short classIndex, const short cntIndex );
+char *BG_GetUIPortraitFile( const int team, const short classIndex, const short cntIndex );
+siegeClass_t *BG_GetClassOnBaseClass( const int team, const short classIndex, const short cntIndex );
+int BG_SiegeCountBaseClass( const int team, const short classIndex );
+
 extern char	siege_info[MAX_SIEGE_INFO_SIZE];
 extern int	siege_valid;
-
-#include "../namespace_end.h"

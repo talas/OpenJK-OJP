@@ -1,3 +1,25 @@
+/*
+===========================================================================
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2015, OpenJK contributors
+
+This file is part of the OpenJK source code.
+
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
+*/
+
 // Filename:-	tags.h
 
 // do NOT include-protect this file, or add any fields or labels, because it's included within enums and tables
@@ -7,17 +29,15 @@
 	TAGDEF(ALL),
 	TAGDEF(BOTLIB),
 	TAGDEF(CLIENTS),					// Memory used for client info
-#ifndef _XBOX
 	TAGDEF(BOTGAME),
 	TAGDEF(DOWNLOAD),					// used by the downloading system
 	TAGDEF(GENERAL),
-	TAGDEF(CLIPBOARD),					
+	TAGDEF(CLIPBOARD),
 	TAGDEF(SND_MP3STREAMHDR),			// specific MP3 struct for decoding (about 18..22K each?), not the actual MP3 binary
 	TAGDEF(SND_DYNAMICMUSIC),			// in-mem MP3 files
 	TAGDEF(BSP_DISKIMAGE),				// temp during loading, to save both server and renderer fread()ing the same file. Only used if not low physical memory (currently 96MB)
 	TAGDEF(VM),							// stuff for VM, may be zapped later?
 	TAGDEF(SPECIAL_MEM_TEST),			// special usage for testing z_malloc recover only
-#endif
 	TAGDEF(HUNK_MARK1),					//hunk allocations before the mark is set
 	TAGDEF(HUNK_MARK2),					//hunk allocations after the mark is set
 	TAGDEF(EVENT),
@@ -60,14 +80,8 @@
 	TAGDEF(VM_ALLOCATED),				// allocated by game or cgame via memory shifting
 
 	TAGDEF(TEMP_HUNKALLOC),
-#ifdef _XBOX
-	TAGDEF(NEWDEL),						// new / delete -> Z_Malloc on Xbox
-	TAGDEF(UI_ALLOC),					// UI DLL calls to UI_Alloc
-	TAGDEF(CG_UI_ALLOC),				// Cgame DLL calls to UI_Alloc
-	TAGDEF(BG_ALLOC),
-	TAGDEF(BINK),
-	TAGDEF(XBL_FRIENDS),				// friends list
-#endif
+	TAGDEF(AVI),
+	TAGDEF(MINIZIP),
 	TAGDEF(COUNT)
 
 

@@ -1,12 +1,32 @@
-// Copyright (C) 1999-2000 Id Software, Inc.
-//
+/*
+===========================================================================
+Copyright (C) 1999 - 2005, Id Software, Inc.
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2015, OpenJK contributors
+
+This file is part of the OpenJK source code.
+
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
+*/
 
 // cg_localents.c -- every frame, generate renderer commands for locally
 // processed entities, like smoke puffs, gibs, shells, etc.
 
 #include "cg_local.h"
 
-#define	MAX_LOCAL_ENTITIES	512
+#define	MAX_LOCAL_ENTITIES	2048 // 512
 localEntity_t	cg_localEntities[MAX_LOCAL_ENTITIES];
 localEntity_t	cg_activeLocalEntities;		// double linked list
 localEntity_t	*cg_freeLocalEntities;		// single linked list
@@ -15,7 +35,7 @@ localEntity_t	*cg_freeLocalEntities;		// single linked list
 ===================
 CG_InitLocalEntities
 
-This is called at startup and for tournement restarts
+This is called at startup and for tournament restarts
 ===================
 */
 void	CG_InitLocalEntities( void ) {
@@ -38,7 +58,8 @@ CG_FreeLocalEntity
 */
 void CG_FreeLocalEntity( localEntity_t *le ) {
 	if ( !le->prev ) {
-		CG_Error( "CG_FreeLocalEntity: not active" );
+		trap->Error( ERR_DROP, "CG_FreeLocalEntity: not active" );
+		return;
 	}
 
 	// remove from the doubly linked active list
@@ -112,7 +133,7 @@ void CG_BloodTrail( localEntity_t *le ) {
 	for ( ; t <= t2; t += step ) {
 		BG_EvaluateTrajectory( &le->pos, t, newOrigin );
 
-		blood = CG_SmokePuff( newOrigin, vec3_origin, 
+		blood = CG_SmokePuff( newOrigin, vec3_origin,
 					  20,		// radius
 					  1, 1, 1, 1,	// color
 					  2000,		// trailTime
@@ -134,23 +155,17 @@ CG_FragmentBounceMark
 ================
 */
 void CG_FragmentBounceMark( localEntity_t *le, trace_t *trace ) {
-	int			radius;
+//	int radius;
 
 	if ( le->leMarkType == LEMT_BLOOD ) {
-
-		radius = 16 + (rand()&31);
-//		CG_ImpactMark( cgs.media.bloodMarkShader, trace->endpos, trace->plane.normal, random()*360,
-//			1,1,1,1, qtrue, radius, qfalse );
+	//	radius = 16 + (rand()&31);
+	//	CG_ImpactMark( cgs.media.bloodMarkShader, trace->endpos, trace->plane.normal, Q_flrand(0.0f, 1.0f)*360, 1,1,1,1, qtrue, radius, qfalse );
 	} else if ( le->leMarkType == LEMT_BURN ) {
-
-		radius = 8 + (rand()&15);
-//		CG_ImpactMark( cgs.media.burnMarkShader, trace->endpos, trace->plane.normal, random()*360,
-//			1,1,1,1, qtrue, radius, qfalse );
+	//	radius = 8 + (rand()&15);
+	//	CG_ImpactMark( cgs.media.burnMarkShader, trace->endpos, trace->plane.normal, Q_flrand(0.0f, 1.0f)*360, 1,1,1,1, qtrue, radius, qfalse );
 	}
 
-
-	// don't allow a fragment to make multiple marks, or they
-	// pile up while settling
+	// don't allow a fragment to make multiple marks, or they pile up while settling
 	le->leMarkType = LEMT_NONE;
 }
 
@@ -161,7 +176,7 @@ CG_FragmentBounceSound
 */
 void CG_FragmentBounceSound( localEntity_t *le, trace_t *trace ) {
 	// half the fragments will make a bounce sounds
-	if ( rand() & 1 ) 
+	if ( rand() & 1 )
 	{
 		sfxHandle_t	s = 0;
 
@@ -179,13 +194,13 @@ void CG_FragmentBounceSound( localEntity_t *le, trace_t *trace ) {
 
 		if ( s )
 		{
-			trap_S_StartSound( trace->endpos, ENTITYNUM_WORLD, CHAN_AUTO, s );
+			trap->S_StartSound( trace->endpos, ENTITYNUM_WORLD, CHAN_AUTO, s );
 		}
 
 		// bouncers only make the sound once...
 		// FIXME: arbitrary...change if it bugs you
 		le->leBounceSoundType = LEBS_NONE;
-	} 
+	}
 	else if ( rand() & 1 )
 	{
 		// we may end up bouncing again, but each bounce reduces the chance of playing the sound again or they may make a lot of noise when they settle
@@ -217,8 +232,8 @@ void CG_ReflectVelocity( localEntity_t *le, trace_t *trace ) {
 	le->pos.trTime = cg.time;
 
 	// check for stop, making sure that even on low FPS systems it doesn't bobble
-	if ( trace->allsolid || 
-		( trace->plane.normal[2] > 0 && 
+	if ( trace->allsolid ||
+		( trace->plane.normal[2] > 0 &&
 		( le->pos.trDelta[2] < 40 || le->pos.trDelta[2] < -cg.frametime * le->pos.trDelta[2] ) ) ) {
 		le->pos.trType = TR_STATIONARY;
 	} else {
@@ -245,7 +260,7 @@ void CG_AddFragment( localEntity_t *le ) {
 		// sink into the ground if near the removal time
 		int		t;
 		float	t_e;
-		
+
 		t = le->endTime - cg.time;
 		if ( t < (SINK_TIME*2) ) {
 			le->refEntity.renderfx |= RF_FORCE_ENT_ALPHA;
@@ -268,9 +283,9 @@ void CG_AddFragment( localEntity_t *le ) {
 
 			le->refEntity.shaderRGBA[3] = t_e;
 
-			trap_R_AddRefEntityToScene( &le->refEntity );
+			trap->R_AddRefEntityToScene( &le->refEntity );
 		} else {
-			trap_R_AddRefEntityToScene( &le->refEntity );
+			trap->R_AddRefEntityToScene( &le->refEntity );
 		}
 
 		return;
@@ -293,7 +308,7 @@ void CG_AddFragment( localEntity_t *le ) {
 			ScaleModelAxis(&le->refEntity);
 		}
 
-		trap_R_AddRefEntityToScene( &le->refEntity );
+		trap->R_AddRefEntityToScene( &le->refEntity );
 
 		// add a blood trail
 		if ( le->leBounceSoundType == LEBS_BLOOD ) {
@@ -306,7 +321,7 @@ void CG_AddFragment( localEntity_t *le ) {
 	// if it is in a nodrop zone, remove it
 	// this keeps gibs from waiting at the bottom of pits of death
 	// and floating levels
-	if ( trap_CM_PointContents( trace.endpos, 0 ) & CONTENTS_NODROP ) {
+	if ( CG_PointContents( trace.endpos, 0 ) & CONTENTS_NODROP ) {
 		CG_FreeLocalEntity( le );
 		return;
 	}
@@ -321,13 +336,13 @@ void CG_AddFragment( localEntity_t *le ) {
 
 		if (le->bounceSound)
 		{ //specified bounce sound (debris)
-			trap_S_StartSound(le->pos.trBase, ENTITYNUM_WORLD, CHAN_AUTO, le->bounceSound);
+			trap->S_StartSound(le->pos.trBase, ENTITYNUM_WORLD, CHAN_AUTO, le->bounceSound);
 		}
 
 		// reflect the velocity on the trace plane
 		CG_ReflectVelocity( le, &trace );
 
-		trap_R_AddRefEntityToScene( &le->refEntity );
+		trap->R_AddRefEntityToScene( &le->refEntity );
 	}
 }
 
@@ -359,7 +374,7 @@ void CG_AddFadeRGB( localEntity_t *le ) {
 	re->shaderRGBA[2] = le->color[2] * c;
 	re->shaderRGBA[3] = le->color[3] * c;
 
-	trap_R_AddRefEntityToScene( re );
+	trap->R_AddRefEntityToScene( re );
 }
 
 static void CG_AddFadeScaleModel( localEntity_t *le )
@@ -386,7 +401,7 @@ static void CG_AddFadeScaleModel( localEntity_t *le )
 	ent->shaderRGBA[3] = le->color[3] * frac;
 
 	// add the entity
-	trap_R_AddRefEntityToScene( ent );
+	trap->R_AddRefEntityToScene( ent );
 }
 
 /*
@@ -428,7 +443,7 @@ static void CG_AddMoveScaleFade( localEntity_t *le ) {
 		return;
 	}
 
-	trap_R_AddRefEntityToScene( re );
+	trap->R_AddRefEntityToScene( re );
 }
 
 /*
@@ -466,7 +481,7 @@ static void CG_AddPuff( localEntity_t *le ) {
 		return;
 	}
 
-	trap_R_AddRefEntityToScene( re );
+	trap->R_AddRefEntityToScene( re );
 }
 
 /*
@@ -501,7 +516,7 @@ static void CG_AddScaleFade( localEntity_t *le ) {
 		return;
 	}
 
-	trap_R_AddRefEntityToScene( re );
+	trap->R_AddRefEntityToScene( re );
 }
 
 
@@ -541,7 +556,7 @@ static void CG_AddFallScaleFade( localEntity_t *le ) {
 		return;
 	}
 
-	trap_R_AddRefEntityToScene( re );
+	trap->R_AddRefEntityToScene( re );
 }
 
 
@@ -557,7 +572,7 @@ static void CG_AddExplosion( localEntity_t *ex ) {
 	ent = &ex->refEntity;
 
 	// add the entity
-	trap_R_AddRefEntityToScene(ent);
+	trap->R_AddRefEntityToScene(ent);
 
 	// add the dlight
 	if ( ex->light ) {
@@ -570,7 +585,7 @@ static void CG_AddExplosion( localEntity_t *ex ) {
 			light = 1.0 - ( light - 0.5 ) * 2;
 		}
 		light = ex->light * light;
-		trap_R_AddLightToScene(ent->origin, light, ex->lightColor[0], ex->lightColor[1], ex->lightColor[2] );
+		trap->R_AddLightToScene(ent->origin, light, ex->lightColor[0], ex->lightColor[1], ex->lightColor[2] );
 	}
 }
 
@@ -598,7 +613,7 @@ static void CG_AddSpriteExplosion( localEntity_t *le ) {
 	re.reType = RT_SPRITE;
 	re.radius = 42 * ( 1.0 - c ) + 30;
 
-	trap_R_AddRefEntityToScene( &re );
+	trap->R_AddRefEntityToScene( &re );
 
 	// add the dlight
 	if ( le->light ) {
@@ -611,7 +626,7 @@ static void CG_AddSpriteExplosion( localEntity_t *le ) {
 			light = 1.0 - ( light - 0.5 ) * 2;
 		}
 		light = le->light * light;
-		trap_R_AddLightToScene(re.origin, light, le->lightColor[0], le->lightColor[1], le->lightColor[2] );
+		trap->R_AddLightToScene(re.origin, light, le->lightColor[0], le->lightColor[1], le->lightColor[2] );
 	}
 }
 
@@ -626,7 +641,7 @@ void CG_AddRefEntity( localEntity_t *le ) {
 		CG_FreeLocalEntity( le );
 		return;
 	}
-	trap_R_AddRefEntityToScene( &le->refEntity );
+	trap->R_AddRefEntityToScene( &le->refEntity );
 }
 
 /*
@@ -714,7 +729,7 @@ void CG_AddScorePlum( localEntity_t *le ) {
 	for (i = 0; i < numdigits; i++) {
 		VectorMA(origin, (float) (((float) numdigits / 2) - i) * NUMBER_SIZE, vec, re->origin);
 		re->customShader = cgs.media.numberShaders[digits[numdigits-1-i]];
-		trap_R_AddRefEntityToScene( re );
+		trap->R_AddRefEntityToScene( re );
 	}
 }
 
@@ -733,7 +748,7 @@ void CG_AddOLine( localEntity_t *le )
 	re = &le->refEntity;
 
 	frac = (cg.time - le->startTime) / ( float ) ( le->endTime - le->startTime );
-	if ( frac > 1 ) 
+	if ( frac > 1 )
 		frac = 1.0;	// can happen during connection problems
 	else if (frac < 0)
 		frac = 0.0;
@@ -760,7 +775,7 @@ void CG_AddOLine( localEntity_t *le )
 
 	re->reType = RT_ORIENTEDLINE;
 
-	trap_R_AddRefEntityToScene( re );
+	trap->R_AddRefEntityToScene( re );
 }
 
 /*
@@ -778,7 +793,7 @@ void CG_AddLine( localEntity_t *le )
 
 	re->reType = RT_LINE;
 
-	trap_R_AddRefEntityToScene( re );
+	trap->R_AddRefEntityToScene( re );
 }
 
 //==============================================================================
@@ -806,7 +821,7 @@ void CG_AddLocalEntities( void ) {
 		}
 		switch ( le->leType ) {
 		default:
-			CG_Error( "Bad leType: %i", le->leType );
+			trap->Error( ERR_DROP, "Bad leType: %i", le->leType );
 			break;
 
 		case LE_MARK:

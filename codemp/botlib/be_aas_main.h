@@ -1,3 +1,25 @@
+/*
+===========================================================================
+Copyright (C) 1999 - 2005, Id Software, Inc.
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2015, OpenJK contributors
+
+This file is part of the OpenJK source code.
+
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
+*/
 
 /*****************************************************************************
  * name:		be_aas_main.h
@@ -5,19 +27,23 @@
  * desc:		AAS
  *
  * $Archive: /source/code/botlib/be_aas_main.h $
- * $Author: Mrelusive $ 
+ * $Author: Mrelusive $
  * $Revision: 2 $
  * $Modtime: 10/05/99 3:32p $
  * $Date: 10/05/99 3:42p $
  *
  *****************************************************************************/
 
+#pragma once
+
+#include "be_aas_def.h"
+
 #ifdef AASINTERN
 
 extern aas_t aasworld;
 
 //AAS error message
-void QDECL AAS_Error(char *fmt, ...);
+void QDECL AAS_Error(char *fmt, ...) __attribute__ ((format (printf, 1, 2)));
 //set AAS initialized
 void AAS_SetInitialized(void);
 //setup AAS with the given number of entities and clients
@@ -28,16 +54,13 @@ void AAS_Shutdown(void);
 int AAS_LoadMap(const char *mapname);
 //start a new time frame
 int AAS_StartFrame(float time);
+
 #endif //AASINTERN
 
 //returns true if AAS is initialized
 int AAS_Initialized(void);
 //returns true if the AAS file is loaded
 int AAS_Loaded(void);
-//returns the model name from the given index
-char *AAS_ModelFromIndex(int index);
-//returns the index from the given model name
-int AAS_IndexFromModel(char *modelname);
 //returns the current time
 float AAS_Time(void);
 //

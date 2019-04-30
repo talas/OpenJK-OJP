@@ -1,17 +1,36 @@
-// Copyright (C) 1999-2000 Id Software, Inc.
-//
+/*
+===========================================================================
+Copyright (C) 1999 - 2005, Id Software, Inc.
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2015, OpenJK contributors
+
+This file is part of the OpenJK source code.
+
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
+*/
+
 #include "g_local.h"
 #include "w_saber.h"
-#include "q_shared.h"
+#include "qcommon/q_shared.h"
 
 #define	MISSILE_PRESTEP_TIME	50
 
 extern void laserTrapStick( gentity_t *ent, vec3_t endpos, vec3_t normal );
 extern void Jedi_Decloak( gentity_t *self );
 
-#include "../namespace_begin.h"
 extern qboolean FighterIsLanded( Vehicle_t *pVeh, playerState_t *parentPS );
-#include "../namespace_end.h"
 
 /*
 ================
@@ -21,18 +40,12 @@ G_ReflectMissile
 ================
 */
 float RandFloat(float min, float max);
-void G_ReflectMissile( gentity_t *ent, gentity_t *missile, vec3_t forward ) 
+void G_ReflectMissile( gentity_t *ent, gentity_t *missile, vec3_t forward )
 {
 	vec3_t	bounce_dir;
 	int		i;
 	float	speed;
-	gentity_t	*owner = ent;
 	int		isowner = 0;
-
-	if ( ent->r.ownerNum )
-	{
-		owner = &g_entities[ent->r.ownerNum];
-	}
 
 	if (missile->r.ownerNum == ent->s.number)
 	{ //the original owner is bouncing the missile, so don't try to bounce it back at him
@@ -42,7 +55,6 @@ void G_ReflectMissile( gentity_t *ent, gentity_t *missile, vec3_t forward )
 	//save the original speed
 	speed = VectorNormalize( missile->s.pos.trDelta );
 
-	//if ( ent && owner && owner->NPC && owner->enemy && Q_stricmp( "Tavion", owner->NPC_type ) == 0 && Q_irand( 0, 3 ) )
 	if ( &g_entities[missile->r.ownerNum] && missile->s.weapon != WP_SABER && missile->s.weapon != G2_MODEL_PART && !isowner )
 	{//bounce back at them if you can
 		VectorSubtract( g_entities[missile->r.ownerNum].r.currentOrigin, missile->r.currentOrigin, bounce_dir );
@@ -89,12 +101,11 @@ void G_ReflectMissile( gentity_t *ent, gentity_t *missile, vec3_t forward )
 }
 int NaturalBoltReflectRate[NUM_FORCE_POWER_LEVELS];//[Morerandom]
 
-void G_DeflectMissile( gentity_t *ent, gentity_t *missile, vec3_t forward ) 
+void G_DeflectMissile( gentity_t *ent, gentity_t *missile, vec3_t forward )
 {
 	vec3_t	bounce_dir;
 	int		i;
 	float	speed;
-	int		isowner = 0;
 	vec3_t missile_dir;
 	//[MoreRandom]
 //	float   slopFactor=0.0f;
@@ -102,10 +113,6 @@ void G_DeflectMissile( gentity_t *ent, gentity_t *missile, vec3_t forward )
 //	float distance =0;
 //	gentity_t *prevOwner = &g_entities[missile->r.ownerNum];
 	//[/MoreRandom]
-	if (missile->r.ownerNum == ent->s.number)
-	{ //the original owner is bouncing the missile, so don't try to bounce it back at him
-		isowner = 1;
-	}
 
 	//save the original speed
 	speed = VectorNormalize( missile->s.pos.trDelta );
@@ -163,7 +170,7 @@ void G_BounceMissile( gentity_t *ent, trace_t *trace ) {
 	VectorMA( velocity, -2*dot, trace->plane.normal, ent->s.pos.trDelta );
 
 
-	if ( ent->flags & FL_BOUNCE_SHRAPNEL ) 
+	if ( ent->flags & FL_BOUNCE_SHRAPNEL )
 	{
 		VectorScale( ent->s.pos.trDelta, 0.25f, ent->s.pos.trDelta );
 		ent->s.pos.trType = TR_GRAVITY;
@@ -176,11 +183,11 @@ void G_BounceMissile( gentity_t *ent, trace_t *trace ) {
 			return;
 		}
 	}
-	else if ( ent->flags & FL_BOUNCE_HALF ) 
+	else if ( ent->flags & FL_BOUNCE_HALF )
 	{
-		VectorScale( ent->s.pos.trDelta, 0.65, ent->s.pos.trDelta );
+		VectorScale( ent->s.pos.trDelta, 0.65f, ent->s.pos.trDelta );
 		// check for stop
-		if ( trace->plane.normal[2] > 0.2 && VectorLength( ent->s.pos.trDelta ) < 40 ) 
+		if ( trace->plane.normal[2] > 0.2 && VectorLength( ent->s.pos.trDelta ) < 40 )
 		{
 			G_SetOrigin( ent, trace->endpos );
 			return;
@@ -238,15 +245,8 @@ void G_ExplodeMissile( gentity_t *ent ) {
 	ent->takedamage = qfalse;
 	// splash damage
 	if ( ent->splashDamage ) {
-		//NOTE: vehicle missiles don't have an ent->parent set, so check that here and set it
-		if ( ent->s.eType == ET_MISSILE//missile
-			&& (ent->s.eFlags&EF_JETPACK_ACTIVE)//vehicle missile
-			&& ent->r.ownerNum < MAX_CLIENTS )//valid client owner
-		{//set my parent to my owner for purposes of damage credit...
-			ent->parent = &g_entities[ent->r.ownerNum];
-		}
-		if( G_RadiusDamage( ent->r.currentOrigin, ent->parent, ent->splashDamage, ent->splashRadius, ent, 
-				ent, ent->splashMethodOfDeath ) ) 
+		if( G_RadiusDamage( ent->r.currentOrigin, ent->parent, ent->splashDamage, ent->splashRadius, ent,
+				ent, ent->splashMethodOfDeath ) )
 		{
 			if (ent->parent)
 			{
@@ -259,7 +259,7 @@ void G_ExplodeMissile( gentity_t *ent ) {
 		}
 	}
 
-	trap_LinkEntity( ent );
+	trap->LinkEntity( (sharedEntity_t *)ent );
 }
 
 void G_RunStuckMissile( gentity_t *ent )
@@ -270,7 +270,7 @@ void G_RunStuckMissile( gentity_t *ent )
 		{
 			gentity_t *other = &g_entities[ent->s.groundEntityNum];
 
-			if ( (!VectorCompare( vec3_origin, other->s.pos.trDelta ) && other->s.pos.trType != TR_STATIONARY) || 
+			if ( (!VectorCompare( vec3_origin, other->s.pos.trDelta ) && other->s.pos.trType != TR_STATIONARY) ||
 				(!VectorCompare( vec3_origin, other->s.apos.trDelta ) && other->s.apos.trType != TR_STATIONARY) )
 			{//thing I stuck to is moving or rotating now, kill me
 				G_Damage( ent, other, other, NULL, NULL, 99999, 0, MOD_CRUSH );
@@ -301,14 +301,14 @@ void G_BounceProjectile( vec3_t start, vec3_t impact, vec3_t dir, vec3_t endout 
 
 
 //-----------------------------------------------------------------------------
-gentity_t *CreateMissile( vec3_t org, vec3_t dir, float vel, int life, 
+gentity_t *CreateMissile( vec3_t org, vec3_t dir, float vel, int life,
 							gentity_t *owner, qboolean altFire)
 //-----------------------------------------------------------------------------
 {
 	gentity_t	*missile;
 
 	missile = G_Spawn();
-	
+
 	missile->nextthink = level.time + life;
 	missile->think = G_FreeEntity;
 	missile->s.eType = ET_MISSILE;
@@ -365,12 +365,14 @@ G_MissileImpact
 ================
 */
 void WP_SaberBlockNonRandom( gentity_t *self, vec3_t hitloc, qboolean missileBlock );
+void WP_flechette_alt_blow( gentity_t *ent );
 //[BoltBlockSys]
 void OJP_HandleBoltBlock(gentity_t *bolt, gentity_t *player, trace_t *trace);
 extern int OJP_SaberCanBlock(gentity_t *self, gentity_t *atk, qboolean checkBBoxBlock, vec3_t point, int rSaberNum, int rBladeNum);
-extern qboolean GAME_INLINE WalkCheck( gentity_t * self );
+extern qboolean WalkCheck( gentity_t * self );
 //[/BoltBlockSys]
 //[DodgeSys]
+extern float VectorDistance(vec3_t v1, vec3_t v2);
 extern qboolean G_DoDodge( gentity_t *self, gentity_t *shooter, vec3_t dmgOrigin, int hitLoc, int * dmg, int mod );
 //G_MissileImpact now returns qfalse if and only if the player physically dodged the damage.
 //this allows G_RunMissile to properly handle he 
@@ -411,7 +413,7 @@ qboolean G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 
 		isKnockedSaber = qtrue;
 	}
-	
+
 	// I would glom onto the FL_BOUNCE code section above, but don't feel like risking breaking something else
 	if (/* (!other->takedamage && (ent->bounceCount > 0 || ent->bounceCount == -5) && ( ent->flags&(FL_BOUNCE_SHRAPNEL) ) ) ||*/ ((trace->surfaceFlags&SURF_FORCEFIELD)&&!ent->splashDamage&&!ent->splashRadius&&(ent->bounceCount > 0 || ent->bounceCount == -5)) ) 
 	{
@@ -430,11 +432,11 @@ qboolean G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 	if ( !other->takedamage && ent->s.weapon == WP_THERMAL && !ent->alt_fire )
 	{//rolling thermal det - FIXME: make this an eFlag like bounce & stick!!!
 		//G_BounceRollMissile( ent, trace );
-		if ( ent->owner && ent->owner->s.number == 0 ) 
+		if ( ent->owner && ent->owner->s.number == 0 )
 		{
 			G_MissileAddAlerts( ent );
 		}
-		//gi.linkentity( ent );
+		//trap->linkentity( ent );
 		return;
 	}
 	*/
@@ -473,9 +475,7 @@ qboolean G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 			ent->methodOfDeath != MOD_CONC &&
 			ent->methodOfDeath != MOD_CONC_ALT &&
 			ent->methodOfDeath != MOD_SABER &&
-			ent->methodOfDeath != MOD_TURBLAST &&
-			ent->methodOfDeath != MOD_TARGET_LASER)// &&
-			//ent->methodOfDeath != MOD_COLLISION)
+			ent->methodOfDeath != MOD_TURBLAST)
 		{
 			vec3_t fwd;
 
@@ -765,7 +765,17 @@ qboolean G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 			{
 				if (ent->s.weapon == WP_FLECHETTE && (ent->s.eFlags & EF_ALT_FIRING))
 				{
-					ent->think(ent);
+					/* fix: there are rare situations where flechette did
+					explode by timeout AND by impact in the very same frame, then here
+					ent->think was set to G_FreeEntity, so the folowing think
+					did invalidate this entity, BUT it would be reused later in this
+					function for explosion event. This, then, would set ent->freeAfterEvent
+					to qtrue, so event later, when reusing this entity by using G_InitEntity(),
+					it would have this freeAfterEvent set AND this would in case of dropped
+					item erase it from game immeadiately. THIS for example caused
+					very rare flag dissappearing bug.	 */
+					if (ent->think == WP_flechette_alt_blow)
+						ent->think(ent);
 				}
 				else
 				{
@@ -906,9 +916,9 @@ killProj:
 	ent->takedamage = qfalse;
 	// splash damage (doesn't apply to person directly hit)
 	if ( ent->splashDamage ) {
-		if( G_RadiusDamage( trace->endpos, ent->parent, ent->splashDamage, ent->splashRadius, 
+		if( G_RadiusDamage( trace->endpos, ent->parent, ent->splashDamage, ent->splashRadius,
 			other, ent, ent->splashMethodOfDeath ) ) {
-			if( !hitClient 
+			if( !hitClient
 				&& g_entities[ent->r.ownerNum].client ) {
 				g_entities[ent->r.ownerNum].client->accuracy_hits++;
 			}
@@ -920,7 +930,7 @@ killProj:
 		ent->freeAfterEvent = qfalse; //it will free itself
 	}
 
-	trap_LinkEntity( ent );
+	trap->LinkEntity( (sharedEntity_t *)ent );
 
 	//[DodgeSys]
 	return qtrue;
@@ -963,7 +973,7 @@ void G_RunMissile( gentity_t *ent ) {
 	}
 	else {
 		// ignore interactions with the missile owner
-		if ( (ent->r.svFlags&SVF_OWNERNOTSHARED) 
+		if ( (ent->r.svFlags&SVF_OWNERNOTSHARED)
 			&& (ent->s.eFlags&EF_JETPACK_ACTIVE) )
 		{//A vehicle missile that should be solid to its owner
 			//I don't care about hitting my owner
@@ -981,7 +991,7 @@ void G_RunMissile( gentity_t *ent ) {
 	/*
 	if (d_projectileGhoul2Collision.integer)
 	{
-		trap_G2Trace( &tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, origin, passent, ent->clipmask, G2TRFLAG_DOGHOULTRACE|G2TRFLAG_GETSURFINDEX|G2TRFLAG_THICK|G2TRFLAG_HITCORPSES, g_g2TraceLod.integer );
+		trap->Trace( &tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, origin, passent, ent->clipmask, qfalse, G2TRFLAG_DOGHOULTRACE|G2TRFLAG_GETSURFINDEX|G2TRFLAG_THICK|G2TRFLAG_HITCORPSES, g_g2TraceLod.integer );
 
 		if (tr.fraction != 1.0 && tr.entityNum < ENTITYNUM_WORLD)
 		{
@@ -1001,7 +1011,7 @@ void G_RunMissile( gentity_t *ent ) {
 	}
 	else
 	{
-		trap_Trace( &tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, origin, passent, ent->clipmask );
+		trap->Trace( &tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, origin, passent, ent->clipmask, qfalse, 0, 0 );
 	}
 	*/
 	//[/RealTrace]
@@ -1016,11 +1026,11 @@ void G_RunMissile( gentity_t *ent ) {
 	if (ent->passThroughNum && tr.entityNum == (ent->passThroughNum-1))
 	{
 		VectorCopy( origin, ent->r.currentOrigin );
-		trap_LinkEntity( ent );
+		trap->LinkEntity( (sharedEntity_t *)ent );
 		goto passthrough;
 	}
 
-	trap_LinkEntity( ent );
+	trap->LinkEntity( (sharedEntity_t *)ent );
 
 	if (ent->s.weapon == G2_MODEL_PART && !ent->bounceCount)
 	{
@@ -1029,7 +1039,7 @@ void G_RunMissile( gentity_t *ent ) {
 
 		VectorCopy(ent->r.currentOrigin, lowerOrg);
 		lowerOrg[2] -= 1;
-		trap_Trace( &trG, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, lowerOrg, passent, ent->clipmask );
+		trap->Trace( &trG, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, lowerOrg, passent, ent->clipmask, qfalse, 0, 0 );
 
 		VectorCopy(trG.endpos, groundSpot);
 
@@ -1118,7 +1128,7 @@ void G_RunMissile( gentity_t *ent ) {
 		if(!G_MissileImpact( ent, &tr ))
 		{//target dodged the damage.
 			VectorCopy( origin, ent->r.currentOrigin );  
-			trap_LinkEntity( ent );
+			trap->LinkEntity( (sharedEntity_t *)ent );
 			return;
 		}
 		//[/DodgeSys]

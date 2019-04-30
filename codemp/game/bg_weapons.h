@@ -1,9 +1,31 @@
+/*
+===========================================================================
+Copyright (C) 1999 - 2005, Id Software, Inc.
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2015, OpenJK contributors
+
+This file is part of the OpenJK source code.
+
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
+*/
+
+#pragma once
+
 // Filename:-	bg_weapons.h
 //
 // This crosses both client and server.  It could all be crammed into bg_public, but isolation of this type of data is best.
-
-#ifndef __WEAPONS_H__
-#define __WEAPONS_H__
 
 typedef enum {
 	WP_NONE,
@@ -31,13 +53,12 @@ typedef enum {
 //	WP_MACHINEGUN,			// Bryar
 //	WP_SHOTGUN,				// Blaster
 //	WP_GRENADE_LAUNCHER,	// Thermal
-//	WP_LIGHTNING,			// 
-//	WP_RAILGUN,				// 
+//	WP_LIGHTNING,			//
+//	WP_RAILGUN,				//
 //	WP_GRAPPLING_HOOK,
 
 	WP_NUM_WEAPONS
-};
-typedef int weapon_t;
+} weapon_t;
 
 #define WP_BOT_LASER WP_NUM_WEAPONS+1 // 20
 #define WP_RAPID_FIRE_CONC WP_BOT_LASER+1 // 21
@@ -88,7 +109,7 @@ typedef struct weaponData_s
 	int		energyPerShot;		// Amount of energy used per shot
 	int		fireTime;			// Amount of time between firings
 	int		range;				// Range of weapon
-	
+
 	int		altEnergyPerShot;	// Amount of energy used for alt-fire
 	int		altFireTime;		// Amount of time between alt-firings
 	int		altRange;			// Range of alt-fire
@@ -134,5 +155,3 @@ extern ammoData_t ammoPool[4][WP_NUM_WEAPONS];
 #define LAST_USABLE_SLOT	7
 
 extern int weaponSlots[MAX_WEAP_SLOTS][MAX_WEAPONS_IN_SLOT];
-
-#endif//#ifndef __WEAPONS_H__

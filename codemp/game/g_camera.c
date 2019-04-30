@@ -1,4 +1,4 @@
-#include "q_shared.h"
+#include "qcommon/q_shared.h"
 #include "g_camera.h"
 #include "g_local.h"
 
@@ -278,7 +278,7 @@ void GCam_FollowUpdate ( void )
 			|| from->s.number < MAX_CLIENTS)
 			&& client_camera.cameraGroupTag && client_camera.cameraGroupTag[0] )
 		{
-			int newBolt = trap_G2API_AddBolt( &from->ghoul2, 0, client_camera.cameraGroupTag );
+			int newBolt = trap->G2API_AddBolt( &from->ghoul2, 0, client_camera.cameraGroupTag );
 			if ( newBolt != -1 )
 			{
 				mdxaBone_t	boltMatrix;
@@ -286,7 +286,7 @@ void GCam_FollowUpdate ( void )
 
 				VectorSet(angle, 0, from->client->ps.viewangles[YAW], 0);
 
-				trap_G2API_GetBoltMatrix( &from->ghoul2, 0, newBolt, &boltMatrix, angle, from->client->ps.origin, level.time, NULL, from->modelScale );
+				trap->G2API_GetBoltMatrix( &from->ghoul2, 0, newBolt, &boltMatrix, angle, from->client->ps.origin, level.time, NULL, from->modelScale );
 				BG_GiveMeVectorFromMatrix( &boltMatrix, ORIGIN, focus[num_subjects] );
 
 				focused = qtrue;
@@ -330,7 +330,7 @@ void GCam_FollowUpdate ( void )
 	if ( !num_subjects )	// Bad cameragroup 
 	{
 #ifndef FINAL_BUILD
-		G_Printf(S_COLOR_RED"ERROR: Camera Focus unable to locate cameragroup: %s\n", client_camera.cameraGroup);
+		Com_Printf(S_COLOR_RED"ERROR: Camera Focus unable to locate cameragroup: %s\n", client_camera.cameraGroup);
 #endif
 		return;
 	}
@@ -912,7 +912,7 @@ void DisablePlayerCameraPos(void)
 		VectorCopy(playerCamPos[i].origin, player->client->ps.origin);
 	
 
-		trap_LinkEntity(player);
+		trap->LinkEntity((sharedEntity_t *)player);
 
 	}
 }

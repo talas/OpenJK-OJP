@@ -1,3 +1,27 @@
+/*
+===========================================================================
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2015, OpenJK contributors
+
+This file is part of the OpenJK source code.
+
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
+*/
+
+#pragma once
+
 #define ARMOR_EFFECT_TIME	500
 
 //saberEventFlags
@@ -33,14 +57,14 @@
 #define FORCE_LIGHTNING_RADIUS 300
 #define MAX_DRAIN_DISTANCE 512
 
-typedef enum
+typedef enum forceJump_e
 {
 	FJ_FORWARD,
 	FJ_BACKWARD,
 	FJ_RIGHT,
 	FJ_LEFT,
 	FJ_UP
-};
+} forceJump_t;
 
 typedef enum
 {
@@ -57,8 +81,6 @@ typedef enum
 	NUM_EVASION_TYPES
 } evasionType_t;
 
-extern vmCvar_t g_MaxHolocronCarry;
-
 #define SABERMINS_X -3.0f//-24.0f
 #define SABERMINS_Y -3.0f//-24.0f
 #define SABERMINS_Z -3.0f//-8.0f
@@ -67,9 +89,7 @@ extern vmCvar_t g_MaxHolocronCarry;
 #define SABERMAXS_Z 3.0f//8.0f
 #define	SABER_MIN_THROW_DIST	80.0f
 
-#include "../namespace_begin.h"
 extern int forcePowerNeeded[NUM_FORCE_POWER_LEVELS][NUM_FORCE_POWERS];
 extern float forceJumpHeight[NUM_FORCE_POWER_LEVELS];
 extern float forceJumpStrength[NUM_FORCE_POWER_LEVELS];
 extern float forcePushPullRadius[NUM_FORCE_POWER_LEVELS];
-#include "../namespace_end.h"

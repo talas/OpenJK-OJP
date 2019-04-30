@@ -1,3 +1,25 @@
+/*
+===========================================================================
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2015, OpenJK contributors
+
+This file is part of the OpenJK source code.
+
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
+*/
+
 #include "b_local.h"
 
 // These define the working combat range for these suckers
@@ -66,27 +88,27 @@ void Howler_ClearTimers( gentity_t *self )
 //added from SP
 static qboolean NPC_Howler_Move( int randomJumpChance )
 {
-	if ( !TIMER_Done( NPC, "standing" ) )
+	if ( !TIMER_Done( NPCS.NPC, "standing" ) )
 	{//standing around
 		return qfalse;
 	}
-	if ( NPC->client->ps.groundEntityNum == ENTITYNUM_NONE )
+	if ( NPCS.NPC->client->ps.groundEntityNum == ENTITYNUM_NONE )
 	{//in air, don't do anything
 		return qfalse;
 	}
-	if ( (!NPC->enemy&&TIMER_Done( NPC, "running" )) || !TIMER_Done( NPC, "walking" ) )
+	if ( (!NPCS.NPC->enemy&&TIMER_Done( NPCS.NPC, "running" )) || !TIMER_Done( NPCS.NPC, "walking" ) )
 	{
-		ucmd.buttons |= BUTTON_WALKING;
+		NPCS.ucmd.buttons |= BUTTON_WALKING;
 	}
 	if ( (!randomJumpChance||Q_irand( 0, randomJumpChance ))
 		&& NPC_MoveToGoal( qtrue ) )
 	{
-		if ( VectorCompare( NPC->client->ps.moveDir, vec3_origin )
-			|| !NPC->client->ps.speed )
+		if ( VectorCompare( NPCS.NPC->client->ps.moveDir, vec3_origin )
+			|| !NPCS.NPC->client->ps.speed )
 		{//uh.... wtf?  Got there?
-			if ( NPCInfo->goalEntity )
+			if ( NPCS.NPCInfo->goalEntity )
 			{
-				NPC_FaceEntity( NPCInfo->goalEntity, qfalse );
+				NPC_FaceEntity( NPCS.NPCInfo->goalEntity, qfalse );
 			}
 			else
 			{
@@ -95,36 +117,36 @@ static qboolean NPC_Howler_Move( int randomJumpChance )
 			return qtrue;
 		}
 		//TEMP: don't want to strafe
-		VectorClear( NPC->client->ps.moveDir );
-		ucmd.rightmove = 0.0f;
-//		Com_Printf( "Howler moving %d\n",ucmd.forwardmove );
+		VectorClear( NPCS.NPC->client->ps.moveDir );
+		NPCS.ucmd.rightmove = 0.0f;
+//		Com_Printf( "Howler moving %d\n",NPCS.ucmd.forwardmove );
 		//if backing up, go slow...
-		if ( ucmd.forwardmove < 0.0f )
+		if ( NPCS.ucmd.forwardmove < 0.0f )
 		{
-			ucmd.buttons |= BUTTON_WALKING;
-			//if ( NPC->client->ps.speed > NPCInfo->stats.walkSpeed )
+			NPCS.ucmd.buttons |= BUTTON_WALKING;
+			//if ( NPCS.NPC->client->ps.speed > NPCS.NPCInfo->stats.walkSpeed )
 			{//don't walk faster than I'm allowed to
-				NPC->client->ps.speed = NPCInfo->stats.walkSpeed;
+				NPCS.NPC->client->ps.speed = NPCS.NPCInfo->stats.walkSpeed;
 			}
 		}
 		else
 		{
-			if ( (ucmd.buttons&BUTTON_WALKING) )
+			if ( (NPCS.ucmd.buttons&BUTTON_WALKING) )
 			{
-				NPC->client->ps.speed = NPCInfo->stats.walkSpeed;
+				NPCS.NPC->client->ps.speed = NPCS.NPCInfo->stats.walkSpeed;
 			}
 			else
 			{
-				NPC->client->ps.speed = NPCInfo->stats.runSpeed;
+				NPCS.NPC->client->ps.speed = NPCS.NPCInfo->stats.runSpeed;
 			}
 		}
-		NPCInfo->lockedDesiredYaw = NPCInfo->desiredYaw = NPCInfo->lastPathAngles[YAW];
+		NPCS.NPCInfo->lockedDesiredYaw = NPCS.NPCInfo->desiredYaw = NPCS.NPCInfo->lastPathAngles[YAW];
 		NPC_UpdateAngles( qfalse, qtrue );
 	}
-	else if ( NPCInfo->goalEntity )
+	else if ( NPCS.NPCInfo->goalEntity )
 	{//couldn't get where we wanted to go, try to jump there
-		NPC_FaceEntity( NPCInfo->goalEntity, qfalse );
-		NPC_TryJump_Gent( NPCInfo->goalEntity, 400.0f, -256.0f );
+		NPC_FaceEntity( NPCS.NPCInfo->goalEntity, qfalse );
+		NPC_TryJump_Gent( NPCS.NPCInfo->goalEntity, 400.0f, -256.0f );
 	}
 	return qtrue;
 }
@@ -136,8 +158,7 @@ static qboolean NPC_Howler_Move( int randomJumpChance )
 Howler_Idle
 -------------------------
 */
-void Howler_Idle( void )
-{
+void Howler_Idle( void ) {
 }
 
 
@@ -150,9 +171,9 @@ Howler_Patrol
 //Replaced with SP version
 static void Howler_Patrol( void )
 {
-	gentity_t *ClosestPlayer = FindClosestPlayer(NPC->r.currentOrigin, NPC->client->enemyTeam);
+	gentity_t *ClosestPlayer = FindClosestPlayer(NPCS.NPC->r.currentOrigin, NPCS.NPC->client->enemyTeam);
 
-	NPCInfo->localState = LSTATE_CLEAR;
+	NPCS.NPCInfo->localState = LSTATE_CLEAR;
 
 	//If we have somewhere to go, then do that
 	if ( UpdateGoal() )
@@ -162,9 +183,9 @@ static void Howler_Patrol( void )
 
 	if(ClosestPlayer)
 	{//attack enemy players that are close.
-		if(Distance(ClosestPlayer->r.currentOrigin, NPC->r.currentOrigin) < 256 * 256)
+		if(Distance(ClosestPlayer->r.currentOrigin, NPCS.NPC->r.currentOrigin) < 256 * 256)
 		{
-			G_SetEnemy( NPC, ClosestPlayer );
+			G_SetEnemy( NPCS.NPC, ClosestPlayer );
 		}
 	}
 
@@ -185,10 +206,10 @@ Howler_Move
 //replaced with SP version
 static qboolean Howler_Move( qboolean visible )
 {
-	if ( NPCInfo->localState != LSTATE_WAITING )
+	if ( NPCS.NPCInfo->localState != LSTATE_WAITING )
 	{
-		NPCInfo->goalEntity = NPC->enemy;
-		NPCInfo->goalRadius = MAX_DISTANCE;	// just get us within combat range
+		NPCS.NPCInfo->goalEntity = NPCS.NPC->enemy;
+		NPCS.NPCInfo->goalRadius = MAX_DISTANCE;	// just get us within combat range
 		return NPC_Howler_Move( 30 );
 	}
 	return qfalse;
@@ -209,16 +230,16 @@ static void Howler_TryDamage( int damage, qboolean tongue, qboolean knockdown )
 
 	if ( tongue )
 	{
-		G_GetBoltPosition( NPC, NPC->NPC->genericBolt1, start, 0 );
-		G_GetBoltPosition( NPC, NPC->NPC->genericBolt2, end, 0 );
+		G_GetBoltPosition( NPCS.NPC, NPCS.NPC->NPC->genericBolt1, start, 0 );
+		G_GetBoltPosition( NPCS.NPC, NPCS.NPC->NPC->genericBolt2, end, 0 );
 		VectorSubtract( end, start, dir );
 		dist = VectorNormalize( dir );
 		VectorMA( start, dist+16, dir, end );
 	}
 	else
 	{
-		VectorCopy( NPC->r.currentOrigin, start );
-		AngleVectors( NPC->r.currentAngles, dir, NULL, NULL );
+		VectorCopy( NPCS.NPC->r.currentOrigin, start );
+		AngleVectors( NPCS.NPC->r.currentAngles, dir, NULL, NULL );
 		VectorMA( start, MIN_DISTANCE*2, dir, end );
 	}
 /* RACC - don't need this for now.
@@ -230,7 +251,7 @@ static void Howler_TryDamage( int damage, qboolean tongue, qboolean knockdown )
 #endif
 */
 	// Should probably trace from the mouth, but, ah well.
-	trap_Trace( &tr, start, vec3_origin, vec3_origin, end, NPC->s.number, MASK_SHOT );
+	trap->Trace( &tr, start, vec3_origin, vec3_origin, end, NPCS.NPC->s.number, MASK_SHOT, qfalse, 0, 0 );
 
 	if ( tr.entityNum < ENTITYNUM_WORLD )
 	{//hit *something*
@@ -248,11 +269,11 @@ static void Howler_TryDamage( int damage, qboolean tongue, qboolean knockdown )
 			}
 
 			//FIXME: some sort of damage effect (claws and tongue are cutting you... blood?)
-			G_Damage( victim, NPC, NPC, dir, tr.endpos, damage, DAMAGE_NO_KNOCKBACK, MOD_MELEE );
+			G_Damage( victim, NPCS.NPC, NPCS.NPC, dir, tr.endpos, damage, DAMAGE_NO_KNOCKBACK, MOD_MELEE );
 			if ( knockdown && victim->health > 0 )
 			{//victim still alive
 				//[KnockdownSys]
-				G_Knockdown( victim, NPC, NPC->client->ps.velocity, 500, qfalse );
+				G_Knockdown( victim, NPCS.NPC, NPCS.NPC->client->ps.velocity, 500, qfalse );
 				//G_Knockdown(victim);
 				//[/KnockdownSys]
 			}
@@ -271,18 +292,18 @@ static void Howler_Howl( void )
 	int			radiusEntsNums[128];
 	gentity_t	*ent;
 	int			numEnts;
-	const float	radius = (NPC->spawnflags&1)?256:128;
+	const float	radius = (NPCS.NPC->spawnflags&1)?256:128;
 	const float	halfRadSquared = ((radius/2)*(radius/2));
 	const float	radiusSquared = (radius*radius);
 	float		distSq;
 	int			i;
 	vec3_t		boltOrg;
 
-	AddSoundEvent( NPC, NPC->r.currentOrigin, 512, AEL_DANGER, qfalse, qtrue );
+	AddSoundEvent( NPCS.NPC, NPCS.NPC->r.currentOrigin, 512, AEL_DANGER, qfalse, qtrue );
 
 	//RACC - handLBolt never defined for Howlers? *shrug* just use the tongue base
-	numEnts = NPC_GetEntsNearBolt( radiusEntsNums, radius, NPC->NPC->genericBolt1, boltOrg );
-	//numEnts = NPC_GetEntsNearBolt( radiusEnts, radius, NPC->handLBolt, boltOrg );
+	numEnts = NPC_GetEntsNearBolt( radiusEntsNums, radius, NPCS.NPC->NPC->genericBolt1, boltOrg );
+	//numEnts = NPC_GetEntsNearBolt( radiusEnts, radius, NPCS.NPC->handLBolt, boltOrg );
 
 	for ( i = 0; i < numEnts; i++ )
 	{
@@ -293,7 +314,7 @@ static void Howler_Howl( void )
 			continue;
 		}
 		
-		if ( ent == NPC )
+		if ( ent == NPCS.NPC )
 		{//Skip the rancor ent
 			//RACC - assume this means the source howler
 			continue;
@@ -314,10 +335,10 @@ static void Howler_Howl( void )
 		{
 			if ( distSq < halfRadSquared )
 			{//close enough to do damage, too
-				if ( Q_irand( 0, g_spskill.integer ) )
+				if ( Q_irand( 0, g_npcspskill.integer ) )
 				{//does no damage on easy, does 1 point every other frame on medium, more often on hard
 					//RACC - Impact isn't a MOD in MP.
-					G_Damage( ent, NPC, NPC, vec3_origin, NPC->r.currentOrigin, 1, DAMAGE_NO_KNOCKBACK, MOD_CRUSH );
+					G_Damage( ent, NPCS.NPC, NPCS.NPC, vec3_origin, NPCS.NPC->r.currentOrigin, 1, DAMAGE_NO_KNOCKBACK, MOD_CRUSH );
 					//G_Damage( ent, NPC, NPC, vec3_origin, NPC->r.currentOrigin, 1, DAMAGE_NO_KNOCKBACK, MOD_IMPACT );
 				}
 			}
@@ -350,7 +371,7 @@ static void Howler_Howl( void )
 					&& radiusEnts[i]->client->ps.groundEntityNum != ENTITYNUM_NONE 
 					&& !Q_irand( 0, 10 ) )//FIXME: base on skill
 				{//within range
-					G_Knockdown( radiusEnts[i], NPC, vec3_origin, 500, qfalse );
+					G_Knockdown( radiusEnts[i], NPCS.NPC, vec3_origin, 500, qfalse );
 				}
 				*/
 			}
@@ -366,7 +387,7 @@ static void Howler_Howl( void )
 
 	//RACC - changed to work for multiple players
 	/*
-	playerDist = NPC_EntRangeFromBolt( player, NPC->genericBolt1 );
+	playerDist = NPC_EntRangeFromBolt( player, NPCS.NPC->genericBolt1 );
 	if ( playerDist < 256.0f )
 	{
 		CGCam_Shake( 1.0f*playerDist/128.0f, 200 );
@@ -379,34 +400,34 @@ static void Howler_Howl( void )
 void G_SoundOnEnt( gentity_t *ent, int channel, const char *soundPath );
 static void Howler_Attack( float enemyDist, qboolean howl )
 {
-	int dmg = (NPCInfo->localState==LSTATE_BERZERK)?5:2;
+	int dmg = (NPCS.NPCInfo->localState==LSTATE_BERZERK)?5:2;
 
 	vec3_t boltOrg;
 	vec3_t fwd;
 
-	if ( !TIMER_Exists( NPC, "attacking" ))
+	if ( !TIMER_Exists( NPCS.NPC, "attacking" ))
 	{
 		int attackAnim = BOTH_GESTURE1;
 		// Going to do an attack
-		if ( NPC->enemy && NPC->enemy->client && PM_InKnockDown( &NPC->enemy->client->ps )
+		if ( NPCS.NPC->enemy && NPCS.NPC->enemy->client && PM_InKnockDown( &NPCS.NPC->enemy->client->ps )
 			&& enemyDist <= MIN_DISTANCE )
 		{
 			attackAnim = BOTH_ATTACK2;
 		}
 		else if ( !Q_irand( 0, 4 ) || howl )
 		{//howl attack
-			//G_SoundOnEnt( NPC, CHAN_VOICE, "sound/chars/howler/howl.mp3" );
+			//G_SoundOnEnt( NPCS.NPC, CHAN_VOICE, "sound/chars/howler/howl.mp3" );
 		}
 		else if ( enemyDist > MIN_DISTANCE && Q_irand( 0, 1 ) )
 		{//lunge attack
 			//jump foward
 			vec3_t	fwd, yawAng;
 			
-			VectorSet( yawAng, 0, NPC->client->ps.viewangles[YAW], 0 );
+			VectorSet( yawAng, 0, NPCS.NPC->client->ps.viewangles[YAW], 0 );
 			AngleVectors( yawAng, fwd, NULL, NULL );
-			VectorScale( fwd, (enemyDist*3.0f), NPC->client->ps.velocity );
-			NPC->client->ps.velocity[2] = 200;
-			NPC->client->ps.groundEntityNum = ENTITYNUM_NONE;
+			VectorScale( fwd, (enemyDist*3.0f), NPCS.NPC->client->ps.velocity );
+			NPCS.NPC->client->ps.velocity[2] = 200;
+			NPCS.NPC->client->ps.groundEntityNum = ENTITYNUM_NONE;
 			
 			attackAnim = BOTH_ATTACK1;
 		}
@@ -415,68 +436,68 @@ static void Howler_Attack( float enemyDist, qboolean howl )
 			attackAnim = BOTH_ATTACK2;
 		}
 
-		NPC_SetAnim( NPC, SETANIM_BOTH, attackAnim, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_RESTART );
-		if ( NPCInfo->localState == LSTATE_BERZERK )
+		NPC_SetAnim( NPCS.NPC, SETANIM_BOTH, attackAnim, SETANIM_FLAG_OVERRIDE | SETANIM_FLAG_HOLD | SETANIM_FLAG_RESTART );
+		if ( NPCS.NPCInfo->localState == LSTATE_BERZERK )
 		{//attack again right away
-			TIMER_Set( NPC, "attacking", NPC->client->ps.legsTimer );
+			TIMER_Set( NPCS.NPC, "attacking", NPCS.NPC->client->ps.legsTimer );
 		}
 		else
 		{
-			TIMER_Set( NPC, "attacking", NPC->client->ps.legsTimer + Q_irand( 0, 1500 ) );//FIXME: base on skill
-			TIMER_Set( NPC, "standing", -level.time );
-			TIMER_Set( NPC, "walking", -level.time );
-			TIMER_Set( NPC, "running", NPC->client->ps.legsTimer + 5000 );
+			TIMER_Set( NPCS.NPC, "attacking", NPCS.NPC->client->ps.legsTimer + Q_irand( 0, 1500 ) );//FIXME: base on skill
+			TIMER_Set( NPCS.NPC, "standing", -level.time );
+			TIMER_Set( NPCS.NPC, "walking", -level.time );
+			TIMER_Set( NPCS.NPC, "running", NPCS.NPC->client->ps.legsTimer + 5000 );
 		}
 
-		TIMER_Set( NPC, "attack_dmg", 200 ); // level two damage
+		TIMER_Set( NPCS.NPC, "attack_dmg", 200 ); // level two damage
 	}
 
 	// Need to do delayed damage since the attack animations encapsulate multiple mini-attacks
-	switch ( NPC->client->ps.legsAnim )
+	switch ( NPCS.NPC->client->ps.legsAnim )
 	{
 	case BOTH_ATTACK1:
 	case BOTH_MELEE1:
-		if ( NPC->client->ps.legsTimer > 650//more than 13 frames left
-			&& BG_AnimLength( NPC->localAnimIndex, (animNumber_t)NPC->client->ps.legsAnim ) - NPC->client->ps.legsTimer >= 800 )//at least 16 frames into anim
+		if ( NPCS.NPC->client->ps.legsTimer > 650//more than 13 frames left
+			&& BG_AnimLength( NPCS.NPC->localAnimIndex, (animNumber_t)NPCS.NPC->client->ps.legsAnim ) - NPCS.NPC->client->ps.legsTimer >= 800 )//at least 16 frames into anim
 		{
 			Howler_TryDamage( dmg, qfalse, qfalse );
 		}
 		break;
 	case BOTH_ATTACK2:
 	case BOTH_MELEE2:
-		if ( NPC->client->ps.legsTimer > 350//more than 7 frames left
-			&& BG_AnimLength( NPC->localAnimIndex, (animNumber_t)NPC->client->ps.legsAnim ) - NPC->client->ps.legsTimer >= 550 )//at least 11 frames into anim
+		if ( NPCS.NPC->client->ps.legsTimer > 350//more than 7 frames left
+			&& BG_AnimLength( NPCS.NPC->localAnimIndex, (animNumber_t)NPCS.NPC->client->ps.legsAnim ) - NPCS.NPC->client->ps.legsTimer >= 550 )//at least 11 frames into anim
 		{
 			Howler_TryDamage( dmg, qtrue, qfalse );
 		}
 		break;
 	case BOTH_GESTURE1:
 		{
-			if ( NPC->client->ps.legsTimer > 1800//more than 36 frames left
-				&& BG_AnimLength( NPC->localAnimIndex, (animNumber_t)NPC->client->ps.legsAnim ) - NPC->client->ps.legsTimer >= 950 )//at least 19 frames into anim
+			if ( NPCS.NPC->client->ps.legsTimer > 1800//more than 36 frames left
+				&& BG_AnimLength( NPCS.NPC->localAnimIndex, (animNumber_t)NPCS.NPC->client->ps.legsAnim ) - NPCS.NPC->client->ps.legsTimer >= 950 )//at least 19 frames into anim
 			{
 				Howler_Howl();
-				if ( !NPC->count )
+				if ( !NPCS.NPC->count )
 				{
 					//RAFIXME - this probably won't work correctly.
-					G_GetBoltPosition(NPC, NPC->NPC->genericBolt1, boltOrg, 0);
-					AngleVectors( NPC->client->ps.viewangles, fwd, NULL, NULL );
+					G_GetBoltPosition(NPCS.NPC, NPCS.NPC->NPC->genericBolt1, boltOrg, 0);
+					AngleVectors( NPCS.NPC->client->ps.viewangles, fwd, NULL, NULL );
 					G_PlayEffectID( G_EffectIndex( "howler/sonic" ), boltOrg, fwd);
-					//G_PlayEffect( G_EffectIndex( "howler/sonic" ), NPC->ghoul2, NPC->NPC->genericBolt1, NPC->s.number, NPC->currentOrigin, 4750, qtrue );
-					G_SoundOnEnt( NPC, CHAN_VOICE, "sound/chars/howler/howl.mp3" );
-					NPC->count = 1;
+					//G_PlayEffect( G_EffectIndex( "howler/sonic" ), NPCS.NPC->ghoul2, NPCS.NPC->NPC->genericBolt1, NPCS.NPC->s.number, NPCS.NPC->currentOrigin, 4750, qtrue );
+					G_SoundOnEnt( NPCS.NPC, CHAN_VOICE, "sound/chars/howler/howl.mp3" );
+					NPCS.NPC->count = 1;
 				}
 			}
 		}
 		break;
 	default:
 		//anims seem to get reset after a load, so just stop attacking and it will restart as needed.
-		TIMER_Remove( NPC, "attacking" );
+		TIMER_Remove( NPCS.NPC, "attacking" );
 		break;
 	}
 
 	// Just using this to remove the attacking flag at the right time
-	TIMER_Done2( NPC, "attacking", qtrue );
+	TIMER_Done2( NPCS.NPC, "attacking", qtrue );
 }
 
 //----------------------------------
@@ -486,10 +507,10 @@ static void Howler_Combat( void )
 	qboolean faced = qfalse;
 	float distance;
 	qboolean advance = qfalse;
-	if ( NPC->client->ps.groundEntityNum == ENTITYNUM_NONE )
+	if ( NPCS.NPC->client->ps.groundEntityNum == ENTITYNUM_NONE )
 	{//not on the ground
-		if ( NPC->client->ps.legsAnim == BOTH_JUMP1
-			|| NPC->client->ps.legsAnim == BOTH_INAIR1 )
+		if ( NPCS.NPC->client->ps.legsAnim == BOTH_JUMP1
+			|| NPCS.NPC->client->ps.legsAnim == BOTH_INAIR1 )
 		{//flying through the air with the greatest of ease, etc
 			Howler_TryDamage( 10, qfalse, qfalse );
 		}
@@ -497,12 +518,12 @@ static void Howler_Combat( void )
 	else
 	{//not in air, see if we should attack or advance
 		// If we cannot see our target or we have somewhere to go, then do that
-		if ( !NPC_ClearLOS4( NPC->enemy ) )//|| UpdateGoal( ))
+		if ( !NPC_ClearLOS4( NPCS.NPC->enemy ) )//|| UpdateGoal( ))
 		{
-			NPCInfo->goalEntity = NPC->enemy;
-			NPCInfo->goalRadius = MAX_DISTANCE;	// just get us within combat range
+			NPCS.NPCInfo->goalEntity = NPCS.NPC->enemy;
+			NPCS.NPCInfo->goalRadius = MAX_DISTANCE;	// just get us within combat range
 
-			if ( NPCInfo->localState == LSTATE_BERZERK )
+			if ( NPCS.NPCInfo->localState == LSTATE_BERZERK )
 			{
 				NPC_Howler_Move( 3 );
 			}
@@ -514,9 +535,9 @@ static void Howler_Combat( void )
 			return;
 		}
 
-		distance = DistanceHorizontal( NPC->r.currentOrigin, NPC->enemy->r.currentOrigin );	
+		distance = DistanceHorizontal( NPCS.NPC->r.currentOrigin, NPCS.NPC->enemy->r.currentOrigin );	
 
-		if ( NPC->enemy && NPC->enemy->client && PM_InKnockDown( &NPC->enemy->client->ps ) )
+		if ( NPCS.NPC->enemy && NPCS.NPC->enemy->client && PM_InKnockDown( &NPCS.NPC->enemy->client->ps ) )
 		{//get really close to knocked down enemies
 			advance = (qboolean)( distance > MIN_DISTANCE ? qtrue : qfalse  );
 		}
@@ -525,13 +546,13 @@ static void Howler_Combat( void )
 			advance = (qboolean)( distance > MAX_DISTANCE ? qtrue : qfalse  );//MIN_DISTANCE
 		}
 
-		if (( advance || NPCInfo->localState == LSTATE_WAITING ) && TIMER_Done( NPC, "attacking" )) // waiting monsters can't attack
+		if (( advance || NPCS.NPCInfo->localState == LSTATE_WAITING ) && TIMER_Done( NPCS.NPC, "attacking" )) // waiting monsters can't attack
 		{
-			if ( TIMER_Done2( NPC, "takingPain", qtrue ))
+			if ( TIMER_Done2( NPCS.NPC, "takingPain", qtrue ))
 			{
-				NPCInfo->localState = LSTATE_CLEAR;
+				NPCS.NPCInfo->localState = LSTATE_CLEAR;
 			}
-			else if ( TIMER_Done( NPC, "standing" ) )
+			else if ( TIMER_Done( NPCS.NPC, "standing" ) )
 			{
 				faced = Howler_Move( 1 );
 			}
@@ -544,9 +565,9 @@ static void Howler_Combat( void )
 
 	if ( !faced )
 	{
-		if ( //TIMER_Done( NPC, "standing" ) //not just standing there
+		if ( //TIMER_Done( NPCS.NPC, "standing" ) //not just standing there
 			//!advance //not moving
-			TIMER_Done( NPC, "attacking" ) )// not attacking
+			TIMER_Done( NPCS.NPC, "attacking" ) )// not attacking
 		{//not standing around
 			// Sometimes I have problems with facing the enemy I'm attacking, so force the issue so I don't look dumb
 			NPC_FaceEnemy( qtrue );
@@ -632,17 +653,17 @@ NPC_BSHowler_Default
 //replaced with SP version.
 void NPC_BSHowler_Default( void )
 {
-	if ( NPC->client->ps.legsAnim != BOTH_GESTURE1 )
+	if ( NPCS.NPC->client->ps.legsAnim != BOTH_GESTURE1 )
 	{
-		NPC->count = 0;
+		NPCS.NPC->count = 0;
 	}
 	//FIXME: if in jump, do damage in front and maybe knock them down?
-	if ( !TIMER_Done( NPC, "attacking" ) )
+	if ( !TIMER_Done( NPCS.NPC, "attacking" ) )
 	{
-		if ( NPC->enemy )
+		if ( NPCS.NPC->enemy )
 		{
 			//NPC_FaceEnemy( qfalse );
-			Howler_Attack( Distance( NPC->enemy->r.currentOrigin, NPC->r.currentOrigin ), qfalse );
+			Howler_Attack( Distance( NPCS.NPC->enemy->r.currentOrigin, NPCS.NPC->r.currentOrigin ), qfalse );
 		}
 		else
 		{
@@ -653,258 +674,258 @@ void NPC_BSHowler_Default( void )
 		return;
 	}
 
-	if ( NPC->enemy )
+	if ( NPCS.NPC->enemy )
 	{
-		if ( NPCInfo->stats.aggression > 0 )
+		if ( NPCS.NPCInfo->stats.aggression > 0 )
 		{
-			if ( TIMER_Done( NPC, "aggressionDecay" ) )
+			if ( TIMER_Done( NPCS.NPC, "aggressionDecay" ) )
 			{
-				NPCInfo->stats.aggression--;
-				TIMER_Set( NPC, "aggressionDecay", 500 );
+				NPCS.NPCInfo->stats.aggression--;
+				TIMER_Set( NPCS.NPC, "aggressionDecay", 500 );
 			}
 		}
 		//RAFIXME - No fleeing, need to fix this at some point.
 		/*
-		if ( !TIMER_Done( NPC, "flee" ) 
+		if ( !TIMER_Done( NPCS.NPC, "flee" ) 
 			&& NPC_BSFlee() )	//this can clear ENEMY
 		{//successfully trying to run away
 			return;
 		}
 		*/
-		if ( NPC->enemy == NULL)
+		if ( NPCS.NPC->enemy == NULL)
 		{
 			NPC_UpdateAngles( qfalse, qtrue );
 			return;
 		}
-		if ( NPCInfo->localState == LSTATE_FLEE )
+		if ( NPCS.NPCInfo->localState == LSTATE_FLEE )
 		{//we were fleeing, now done (either timer ran out or we cannot flee anymore
-			if ( NPC_ClearLOS4( NPC->enemy ) )
+			if ( NPC_ClearLOS4( NPCS.NPC->enemy ) )
 			{//if enemy is still around, go berzerk
-				NPCInfo->localState = LSTATE_BERZERK;
+				NPCS.NPCInfo->localState = LSTATE_BERZERK;
 			}
 			else
 			{//otherwise, lick our wounds?
-				NPCInfo->localState = LSTATE_CLEAR;
-				TIMER_Set( NPC, "standing", Q_irand( 3000, 10000 ) );
+				NPCS.NPCInfo->localState = LSTATE_CLEAR;
+				TIMER_Set( NPCS.NPC, "standing", Q_irand( 3000, 10000 ) );
 			}
 		}
-		else if ( NPCInfo->localState == LSTATE_BERZERK )
+		else if ( NPCS.NPCInfo->localState == LSTATE_BERZERK )
 		{//go nuts!
 		}
-		else if ( NPCInfo->stats.aggression >= Q_irand( 75, 125 ) )
+		else if ( NPCS.NPCInfo->stats.aggression >= Q_irand( 75, 125 ) )
 		{//that's it, go nuts!
-			NPCInfo->localState = LSTATE_BERZERK;
+			NPCS.NPCInfo->localState = LSTATE_BERZERK;
 		}
-		else if ( !TIMER_Done( NPC, "retreating" ) )
+		else if ( !TIMER_Done( NPCS.NPC, "retreating" ) )
 		{//trying to back off
 			NPC_FaceEnemy( qtrue );
-			if ( NPC->client->ps.speed > NPCInfo->stats.walkSpeed )
+			if ( NPCS.NPC->client->ps.speed > NPCS.NPCInfo->stats.walkSpeed )
 			{
-				NPC->client->ps.speed = NPCInfo->stats.walkSpeed;
+				NPCS.NPC->client->ps.speed = NPCS.NPCInfo->stats.walkSpeed;
 			}
-			ucmd.buttons |= BUTTON_WALKING;
-			if ( Distance( NPC->enemy->r.currentOrigin, NPC->r.currentOrigin ) < HOWLER_RETREAT_DIST )
+			NPCS.ucmd.buttons |= BUTTON_WALKING;
+			if ( Distance( NPCS.NPC->enemy->r.currentOrigin, NPCS.NPC->r.currentOrigin ) < HOWLER_RETREAT_DIST )
 			{//enemy is close
 				vec3_t moveDir;
-				AngleVectors( NPC->r.currentAngles, moveDir, NULL, NULL );
+				AngleVectors( NPCS.NPC->r.currentAngles, moveDir, NULL, NULL );
 				VectorScale( moveDir, -1, moveDir );
-				if ( !NAV_DirSafe( NPC, moveDir, 8 ) )
+				if ( !NAV_DirSafe( NPCS.NPC, moveDir, 8 ) )
 				{//enemy is backing me up against a wall or ledge!  Start to get really mad!
-					NPCInfo->stats.aggression += 2;
+					NPCS.NPCInfo->stats.aggression += 2;
 				}
 				else
 				{//back off
-					ucmd.forwardmove = -127;
+					NPCS.ucmd.forwardmove = -127;
 				}
 				//enemy won't leave me alone, get mad...
-				NPCInfo->stats.aggression++;
+				NPCS.NPCInfo->stats.aggression++;
 			}
 			return;
 		}
-		else if ( TIMER_Done( NPC, "standing" ) )
+		else if ( TIMER_Done( NPCS.NPC, "standing" ) )
 		{//not standing around
-			if ( !(NPCInfo->last_ucmd.forwardmove)
-				&& !(NPCInfo->last_ucmd.rightmove) )
+			if ( !(NPCS.NPCInfo->last_ucmd.forwardmove)
+				&& !(NPCS.NPCInfo->last_ucmd.rightmove) )
 			{//stood last frame
-				if ( TIMER_Done( NPC, "walking" ) 
-					&& TIMER_Done( NPC, "running" ) )
+				if ( TIMER_Done( NPCS.NPC, "walking" ) 
+					&& TIMER_Done( NPCS.NPC, "running" ) )
 				{//not walking or running
 					if ( Q_irand( 0, 2 ) )
 					{//run for a while
-						TIMER_Set( NPC, "walking", Q_irand( 4000, 8000 ) );
+						TIMER_Set( NPCS.NPC, "walking", Q_irand( 4000, 8000 ) );
 					}
 					else
 					{//walk for a bit
-						TIMER_Set( NPC, "running", Q_irand( 2500, 5000 ) );
+						TIMER_Set( NPCS.NPC, "running", Q_irand( 2500, 5000 ) );
 					}
 				}
 			}
-			else if ( (NPCInfo->last_ucmd.buttons&BUTTON_WALKING) )
+			else if ( (NPCS.NPCInfo->last_ucmd.buttons&BUTTON_WALKING) )
 			{//walked last frame
-				if ( TIMER_Done( NPC, "walking" ) )
+				if ( TIMER_Done( NPCS.NPC, "walking" ) )
 				{//just finished walking
-					if ( Q_irand( 0, 5 ) || DistanceSquared( NPC->enemy->r.currentOrigin, NPC->r.currentOrigin ) < MAX_DISTANCE_SQR )
+					if ( Q_irand( 0, 5 ) || DistanceSquared( NPCS.NPC->enemy->r.currentOrigin, NPCS.NPC->r.currentOrigin ) < MAX_DISTANCE_SQR )
 					{//run for a while
-						TIMER_Set( NPC, "running", Q_irand( 4000, 20000 ) );
+						TIMER_Set( NPCS.NPC, "running", Q_irand( 4000, 20000 ) );
 					}
 					else
 					{//stand for a bit
-						TIMER_Set( NPC, "standing", Q_irand( 2000, 6000 ) );
+						TIMER_Set( NPCS.NPC, "standing", Q_irand( 2000, 6000 ) );
 					}
 				}
 			}
 			else
 			{//ran last frame
-				if ( TIMER_Done( NPC, "running" ) )
+				if ( TIMER_Done( NPCS.NPC, "running" ) )
 				{//just finished running
-					if ( Q_irand( 0, 8 ) || DistanceSquared( NPC->enemy->r.currentOrigin, NPC->r.currentOrigin ) < MAX_DISTANCE_SQR )
+					if ( Q_irand( 0, 8 ) || DistanceSquared( NPCS.NPC->enemy->r.currentOrigin, NPCS.NPC->r.currentOrigin ) < MAX_DISTANCE_SQR )
 					{//walk for a while
-						TIMER_Set( NPC, "walking", Q_irand( 3000, 10000 ) );
+						TIMER_Set( NPCS.NPC, "walking", Q_irand( 3000, 10000 ) );
 					}
 					else
 					{//stand for a bit
-						TIMER_Set( NPC, "standing", Q_irand( 2000, 6000 ) );
+						TIMER_Set( NPCS.NPC, "standing", Q_irand( 2000, 6000 ) );
 					}
 				}
 			}
 		}
-		if ( NPC_ValidEnemy( NPC->enemy ) == qfalse )
+		if ( NPC_ValidEnemy( NPCS.NPC->enemy ) == qfalse )
 		{
-			TIMER_Remove( NPC, "lookForNewEnemy" );//make them look again right now
-			if ( !NPC->enemy->inuse || level.time - NPC->enemy->s.time > Q_irand( 10000, 15000 ) )
+			TIMER_Remove( NPCS.NPC, "lookForNewEnemy" );//make them look again right now
+			if ( !NPCS.NPC->enemy->inuse || level.time - NPCS.NPC->enemy->s.time > Q_irand( 10000, 15000 ) )
 			{//it's been a while since the enemy died, or enemy is completely gone, get bored with him
-				NPC->enemy = NULL;
+				NPCS.NPC->enemy = NULL;
 				Howler_Patrol();
 				NPC_UpdateAngles( qtrue, qtrue );
 				return;
 			}
 		}
-		if ( TIMER_Done( NPC, "lookForNewEnemy" ) )
+		if ( TIMER_Done( NPCS.NPC, "lookForNewEnemy" ) )
 		{
-			gentity_t *sav_enemy = NPC->enemy;//FIXME: what about NPC->lastEnemy?
+			gentity_t *sav_enemy = NPCS.NPC->enemy;//FIXME: what about NPCS.NPC->lastEnemy?
 			gentity_t *newEnemy;
-			NPC->enemy = NULL;
-			newEnemy = NPC_CheckEnemy( NPCInfo->confusionTime < level.time, qfalse, qfalse );
-			NPC->enemy = sav_enemy;
+			NPCS.NPC->enemy = NULL;
+			newEnemy = NPC_CheckEnemy( NPCS.NPCInfo->confusionTime < level.time, qfalse, qfalse );
+			NPCS.NPC->enemy = sav_enemy;
 			if ( newEnemy && newEnemy != sav_enemy )
 			{//picked up a new enemy!
-				NPC->lastEnemy = NPC->enemy;
-				G_SetEnemy( NPC, newEnemy );
-				if ( NPC->enemy != NPC->lastEnemy )
+				NPCS.NPC->lastEnemy = NPCS.NPC->enemy;
+				G_SetEnemy( NPCS.NPC, newEnemy );
+				if ( NPCS.NPC->enemy != NPCS.NPC->lastEnemy )
 				{//clear this so that we only sniff the player the first time we pick them up
 					//RACC - this doesn't appear to get used for Howlers
-					//NPC->useDebounceTime = 0;
+					//NPCS.NPC->useDebounceTime = 0;
 				}
 				//hold this one for at least 5-15 seconds
-				TIMER_Set( NPC, "lookForNewEnemy", Q_irand( 5000, 15000 ) );
+				TIMER_Set( NPCS.NPC, "lookForNewEnemy", Q_irand( 5000, 15000 ) );
 			}
 			else
 			{//look again in 2-5 secs
-				TIMER_Set( NPC, "lookForNewEnemy", Q_irand( 2000, 5000 ) );
+				TIMER_Set( NPCS.NPC, "lookForNewEnemy", Q_irand( 2000, 5000 ) );
 			}
 		}
 		Howler_Combat();
-		if ( TIMER_Done( NPC, "speaking" ) )
+		if ( TIMER_Done( NPCS.NPC, "speaking" ) )
 		{
-			if ( !TIMER_Done( NPC, "standing" )
-				|| !TIMER_Done( NPC, "retreating" ))
+			if ( !TIMER_Done( NPCS.NPC, "standing" )
+				|| !TIMER_Done( NPCS.NPC, "retreating" ))
 			{
-				G_SoundOnEnt( NPC, CHAN_VOICE, va( "sound/chars/howler/idle_hiss%d.mp3", Q_irand( 1, 2 ) ) );
+				G_SoundOnEnt( NPCS.NPC, CHAN_VOICE, va( "sound/chars/howler/idle_hiss%d.mp3", Q_irand( 1, 2 ) ) );
 			}
-			else if ( !TIMER_Done( NPC, "walking" ) 
-				|| NPCInfo->localState == LSTATE_FLEE )
+			else if ( !TIMER_Done( NPCS.NPC, "walking" ) 
+				|| NPCS.NPCInfo->localState == LSTATE_FLEE )
 			{
-				G_SoundOnEnt( NPC, CHAN_VOICE, va( "sound/chars/howler/howl_talk%d.mp3", Q_irand( 1, 5 ) ) );
-			}
-			else
-			{
-				G_SoundOnEnt( NPC, CHAN_VOICE, va( "sound/chars/howler/howl_yell%d.mp3", Q_irand( 1, 5 ) ) );
-			}
-			if ( NPCInfo->localState == LSTATE_BERZERK
-				|| NPCInfo->localState == LSTATE_FLEE )
-			{
-				TIMER_Set( NPC, "speaking", Q_irand( 1000, 4000 ) );
+				G_SoundOnEnt( NPCS.NPC, CHAN_VOICE, va( "sound/chars/howler/howl_talk%d.mp3", Q_irand( 1, 5 ) ) );
 			}
 			else
 			{
-				TIMER_Set( NPC, "speaking", Q_irand( 3000, 8000 ) );
+				G_SoundOnEnt( NPCS.NPC, CHAN_VOICE, va( "sound/chars/howler/howl_yell%d.mp3", Q_irand( 1, 5 ) ) );
+			}
+			if ( NPCS.NPCInfo->localState == LSTATE_BERZERK
+				|| NPCS.NPCInfo->localState == LSTATE_FLEE )
+			{
+				TIMER_Set( NPCS.NPC, "speaking", Q_irand( 1000, 4000 ) );
+			}
+			else
+			{
+				TIMER_Set( NPCS.NPC, "speaking", Q_irand( 3000, 8000 ) );
 			}
 		}
 		return;
 	}
 	else
 	{
-		if ( TIMER_Done( NPC, "speaking" ) )
+		if ( TIMER_Done( NPCS.NPC, "speaking" ) )
 		{
 			if ( !Q_irand( 0, 3 ) )
 			{
-				G_SoundOnEnt( NPC, CHAN_VOICE, va( "sound/chars/howler/idle_hiss%d.mp3", Q_irand( 1, 2 ) ) );
+				G_SoundOnEnt( NPCS.NPC, CHAN_VOICE, va( "sound/chars/howler/idle_hiss%d.mp3", Q_irand( 1, 2 ) ) );
 			}
 			else
 			{
-				G_SoundOnEnt( NPC, CHAN_VOICE, va( "sound/chars/howler/howl_talk%d.mp3", Q_irand( 1, 5 ) ) );
+				G_SoundOnEnt( NPCS.NPC, CHAN_VOICE, va( "sound/chars/howler/howl_talk%d.mp3", Q_irand( 1, 5 ) ) );
 			}
-			TIMER_Set( NPC, "speaking", Q_irand( 4000, 12000 ) );
+			TIMER_Set( NPCS.NPC, "speaking", Q_irand( 4000, 12000 ) );
 		}
-		if ( NPCInfo->stats.aggression > 0 )
+		if ( NPCS.NPCInfo->stats.aggression > 0 )
 		{
-			if ( TIMER_Done( NPC, "aggressionDecay" ) )
+			if ( TIMER_Done( NPCS.NPC, "aggressionDecay" ) )
 			{
-				NPCInfo->stats.aggression--;
-				TIMER_Set( NPC, "aggressionDecay", 200 );
+				NPCS.NPCInfo->stats.aggression--;
+				TIMER_Set( NPCS.NPC, "aggressionDecay", 200 );
 			}
 		}
-		if ( TIMER_Done( NPC, "standing" ) )
+		if ( TIMER_Done( NPCS.NPC, "standing" ) )
 		{//not standing around
-			if ( !(NPCInfo->last_ucmd.forwardmove)
-				&& !(NPCInfo->last_ucmd.rightmove) )
+			if ( !(NPCS.NPCInfo->last_ucmd.forwardmove)
+				&& !(NPCS.NPCInfo->last_ucmd.rightmove) )
 			{//stood last frame
-				if ( TIMER_Done( NPC, "walking" ) 
-					&& TIMER_Done( NPC, "running" ) )
+				if ( TIMER_Done( NPCS.NPC, "walking" ) 
+					&& TIMER_Done( NPCS.NPC, "running" ) )
 				{//not walking or running
-					if ( NPCInfo->goalEntity )
+					if ( NPCS.NPCInfo->goalEntity )
 					{//have somewhere to go
 						if ( Q_irand( 0, 2 ) )
 						{//walk for a while
-							TIMER_Set( NPC, "walking", Q_irand( 3000, 10000 ) );
+							TIMER_Set( NPCS.NPC, "walking", Q_irand( 3000, 10000 ) );
 						}
 						else
 						{//run for a bit
-							TIMER_Set( NPC, "running", Q_irand( 2500, 5000 ) );
+							TIMER_Set( NPCS.NPC, "running", Q_irand( 2500, 5000 ) );
 						}
 					}
 				}
 			}
-			else if ( (NPCInfo->last_ucmd.buttons&BUTTON_WALKING) )
+			else if ( (NPCS.NPCInfo->last_ucmd.buttons&BUTTON_WALKING) )
 			{//walked last frame
-				if ( TIMER_Done( NPC, "walking" ) )
+				if ( TIMER_Done( NPCS.NPC, "walking" ) )
 				{//just finished walking
 					if ( Q_irand( 0, 3 ) )
 					{//run for a while
-						TIMER_Set( NPC, "running", Q_irand( 3000, 6000 ) );
+						TIMER_Set( NPCS.NPC, "running", Q_irand( 3000, 6000 ) );
 					}
 					else
 					{//stand for a bit
-						TIMER_Set( NPC, "standing", Q_irand( 2500, 5000 ) );
+						TIMER_Set( NPCS.NPC, "standing", Q_irand( 2500, 5000 ) );
 					}
 				}
 			}
 			else
 			{//ran last frame
-				if ( TIMER_Done( NPC, "running" ) )
+				if ( TIMER_Done( NPCS.NPC, "running" ) )
 				{//just finished running
 					if ( Q_irand( 0, 2 ) )
 					{//walk for a while
-						TIMER_Set( NPC, "walking", Q_irand( 6000, 15000 ) );
+						TIMER_Set( NPCS.NPC, "walking", Q_irand( 6000, 15000 ) );
 					}
 					else
 					{//stand for a bit
-						TIMER_Set( NPC, "standing", Q_irand( 4000, 6000 ) );
+						TIMER_Set( NPCS.NPC, "standing", Q_irand( 4000, 6000 ) );
 					}
 				}
 			}
 		}
-		if ( NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES )
+		if ( NPCS.NPCInfo->scriptFlags & SCF_LOOK_FOR_ENEMIES )
 		{
 			Howler_Patrol();
 		}

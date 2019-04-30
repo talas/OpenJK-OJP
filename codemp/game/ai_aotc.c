@@ -98,7 +98,7 @@ qboolean CheckFall_By_Vectors(vec3_t origin, vec3_t angles, gentity_t *ent)
 
 	down[2] -= 4096;
 
-	trap_Trace(&tr, use, ent->r.mins, ent->r.maxs, down, ent->s.clientNum, MASK_SOLID); // Look for ground.
+	trap->Trace(&tr, use, ent->r.mins, ent->r.maxs, down, ent->s.clientNum, MASK_SOLID, qfalse, 0, 0); // Look for ground.
 
 	VectorSubtract(use, tr.endpos, down);
 
@@ -115,7 +115,7 @@ qboolean CheckFall_By_Vectors(vec3_t origin, vec3_t angles, gentity_t *ent)
 
 	down[2] -= 4096;
 
-	trap_Trace(&tr, use, ent->r.mins, ent->r.maxs, down, ent->s.clientNum, MASK_SOLID); // Look for ground.
+	trap->Trace(&tr, use, ent->r.mins, ent->r.maxs, down, ent->s.clientNum, MASK_SOLID, qfalse, 0, 0); // Look for ground.
 
 	VectorSubtract(use, tr.endpos, down);
 
@@ -133,7 +133,7 @@ qboolean CheckFall_By_Vectors(vec3_t origin, vec3_t angles, gentity_t *ent)
 
 	down[2] -= 4096;
 
-	trap_Trace(&tr, use, ent->r.mins, ent->r.maxs, down, ent->s.clientNum, MASK_SOLID); // Look for ground.
+	trap->Trace(&tr, use, ent->r.mins, ent->r.maxs, down, ent->s.clientNum, MASK_SOLID, qfalse, 0, 0); // Look for ground.
 
 	VectorSubtract(use, tr.endpos, down);
 
@@ -194,7 +194,7 @@ void AIMod_Jump ( bot_state_t *bs )
 
 	if( !target )
 	{//Should have task completed the navgoal
-//		G_Printf("No target!\n");
+//		Com_Printf("No target!\n");
 		bs->BOTjumpState = JS_WAITING;
 		//Set_Enemy_Path(bs);
 		return;
@@ -248,57 +248,57 @@ void AIMod_Jump ( bot_state_t *bs )
 		xy = VectorNormalize( dir );// + (VectorNormalize( dir )*0.0002);
 /*
 		// Check Jump
-		G_Printf("XY is %f", xy);
+		Com_Printf("XY is %f", xy);
 		heightmod = 1.0;
 		if (xy >= 1200)
 		{
 			xy += xy*0.7;
 			heightmod = 1.7;
-			G_Printf(" - XY changed to %f - Heightmod set to %f.\n", xy, heightmod);
+			Com_Printf(" - XY changed to %f - Heightmod set to %f.\n", xy, heightmod);
 		}
 		else if (xy >= 800)
 		{
 			xy += xy*0.4;
 			heightmod = 1.4;
-			G_Printf(" - XY changed to %f - Heightmod set to %f.\n", xy, heightmod);
+			Com_Printf(" - XY changed to %f - Heightmod set to %f.\n", xy, heightmod);
 		}
 		else if (xy >= 400)
 		{
 			xy += xy*0.1;
 			heightmod = 1.1;
-			G_Printf(" - XY changed to %f - Heightmod set to %f.\n", xy, heightmod);
+			Com_Printf(" - XY changed to %f - Heightmod set to %f.\n", xy, heightmod);
 		}
 		else
-			G_Printf("\n");
+			Com_Printf("\n");
 		*/
 		z = p1[2] - p2[2];
 
-/*		G_Printf("XY is %f", xy);
+/*		Com_Printf("XY is %f", xy);
 		if (xy >= 1000)
 		{
 			xy += xy*0.7;
 			apexHeight = APEX_HEIGHT;
-			G_Printf(" - XY changed to %f - apexHeight set to %f.\n", xy, apexHeight);
+			Com_Printf(" - XY changed to %f - apexHeight set to %f.\n", xy, apexHeight);
 		}
 		else if (xy >= 700)
 		{
 			xy += xy*0.4;
 			apexHeight = APEX_HEIGHT/1.3;
-			G_Printf(" - XY changed to %f - apexHeight set to %f.\n", xy, apexHeight);
+			Com_Printf(" - XY changed to %f - apexHeight set to %f.\n", xy, apexHeight);
 		}
 		else if (xy >= 500)
 		{
 			xy += xy*0.1;
 			apexHeight = APEX_HEIGHT/1.6;
-			G_Printf(" - XY changed to %f - apexHeight set to %f.\n", xy, apexHeight);
+			Com_Printf(" - XY changed to %f - apexHeight set to %f.\n", xy, apexHeight);
 		}
 		else
 		{
-			G_Printf("\n");
+			Com_Printf("\n");
 			apexHeight = APEX_HEIGHT/2;
 		}*/
 		
-		//G_Printf("XY is %f\n", xy);
+		//Com_Printf("XY is %f\n", xy);
 
 		if (xy >= 600)
 		{
@@ -354,7 +354,7 @@ void AIMod_Jump ( bot_state_t *bs )
 			dist = VectorDistance(jumpPos[bot->s.number], bot->r.currentOrigin);
 			if (dist > 1200)
 			{
-				G_Printf("Too far! %i is > 1200!", dist);
+				Com_Printf("Too far! %i is > 1200!", dist);
 				bs->BOTjumpState = JS_WAITING;
 				Set_Enemy_Path(bs);
 				return;
@@ -370,7 +370,7 @@ void AIMod_Jump ( bot_state_t *bs )
 		bot->client->ps.velocity[2] = 0;
 		dist = VectorNormalize( bot->client->ps.velocity );
 		
-//		G_Printf("Dist: %i\n", dist);
+//		Com_Printf("Dist: %i\n", dist);
 /*		if (dist <= 200)
 		{
 			dist*=1.10;
@@ -591,7 +591,7 @@ int AOTC_BotFallbackNavigation(bot_state_t *bs)
 	vectoangles(a, ang);
 	VectorCopy(ang, bs->goalAngles);
 
-	trap_Trace(&tr, bs->origin, mins, maxs, trto, -1, MASK_SOLID);
+	trap->Trace(&tr, bs->origin, mins, maxs, trto, -1, MASK_SOLID, qfalse, 0, 0);
 
 	if (tr.fraction == 1)
 	{// Visible point.
@@ -675,9 +675,9 @@ void FastBotAI(bot_state_t *bs, float thinktime)
 	if (next_think[bs->cur_ps.clientNum] > level.time)
 	{
 		if (bs->currentEnemy)
-			trap_EA_Move(bs->client, bs->goalMovedir, 2500);
+			trap->EA_Move(bs->client, bs->goalMovedir, 2500);
 		else
-			trap_EA_Move(bs->client, bs->goalMovedir, 5000);
+			trap->EA_Move(bs->client, bs->goalMovedir, 5000);
 		return;
 	}
 
@@ -720,11 +720,11 @@ void FastBotAI(bot_state_t *bs, float thinktime)
 
 			if (bot_getinthecarrr.integer != 2)
 			{
-				trap_EA_MoveForward(bs->client);
+				trap->EA_MoveForward(bs->client);
 
 				if (bot_getinthecarrr.integer == 3)
 				{ //use alt fire
-					trap_EA_Alt_Attack(bs->client);
+					trap->EA_Alt_Attack(bs->client);
 				}
 			}
 		}
@@ -753,7 +753,7 @@ void FastBotAI(bot_state_t *bs, float thinktime)
 				VectorNormalize(v);
 				vectoangles(v, bs->goalAngles);
 				MoveTowardIdealAngles(bs);
-				trap_EA_Move(bs->client, v, 5000.0f);
+				trap->EA_Move(bs->client, v, 5000.0f);
 
 				if (bs->noUseTime < (level.time-400))
 				{
@@ -775,7 +775,7 @@ void FastBotAI(bot_state_t *bs, float thinktime)
 
 		if (bot_forgimmick.integer == 2)
 		{ //for debugging saber stuff, this is handy
-			trap_EA_Attack(bs->client);
+			trap->EA_Attack(bs->client);
 		}
 
 		if (bot_forgimmick.integer == 3)
@@ -784,8 +784,8 @@ void FastBotAI(bot_state_t *bs, float thinktime)
 
 			VectorSubtract(bs->origin, vec3_origin, mdir);
 			VectorNormalize(mdir);
-			trap_EA_Attack(bs->client);
-			trap_EA_Move(bs->client, mdir, 5000);
+			trap->EA_Attack(bs->client);
+			trap->EA_Move(bs->client, mdir, 5000);
 		}
 
 		if (bot_forgimmick.integer == 4)
@@ -796,7 +796,7 @@ void FastBotAI(bot_state_t *bs, float thinktime)
 
 				VectorSubtract(g_entities[0].client->ps.origin, bs->origin, mdir);
 				VectorNormalize(mdir);
-				trap_EA_Move(bs->client, mdir, 5000);
+				trap->EA_Move(bs->client, mdir, 5000);
 			}
 		}
 
@@ -804,27 +804,27 @@ void FastBotAI(bot_state_t *bs, float thinktime)
 		{
 			if (bs->forceMove_Forward > 0)
 			{
-				trap_EA_MoveForward(bs->client);
+				trap->EA_MoveForward(bs->client);
 			}
 			else
 			{
-				trap_EA_MoveBack(bs->client);
+				trap->EA_MoveBack(bs->client);
 			}
 		}
 		if (bs->forceMove_Right)
 		{
 			if (bs->forceMove_Right > 0)
 			{
-				trap_EA_MoveRight(bs->client);
+				trap->EA_MoveRight(bs->client);
 			}
 			else
 			{
-				trap_EA_MoveLeft(bs->client);
+				trap->EA_MoveLeft(bs->client);
 			}
 		}
 		if (bs->forceMove_Up)
 		{
-			trap_EA_Jump(bs->client);
+			trap->EA_Jump(bs->client);
 		}
 		return;
 	}
@@ -874,7 +874,7 @@ void FastBotAI(bot_state_t *bs, float thinktime)
 		if (rand()%10 < 5 &&
 			(!bs->doChat || bs->chatTime < level.time))
 		{
-			trap_EA_Attack(bs->client);
+			trap->EA_Attack(bs->client);
 		}
 
 		return;
@@ -901,14 +901,14 @@ void FastBotAI(bot_state_t *bs, float thinktime)
 	}
 
 	if (bs->revengeEnemy && bs->revengeEnemy->client &&
-		bs->revengeEnemy->client->pers.connected != CA_ACTIVE && bs->revengeEnemy->client->pers.connected != CA_AUTHORIZING)
+		bs->revengeEnemy->client->pers.connected != CON_CONNECTED && bs->revengeEnemy->client->pers.connected != CON_CONNECTING)
 	{
 		bs->revengeEnemy = NULL;
 		bs->revengeHateLevel = 0;
 	}
 
 	if (bs->currentEnemy && bs->currentEnemy->client &&
-		bs->currentEnemy->client->pers.connected != CA_ACTIVE && bs->currentEnemy->client->pers.connected != CA_AUTHORIZING)
+		bs->currentEnemy->client->pers.connected != CON_CONNECTED && bs->currentEnemy->client->pers.connected != CON_CONNECTING)
 	{
 		bs->currentEnemy = NULL;
 	}
@@ -931,7 +931,7 @@ void FastBotAI(bot_state_t *bs, float thinktime)
 		VectorSubtract(bs->currentEnemy->client->ps.origin, bs->eye, a_fo);
 		vectoangles(a_fo, a_fo);
 
-		if (g_gametype.integer == GT_RPG || g_gametype.integer == GT_COOP)
+		if (level.gametype == GT_RPG || level.gametype == GT_COOP)
 		{// Coop and RPG have new powers...
 			//do this above all things
 			if ((bs->cur_ps.fd.forcePowersKnown & (1 << FP_PUSH)) && (bs->doForcePush > level.time || bs->cur_ps.fd.forceGripBeingGripped > level.time) && level.clients[bs->client].ps.fd.forcePower > forcePowerNeeded[level.clients[bs->client].ps.fd.forcePowerLevel[FP_PUSH]][FP_PUSH])
@@ -1183,7 +1183,7 @@ void FastBotAI(bot_state_t *bs, float thinktime)
 	{
 		if (rand()%10 < 5)
 		{
-			trap_EA_Use(bs->client);
+			trap->EA_Use(bs->client);
 		}
 	}*/
 
@@ -1277,7 +1277,7 @@ void FastBotAI(bot_state_t *bs, float thinktime)
 		bs->wpCurrent = NULL;
 	}
 	/*
-	if (g_gametype.integer == GT_SCENARIO)
+	if (level.gametype == GT_SCENARIO)
 	{
 		if (!bs->isCamping)
 		{
@@ -1419,7 +1419,7 @@ void FastBotAI(bot_state_t *bs, float thinktime)
 	//ESTABLISH VISIBILITIES AND DISTANCES FOR THE WHOLE FRAME HERE
 	if (bs->wpCurrent)
 	{
-		if (g_RMG.integer)
+		if (RMG.integer)
 		{ //this is somewhat hacky, but in RMG we don't really care about vertical placement because points are scattered across only the terrain.
 			vec3_t vecB, vecC;
 
@@ -1552,7 +1552,7 @@ void FastBotAI(bot_state_t *bs, float thinktime)
 
 		if (bs->frame_Waypoint_Vis || (bs->wpCurrent->flags & WPFLAG_NOVIS))
 		{
-			if (g_RMG.integer)
+			if (RMG.integer)
 			{
 				bs->wpSeenTime = level.time + 5000; //if we lose sight of the point, we have 1.5 seconds to regain it before we drop it
 			}
@@ -1617,7 +1617,7 @@ void FastBotAI(bot_state_t *bs, float thinktime)
 			}
 		}
 
-		if (g_RMG.integer)
+		if (RMG.integer)
 		{
 			if (bs->frame_Waypoint_Vis)
 			{
@@ -1628,7 +1628,7 @@ void FastBotAI(bot_state_t *bs, float thinktime)
 			}
 		}
 
-		if (bs->frame_Waypoint_Len < wpTouchDist || (g_RMG.integer && bs->frame_Waypoint_Len < wpTouchDist*2))
+		if (bs->frame_Waypoint_Len < wpTouchDist || (RMG.integer && bs->frame_Waypoint_Len < wpTouchDist*2))
 		{
 			WPTouchRoutine(bs);
 
@@ -1670,12 +1670,12 @@ void FastBotAI(bot_state_t *bs, float thinktime)
 	}
 	else //We can't find a waypoint, going to need a fallback routine.
 	{
-		/*if (g_gametype.integer == GT_DUEL)*/
+		/*if (level.gametype == GT_DUEL)*/
 		{ //helps them get out of messy situations
 			/*if ((level.time - bs->forceJumpChargeTime) > 3500)
 			{
 				bs->forceJumpChargeTime = level.time + 2000;
-				trap_EA_MoveForward(bs->client);
+				trap->EA_MoveForward(bs->client);
 			}
 			*/
 			/*bs->jumpTime = level.time + 1500;
@@ -1861,7 +1861,7 @@ void FastBotAI(bot_state_t *bs, float thinktime)
 	if (bs->currentEnemy && bs->BOTjumpState < JS_CROUCHING) // Force bots to walk while they have an enemy visible... Unique1
 		g_entities[bs->cur_ps.clientNum].client->pers.cmd.buttons |= BUTTON_WALKING;
 
-	if (g_RMG.integer)
+	if (RMG.integer)
 	{ //for RMG if the bot sticks around an area too long, jump around randomly some to spread to a new area (horrible hacky method)
 		vec3_t vSubDif;
 
@@ -1894,7 +1894,7 @@ void FastBotAI(bot_state_t *bs, float thinktime)
 	{
 
 	}
-	else if (bs->wpCurrent && g_RMG.integer)
+	else if (bs->wpCurrent && RMG.integer)
 	{
 		qboolean doJ = qfalse;
 
@@ -2099,7 +2099,7 @@ void FastBotAI(bot_state_t *bs, float thinktime)
 				Cmd_SaberAttackCycle_f(&g_entities[bs->client]);
 			}
 
-			/*if (g_gametype.integer == GT_COOP)
+			/*if (level.gametype == GT_COOP)
 			{
 				saberRange *= 3;
 			}*/
@@ -2166,7 +2166,7 @@ void FastBotAI(bot_state_t *bs, float thinktime)
 		}
 	}
 
-	if (g_gametype.integer == GT_CTF || g_gametype.integer == GT_CTY)
+	if (level.gametype == GT_CTF || level.gametype == GT_CTY)
 		CTFFlagMovement(bs);
 
 	if (/*bs->wpDestination &&*/ bs->shootGoal &&
@@ -2253,7 +2253,7 @@ void FastBotAI(bot_state_t *bs, float thinktime)
 		bs->forceWeaponSelect = 0;
 	}
 
-	if (g_gametype.integer == GT_JEDIMASTER && !bs->cur_ps.isJediMaster && bs->jmState == -1 && gJMSaberEnt && gJMSaberEnt->inuse)
+	if (level.gametype == GT_JEDIMASTER && !bs->cur_ps.isJediMaster && bs->jmState == -1 && gJMSaberEnt && gJMSaberEnt->inuse)
 	{
 		vec3_t saberLen;
 		float fSaberLen = 0;
@@ -2282,15 +2282,15 @@ void FastBotAI(bot_state_t *bs, float thinktime)
 		if (bs->jumpTime > level.time && bs->jDelay < level.time &&
 			level.clients[bs->client].pers.cmd.upmove > 0)
 		{
-		//	trap_EA_Move(bs->client, bs->origin, 5000);
+		//	trap->EA_Move(bs->client, bs->origin, 5000);
 			bs->beStill = level.time + 200;
 		}
 		else
 		{
 			if (bs->currentEnemy)
-				trap_EA_Move(bs->client, bs->goalMovedir, 2500);
+				trap->EA_Move(bs->client, bs->goalMovedir, 2500);
 			else
-				trap_EA_Move(bs->client, bs->goalMovedir, 5000);
+				trap->EA_Move(bs->client, bs->goalMovedir, 5000);
 		}
 
 		if (meleestrafe)
@@ -2300,11 +2300,11 @@ void FastBotAI(bot_state_t *bs, float thinktime)
 
 		if (bs->meleeStrafeDir && meleestrafe && bs->meleeStrafeDisable < level.time)
 		{
-			trap_EA_MoveRight(bs->client);
+			trap->EA_MoveRight(bs->client);
 		}
 		else if (meleestrafe && bs->meleeStrafeDisable < level.time)
 		{
-			trap_EA_MoveLeft(bs->client);
+			trap->EA_MoveLeft(bs->client);
 		}
 
 		if (BotTrace_Jump(bs, bs->goalPosition))
@@ -2322,11 +2322,11 @@ void FastBotAI(bot_state_t *bs, float thinktime)
 
 			if (strafeAround == STRAFEAROUND_RIGHT)
 			{
-				trap_EA_MoveRight(bs->client);
+				trap->EA_MoveRight(bs->client);
 			}
 			else if (strafeAround == STRAFEAROUND_LEFT)
 			{
-				trap_EA_MoveLeft(bs->client);
+				trap->EA_MoveLeft(bs->client);
 			}
 		}
 #endif
@@ -2363,7 +2363,7 @@ void FastBotAI(bot_state_t *bs, float thinktime)
 	{
 //		gclient_t *client = g_entities[bs->cur_ps.clientNum].client;
 		/*
-		if ( g_gametype.integer == GT_COOP && classnumber[client->ps.clientNum] == CLASS_SOLDIER )
+		if ( level.gametype == GT_COOP && classnumber[client->ps.clientNum] == CLASS_SOLDIER )
 		{// Jumping for coop soldiers...
 			if (client->ps.stats[STAT_HOLDABLE_ITEMS] & (1 << HI_JETPACK))
 			{
@@ -2384,18 +2384,18 @@ void FastBotAI(bot_state_t *bs, float thinktime)
 				if (bs->client > MAX_CLIENTS)
 					g_entities[bs->client].client->ps.velocity[2] = 128;
 				else
-					trap_EA_Jump(bs->client);
+					trap->EA_Jump(bs->client);
 
 				if (bs->wpCurrent)
 				{
 					if ((bs->wpCurrent->origin[2] - bs->origin[2]) < 64)
 					{
-						trap_EA_MoveForward(bs->client);
+						trap->EA_MoveForward(bs->client);
 					}
 				}
 				else
 				{
-					trap_EA_MoveForward(bs->client);
+					trap->EA_MoveForward(bs->client);
 				}
 				if (g_entities[bs->client].client->ps.groundEntityNum == ENTITYNUM_NONE)
 				{
@@ -2407,7 +2407,7 @@ void FastBotAI(bot_state_t *bs, float thinktime)
 				if (bs->client > MAX_CLIENTS)
 					g_entities[bs->client].client->ps.velocity[2] = 128;
 				else
-					trap_EA_Jump(bs->client);
+					trap->EA_Jump(bs->client);
 			}
 		}
 		else if ( mod_classes.integer == 2 && bs->settings.team == TEAM_BLUE && g_entities[bs->cur_ps.clientNum].client->ps.stats[STAT_CLASSNUMBER] == GCLASS_SOLDIER )
@@ -2431,18 +2431,18 @@ void FastBotAI(bot_state_t *bs, float thinktime)
 				if (bs->client > MAX_CLIENTS)
 					g_entities[bs->client].client->ps.velocity[2] = 128;
 				else
-					trap_EA_Jump(bs->client);
+					trap->EA_Jump(bs->client);
 
 				if (bs->wpCurrent)
 				{
 					if ((bs->wpCurrent->origin[2] - bs->origin[2]) < 64)
 					{
-						trap_EA_MoveForward(bs->client);
+						trap->EA_MoveForward(bs->client);
 					}
 				}
 				else
 				{
-					trap_EA_MoveForward(bs->client);
+					trap->EA_MoveForward(bs->client);
 				}
 				if (g_entities[bs->client].client->ps.groundEntityNum == ENTITYNUM_NONE)
 				{
@@ -2454,24 +2454,24 @@ void FastBotAI(bot_state_t *bs, float thinktime)
 				if (bs->client > MAX_CLIENTS)
 					g_entities[bs->client].client->ps.velocity[2] = 128;
 				else
-					trap_EA_Jump(bs->client);
+					trap->EA_Jump(bs->client);
 			}
 		}
 		else*/
 		{
 			if (bs->jumpHoldTime > level.time)
 			{
-				trap_EA_Jump(bs->client);
+				trap->EA_Jump(bs->client);
 				if (bs->wpCurrent)
 				{
 					if ((bs->wpCurrent->origin[2] - bs->origin[2]) < 64)
 					{
-						trap_EA_MoveForward(bs->client);
+						trap->EA_MoveForward(bs->client);
 					}
 				}
 				else
 				{
-					trap_EA_MoveForward(bs->client);
+					trap->EA_MoveForward(bs->client);
 				}
 				if (g_entities[bs->client].client->ps.groundEntityNum == ENTITYNUM_NONE)
 				{
@@ -2480,14 +2480,14 @@ void FastBotAI(bot_state_t *bs, float thinktime)
 			}
 			else if (!(bs->cur_ps.pm_flags & PMF_JUMP_HELD))
 			{
-				trap_EA_Jump(bs->client);
+				trap->EA_Jump(bs->client);
 			}
 		}
 	}
 
 	if (bs->duckTime > level.time)
 	{
-		trap_EA_Crouch(bs->client);
+		trap->EA_Crouch(bs->client);
 	}
 
 	if ( bs->dangerousObject && bs->dangerousObject->inuse && bs->dangerousObject->health > 0 &&
@@ -2563,7 +2563,7 @@ void FastBotAI(bot_state_t *bs, float thinktime)
 			}
 		}
 	}
-	else if (g_gametype.integer >= GT_TEAM /*&& g_gametype.integer != GT_RPG*/)
+	else if (level.gametype >= GT_TEAM /*&& level.gametype != GT_RPG*/)
 	{ //still check for anyone to help..
 		friendInLOF = CheckForFriendInLOF(bs);
 
@@ -2625,11 +2625,11 @@ void FastBotAI(bot_state_t *bs, float thinktime)
 
 	if (bs->doAttack)
 	{
-		trap_EA_Attack(bs->client);
+		trap->EA_Attack(bs->client);
 	}
 	else if (bs->doAltAttack)
 	{
-		trap_EA_Alt_Attack(bs->client);
+		trap->EA_Alt_Attack(bs->client);
 	}
 	MoveTowardIdealAngles(bs);
 }
@@ -2666,9 +2666,9 @@ int GetSharedVisibleWP(gentity_t *bot, gentity_t *enemy)
 //			flLenEnemy = VectorLength(a);
 
 			if (flLen < bestdist 
-				//&& trap_InPVS(bot->r.currentOrigin, gWPArray[i]->origin) 
+				//&& trap->InPVS(bot->r.currentOrigin, gWPArray[i]->origin) 
 				&& OrgVisibleBox(bot->r.currentOrigin, mins, maxs, gWPArray[i]->origin, 0)
-				//&& trap_InPVS(enemy->r.currentOrigin, gWPArray[i]->origin) 
+				//&& trap->InPVS(enemy->r.currentOrigin, gWPArray[i]->origin) 
 				&& OrgVisibleBox(enemy->r.currentOrigin, mins, maxs, gWPArray[i]->origin, 0))
 			{// Visible to both the bot, and the enemy.
 				bestdist = flLen;
@@ -2703,7 +2703,7 @@ int Scenario_ScanForEnemies(bot_state_t *bs)
 		hasEnemyDist = bs->frame_Enemy_Len;
 	}
 
-	while (i <= MAX_GENTITIES)
+	while (i < MAX_GENTITIES)
 	{
 		if (g_entities[i].s.eType != ET_NPC && g_entities[i].s.eType != ET_PLAYER)
 		{
@@ -3061,7 +3061,7 @@ qboolean CheckBelowOK(vec3_t origin)
 
 	down[2] -= 1024;
 
-	trap_Trace(&tr, origin, mins, maxs, down, ENTITYNUM_NONE, MASK_SOLID); // Look for ground.
+	trap->Trace(&tr, origin, mins, maxs, down, ENTITYNUM_NONE, MASK_SOLID, qfalse, 0, 0); // Look for ground.
 
 	VectorSubtract(origin, tr.endpos, down);
 
@@ -3093,10 +3093,10 @@ qboolean visible (gentity_t *self, gentity_t *other)
 	VectorCopy(other->r.currentOrigin, spot2);
 	spot2[2]+=48;
 
-	//trap_Trace (&tr, self->r.currentOrigin, NULL, NULL, other->r.currentOrigin, self->s.number, MASK_SHOT);
+	//trap->Trace (&tr, self->r.currentOrigin, NULL, NULL, other->r.currentOrigin, self->s.number, MASK_SHOT, qfalse, 0, 0);
 
 	// And a standard pass..
-	trap_Trace (&tr, spot1, NULL, NULL, other->r.currentOrigin, self->s.number, MASK_SHOT);
+	trap->Trace (&tr, spot1, NULL, NULL, other->r.currentOrigin, self->s.number, MASK_SHOT, qfalse, 0, 0);
 	
 	traceEnt = &g_entities[ tr.entityNum ];
 
@@ -3135,9 +3135,9 @@ void AOTC_StandardBotAI(bot_state_t *bs, float thinktime)
 	if (next_think[bs->cur_ps.clientNum] > level.time)
 	{
 		if (bs->currentEnemy)
-			trap_EA_Move(bs->client, bs->goalMovedir, 2500);
+			trap->EA_Move(bs->client, bs->goalMovedir, 2500);
 		else
-			trap_EA_Move(bs->client, bs->goalMovedir, 5000);
+			trap->EA_Move(bs->client, bs->goalMovedir, 5000);
 		return;
 	}
 
@@ -3180,11 +3180,11 @@ void AOTC_StandardBotAI(bot_state_t *bs, float thinktime)
 
 			if (bot_getinthecarrr.integer != 2)
 			{
-				trap_EA_MoveForward(bs->client);
+				trap->EA_MoveForward(bs->client);
 
 				if (bot_getinthecarrr.integer == 3)
 				{ //use alt fire
-					trap_EA_Alt_Attack(bs->client);
+					trap->EA_Alt_Attack(bs->client);
 				}
 			}
 		}
@@ -3213,7 +3213,7 @@ void AOTC_StandardBotAI(bot_state_t *bs, float thinktime)
 				VectorNormalize(v);
 				vectoangles(v, bs->goalAngles);
 				MoveTowardIdealAngles(bs);
-				trap_EA_Move(bs->client, v, 5000.0f);
+				trap->EA_Move(bs->client, v, 5000.0f);
 
 				if (bs->noUseTime < (level.time-400))
 				{
@@ -3235,7 +3235,7 @@ void AOTC_StandardBotAI(bot_state_t *bs, float thinktime)
 
 		if (bot_forgimmick.integer == 2)
 		{ //for debugging saber stuff, this is handy
-			trap_EA_Attack(bs->client);
+			trap->EA_Attack(bs->client);
 		}
 
 		if (bot_forgimmick.integer == 3)
@@ -3244,8 +3244,8 @@ void AOTC_StandardBotAI(bot_state_t *bs, float thinktime)
 
 			VectorSubtract(bs->origin, vec3_origin, mdir);
 			VectorNormalize(mdir);
-			trap_EA_Attack(bs->client);
-			trap_EA_Move(bs->client, mdir, 5000);
+			trap->EA_Attack(bs->client);
+			trap->EA_Move(bs->client, mdir, 5000);
 		}
 
 		if (bot_forgimmick.integer == 4)
@@ -3256,7 +3256,7 @@ void AOTC_StandardBotAI(bot_state_t *bs, float thinktime)
 
 				VectorSubtract(g_entities[0].client->ps.origin, bs->origin, mdir);
 				VectorNormalize(mdir);
-				trap_EA_Move(bs->client, mdir, 5000);
+				trap->EA_Move(bs->client, mdir, 5000);
 			}
 		}
 
@@ -3264,27 +3264,27 @@ void AOTC_StandardBotAI(bot_state_t *bs, float thinktime)
 		{
 			if (bs->forceMove_Forward > 0)
 			{
-				trap_EA_MoveForward(bs->client);
+				trap->EA_MoveForward(bs->client);
 			}
 			else
 			{
-				trap_EA_MoveBack(bs->client);
+				trap->EA_MoveBack(bs->client);
 			}
 		}
 		if (bs->forceMove_Right)
 		{
 			if (bs->forceMove_Right > 0)
 			{
-				trap_EA_MoveRight(bs->client);
+				trap->EA_MoveRight(bs->client);
 			}
 			else
 			{
-				trap_EA_MoveLeft(bs->client);
+				trap->EA_MoveLeft(bs->client);
 			}
 		}
 		if (bs->forceMove_Up)
 		{
-			trap_EA_Jump(bs->client);
+			trap->EA_Jump(bs->client);
 		}
 		return;
 	}
@@ -3334,7 +3334,7 @@ void AOTC_StandardBotAI(bot_state_t *bs, float thinktime)
 		if (rand()%10 < 5 &&
 			(!bs->doChat || bs->chatTime < level.time))
 		{
-			trap_EA_Attack(bs->client);
+			trap->EA_Attack(bs->client);
 		}
 
 		return;
@@ -3361,14 +3361,14 @@ void AOTC_StandardBotAI(bot_state_t *bs, float thinktime)
 	}
 
 	if (bs->revengeEnemy && bs->revengeEnemy->client &&
-		bs->revengeEnemy->client->pers.connected != CA_ACTIVE && bs->revengeEnemy->client->pers.connected != CA_AUTHORIZING)
+		bs->revengeEnemy->client->pers.connected != CON_CONNECTED && bs->revengeEnemy->client->pers.connected != CON_CONNECTING)
 	{
 		bs->revengeEnemy = NULL;
 		bs->revengeHateLevel = 0;
 	}
 
 	if (bs->currentEnemy && bs->currentEnemy->client &&
-		bs->currentEnemy->client->pers.connected != CA_ACTIVE && bs->currentEnemy->client->pers.connected != CA_AUTHORIZING)
+		bs->currentEnemy->client->pers.connected != CON_CONNECTED && bs->currentEnemy->client->pers.connected != CON_CONNECTING)
 	{
 		bs->currentEnemy = NULL;
 	}
@@ -3547,7 +3547,7 @@ void AOTC_StandardBotAI(bot_state_t *bs, float thinktime)
 	{
 		if (rand()%10 < 5)
 		{
-			trap_EA_Use(bs->client);
+			trap->EA_Use(bs->client);
 		}
 	}
 
@@ -3752,7 +3752,7 @@ void AOTC_StandardBotAI(bot_state_t *bs, float thinktime)
 	//ESTABLISH VISIBILITIES AND DISTANCES FOR THE WHOLE FRAME HERE
 	if (bs->wpCurrent)
 	{
-		if (g_RMG.integer)
+		if (RMG.integer)
 		{ //this is somewhat hacky, but in RMG we don't really care about vertical placement because points are scattered across only the terrain.
 			vec3_t vecB, vecC;
 
@@ -3872,7 +3872,7 @@ void AOTC_StandardBotAI(bot_state_t *bs, float thinktime)
 
 		if (bs->frame_Waypoint_Vis || (bs->wpCurrent->flags & WPFLAG_NOVIS))
 		{
-			if (g_RMG.integer)
+			if (RMG.integer)
 			{
 				bs->wpSeenTime = level.time + 5000; //if we lose sight of the point, we have 1.5 seconds to regain it before we drop it
 			}
@@ -3937,7 +3937,7 @@ void AOTC_StandardBotAI(bot_state_t *bs, float thinktime)
 			}
 		}
 
-		if (g_RMG.integer)
+		if (RMG.integer)
 		{
 			if (bs->frame_Waypoint_Vis)
 			{
@@ -3948,7 +3948,7 @@ void AOTC_StandardBotAI(bot_state_t *bs, float thinktime)
 			}
 		}
 
-		if (bs->frame_Waypoint_Len < wpTouchDist || (g_RMG.integer && bs->frame_Waypoint_Len < wpTouchDist*2))
+		if (bs->frame_Waypoint_Len < wpTouchDist || (RMG.integer && bs->frame_Waypoint_Len < wpTouchDist*2))
 		{
 			WPTouchRoutine(bs);
 
@@ -3990,12 +3990,12 @@ void AOTC_StandardBotAI(bot_state_t *bs, float thinktime)
 	}
 	else //We can't find a waypoint, going to need a fallback routine.
 	{
-		/*if (g_gametype.integer == GT_DUEL)*/
+		/*if (level.gametype == GT_DUEL)*/
 		{ //helps them get out of messy situations
 			/*if ((level.time - bs->forceJumpChargeTime) > 3500)
 			{
 				bs->forceJumpChargeTime = level.time + 2000;
-				trap_EA_MoveForward(bs->client);
+				trap->EA_MoveForward(bs->client);
 			}
 			*/
 			/*bs->jumpTime = level.time + 1500;
@@ -4168,7 +4168,7 @@ void AOTC_StandardBotAI(bot_state_t *bs, float thinktime)
 	if (bs->currentEnemy && bs->BOTjumpState < JS_CROUCHING) // Force bots to walk while they have an enemy visible... Unique1
 		g_entities[bs->cur_ps.clientNum].client->pers.cmd.buttons |= BUTTON_WALKING;
 
-	if (g_RMG.integer)
+	if (RMG.integer)
 	{ //for RMG if the bot sticks around an area too long, jump around randomly some to spread to a new area (horrible hacky method)
 		vec3_t vSubDif;
 
@@ -4201,7 +4201,7 @@ void AOTC_StandardBotAI(bot_state_t *bs, float thinktime)
 	{
 
 	}
-	else if (bs->wpCurrent && g_RMG.integer)
+	else if (bs->wpCurrent && RMG.integer)
 	{
 		qboolean doJ = qfalse;
 
@@ -4474,12 +4474,12 @@ void AOTC_StandardBotAI(bot_state_t *bs, float thinktime)
 	{
 		if (bs->chatTeam)
 		{
-			trap_EA_SayTeam(bs->client, bs->currentChat);
+			trap->EA_SayTeam(bs->client, bs->currentChat);
 			bs->chatTeam = 0;
 		}
 		else
 		{
-			trap_EA_Say(bs->client, bs->currentChat);
+			trap->EA_Say(bs->client, bs->currentChat);
 		}
 		if (bs->doChat == 2)
 		{
@@ -4488,7 +4488,7 @@ void AOTC_StandardBotAI(bot_state_t *bs, float thinktime)
 		bs->doChat = 0;
 	}
 
-	if (g_gametype.integer == GT_CTF || g_gametype.integer == GT_CTY)
+	if (level.gametype == GT_CTF || level.gametype == GT_CTY)
 		CTFFlagMovement(bs);
 
 	if (/*bs->wpDestination &&*/ bs->shootGoal &&
@@ -4575,7 +4575,7 @@ void AOTC_StandardBotAI(bot_state_t *bs, float thinktime)
 		bs->forceWeaponSelect = 0;
 	}
 
-	if (g_gametype.integer == GT_JEDIMASTER && !bs->cur_ps.isJediMaster && bs->jmState == -1 && gJMSaberEnt && gJMSaberEnt->inuse)
+	if (level.gametype == GT_JEDIMASTER && !bs->cur_ps.isJediMaster && bs->jmState == -1 && gJMSaberEnt && gJMSaberEnt->inuse)
 	{
 		vec3_t saberLen;
 		float fSaberLen = 0;
@@ -4604,15 +4604,15 @@ void AOTC_StandardBotAI(bot_state_t *bs, float thinktime)
 		if (bs->jumpTime > level.time && bs->jDelay < level.time &&
 			level.clients[bs->client].pers.cmd.upmove > 0)
 		{
-		//	trap_EA_Move(bs->client, bs->origin, 5000);
+		//	trap->EA_Move(bs->client, bs->origin, 5000);
 			bs->beStill = level.time + 200;
 		}
 		else
 		{
 			if (bs->currentEnemy)
-				trap_EA_Move(bs->client, bs->goalMovedir, 2500);
+				trap->EA_Move(bs->client, bs->goalMovedir, 2500);
 			else
-				trap_EA_Move(bs->client, bs->goalMovedir, 5000);
+				trap->EA_Move(bs->client, bs->goalMovedir, 5000);
 		}
 
 		if (meleestrafe)
@@ -4622,11 +4622,11 @@ void AOTC_StandardBotAI(bot_state_t *bs, float thinktime)
 
 		if (bs->meleeStrafeDir && meleestrafe && bs->meleeStrafeDisable < level.time)
 		{
-			trap_EA_MoveRight(bs->client);
+			trap->EA_MoveRight(bs->client);
 		}
 		else if (meleestrafe && bs->meleeStrafeDisable < level.time)
 		{
-			trap_EA_MoveLeft(bs->client);
+			trap->EA_MoveLeft(bs->client);
 		}
 
 		if (BotTrace_Jump(bs, bs->goalPosition))
@@ -4644,11 +4644,11 @@ void AOTC_StandardBotAI(bot_state_t *bs, float thinktime)
 
 			if (strafeAround == STRAFEAROUND_RIGHT)
 			{
-				trap_EA_MoveRight(bs->client);
+				trap->EA_MoveRight(bs->client);
 			}
 			else if (strafeAround == STRAFEAROUND_LEFT)
 			{
-				trap_EA_MoveLeft(bs->client);
+				trap->EA_MoveLeft(bs->client);
 			}
 		}
 #endif
@@ -4686,17 +4686,17 @@ void AOTC_StandardBotAI(bot_state_t *bs, float thinktime)
 		{
 			if (bs->jumpHoldTime > level.time)
 			{
-				trap_EA_Jump(bs->client);
+				trap->EA_Jump(bs->client);
 				if (bs->wpCurrent)
 				{
 					if ((bs->wpCurrent->origin[2] - bs->origin[2]) < 64)
 					{
-						trap_EA_MoveForward(bs->client);
+						trap->EA_MoveForward(bs->client);
 					}
 				}
 				else
 				{
-					trap_EA_MoveForward(bs->client);
+					trap->EA_MoveForward(bs->client);
 				}
 				if (g_entities[bs->client].client->ps.groundEntityNum == ENTITYNUM_NONE)
 				{
@@ -4705,14 +4705,14 @@ void AOTC_StandardBotAI(bot_state_t *bs, float thinktime)
 			}
 			else if (!(bs->cur_ps.pm_flags & PMF_JUMP_HELD))
 			{
-				trap_EA_Jump(bs->client);
+				trap->EA_Jump(bs->client);
 			}
 		}
 	}
 
 	if (bs->duckTime > level.time)
 	{
-		trap_EA_Crouch(bs->client);
+		trap->EA_Crouch(bs->client);
 	}
 
 	if ( bs->dangerousObject && bs->dangerousObject->inuse && bs->dangerousObject->health > 0 &&
@@ -4788,7 +4788,7 @@ void AOTC_StandardBotAI(bot_state_t *bs, float thinktime)
 			}
 		}
 	}
-	else if (g_gametype.integer >= GT_TEAM)
+	else if (level.gametype >= GT_TEAM)
 	{ //still check for anyone to help..
 		friendInLOF = CheckForFriendInLOF(bs);
 
@@ -4850,11 +4850,11 @@ void AOTC_StandardBotAI(bot_state_t *bs, float thinktime)
 
 	if (bs->doAttack)
 	{
-		trap_EA_Attack(bs->client);
+		trap->EA_Attack(bs->client);
 	}
 	else if (bs->doAltAttack)
 	{
-		trap_EA_Alt_Attack(bs->client);
+		trap->EA_Alt_Attack(bs->client);
 	}
 
 	if (useTheForce && forceHostile && bs->botChallengingTime > level.time)
@@ -4868,14 +4868,14 @@ void AOTC_StandardBotAI(bot_state_t *bs, float thinktime)
 		if (bs->forceJumpChargeTime > level.time)
 		{
 			level.clients[bs->client].ps.fd.forcePowerSelected = FP_LEVITATION;
-			trap_EA_ForcePower(bs->client);
+			trap->EA_ForcePower(bs->client);
 		}
 		else
 		{
 #endif
 			if (bot_forcepowers.integer && !g_forcePowerDisable.integer)
 			{
-				trap_EA_ForcePower(bs->client);
+				trap->EA_ForcePower(bs->client);
 			}
 #ifndef FORCEJUMP_INSTANTMETHOD
 		}
