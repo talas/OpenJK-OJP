@@ -4,7 +4,7 @@ Copyright (C) 2019, Talas
 
 This file is part of the OpenJK-OJP source code.
 
-OpenJK-OJP is free software; you can redistribute it and/or modify it
+OpenJK-OpenJK-OJP is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License version 2 as
 published by the Free Software Foundation.
 
