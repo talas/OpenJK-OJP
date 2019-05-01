@@ -20,9 +20,7 @@
 #define	USENEWNAVSYSTEM	1
 
 
-#if !defined(VEC_INC)
-	#include "CVec.h"
-#endif
+#include "Ravl/CVec.h"
 
 #include "graph_vs.h"
 #include "graph_region.h"
