@@ -161,7 +161,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 			array[1] = (void *)ctx->uc_mcontext.gregs[EIP];
 		#else
 			G_LogPrintf("Stack frames: %zd entries\n", size-1);
+#if __x86_64__
 			array[1] = (void *)ctx->uc_mcontext.gregs[REG_RIP];
+#else
+			array[1] = (void *)ctx->uc_mcontext.gregs[REG_EIP];
+#endif
 		#endif
 		G_LogPrintf("Backtrace:\n");
 

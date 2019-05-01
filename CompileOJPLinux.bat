@@ -17,7 +17,7 @@ ECHO ================
 ECHO Starting Compile
 ECHO ================
 
-cd /source/game
+cd /codemp/game
 IF EXIST jampgamei386.so DEL jampgamei386.so
 
 mingw32-make.exe

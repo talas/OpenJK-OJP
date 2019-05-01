@@ -12,17 +12,20 @@ set OLDDIR=%CD%
 rem Determine which version of Visual Studios we have installed.
 IF "%VS110COMNTOOLS%" NEQ "" (
 	rem Visual Studios 2012
-	set OJPSLN=source\OJP Enhanced_VS2012.sln
+ 	call CreateVisualStudio2013Projects.bat
+	set OJPSLN=build\OpenJK.sln
  	set TOOLDIR="%VS110COMNTOOLS%"
 ) ELSE (
 IF "%VS100COMNTOOLS%" NEQ "" (
 	rem Visual Studios 2010
- 	set OJPSLN=source\OJP Enhanced_VS2010.sln
+ 	call CreateVisualStudio2013Projects.bat
+ 	set OJPSLN=build\OpenJK.sln
  	set TOOLDIR="%VS100COMNTOOLS%"
 ) ELSE (
 IF "%VS80COMNTOOLS%" NEQ "" (
 	rem Visual Studios 2008
- 	set OJPSLN=source\OJP Enhanced.sln
+ 	call CreateVisualStudio2013Projects.bat
+ 	set OJPSLN=build\OpenJK.sln
  	set TOOLDIR="%VS80COMNTOOLS%"
 ) ) )
 
