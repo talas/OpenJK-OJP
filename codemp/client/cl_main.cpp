@@ -1830,7 +1830,7 @@ static void CL_CheckSVStringEdRef(char *buf, const char *str)
 
 					buf[b] = 0;
 					//[CoOp]
-					//We support passing in refsection as well now.
+					//74145: We support passing in refsection as well now.
 					Q_strcat(buf, MAX_STRINGED_SV_STRING, SE_GetString(stripRef));
 					//[/CoOp]
 					b = strlen(buf);

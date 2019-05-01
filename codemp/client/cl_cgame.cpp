@@ -349,7 +349,7 @@ void CL_CheckSVStringEdRef(char *buf, const char *str)
 
 					buf[b] = 0;
 					//[CoOp]
-					// We support passing in refsection now
+					// 74145: We support passing in refsection now
 					Q_strcat(buf, MAX_STRINGED_SV_STRING, SE_GetString(stringRef));
 					//[CoOp]
 					b = strlen(buf);

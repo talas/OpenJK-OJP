@@ -45,7 +45,7 @@ const char *SV_GetStringEdString(char *refSection, char *refName)
 	//properly.
 	static char text[1024]={0};
 	//[CoOp]
-	// We support passing in refsection now
+	// 74145: We support passing in refsection now
 	Com_sprintf(text, sizeof(text), "@@@%s_%s", refSection, refName);
 	//[/CoOp]
 	return text;

@@ -1225,6 +1225,7 @@ static void SV_UpdateUserinfo_f( client_t *cl ) {
 		if (cl->lastUserInfoCount >= INFO_CHANGE_MAX_COUNT)
 		{
 		//	SV_SendServerCommand(cl, "print \"Warning: Too many info changes, last info ignored\n\"\n");
+			//[CoOp] 74145: need to send refsection too now
 			SV_SendServerCommand(cl, "print \"@@@MP_SVGAME_TOO_MANY_INFO\n\"\n");
 			return;
 		}
