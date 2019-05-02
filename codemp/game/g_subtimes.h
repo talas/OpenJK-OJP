@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2019, Talas
+Copyright (C) 2019, OJP contributors
 
 This file is part of the OpenJK-OJP source code.
 
