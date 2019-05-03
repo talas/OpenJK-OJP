@@ -5820,6 +5820,12 @@ void WP_SaberStartMissileBlockCheck( gentity_t *self, usercmd_t *ucmd  )
 				continue; //not valid cl owner
 			}
 
+			if (pOwner->client->sess.sessionTeam == TEAM_SPECTATOR ||
+				pOwner->client->tempSpectate >= level.time)
+			{ // 74145: ignore specs
+				continue;
+			}
+
 			if (!pOwner->client->ps.saberEntityNum ||
 				//[SaberSys]
 				//!pOwner->client->ps.saberInFlight ||
