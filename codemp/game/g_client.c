@@ -5105,7 +5105,7 @@ qboolean G_StandardHumanoid( gentity_t *self )
 		return qfalse;
 	}
 
-	trap->G2API_GetGLAName( &self->ghoul2, 0, GLAName );
+	trap->G2API_GetGLAName( self->ghoul2, 0, GLAName );
 	assert(GLAName[0]);
 	if ( GLAName[0] ) 
 	{
