@@ -9241,8 +9241,8 @@ static void PM_Weapon( void )
 	}
 
 	// take an ammo away if not infinite
-	if ( pm->ps->clientNum < MAX_CLIENTS && pm->ps->ammo[ weaponData[pm->ps->weapon].ammoIndex ] != -1 &&
-		(pm->ps->weapon != WP_BOWCASTER || (pm->ps->weapon == WP_BOWCASTER &&!(pm->ps->eFlags2 & EF2_BOWCASTERSCOPE))))
+	if ( pm->ps->clientNum < MAX_CLIENTS && pm->ps->ammo[ weaponData[pm->ps->weapon].ammoIndex ] != -1 /* &&
+		(pm->ps->weapon != WP_BOWCASTER || (pm->ps->weapon == WP_BOWCASTER &&!(pm->ps->eFlags2 & EF2_BOWCASTERSCOPE)))*/ ) // 74145: huh? unlimited ammo?
 	{
 		// enough energy to fire this weapon?
 		if ((pm->ps->ammo[weaponData[pm->ps->weapon].ammoIndex] - amount) >= 0)
