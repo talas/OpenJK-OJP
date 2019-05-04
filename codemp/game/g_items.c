@@ -2644,6 +2644,10 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other) {
 	G_AddEvent(other, EV_WEAPINVCHANGE, other->client->ps.stats[STAT_WEAPONS]);
 	//[/VisualWeapons]
 
+	// 74145: If you lack this weapon skill, pickup minimal ammo
+	if (!SkillLevelForWeap(other, ent->item->giTag))
+		quantity = 1;
+
 	//Add_Ammo( other, ent->item->giTag, quantity );
 	Add_Ammo( other, weaponData[ent->item->giTag].ammoIndex, quantity );
 
