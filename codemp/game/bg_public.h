@@ -157,7 +157,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //[/FatigueSys]
 
 //[SaberSys]
-#define MISHAP_VARIABLE			fd.forcePower	//The variable used for tracking a player's mishap level. MUST be a variable inside of the playerstate.
+#define MISHAP_VARIABLE			stats[STAT_DODGE]	//The variable used for tracking a player's mishap level. MUST be a variable inside of the playerstate.
 #define MISHAPLEVEL_FULL		5  //the point at which full mishaps occur on the balance bar.
 #define MISHAPLEVEL_HEAVY		10
 #define MISHAPLEVEL_LIGHT		25

@@ -11675,6 +11675,22 @@ if( !ojp_allowBodyDodge.integer )
 		}
 	}
 
+	if(mod == MOD_MELEE || mod == MOD_SABER) // 74145: no dodging the saber either
+	{//don't dodge melee attacks for now.
+		// 74145: even if already in a dodge
+		if(g_debugdodge.integer)
+		{
+			Com_Printf("%i: Client %i Can't dodge melee damage\n", level.time, self->s.number);
+		}
+		return qfalse;
+	}
+
+	if (!(self->client->ps.fd.forcePowersKnown & ( 1 << FP_SEE )))
+		return qfalse; // 74145: Only Jedi and Hybrid can dodge
+
+	if (!(self->client->ps.fd.forcePowersKnown & ( 1 << FP_SPEED )))
+		dpcost *= 2; // 74145: 2x dodge cost if you don't have force speed
+
 	if(BG_HopAnim(self->client->ps.legsAnim) //in dodge hop
 		|| (BG_InRoll(&self->client->ps, self->client->ps.legsAnim) 
 			&& (self->client->ps.userInt3 & (1 << FLAG_DODGEROLL)))  //in dodge roll
@@ -11711,15 +11727,6 @@ if( !ojp_allowBodyDodge.integer )
 		if(g_debugdodge.integer)
 		{
 			Com_Printf("%i: Client %i Being held, can't dodge.\n", level.time, self->s.number);
-		}
-		return qfalse;
-	}
-
-	if(mod == MOD_MELEE)
-	{//don't dodge melee attacks for now.
-		if(g_debugdodge.integer)
-		{
-			Com_Printf("%i: Client %i Can't dodge melee damage\n", level.time, self->s.number);
 		}
 		return qfalse;
 	}
@@ -11819,7 +11826,24 @@ if( !ojp_allowBodyDodge.integer )
 		*/
 	}
 
-	if(dpcost < self->client->ps.stats[STAT_DODGE])
+	if((mod == MOD_REPEATER_ALT_SPLASH
+		|| mod == MOD_FLECHETTE_ALT_SPLASH
+		|| mod == MOD_ROCKET_SPLASH
+		|| mod == MOD_ROCKET_HOMING_SPLASH
+		|| mod == MOD_THERMAL_SPLASH
+		|| mod == MOD_TRIP_MINE_SPLASH
+		|| mod == MOD_TIMED_MINE_SPLASH
+		|| mod == MOD_DET_PACK_SPLASH
+		|| mod == MOD_ROCKET)
+		&& dpcost > 15)
+	{// 74145: Can only partially dodge explosives
+		if (self->client->ps.stats[STAT_DODGE] < 15)
+			return qfalse;
+		*dmg =(int)(*dmg * (15/ (float) dpcost));
+		G_DodgeDrain(self, shooter, Q_min(15, self->client->ps.stats[STAT_DODGE]));
+		partial = qtrue;
+	}
+	else if(dpcost < self->client->ps.stats[STAT_DODGE])
 	{
 		//[ExpSys]
 		G_DodgeDrain(self, shooter, dpcost);
