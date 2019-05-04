@@ -719,7 +719,9 @@ qboolean BG_LegalizedForcePowers(char *powerOut, size_t powerOutSize, int maxRan
 							qboolean stillHaveForce = qfalse;
 							for(counter = 0; counter < NUM_TOTAL_SKILLS; counter++)
 							{
-								if(counter != FP_SEE && final_Powers[counter])
+								if(counter != FP_SEE && final_Powers[counter] && // 74145: Only count force powers and saber skills
+									(counter < NUM_FORCE_POWERS ||
+										(counter >= NUM_FORCE_POWERS+SK_BLUESTYLE && counter <= NUM_FORCE_POWERS+SK_STAFFSTYLE)))
 								{
 									stillHaveForce = qtrue;
 									break;
@@ -860,6 +862,44 @@ qboolean BG_LegalizedForcePowers(char *powerOut, size_t powerOutSize, int maxRan
 		final_Powers[NUM_FORCE_POWERS+SK_DUALSTYLE]=0;
 		final_Powers[NUM_FORCE_POWERS+SK_STAFFSTYLE]=0;
 		//[/StanceSelection]
+	}
+	if (final_Powers[FP_SEE] > 0)
+	{// 74145: Force limits gunnery ranks (same limits in ui_force.c)
+		int spentInForce = 0;
+		for(i=0;i<NUM_FORCE_POWERS;i++)
+		{
+			if(final_Powers[i] >= FORCE_LEVEL_3)
+				spentInForce += bgForcePowerCost[i][3];
+			if(final_Powers[i] >= FORCE_LEVEL_2)
+				spentInForce += bgForcePowerCost[i][2];
+			if(final_Powers[i] >= FORCE_LEVEL_1)
+				spentInForce += bgForcePowerCost[i][1];
+		}
+		if(spentInForce >= 25)
+		{
+			for(i=NUM_FORCE_POWERS;i<NUM_FORCE_POWERS+SK_DISRUPTOR+1;i++)
+			{
+				if(final_Powers[i] > FORCE_LEVEL_1)
+					final_Powers[i] = FORCE_LEVEL_1;
+			}
+			if(final_Powers[NUM_FORCE_POWERS+SK_FLECHETTE] > FORCE_LEVEL_1)
+				final_Powers[NUM_FORCE_POWERS+SK_FLECHETTE] = 1;
+		}
+		else
+		{
+			for(i=NUM_FORCE_POWERS;i<NUM_FORCE_POWERS+SK_DISRUPTOR+1;i++)
+			{
+				if(final_Powers[i] > FORCE_LEVEL_2)
+					final_Powers[i] = FORCE_LEVEL_2;
+			}
+			if(final_Powers[NUM_FORCE_POWERS+SK_FLECHETTE] > FORCE_LEVEL_2)
+				final_Powers[NUM_FORCE_POWERS+SK_FLECHETTE] = 2;
+		}
+		if (final_Powers[FP_LEVITATION] > 0)
+		{
+			if(final_Powers[NUM_FORCE_POWERS+SK_JETPACK])
+				final_Powers[NUM_FORCE_POWERS+SK_JETPACK] = 0;
+		}
 	}
 	//[/ExpSys]
 
