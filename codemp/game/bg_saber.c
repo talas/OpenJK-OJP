@@ -1281,7 +1281,9 @@ void PM_SaberLockBreak( playerState_t *genemy, qboolean victory, int strength )
 	//qboolean punishLoser = qfalse;
 	//[SaberLockSys]
 	//qboolean noKnockdown = qfalse;
-	qboolean superBreak = victory;
+	//qboolean superBreak = victory;
+	// 74145: Only do superbreak when they are low on dodge
+	qboolean superBreak = victory && (genemy->stats[STAT_DODGE] <= DODGE_CRITICALLEVEL);
 
 	//remove the saber lock winner flag.
 	pm->ps->userInt3 &= ~( 1 << FLAG_SABERLOCK_ATTACKER );
@@ -1309,10 +1311,7 @@ void PM_SaberLockBreak( playerState_t *genemy, qboolean victory, int strength )
 	if ( victory )
 	{ //someone lost the lock, so punish them by knocking them down
 		//[SaberLockSys]
-		if(!superBreak)
-		{//if we're not in a superbreak, force the loser to mishap.
-			pm->checkDuelLoss = genemy->clientNum+1;
-		}
+		pm->checkDuelLoss = genemy->clientNum+1;
 
 		//racc - this seems to override the actual saberlock completion animations I don't want that.
 		/*

@@ -4911,6 +4911,12 @@ static QINLINE qboolean CheckSaberDamage(gentity_t *self, int rSaberNum, int rBl
 	{
 		dmg = DAMAGE_THROWN;
 	}
+	//[SaberLockSys]
+	else if ( BG_SuperBreakWinAnim(self->client->ps.torsoAnim) )
+	{ // 74145: instadeath damage for finishing moves
+		dmg = 9999;
+	}
+	//[/SaberLockSys]
 	else if ( BG_SaberInFullDamageMove(&self->client->ps, self->localAnimIndex) )
 	//if ( self->client->ps.saberAttackWound < level.time
 	{//full damage moves

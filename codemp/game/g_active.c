@@ -4053,19 +4053,11 @@ void ClientThink_real( gentity_t *ent ) {
 		if (pmove.checkDuelLoss > 0 && (pmove.checkDuelLoss <= MAX_CLIENTS || (pmove.checkDuelLoss < (MAX_GENTITIES-1) && g_entities[pmove.checkDuelLoss-1].s.eType == ET_NPC) ) )
 		{
 			gentity_t *clientLost = &g_entities[pmove.checkDuelLoss-1];
-
 			if (clientLost && clientLost->inuse && clientLost->client)
-			{
 				G_RollBalance(clientLost, ent, qtrue);
-			}
-		}
 
-		/* racc - don't use the basejka instant death check.  I don't like it.
-		if (pmove.checkDuelLoss > 0 && (pmove.checkDuelLoss <= MAX_CLIENTS || (pmove.checkDuelLoss < (MAX_GENTITIES-1) && g_entities[pmove.checkDuelLoss-1].s.eType == ET_NPC) ) )
-		{
-			gentity_t *clientLost = &g_entities[pm.checkDuelLoss-1];
-
-			if (clientLost && clientLost->inuse && clientLost->client && Q_irand(0, 40) > clientLost->health)
+			//if (clientLost && clientLost->inuse && clientLost->client && Q_irand(0, 40) > clientLost->health)
+			if (clientLost && clientLost->inuse && clientLost->client && clientLost->client->ps.stats[STAT_DODGE] <= DODGE_CRITICALLEVEL)
 			{
 				vec3_t attDir;
 				VectorSubtract(ent->client->ps.origin, clientLost->client->ps.origin, attDir);
@@ -4075,6 +4067,8 @@ void ClientThink_real( gentity_t *ent ) {
 				clientLost->client->ps.forceHandExtend = HANDEXTEND_NONE;
 				clientLost->client->ps.forceHandExtendTime = 0;
 
+				// 74145: Damage is ramped up in CheckSaberDamage instead.
+				/* racc - don't use the basejka instant death check.  I don't like it.
 				gGAvoidDismember = 1;
 				G_Damage(clientLost, ent, ent, attDir, clientLost->client->ps.origin, 9999, DAMAGE_NO_PROTECTION, MOD_SABER);
 
@@ -4085,6 +4079,7 @@ void ClientThink_real( gentity_t *ent ) {
 				}
 
 				gGAvoidDismember = 0;
+				*/
 			}
 			else if (clientLost && clientLost->inuse && clientLost->client &&
 				clientLost->client->ps.forceHandExtend != HANDEXTEND_KNOCKDOWN && clientLost->client->ps.saberEntityNum)
@@ -4092,7 +4087,6 @@ void ClientThink_real( gentity_t *ent ) {
 				saberCheckKnockdown_DuelLoss(&g_entities[clientLost->client->ps.saberEntityNum], clientLost, ent);
 			}
 		}
-		*/
 		//[/SaberLockSys]
 
 		pmove.checkDuelLoss = 0;
