@@ -1284,16 +1284,29 @@ void PM_SaberLockBreak( playerState_t *genemy, qboolean victory, int strength )
 	//qboolean superBreak = victory;
 	// 74145: Only do superbreak when they are low on dodge
 	qboolean superBreak = victory && (genemy->stats[STAT_DODGE] <= DODGE_CRITICALLEVEL);
+	// 74145: If both played paper (push), then we get an "explosion" like in ep3.
+	qboolean pushExplosion = (pm->ps->userInt3 & (1 << FLAG_SABERLOCK_PAPER)) && (genemy->userInt3 & (1 << FLAG_SABERLOCK_PAPER));
+
+	if ( (pm->ps->userInt3 & SABERLOCK_CARD_FLAG_MASK)
+		&& (genemy->userInt3 & SABERLOCK_CARD_FLAG_MASK))
+	{ // deduct cards if both played (not interrupted)
+		if (pm->ps->userInt3 & (1 << FLAG_SABERLOCK_ROCK))
+			pm->ps->stats[STAT_CARDS] -= 1;
+		else if (pm->ps->userInt3 & (1 << FLAG_SABERLOCK_PAPER))
+			pm->ps->stats[STAT_CARDS] -= 10;
+		else if (pm->ps->userInt3 & (1 << FLAG_SABERLOCK_SCISSORS))
+			pm->ps->stats[STAT_CARDS] -= 100;
+		if (genemy->userInt3 & (1 << FLAG_SABERLOCK_ROCK))
+			genemy->stats[STAT_CARDS] -= 1;
+		else if (genemy->userInt3 & (1 << FLAG_SABERLOCK_PAPER))
+			genemy->stats[STAT_CARDS] -= 10;
+		else if (genemy->userInt3 & (1 << FLAG_SABERLOCK_SCISSORS))
+			genemy->stats[STAT_CARDS] -= 100;
+	}
 
 	//remove the saber lock winner flag.
-	pm->ps->userInt3 &= ~( 1 << FLAG_SABERLOCK_ATTACKER );
-	genemy->userInt3 &= ~( 1 << FLAG_SABERLOCK_ATTACKER );
-
-	pm->ps->userInt3 &= ~( 1 << FLAG_SABERLOCK_OLD_DIR );
-	genemy->userInt3 &= ~( 1 << FLAG_SABERLOCK_OLD_DIR );
-
-	pm->ps->userInt3 &= ~( SABERLOCK_DIR_FLAG_MASK );
-	genemy->userInt3 &= ~( SABERLOCK_DIR_FLAG_MASK );
+	pm->ps->userInt3 &= ~( SABERLOCK_CARD_FLAG_MASK );
+	genemy->userInt3 &= ~( SABERLOCK_CARD_FLAG_MASK );
 	//[/SaberLockSys]
 
 	//a single vs. single break
@@ -1368,6 +1381,35 @@ void PM_SaberLockBreak( playerState_t *genemy, qboolean victory, int strength )
 
 		VectorSubtract(genemy->origin, pm->ps->origin, oppDir);
 		VectorNormalize(oppDir);
+		//[SaberLockSys]
+		if (pushExplosion)
+		{
+			newstrength = 60;
+			//[KnockdownSys]
+			//had to shift this to game side to make it work with the SP knockdown method.
+#ifdef _GAME
+			gentity_t *self = &g_entities[pm->ps->clientNum];
+			gentity_t *enemy = &g_entities[genemy->clientNum];
+			G_Sound( self, CHAN_BODY, G_SoundIndex( "sound/weapons/force/push.wav" ) );
+			pm->ps->powerups[PW_DISINT_4] = level.time + 1000;
+			genemy->powerups[PW_DISINT_4] = level.time + 1000;
+			G_Knockdown( enemy, self, oppDir, newstrength*40, qtrue );
+
+			vec3_t theirOppDir;
+			VectorSubtract(pm->ps->origin, genemy->origin, theirOppDir);
+			VectorNormalize(theirOppDir);
+			G_Knockdown( self, enemy, theirOppDir, newstrength*40, qtrue );
+#endif
+			//[/KnockdownSys]
+			genemy->otherKiller = pm->ps->clientNum;
+			genemy->otherKillerTime = pm->cmd.serverTime + 5000;
+			genemy->otherKillerDebounceTime = pm->cmd.serverTime + 100;
+			pm->ps->otherKiller = genemy->clientNum;
+			pm->ps->otherKillerTime = pm->cmd.serverTime + 5000;
+			pm->ps->otherKillerDebounceTime = pm->cmd.serverTime + 100;
+		}
+		//[/SaberLockSys]
+
 		genemy->velocity[0] = oppDir[0]*(newstrength*40);
 		genemy->velocity[1] = oppDir[1]*(newstrength*40);
 		//[SaberLockSys]

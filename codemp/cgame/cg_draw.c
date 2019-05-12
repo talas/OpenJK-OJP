@@ -1801,6 +1801,55 @@ void CG_DrawDodge( menuDef_t *menuHUD )
 }
 //[/DodgeSys]
 
+//[SaberLockSys]
+void CG_DrawSaberLockCards()
+{
+	int cardShader = 0;
+	int startDrawPos;
+	int posY = 0;
+	int ico_size = 16;
+	int size_of_left_hud = 115;
+	int card_type;
+	int card_count = 0;
+	int count;
+
+	trap->R_SetColor( NULL );
+
+	if (!cg.snap || cg.snap->ps.weapon != WP_SABER)
+	{
+		return;
+	}
+
+	for (card_type=FLAG_SABERLOCK_ROCK; card_type<=FLAG_SABERLOCK_SCISSORS; card_type++)
+	{
+		startDrawPos = 2;
+		if (card_type == FLAG_SABERLOCK_ROCK)
+		{
+			card_count = cg.snap->ps.stats[STAT_CARDS] % 10;
+			cardShader = trap->R_RegisterShaderNoMip( "gfx/hud/rock" );
+			posY = 0;
+		}
+		else if (card_type == FLAG_SABERLOCK_PAPER)
+		{
+			card_count = cg.snap->ps.stats[STAT_CARDS] / 10 % 10;
+			cardShader = trap->R_RegisterShaderNoMip( "gfx/hud/paper" );
+			posY = ico_size+2;
+		}
+		else //if (card_type == FLAG_SABERLOCK_SCISSORS)
+		{
+			card_count = cg.snap->ps.stats[STAT_CARDS] / 100 % 10;
+			cardShader = trap->R_RegisterShaderNoMip( "gfx/hud/scissors" );
+			posY = (ico_size+2)*2;
+		}
+		for (count=0; count<card_count; count++)
+		{
+			CG_DrawPic( size_of_left_hud+2+startDrawPos, 370+posY, ico_size, ico_size, cardShader );
+			startDrawPos += ico_size+2;
+		}
+	}
+}
+//[/SaberLockSys]
+
 /*
 ================
 CG_DrawHUD
@@ -1875,6 +1924,10 @@ void CG_DrawHUD(centity_t	*cent)
 					focusItem->window.background
 					);
 			}
+
+			//[SaberLockSys]
+			CG_DrawSaberLockCards();
+			//[/SaberLockSys]
 
 			CG_DrawArmor(menuHUD);
 			CG_DrawHealth(menuHUD);
@@ -5448,9 +5501,9 @@ static void CG_DrawCrosshair( vec3_t worldPoint, int chEntValid ) {
 	{
 		//[SaberLockSys]
 		if ( cg.snap->ps.saberLockTime > cg.time )
-		{//while in a saberlock, show color based on attack/defend state
-			if ( cg.snap->ps.userInt3 & (1 << FLAG_SABERLOCK_ATTACKER) )
-			{//green while on offense
+		{//while in a saberlock, show color based on if you have chosen a card or not
+			if ( cg.snap->ps.userInt3 & SABERLOCK_CARD_FLAG_MASK )
+			{//green when we have chosen
 				ecolor[0] = 0.0;//R
 				ecolor[1] = 1.0;//G
 				ecolor[2] = 0.0;//B
@@ -5767,44 +5820,26 @@ static void CG_DrawCrosshair( vec3_t worldPoint, int chEntValid ) {
 	trap->R_DrawStretchPic( chX, chY, w, h, 0, 0, 1, 1, hShader );
 
 	//[SaberLockSys]
-	if(cg.snap->ps.saberLockTime > cg.time)
-	{//draw saberlock direction
+	if(cg.snap->ps.saberLockTime > cg.time && !(cg.snap->ps.userInt3 & SABERLOCK_CARD_FLAG_MASK))
+	{//indicate saberlock card options (didn't choose yet)
+		// 74145: TODO: Draw a textual hint?
+		// 74145: TODO: also indicate "break out" option? (alt-attack + back/down)
 		float dirW = 5.0f;
 		float dirH = 5.0f;
 		float dirX = chX + w * 0.5f - dirW * 0.5f;
 		float dirY = chY + h * 0.5f - dirH * 0.5f;
-		int color = CT_GREEN;
-		qboolean drawDir = qfalse;
 
-		if(cg.snap->ps.userInt3 & (1 << FLAG_SABERLOCK_OLD_DIR))
-		{//invalid dir color tic
-			color = CT_RED;
+		if (cg.snap->ps.stats[STAT_CARDS] % 10 > 0)
+		{ // we have rock (left)
+			CG_DrawRect(dirX - w * 0.5f, dirY, dirW, dirH, 1.0f, colorTable[CT_GREEN]);
 		}
-
-		if(cg.snap->ps.userInt3 & (1 << FLAG_SABERLOCK_UP))
-		{
-			dirY -= h * 0.5f;
-			drawDir = qtrue;
+		if (cg.snap->ps.stats[STAT_CARDS] / 10 % 10 > 0)
+		{ // we have paper (forward/up)
+			CG_DrawRect(dirX, dirY - h * 0.5f, dirW, dirH, 1.0f, colorTable[CT_GREEN]);
 		}
-		else if(cg.snap->ps.userInt3 & (1 << FLAG_SABERLOCK_DOWN))
-		{
-			dirY += h * 0.5f;
-			drawDir = qtrue;
-		}
-		else if(cg.snap->ps.userInt3 & (1 << FLAG_SABERLOCK_LEFT))
-		{
-			dirX -= w * 0.5f;
-			drawDir = qtrue;
-		}
-		else if(cg.snap->ps.userInt3 & (1 << FLAG_SABERLOCK_RIGHT))
-		{
-			dirX += w * 0.5f;
-			drawDir = qtrue;
-		}
-
-		if(drawDir)
-		{
-			CG_DrawRect(dirX, dirY, dirW, dirH, 1.0f, colorTable[color]);
+		if (cg.snap->ps.stats[STAT_CARDS] / 100 % 10 > 0)
+		{ // we have scissors (right)
+			CG_DrawRect(dirX + w * 0.5f, dirY, dirW, dirH, 1.0f, colorTable[CT_GREEN]);
 		}
 	}
 	//[/SaberLockSys]

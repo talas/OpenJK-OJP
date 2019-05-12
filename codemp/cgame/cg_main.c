@@ -1253,6 +1253,9 @@ static void CG_RegisterGraphics( void ) {
 	cgs.effects.mSaberBloodSparksMid = trap->FX_RegisterEffect("saber/blood_sparks_50_mp.efx");
 	//[SaberLockSys]
 	cgs.effects.mSaberFriction = trap->FX_RegisterEffect("saber/saber_friction.efx");
+	trap->R_RegisterShaderNoMip( "gfx/hud/rock" );
+	trap->R_RegisterShaderNoMip( "gfx/hud/paper" );
+	trap->R_RegisterShaderNoMip( "gfx/hud/scissors" );
 	//[/SaberLockSys]
 	cgs.effects.mSpawn = trap->FX_RegisterEffect("mp/spawn.efx");
 	cgs.effects.mJediSpawn = trap->FX_RegisterEffect("mp/jedispawn.efx");

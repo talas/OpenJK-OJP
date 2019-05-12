@@ -2939,6 +2939,11 @@ void ClientBegin( int clientNum, qboolean allowTeamReset ) {
 	//init saber ent
 	WP_SaberInitBladeData( ent );
 
+	//[SaberLockSys]
+	// Give 2 of each card
+	ent->client->ps.stats[STAT_CARDS] = 222; // 74145: TODO: make a cvar
+	//[/SaberLockSys]
+
 	// First time model setup for that player.
 	trap->GetUserinfo( clientNum, userinfo, sizeof(userinfo) );
 	modelname = Info_ValueForKey (userinfo, "model");
@@ -3460,6 +3465,9 @@ void ClientSpawn(gentity_t *ent) {
 	//[DodgeSys]
 	int					savedDodgeMax;
 	//[/DodgeSys]
+	//[SaberLockSys]
+	int					savedCards;
+	//[/SaberLockSys]
 	saberInfo_t			saberSaved[MAX_SABERS];
 	int					persistant[MAX_PERSISTANT] = {0};
 	int					flags, gameFlags, savedPing, accuracy_hits, accuracy_shots, eventSequence;
@@ -3718,6 +3726,9 @@ void ClientSpawn(gentity_t *ent) {
 	//[DodgeSys]
 	savedDodgeMax = client->ps.stats[STAT_MAX_DODGE];
 	//[/DodgeSys]
+	//[SaberLockSys]
+	savedCards = client->ps.stats[STAT_CARDS];
+	//[/SaberLockSys]
 
 	for ( i=0; i<MAX_SABERS; i++ )
 	{
@@ -3767,6 +3778,9 @@ void ClientSpawn(gentity_t *ent) {
 	//[DodgeSys]
 	client->ps.stats[STAT_MAX_DODGE] = savedDodgeMax;
 	//[/DodgeSys]
+	//[SaberLockSys]
+	client->ps.stats[STAT_CARDS] = savedCards;
+	//[/SaberLockSys]
 
 	for ( i=0; i<MAX_SABERS; i++ )
 	{
@@ -4534,6 +4548,21 @@ void ClientSpawn(gentity_t *ent) {
 	//Init dodge stat.
 	client->ps.stats[STAT_DODGE] = client->ps.stats[STAT_MAX_DODGE];
 	//[/DodgeSys]
+
+	//[SaberLockSys]
+	// give a random card.
+	if (client->ps.stats[STAT_CARDS] < 222)
+	{ // but max 2 of each card
+		vec3_t counts;
+		counts[0] = client->ps.stats[STAT_CARDS] % 10;
+		counts[1] = client->ps.stats[STAT_CARDS] / 10 % 10;
+		counts[2] = client->ps.stats[STAT_CARDS] / 100 % 10;
+		int card = Q_irand(0, 2);
+		while (counts[card] >= 2)
+			card = Q_irand(0, 2);
+		client->ps.stats[STAT_CARDS] += (int)pow(10, card);
+	}
+	//[/SaberLockSys]
 
 	G_SetOrigin( ent, spawn_origin );
 	VectorCopy( spawn_origin, client->ps.origin );

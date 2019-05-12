@@ -5310,7 +5310,6 @@ static QINLINE qboolean CheckSaberDamage(gentity_t *self, int rSaberNum, int rBl
 				{
 					if (WP_SabersCheckLock(self, otherOwner))
 					{
-						self->client->ps.userInt3 |= ( 1 << FLAG_SABERLOCK_ATTACKER );
 						self->client->ps.saberBlocked = BLOCKED_NONE;
 						otherOwner->client->ps.saberBlocked = BLOCKED_NONE;
 						//add saber impact debounce

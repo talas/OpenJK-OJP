@@ -2982,6 +2982,12 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 				//[SaberSys]
 				AddFatigueKillBonus( attacker, self );
 				//[SaberSys]
+				//[SaberLockSys]
+				if ( meansOfDeath == MOD_SABER && attacker->client->ps.stats[STAT_CARDS] < 200) {
+					// reward 1 saberlock scissors card
+					attacker->client->ps.stats[STAT_CARDS] += 100;
+				}
+				//[/SaberLockSys]
 			}
 
 			if( meansOfDeath == MOD_STUN_BATON ) {

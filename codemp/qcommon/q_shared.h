@@ -1505,17 +1505,13 @@ typedef enum {
 	//this must be used in conjunction with the FLAG_SLOWBOUNCE to work right.
 	, FLAG_OLDSLOWBOUNCE
 
-	//this flag indicates that this player is current on offense in the current saberlock.
-	, FLAG_SABERLOCK_ATTACKER
+	//this flag indicates that this player has no saberlock cards (cannot win)
+	, FLAG_SABERLOCK_EMPTY
 
-	//This flag indicates that the current saber lock direction was the last one selected and can't be used again.
-	, FLAG_SABERLOCK_OLD_DIR
-
-	//Saber lock directions, valid on both saber lockees
-	, FLAG_SABERLOCK_UP
-	, FLAG_SABERLOCK_DOWN
-	, FLAG_SABERLOCK_LEFT
-	, FLAG_SABERLOCK_RIGHT
+	//the flag indicates which saberlock card a player has chosen
+	, FLAG_SABERLOCK_ROCK
+	, FLAG_SABERLOCK_PAPER
+	, FLAG_SABERLOCK_SCISSORS
 
 	//flag indicates that the player was parried.  
 	//They won't be able to launch into a combo from the bounce.
@@ -1542,7 +1538,7 @@ typedef enum {
 } userInt3Flags_t;
 
 //[SaberLockSys]
-#define SABERLOCK_DIR_FLAG_MASK	((1 << FLAG_SABERLOCK_UP) | (1 << FLAG_SABERLOCK_DOWN) | (1 << FLAG_SABERLOCK_LEFT) | (1 << FLAG_SABERLOCK_RIGHT))
+#define SABERLOCK_CARD_FLAG_MASK	((1 << FLAG_SABERLOCK_EMPTY) | (1 << FLAG_SABERLOCK_ROCK) | (1 << FLAG_SABERLOCK_PAPER) | (1 << FLAG_SABERLOCK_SCISSORS))
 //[/SaberLockSys]
 
 

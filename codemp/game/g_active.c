@@ -2375,50 +2375,53 @@ void CancelReload(gentity_t *ent)
 //[/Reload]
 
 //[SaberLockSys]
-int GetSaberLockDirFlag(gentity_t *self)
-{//Get the current saber lock direction for the given player.
-	if(self->client->ps.userInt3 & (1 << FLAG_SABERLOCK_UP))
+int GetSaberLockCardFlag(gentity_t *self)
+{//Get the current saber lock card for the given player.
+	if(self->client->ps.userInt3 & (1 << FLAG_SABERLOCK_EMPTY))
 	{
-		return FLAG_SABERLOCK_UP;
+		return FLAG_SABERLOCK_EMPTY;
 	}
-	else if(self->client->ps.userInt3 & (1 << FLAG_SABERLOCK_DOWN))
+	else if(self->client->ps.userInt3 & (1 << FLAG_SABERLOCK_ROCK))
 	{
-		return FLAG_SABERLOCK_DOWN;
+		return FLAG_SABERLOCK_ROCK;
 	}
-	else if(self->client->ps.userInt3 & (1 << FLAG_SABERLOCK_LEFT))
+	else if(self->client->ps.userInt3 & (1 << FLAG_SABERLOCK_PAPER))
 	{
-		return FLAG_SABERLOCK_LEFT;
+		return FLAG_SABERLOCK_PAPER;
 	}
-	else if(self->client->ps.userInt3 & (1 << FLAG_SABERLOCK_RIGHT))
+	else if(self->client->ps.userInt3 & (1 << FLAG_SABERLOCK_SCISSORS))
 	{
-		return FLAG_SABERLOCK_RIGHT;
+		return FLAG_SABERLOCK_SCISSORS;
 	}
 	return 0;
 }
 
-int SaberLockDirForMovement(gentity_t *self)
-{//return the saberlock direction for the current movement command on self.
+int SaberLockCardForMovement(gentity_t *self)
+{//return the saberlock card for the current movement command on self.
+	if (!(self->client->pers.cmd.buttons & BUTTON_ALT_ATTACK)
+		|| (self->client->pers.cmd.buttons & BUTTON_ATTACK))
+		return 0; // Need to hold alt-attack to choose (to avoid miss-clicks)
 	//only pure movement counts.
 	if(self->client->pers.cmd.rightmove == 0)
 	{
 		if(self->client->pers.cmd.forwardmove > 0)
 		{
-			return FLAG_SABERLOCK_UP;
+			return FLAG_SABERLOCK_PAPER;
 		}
 		else if(self->client->pers.cmd.forwardmove < 0)
 		{
-			return FLAG_SABERLOCK_DOWN;
+			return 0; // 74145: nothing or break out?
 		}
 	}
 	else if(self->client->pers.cmd.forwardmove == 0)
 	{
 		if(self->client->pers.cmd.rightmove > 0)
 		{
-			return FLAG_SABERLOCK_RIGHT;
+			return FLAG_SABERLOCK_SCISSORS;
 		}
 		else if(self->client->pers.cmd.rightmove < 0)
 		{
-			return FLAG_SABERLOCK_LEFT;
+			return FLAG_SABERLOCK_ROCK;
 		}
 	}
 	return 0;
@@ -3827,55 +3830,70 @@ void ClientThink_real( gentity_t *ent ) {
 			ent->client->ps.saberLockHitCheckTime = level.time;//so we don't push more than once per server frame
 			
 			//[SaberLockSys]
-			if(!(ent->client->ps.userInt3 & (1 << FLAG_SABERLOCK_ATTACKER)))
-			{//if we're not on the attack, check to see if we pressed the correct movement direction and can switch to offense.
-				int defenseSaberLockDir = SaberLockDirForMovement(ent);
-				int attackSaberLockDir = GetSaberLockDirFlag(ent);
+			if( !(ent->client->ps.userInt3 & (1 << FLAG_SABERLOCK_EMPTY))
+				&& !(ent->client->ps.userInt3 & (1 << FLAG_SABERLOCK_ROCK))
+				&& !(ent->client->ps.userInt3 & (1 << FLAG_SABERLOCK_PAPER))
+				&& !(ent->client->ps.userInt3 & (1 << FLAG_SABERLOCK_SCISSORS)))
+			{//if we didn't choose a card, check to see if we pressed a valid movement direction and alt-attack
+				int mySaberLockCard = SaberLockCardForMovement(ent);
+				int opponentSaberLockCard = GetSaberLockCardFlag(blockOpp);
 
 				if(ent->r.svFlags & SVF_BOT)
-				{//bots cheat and fake pressing the movement buttons.
-					if(Q_irand(0, 100) <= 25)
-					{//successfully switched to offense.
-						defenseSaberLockDir = attackSaberLockDir;
-					}
-					ent->client->ps.saberLockHitCheckTime = level.time + 1000; //check for AI pushes much slower.
+				{//bots just pick randomly
+					if (Q_irand(0, 5) == 0)
+						mySaberLockCard = Q_irand(FLAG_SABERLOCK_ROCK, FLAG_SABERLOCK_SCISSORS);
+					else
+						mySaberLockCard = 0; // 74145: take some time to "consider"
+					ent->client->ps.saberLockHitCheckTime = level.time + 100; //check for AI pushes much slower.
 				}
-
-				if(attackSaberLockDir && defenseSaberLockDir == attackSaberLockDir)
+				// check what cards we have.
+				if (ent->client->ps.stats[STAT_CARDS] <= 0)
 				{
-					if(ent->client->ps.userInt3 & (1 << defenseSaberLockDir))
-					{//we matched the attacker's direction.
-						ent->client->ps.userInt3 |= (1 << FLAG_SABERLOCK_ATTACKER);
-						ent->client->ps.userInt3 |= (1 << FLAG_SABERLOCK_OLD_DIR);
-						blockOpp->client->ps.userInt3 &= ~( 1 << FLAG_SABERLOCK_ATTACKER );
-						blockOpp->client->ps.userInt3 &= ~(SABERLOCK_DIR_FLAG_MASK);
+					mySaberLockCard = FLAG_SABERLOCK_EMPTY; // Oops, no cards left!
+					Com_Printf("ran out of cards!\n");
+				}
+				else if (mySaberLockCard == FLAG_SABERLOCK_ROCK)
+				{
+					if ((ent->client->ps.stats[STAT_CARDS] % 10) <= 0)
+						mySaberLockCard = 0;
+				}
+				else if (mySaberLockCard == FLAG_SABERLOCK_PAPER)
+				{
+					if ((ent->client->ps.stats[STAT_CARDS] / 10 % 10) <= 0)
+						mySaberLockCard = 0;
+				}
+				else if (mySaberLockCard == FLAG_SABERLOCK_SCISSORS)
+				{
+					if ((ent->client->ps.stats[STAT_CARDS] / 100 % 10) <= 0)
+						mySaberLockCard = 0;
+				}
+				ent->client->ps.userInt3 |= (1 << mySaberLockCard);
+
+				if(mySaberLockCard && opponentSaberLockCard)
+				{ // Both have chosen, now resolve the lock!
+					if (mySaberLockCard == opponentSaberLockCard)
+					{ // Chose the same, just break out then.
+						ent->client->ps.saberLockFrame = 0;
+						blockOpp->client->ps.saberLockFrame = 0;
+					}
+					else if (mySaberLockCard == FLAG_SABERLOCK_EMPTY
+						|| (mySaberLockCard == FLAG_SABERLOCK_ROCK
+							&& opponentSaberLockCard == FLAG_SABERLOCK_PAPER)
+						|| (mySaberLockCard == FLAG_SABERLOCK_PAPER
+							&& opponentSaberLockCard == FLAG_SABERLOCK_SCISSORS)
+						|| (mySaberLockCard == FLAG_SABERLOCK_SCISSORS
+							&& opponentSaberLockCard == FLAG_SABERLOCK_ROCK))
+					{ // We lost!
+						blockOpp->client->ps.saberLockHits += 100;
+					}
+					else
+					{ // We won!
+						ent->client->ps.saberLockHits += 100;
 					}
 				}
 			}
 
-			if( ent->client->ps.userInt3 & (1 << FLAG_SABERLOCK_ATTACKER) 
-				&& (ent->client->ps.userInt3 & (1 << FLAG_SABERLOCK_OLD_DIR) 
-					|| !(ent->client->ps.userInt3 & SABERLOCK_DIR_FLAG_MASK)) )
-			{//we're the attacker and we haven't selected a movement direction yet.
-				int newSaberLockDir = SaberLockDirForMovement(ent);
-				int oldSaberLockDir = GetSaberLockDirFlag(ent);
-				if(ent->r.svFlags & SVF_BOT)
-				{//bots cheat and randomly try directions
-					while(!newSaberLockDir || oldSaberLockDir == newSaberLockDir)
-					{
-						newSaberLockDir = Q_irand(FLAG_SABERLOCK_UP, FLAG_SABERLOCK_RIGHT);
-					}
-				}
-
-				if(newSaberLockDir 
-					&& (!oldSaberLockDir || newSaberLockDir != oldSaberLockDir))
-				{//direction selected.
-					ent->client->ps.userInt3 |= (1 << newSaberLockDir);
-					blockOpp->client->ps.userInt3 |= (1 << newSaberLockDir);
-					ent->client->ps.userInt3  &= ~(1 << FLAG_SABERLOCK_OLD_DIR);
-				}
-			}
-
+#if 0 // 74145: With the RPS system, there is no advancement.
 			//Saberlock advancement requires the player to be on the offense and have selected a fresh direction.
 			if( ent->client->ps.userInt3 & (1 << FLAG_SABERLOCK_ATTACKER) 
 				&& !(ent->client->ps.userInt3 & (1 << FLAG_SABERLOCK_OLD_DIR))
@@ -3953,6 +3971,7 @@ void ClientThink_real( gentity_t *ent ) {
 					//[/SaberLockSys]
 				}
 			}
+#endif // 74145: no advancement for RPS system
 			if ( ent->client->ps.saberLockHits > 0 )
 			{
 				if ( !ent->client->ps.saberLockAdvance )
@@ -4082,6 +4101,7 @@ void ClientThink_real( gentity_t *ent ) {
 				*/
 			}
 			else if (clientLost && clientLost->inuse && clientLost->client &&
+				clientLost->client->ps.stats[STAT_DODGE] <= DODGE_LIGHTLEVEL && // 74145: high dodge protects against this.
 				clientLost->client->ps.forceHandExtend != HANDEXTEND_KNOCKDOWN && clientLost->client->ps.saberEntityNum)
 			{ //if we didn't knock down it was a circle lock. So as punishment, make them lose their saber and go into a proper anim
 				saberCheckKnockdown_DuelLoss(&g_entities[clientLost->client->ps.saberEntityNum], clientLost, ent);
