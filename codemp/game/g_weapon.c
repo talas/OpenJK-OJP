@@ -653,6 +653,117 @@ static void WP_FireBlaster( gentity_t *ent, qboolean altFire )
 	//[/WeapAccuracy]
 }
 
+static void WP_RollBalanceThreat( gentity_t *self, int balanceCost)
+{
+	// 74145: Being shot at reduces your balance very slightly.
+	// Even if you don't get hit.
+	// 74145: TODO: would it better to do this when the bullet hits world?
+	// 74145: hmm.. but then what about bullet they fly right past you but hit far away?
+	// 74145: TODO: okay, but then could we delay the actual subtraction?
+	trace_t	tr;
+	vec3_t	forward;
+	gentity_t	*traceEnt;
+
+	if ( ! self->client )
+	{
+		return;
+	}
+	AngleVectors( self->client->ps.viewangles, forward, NULL, NULL );
+	VectorNormalize( forward );
+
+	vec3_t	center, mins, maxs, dir, ent_org, size, v;
+	float	radius = 8192.0f, dot, dist;
+	gentity_t	*entityList[MAX_GENTITIES];
+	int			iEntityList[MAX_GENTITIES];
+	int		e, numListedEntities, i;
+
+	VectorCopy( self->client->ps.origin, center );
+	for ( i = 0 ; i < 3 ; i++ )
+	{
+		mins[i] = center[i] - radius;
+		maxs[i] = center[i] + radius;
+	}
+	numListedEntities = trap->EntitiesInBox( mins, maxs, iEntityList, MAX_GENTITIES );
+
+	i = 0;
+	while (i < numListedEntities)
+	{
+		entityList[i] = &g_entities[iEntityList[i]];
+		i++;
+	}
+
+	for ( e = 0 ; e < numListedEntities ; e++ )
+	{
+		traceEnt = entityList[e];
+
+		if ( !traceEnt )
+			continue;
+		if ( traceEnt == self )
+			continue;
+		if ( !traceEnt->inuse )
+			continue;
+		if ( !traceEnt->takedamage )
+			continue;
+		if ( traceEnt->health <= 0 )//no torturing corpses
+			continue;
+		if ( !traceEnt->client )
+			continue;
+		if ( !traceEnt->client->ps.fd.forcePower )
+			continue;
+		if ( ! (traceEnt->client->ps.fd.forcePowersKnown & (1 << FP_SEE)) )
+			continue; // 74145: Only bother jedi/hybrid
+		if (OnSameTeam(self, traceEnt) && !g_friendlyFire.integer)
+			continue;
+		//this is all to see if we need to start a saber attack, if it's in flight, this doesn't matter
+		// find the distance from the edge of the bounding box
+		for ( i = 0 ; i < 3 ; i++ )
+		{
+			if ( center[i] < traceEnt->r.absmin[i] )
+			{
+				v[i] = traceEnt->r.absmin[i] - center[i];
+			} else if ( center[i] > traceEnt->r.absmax[i] )
+			{
+				v[i] = center[i] - traceEnt->r.absmax[i];
+			} else
+			{
+				v[i] = 0;
+			}
+		}
+		//must be close enough
+		dist = VectorLength( v );
+		if ( dist >= radius )
+		{
+			continue;
+		}
+
+		VectorSubtract( traceEnt->r.absmax, traceEnt->r.absmin, size );
+		VectorMA( traceEnt->r.absmin, 0.5, size, ent_org );
+
+		//see if they're in front of me
+		//must be within the forward cone
+		VectorSubtract( ent_org, center, dir );
+		VectorNormalize( dir );
+		if ( (dot = DotProduct( dir, forward )) < 0.95 )
+			continue;
+
+
+		//in PVS?
+		if ( !traceEnt->r.bmodel && !trap->InPVS( ent_org, self->client->ps.origin ) )
+		{//must be in PVS
+			continue;
+		}
+
+		//Now check and see if we can actually hit it
+		trap->Trace( &tr, self->client->ps.origin, vec3_origin, vec3_origin, ent_org, self->s.number, MASK_SHOT, qfalse, 0, 0 );
+		if ( tr.fraction < 1.0f && tr.entityNum != traceEnt->s.number )
+		{//must have clear LOS
+			continue;
+		}
+
+		G_DodgeDrain(traceEnt, self, balanceCost);
+	}
+}
+
 
 int G_GetHitLocation(gentity_t *target, vec3_t ppoint);
 
@@ -4866,7 +4977,7 @@ void FireWeapon( gentity_t *ent, qboolean altFire ) {
 		if(ent && ent->client)
 		{
 			vec3_t angs; //used for adding in mishap inaccuracy.
-			float slopFactor = MISHAP_MAXINACCURACY * (1 - (ent->client->ps.MISHAP_VARIABLE/(float)MISHAPLEVEL_LIGHT));
+			float slopFactor = MISHAP_MAXINACCURACY * (1 - (ent->client->ps.MISHAP_VARIABLE/(float)100));
 			slopFactor = Com_Clamp(0, MISHAP_MAXINACCURACY, slopFactor);
 			if (ent->client->ps.zoomMode)
 			{ // 74145: No slop when sniping (add your own)
@@ -4879,29 +4990,27 @@ void FireWeapon( gentity_t *ent, qboolean altFire ) {
 			AngleVectors( angs, forward, NULL, NULL );
 
 			//increase mishap level
-			if(!Q_irand(0, SkillLevelforWeapon(ent, ent->s.weapon)-1) && ent->s.weapon != WP_EMPLACED_GUN )//Sorry but the mishap meter needs to go up more that before.
-			{//failed skill roll, add mishap.
-				if(ent->s.weapon == WP_DISRUPTOR && ent->client->ps.zoomMode == 0)
-					G_AddMercBalance(ent, Q_irand(2, 3));// 1 was not enough
+			// 74145: don't increase mishap to critical!
+			if(ent->s.weapon != WP_EMPLACED_GUN &&
+			   (ent->client->ps.stats[STAT_DODGE] > DODGE_CRITICALLEVEL + 3)
+			   )//Sorry but the mishap meter needs to go up more that before.
+			{ // 74145: changed to always add balance, hud looks better that way.
+
+				if(ent->s.weapon == WP_DISRUPTOR /*&& ent->client->ps.zoomMode == 0*/)
+					G_AddMercBalance(ent, Com_Clampi(1, 2, 3-SkillLevelforWeapon(ent, ent->s.weapon)));// 2,2,1,1 (skill 0,1,2,3)
 				else if(ent->s.weapon == WP_FLECHETTE)
-					G_AddMercBalance(ent,1);
+					G_AddMercBalance(ent, Com_Clampi(1, 2, 3-SkillLevelforWeapon(ent, ent->s.weapon)));// 2,2,1,1 (skill 0,1,2,3)
 				else if(ent->s.weapon == WP_BRYAR_PISTOL)
-					G_AddMercBalance(ent,Q_irand(2,3));
+					G_AddMercBalance(ent, Com_Clampi(1, 2, 3-SkillLevelforWeapon(ent, ent->s.weapon)));// 2,2,1,1 (skill 0,1,2,3)
 				else if(ent->s.weapon == WP_REPEATER)
 				{
-					ent->client->cloneFired++;
-					if(ent->client->cloneFired == 2)
-					{
-						if(ent->client->pers.cmd.forwardmove == 0 && ent->client->pers.cmd.rightmove ==0)
-							G_AddMercBalance(ent,1);
-						else
-							G_AddMercBalance(ent,2);
-
-						ent->client->cloneFired=0;
-					}
+					if(ent->client->pers.cmd.forwardmove == 0 && ent->client->pers.cmd.rightmove ==0)
+						G_AddMercBalance(ent, Com_Clampi(1, 2, 3-SkillLevelforWeapon(ent, ent->s.weapon)));// 2,2,1,1 (skill 0,1,2,3)
+					else
+						G_AddMercBalance(ent, Com_Clampi(1, 3, 3-SkillLevelforWeapon(ent, ent->s.weapon)));// 3,3,2,1 (skill 0,1,2,3)
 				}
 				else
-					G_AddMercBalance(ent, Q_irand(1, 2));// 1 was not enough
+					G_AddMercBalance(ent, Com_Clampi(1, 2, 3-SkillLevelforWeapon(ent, ent->s.weapon)));// 2,2,1,1 (skill 0,1,2,3)
 			}
 		}
 		//[/WeapAccuracy]
@@ -4923,10 +5032,12 @@ void FireWeapon( gentity_t *ent, qboolean altFire ) {
 			break;
 
 		case WP_BRYAR_PISTOL:
+			WP_RollBalanceThreat( ent, 2 );
 			WP_FireBryarPistol( ent, altFire );
 			break;
 
 		case WP_CONCUSSION:
+			WP_RollBalanceThreat( ent, 10 );
 			if ( altFire )
 				WP_FireConcussionAlt( ent );
 			else
@@ -4935,11 +5046,13 @@ void FireWeapon( gentity_t *ent, qboolean altFire ) {
 
 		case WP_BRYAR_OLD:
 			//[WeaponSys]
+			WP_RollBalanceThreat( ent, 2 );
 			WP_FireBryarPistol( ent, qfalse );
 			//[/WeaponSys]
 			break;
 
 		case WP_BLASTER:
+			WP_RollBalanceThreat( ent, 2 );
 			WP_FireBlaster( ent, altFire );
 			break;
 
@@ -4947,28 +5060,34 @@ void FireWeapon( gentity_t *ent, qboolean altFire ) {
 			//[CoOp]
 			alert = 50;
 			//[/CoOp]
+			WP_RollBalanceThreat( ent, 10 );
 			WP_FireDisruptor( ent, altFire );
 			break;
 
 		case WP_BOWCASTER:
 			if(altFire)
 				return;
+			WP_RollBalanceThreat( ent, 4 );
 			WP_FireBowcaster( ent, altFire );
 			break;
 
 		case WP_REPEATER:
+			WP_RollBalanceThreat( ent, 2 );
 			WP_FireRepeater( ent, altFire );
 			break;
 
 		case WP_DEMP2:
+			WP_RollBalanceThreat( ent, 2 );
 			WP_FireDEMP2( ent, altFire );
 			break;
 
 		case WP_FLECHETTE:
+			WP_RollBalanceThreat( ent, 2 );
 			WP_FireFlechette( ent, altFire );
 			break;
 
 		case WP_ROCKET_LAUNCHER:
+			//WP_RollBalanceThreat( ent, 5 );
 			WP_FireRocket( ent, altFire );
 			break;
 

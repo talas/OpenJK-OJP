@@ -110,7 +110,7 @@ void G_AddMercBalance(gentity_t *self, int amount)
 
 	if (amount > 0 && self->client->ps.MISHAP_VARIABLE > MISHAPLEVEL_LIGHT)
 	{
-		self->client->ps.MISHAP_VARIABLE -= amount*5;
+		self->client->ps.MISHAP_VARIABLE -= amount*2;
 
 		if(self->client->ps.MISHAP_VARIABLE < MISHAPLEVEL_LIGHT)
 		{

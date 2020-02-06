@@ -724,9 +724,6 @@ struct gclient_s {
 	qboolean	legsLastFlip;
 	qboolean	torsoLastFlip;
 
-	qboolean	justFired;//[T-21]
-	int			cloneFired;//[CloneRifle]
-
 	qboolean	readyToExit;		// wishes to leave the intermission
 
 	qboolean	noclip;

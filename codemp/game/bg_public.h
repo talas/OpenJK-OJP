@@ -165,7 +165,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //[/SaberSys]
 
 //[WeaponSys]
-#define MISHAP_MAXINACCURACY	7  //maximum possible offset angle for weapon accuracy. 
+#define MISHAP_MAXINACCURACY	9  //maximum possible offset angle for weapon accuracy. 
 //[/WeaponSys]
 
 //[DodgeSys]
