@@ -2077,7 +2077,7 @@ int ClipSize(int ammo,gentity_t *ent)
 	switch(ammo)
 	{
 	case AMMO_BLASTER:
-		return 21;
+		return 100; // 74145: too small! was 21. "Cannon might be 200 actually".
 	case AMMO_ROCKETS:
 		return 1;
 	case AMMO_POWERCELL:

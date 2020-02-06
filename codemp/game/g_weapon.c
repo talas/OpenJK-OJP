@@ -41,7 +41,8 @@ static vec3_t muzzle2;//[DualPistols]
 //spread for the bryar pistol.
 #define BRYAR_SPREAD				0.5f
 //Used to be 1600.  It's crazy-fast, and looks much better than it did before!
-#define BRYAR_PISTOL_VEL			4000
+// 74145: was 4000 in OJP, still too slow.
+#define BRYAR_PISTOL_VEL			8000
 //Pistol damage used to be 10.  Very piddly, all things considered.  We all know what blasters are SUPPOSED to do.
 #define BRYAR_PISTOL_DAMAGE			97
 //[/WeaponSys]
@@ -56,7 +57,8 @@ static vec3_t muzzle2;//[DualPistols]
 //[WeaponSys]
 //racc - primary fire spread
 #define BLASTER_SPREAD2				0.7f//1.2f
-#define BLASTER_VELOCITY			3650  //Used to be 2300.  Again, way too slow.  You can almost outrun them.
+//#define BLASTER_VELOCITY			3650  //Used to be 2300.  Again, way too slow.  You can almost outrun them.
+#define BLASTER_VELOCITY			5800  //74145: well, still too slow!
 //Better gun, better stopping power.  Kills in two hits if you don't have full shields.
 #define BLASTER_DAMAGE				50
 //[/WeaponSys]
@@ -129,7 +131,7 @@ static vec3_t muzzle2;//[DualPistols]
 //---------
 #define FLECHETTE_SHOTS				5
 #define FLECHETTE_SPREAD			6.5f
-#define FLECHETTE_DAMAGE			3//15
+#define FLECHETTE_DAMAGE			90//3//15
 #define FLECHETTE_VELOCITY			5000
 #define FLECHETTE_SIZE				1
 //#define FLECHETTE_MINE_RADIUS_CHECK	256
@@ -1796,7 +1798,7 @@ static void WP_FlechetteMainFire( gentity_t *ent, qboolean altFire )
 //---------------------------------------------------------
 {
 	int velocity	= FLECHETTE_VELOCITY;
-	int	damage		= (altFire ? FLECHETTE_ALT_DAMAGE : FLECHETTE_DAMAGE);
+	int	damage		= FLECHETTE_DAMAGE;//(altFire ? FLECHETTE_ALT_DAMAGE : FLECHETTE_DAMAGE);
 	gentity_t *missile;
 	vec3_t angs,fwd;
 	if (ent->s.eType == ET_NPC)
