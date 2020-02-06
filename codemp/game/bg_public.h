@@ -1911,7 +1911,7 @@ qboolean BG_InWalk( int anim );
 //[/SaberSys]
 
 //[FatigueSys]
-void BG_SaberStartTransAnim( int clientNum, int saberAnimLevel, int weapon, int anim, float *animSpeed, int broken, int fatigued );
+void BG_SaberStartTransAnim( int clientNum, int saberAnimLevel, int weapon, int anim, float *animSpeed, int broken, int fatigued, int running );
 //[/FatigueSys]
 
 void BG_ForcePowerDrain( playerState_t *ps, forcePowers_t forcePower, int overrideAmt );

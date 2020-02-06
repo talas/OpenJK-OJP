@@ -3243,7 +3243,7 @@ static void CG_SetLerpFrameAnimation( centity_t *cent, clientInfo_t *ci, lerpFra
 		//[FatigueSys]
 		BG_SaberStartTransAnim(cent->currentState.number, cent->currentState.fireflag, 
 			cent->currentState.weapon, newAnimation, &animSpeed, 
-			cent->currentState.brokenLimbs, cent->currentState.userInt3);
+			cent->currentState.brokenLimbs, cent->currentState.userInt3, PM_RunningAnim(cent->currentState.legsAnim));
 		//[/FatigueSys]
 
 		if (torsoOnly)

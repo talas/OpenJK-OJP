@@ -2165,6 +2165,7 @@ int G_KnockawayForParry( int move )
 
 #define SABER_NONATTACK_DAMAGE 1
 
+qboolean WalkCheck( gentity_t * self );
 //For strong attacks, we ramp damage based on the point in the attack animation
 static QINLINE int G_GetAttackDamage(gentity_t *self, int minDmg, int maxDmg, float multPoint)
 {
@@ -2178,7 +2179,7 @@ static QINLINE int G_GetAttackDamage(gentity_t *self, int minDmg, int maxDmg, fl
 
 	//Be sure to scale by the proper anim speed just as if we were going to play the animation
 	//[FatigueSys]
-	BG_SaberStartTransAnim(self->s.number, self->client->ps.fd.saberAnimLevel, self->client->ps.weapon, self->client->ps.torsoAnim, &animSpeedFactor, self->client->ps.brokenLimbs, self->client->ps.userInt3);
+	BG_SaberStartTransAnim(self->s.number, self->client->ps.fd.saberAnimLevel, self->client->ps.weapon, self->client->ps.torsoAnim, &animSpeedFactor, self->client->ps.brokenLimbs, self->client->ps.userInt3, !WalkCheck(self));
 	//[/FatigueSys]
 	speedDif = attackAnimLength - (attackAnimLength * animSpeedFactor);
 	attackAnimLength += speedDif;
@@ -2220,7 +2221,7 @@ static QINLINE float G_GetAnimPoint(gentity_t *self)
 
 	//Be sure to scale by the proper anim speed just as if we were going to play the animation
 	//[FatigueSys]
-	BG_SaberStartTransAnim(self->s.number, self->client->ps.fd.saberAnimLevel, self->client->ps.weapon, self->client->ps.torsoAnim, &animSpeedFactor, self->client->ps.brokenLimbs, self->client->ps.userInt3);
+	BG_SaberStartTransAnim(self->s.number, self->client->ps.fd.saberAnimLevel, self->client->ps.weapon, self->client->ps.torsoAnim, &animSpeedFactor, self->client->ps.brokenLimbs, self->client->ps.userInt3, !WalkCheck(self));
 	//[/FatigueSys]
 	speedDif = attackAnimLength - (attackAnimLength * animSpeedFactor);
 	attackAnimLength += speedDif;
@@ -2855,7 +2856,6 @@ int BasicSaberBlockCost(int attackerStyle)
 	};
 }
 
-qboolean WalkCheck( gentity_t * self );
 qboolean G_BlockIsParry( gentity_t *self, gentity_t *attacker, vec3_t hitLoc );
 int OJP_SaberBlockCost(gentity_t *defender, gentity_t *attacker, vec3_t hitLoc)
 {//returns the DP cost to block this attack for this attacker/defender combo.
@@ -3024,19 +3024,29 @@ int OJP_SaberBlockCost(gentity_t *defender, gentity_t *attacker, vec3_t hitLoc)
 			saberBlockCost = BasicSaberBlockCost(attacker->client->ps.fd.saberAnimLevel);
 		}
 
-		//add running damage bonus to normal swings but don't apply if the defender is slowbouncing
-		if(!WalkCheck(attacker) 
-			&& !(defender->client->ps.userInt3 & ( 1 << FLAG_SLOWBOUNCE ))
-			&& !(defender->client->ps.userInt3 & ( 1 << FLAG_OLDSLOWBOUNCE ))) 
+		//add running damage bonus to normal swings
+		if (!WalkCheck(attacker))
 		{
-
-			if(attacker->client->saber[0].numBlades == 1 && attacker->client->ps.fd.saberAnimLevel == SS_DUAL)//Ataru's other perk more powerful running hits
-			{
-				saberBlockCost *= 3.0;
-			}
-			else
-			{
-				saberBlockCost *= 1.5;
+			if ((defender->client->ps.userInt3 & ( 1 << FLAG_SLOWBOUNCE ))
+			    || (defender->client->ps.userInt3 & ( 1 << FLAG_OLDSLOWBOUNCE )))
+			{ // 74145: Smaller bonus against people in slow-bounce
+				if(attacker->client->saber[0].numBlades == 1 && attacker->client->ps.fd.saberAnimLevel == SS_DUAL)
+				{
+					saberBlockCost *= 1.5;
+				}
+				else
+				{
+					saberBlockCost *= 1.2;
+				}
+			} else {
+				if(attacker->client->saber[0].numBlades == 1 && attacker->client->ps.fd.saberAnimLevel == SS_DUAL)//Ataru's other perk more powerful running hits
+				{
+					saberBlockCost *= 3.0;
+				}
+				else
+				{ // 74145: increased from 1.5
+					saberBlockCost *= 1.8;
+				}
 			}
 		}
 	}
