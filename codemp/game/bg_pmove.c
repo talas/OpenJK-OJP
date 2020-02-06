@@ -7501,9 +7501,9 @@ static qboolean PM_DoChargedWeapons( qboolean vehicleRocketLock, bgEntity_t *veh
 			break;
 
 		case WP_DISRUPTOR:
-			if ((pm->cmd.buttons & BUTTON_ATTACK) &&
+			if ((pm->cmd.buttons & BUTTON_ATTACK) /*&&
 				pm->ps->zoomMode == 1 &&
-				pm->ps->zoomLocked)
+				pm->ps->zoomLocked*/)
 			{
 				if (!pm->cmd.forwardmove &&
 					!pm->cmd.rightmove &&
@@ -7519,13 +7519,13 @@ static qboolean PM_DoChargedWeapons( qboolean vehicleRocketLock, bgEntity_t *veh
 				}
 			}
 
-			if (pm->ps->zoomMode != 1 &&
+			/*if (pm->ps->zoomMode != 1 &&
 				pm->ps->weaponstate == WEAPON_CHARGING_ALT)
 			{
 				pm->ps->weaponstate = WEAPON_READY;
 				charging = qfalse;
 				altFire = qfalse;
-			}
+			}*/
 
 		} // end switch
 	}
@@ -9061,6 +9061,7 @@ static void PM_Weapon( void )
 
 	if (pm->ps->weapon == WP_DISRUPTOR &&
 		(pm->cmd.buttons & BUTTON_ALT_ATTACK) &&
+		pm->ps->weaponstate != WEAPON_CHARGING_ALT &&
 		!pm->ps->zoomLocked)
 	{
 		return;
@@ -9271,11 +9272,11 @@ static void PM_Weapon( void )
 			PM_AddEvent( EV_FIRE_WEAPON );
 			addTime = weaponData[pm->ps->weapon].fireTime;
 		}
-		else if (pm->ps->weapon == WP_DISRUPTOR && pm->ps->zoomMode != 1)
+		/*else if (pm->ps->weapon == WP_DISRUPTOR && pm->ps->zoomMode != 1)
 		{
 			PM_AddEvent( EV_FIRE_WEAPON );
 			addTime = weaponData[pm->ps->weapon].fireTime;
-		}
+		}*/
 		else
 		{
 			if (pm->ps->weapon != WP_MELEE ||
@@ -9802,7 +9803,8 @@ void PM_AdjustAttackStates( pmove_t *pmove )
 	}
 
 	// disruptor alt-fire should toggle the zoom mode, but only bother doing this for the player?
-	if ( pmove->ps->weapon == WP_DISRUPTOR && pmove->ps->weaponstate == WEAPON_READY )
+	//74145: ignore weaponstate, makes it much more responsive
+	if ( pmove->ps->weapon == WP_DISRUPTOR /*&& pmove->ps->weaponstate == WEAPON_READY*/ )
 	{
 		if ( !(pmove->ps->eFlags & EF_ALT_FIRING) && (pmove->cmd.buttons & BUTTON_ALT_ATTACK) /*&&
 			pmove->cmd.upmove <= 0 && !pmove->cmd.forwardmove && !pmove->cmd.rightmove*/)
@@ -9929,9 +9931,10 @@ void PM_AdjustAttackStates( pmove_t *pmove )
 	}
 
 	// disruptor should convert a main fire to an alt-fire if the gun is currently zoomed
+	// 74145: changed so that you can charge the disruptor (alt-fire) when not zooming as well
 	if ( pmove->ps->weapon == WP_DISRUPTOR)
 	{
-		if ( pmove->cmd.buttons & BUTTON_ATTACK && pmove->ps->zoomMode == 1 && pmove->ps->zoomLocked)
+		if ( pmove->cmd.buttons & BUTTON_ATTACK && pm->ps->weaponstate == WEAPON_CHARGING_ALT /*&& pmove->ps->zoomMode == 1 && pmove->ps->zoomLocked*/)
 		{
 			// converting the main fire to an alt-fire
 			pmove->cmd.buttons |= BUTTON_ALT_ATTACK;
@@ -12735,9 +12738,11 @@ void PmoveSingle (pmove_t *pmove) {
 			pm->cmd.rightmove ||
 			pm->cmd.upmove > 0)
 		{ //get out
-			pm->ps->weaponstate = WEAPON_READY;
-			pm->ps->weaponTime = 1000;
 			PM_AddEventWithParm(EV_WEAPON_CHARGE, WP_DISRUPTOR); //cut the weapon charge sound
+			PM_AddEvent( EV_ALT_FIRE ); // 74145: we already took the ammo, so let it fly
+			pm->ps->weaponstate = WEAPON_READY;
+			pm->ps->weaponTime = weaponData[pm->ps->weapon].altFireTime; // 74145: Still makes you wait around though (was 1000)
+
 			pm->cmd.upmove = 0;
 		}
 	}

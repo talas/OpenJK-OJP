@@ -460,24 +460,26 @@ static void CG_DrawZoomMask( void )
 			CG_DrawRotatePic2( cx, cy, 12, 24, 90 - fi, cgs.media.disruptorInsertTick );
 		}
 
-		if ( cg.predictedPlayerState.weaponstate == WEAPON_CHARGING_ALT )
-		{
-			trap->R_SetColor( colorTable[CT_WHITE] );
-
-			// draw the charge level
-			max = ( cg.time - cg.predictedPlayerState.weaponChargeTime ) / ( 50.0f * 30.0f ); // bad hardcodedness 50 is disruptor charge unit and 30 is max charge units allowed.
-
-			if ( max > 1.0f )
-			{
-				max = 1.0f;
-			}
-
-			trap->R_DrawStretchPic(257, 435, 134*max, 34, 0, 0, max, 1, cgs.media.disruptorChargeShader);
-		}
 //		trap->R_SetColor( colorTable[CT_WHITE] );
 //		CG_DrawPic( 0, 0, 640, 480, cgs.media.disruptorMask );
 
 	}
+	if ( cg.predictedPlayerState.weaponstate == WEAPON_CHARGING_ALT &&
+	     cg.predictedPlayerState.weapon == WP_DISRUPTOR )
+	{ // 74145: Draw charge level, irrespective of zoom mode
+		trap->R_SetColor( colorTable[CT_WHITE] );
+
+		// draw the charge level
+		max = ( cg.time - cg.predictedPlayerState.weaponChargeTime ) / ( 50.0f * 30.0f ); // bad hardcodedness 50 is disruptor charge unit and 30 is max charge units allowed.
+
+		if ( max > 1.0f )
+		{
+			max = 1.0f;
+		}
+
+		trap->R_DrawStretchPic(257, 435, 134*max, 34, 0, 0, max, 1, cgs.media.disruptorChargeShader);
+	}
+
 }
 
 

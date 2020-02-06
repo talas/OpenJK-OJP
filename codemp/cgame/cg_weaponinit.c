@@ -282,7 +282,9 @@ void CG_RegisterWeapon( int weaponNum) {
 	case WP_DISRUPTOR:
 		weaponInfo->selectSound			= trap->S_RegisterSound("sound/weapons/disruptor/select.wav");
 
-		weaponInfo->flashSound[0]		= trap->S_RegisterSound( "sound/weapons/disruptor/fire.wav");
+		//weaponInfo->flashSound[0]		= trap->S_RegisterSound( "sound/weapons/disruptor/fire.wav");
+		// 74145: no reason why they should be different anymore I guess.
+		weaponInfo->flashSound[0]		= trap->S_RegisterSound( "sound/weapons/disruptor/alt_fire.wav");
 		weaponInfo->firingSound			= NULL_SOUND;
 		weaponInfo->chargeSound			= NULL_SOUND;
 		weaponInfo->muzzleEffect		= trap->FX_RegisterEffect( "disruptor/muzzle_flash" );

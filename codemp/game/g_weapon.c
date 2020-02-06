@@ -1040,19 +1040,27 @@ void WP_DisruptorAltFire( gentity_t *ent )
 			VectorCopy(tr.endpos, start);
 			continue;
 		}
-
-		if(G_DoDodge(traceEnt, ent, tr.endpos, -1, &damage, MOD_DISRUPTOR_SNIPER))
-		{
-			skip = tr.entityNum;
+		/*if(G_DoDodge(traceEnt, ent, tr.endpos, -1, &damage, MOD_DISRUPTOR_SNIPER))
+		{ // 74145: moved after..
+		        skip = tr.entityNum;
 			VectorCopy(tr.endpos, start);
 			continue;
-		}
+		}*/
+
 
 		// always render a shot beam, doing this the old way because I don't much feel like overriding the effect.
 		tent = G_TempEntity( tr.endpos, EV_DISRUPTOR_SNIPER_SHOT );
 		VectorCopy( muzzle, tent->s.origin2 );
 		tent->s.shouldtarget = fullCharge;
 		tent->s.eventParm = ent->s.number;
+
+		if(G_DoDodge(traceEnt, ent, tr.endpos, -1, &damage, MOD_DISRUPTOR_SNIPER))
+		{
+		        skip = tr.entityNum;
+			VectorCopy(tr.endpos, start);
+			continue;
+		}
+
 
 		// If the beam hits a skybox, etc. it would look foolish to add impact effects
 		if ( render_impact )
@@ -1160,7 +1168,7 @@ void WP_DisruptorAltFire( gentity_t *ent )
 static void WP_FireDisruptor( gentity_t *ent, qboolean altFire )
 //---------------------------------------------------------
 {
-	if (!ent || !ent->client || ent->client->ps.zoomMode != 1)
+	if (!ent || !ent->client /*|| ent->client->ps.zoomMode != 1*/)
 	{ //do not ever let it do the alt fire when not zoomed
 		altFire = qfalse;
 	}
@@ -1176,8 +1184,11 @@ static void WP_FireDisruptor( gentity_t *ent, qboolean altFire )
 		WP_DisruptorAltFire( ent );
 	}
 	else
-	{
-		WP_DisruptorMainFire( ent );
+	{ // 74145: just always use the altfire, looks better.
+		//WP_DisruptorMainFire( ent );
+		// 74145: But get minimum charge only.
+		ent->client->ps.weaponChargeTime = level.time;
+		WP_DisruptorAltFire( ent );
 	}
 }
 
@@ -4857,6 +4868,10 @@ void FireWeapon( gentity_t *ent, qboolean altFire ) {
 			vec3_t angs; //used for adding in mishap inaccuracy.
 			float slopFactor = MISHAP_MAXINACCURACY * (1 - (ent->client->ps.MISHAP_VARIABLE/(float)MISHAPLEVEL_LIGHT));
 			slopFactor = Com_Clamp(0, MISHAP_MAXINACCURACY, slopFactor);
+			if (ent->client->ps.zoomMode)
+			{ // 74145: No slop when sniping (add your own)
+				slopFactor = 0;
+			}
 
 			vectoangles( forward, angs );
 			angs[PITCH] += flrand(-slopFactor, slopFactor);
