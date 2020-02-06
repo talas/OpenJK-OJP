@@ -2467,6 +2467,10 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 		return qtrue;
 
 	case IT_ARMOR:
+	        if (ps->fd.forcePowersKnown & ( 1 << FP_SEE )) {
+			return qfalse; // 74145: No armor for force users
+		}
+
 		if ( ps->stats[STAT_ARMOR] >= ps->stats[STAT_MAX_HEALTH]/* * item->giTag*/ ) {
 			return qfalse;
 		}

@@ -4530,7 +4530,10 @@ void ClientSpawn(gentity_t *ent) {
 	else
 	{//armor in non-siege gametypes
 		//armor is now the number of skill points a player has not allociated. 
-		client->ps.stats[STAT_ARMOR] = (int)client->sess.skillPoints - TotalAllociatedSkillPoints(ent);
+                if (!(client->ps.fd.forcePowersKnown & ( 1 << FP_SEE )))
+                { // 74145: only give armor to non-force sensitives
+			client->ps.stats[STAT_ARMOR] = (int)client->sess.skillPoints - TotalAllociatedSkillPoints(ent);
+                }
 	}
 	/*
 	else if ( level.gametype == GT_DUEL || level.gametype == GT_POWERDUEL )

@@ -5237,6 +5237,8 @@ static QINLINE qboolean CheckSaberDamage(gentity_t *self, int rSaberNum, int rBl
 				damage *= g_saberWallDamageScale.value;
 				dmg = (int) damage;
 			}
+			// 74145: personal shields only 50% effective
+			dflags |= DAMAGE_HALF_ABSORB;
 
 			//We need the final damage total to know if we need to bounce the saber back or not.
 			if (dmg > SABER_NONATTACK_DAMAGE || !victim->client || victim->client->ps.stats[STAT_DODGE] <= DODGE_CRITICALLEVEL || victim->client->ps.weapon != WP_SABER)

@@ -6466,6 +6466,7 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 	if ( !(self->client->ps.fd.forcePowersActive & (1<<FP_LIGHTNING)) )
 		self->client->force.lightningDebounce = level.time;
 
+	// 74145: TODO: half regen for grey jedi?
 	//[FatigueSys]
 	if ( !self->client->ps.fd.forcePowersActive && //can't regen while using force powers.
 		//Don't regen force while attacking with the saber.
