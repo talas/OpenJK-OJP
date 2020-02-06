@@ -6168,7 +6168,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_
 			evEnt->s.otherEntityNum = targ->s.number;
 			evEnt->s.eventParm = DirToByte(dir);
 			evEnt->s.time2=shieldAbsorbed;
-	/*
+			// 74145: re-enable shield hit effect
 			shieldAbsorbed *= 20;
 
 			if (shieldAbsorbed > 1500)
@@ -6187,8 +6187,6 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_
 			//flicker for as many ms as damage was absorbed (*20)
 			//therefore 10 damage causes 1/5 of a seond of flickering, whereas
 			//a full 100 causes 2 seconds (but is reduced to 1.5 seconds due to the max)
-
-	*/
 		}
 	}
 

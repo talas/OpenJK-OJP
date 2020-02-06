@@ -5239,9 +5239,16 @@ static QINLINE qboolean CheckSaberDamage(gentity_t *self, int rSaberNum, int rBl
 			}
 
 			//We need the final damage total to know if we need to bounce the saber back or not.
-			G_Damage( victim, self, self, dir, tr.endpos, dmg, dflags, MOD_SABER );
-
-			WP_SaberSpecificDoHit( self, rSaberNum, rBladeNum, victim, tr.endpos, dmg );
+			if (dmg > SABER_NONATTACK_DAMAGE || !victim->client || victim->client->ps.stats[STAT_DODGE] <= DODGE_CRITICALLEVEL || victim->client->ps.weapon != WP_SABER)
+			{
+				G_Damage( victim, self, self, dir, tr.endpos, dmg, dflags, MOD_SABER );
+				WP_SaberSpecificDoHit( self, rSaberNum, rBladeNum, victim, tr.endpos, dmg );
+			}
+			else
+			{ // 74145: Avoid idle damage after blocking.
+				// 74145: TODO: refine the check?
+				dmg = 0;
+			}
 		
 		#ifndef FINAL_BUILD // MJN - define fix :/
 			if (g_saberDebugPrint.integer > 2 && dmg > 1)
@@ -5862,7 +5869,9 @@ void WP_SaberStartMissileBlockCheck( gentity_t *self, usercmd_t *ucmd  )
 				else if(PM_SaberInStart(pOwner->client->ps.saberMove) 
 					|| PM_SaberInTransition(pOwner->client->ps.saberMove) )
 				{//preparing to attack
-					swingBlockQuad = InvertQuad(saberMoveData[pOwner->client->ps.saberMove].endQuad);
+					// 74145: Ignore windup / transition, happens too often.
+				        //swingBlockQuad = InvertQuad(saberMoveData[pOwner->client->ps.saberMove].endQuad);
+					continue;
 				}
 				else
 				{//not attacking

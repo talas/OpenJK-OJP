@@ -9941,7 +9941,9 @@ void CG_AddSaberBlade( centity_t *cent, centity_t *scent, refEntity_t *saber, in
 			{//tracing from base to end
 				CG_Trace( &trace, org_, NULL, NULL, end, ENTITYNUM_NONE, MASK_SOLID );
 			}
-			
+#if 0
+			// 74145: maybe make some kinda screen effect or something?
+			// 74145: I don't think you should be allowed to see opponents dodge level..
 			if(cent->currentState.userInt3 & (1 << FLAG_DODGE_LIGHT))
 			{//player's dodge is getting low, spark their saber hilt a bit as a warning.
 					vec3_t efxDir;
@@ -9956,6 +9958,7 @@ void CG_AddSaberBlade( centity_t *cent, centity_t *scent, refEntity_t *saber, in
 				VectorNormalize(efxDir);
 				trap->FX_PlayEffectID( cgs.effects.mSaberBloodSparksSmall, org_, efxDir, -1, -1, qfalse );
 			}
+#endif
 			
 			if ( trace.fraction < 1.0f )
 			{
@@ -16725,6 +16728,8 @@ stillDoSaber:
 		trap->R_AddRefEntityToScene(&legs);
 	}
 
+#if 0
+	// 74145: needs to look more natural..
 	if(cent->currentState.userInt3 & (1 << FLAG_PARRIED))
 	{//while recovering from a parry, show a visual aid effect.
 		legs.renderfx &= ~RF_FORCE_ENT_ALPHA;
@@ -16747,6 +16752,7 @@ stillDoSaber:
 
 		trap->R_AddRefEntityToScene(&legs);
 	}
+#endif
 
 	if (!cg.snap->ps.duelInProgress && cent->currentState.bolt1 && !(cent->currentState.eFlags & EF_DEAD) && cent->currentState.number != cg.snap->ps.clientNum && (!cg.snap->ps.duelInProgress || cg.snap->ps.duelIndex != cent->currentState.number))
 	{
