@@ -767,7 +767,7 @@ int ForcePowerUsableOn(gentity_t *attacker, gentity_t *other, forcePowers_t forc
 
 	if(other->client && other->client->ps.fd.saberAnimLevel == SS_DESANN
 		&& other->client->ps.MISHAP_VARIABLE <= MISHAPLEVEL_HEAVY)
-		return 0;
+		return 0; // 74145: huh, SS_DESANN protects against force?
 
 	if(forcePower == FP_TELEPATHY && other->client)
 	{
@@ -1174,15 +1174,15 @@ void WP_ForcePowerStart( gentity_t *self, forcePowers_t forcePower, int override
 		hearDist = 256;
 		if (self->client->ps.fd.forcePowerLevel[FP_TELEPATHY] == FORCE_LEVEL_1)
 		{
-			duration = 20000;
+			duration = 4000; //20000;
 		}
 		else if (self->client->ps.fd.forcePowerLevel[FP_TELEPATHY] == FORCE_LEVEL_2)
 		{
-			duration = 25000;
+			duration = 6000; //25000;
 		}
 		else if (self->client->ps.fd.forcePowerLevel[FP_TELEPATHY] == FORCE_LEVEL_3)
 		{
-			duration = 30000;
+			duration = 10000; //30000;
 		}
 		else //shouldn't get here
 		{
@@ -2860,6 +2860,8 @@ void ForceJump( gentity_t *self, usercmd_t *ucmd )
 	self->client->ps.groundEntityNum = ENTITYNUM_NONE;
 }
 
+#if 0
+// 74145: made it global instead.
 void WP_AddAsMindtricked(forcedata_t *fd, int entNum)
 {
 	if (!fd)
@@ -2884,6 +2886,7 @@ void WP_AddAsMindtricked(forcedata_t *fd, int entNum)
 		fd->forceMindtrickTargetIndex |= (1 << entNum);
 	}
 }
+#endif
 
 qboolean ForceTelepathyCheckDirectNPCTarget( gentity_t *self, trace_t *tr, qboolean *tookPower )
 {
@@ -3071,6 +3074,8 @@ qboolean ForceTelepathyCheckDirectNPCTarget( gentity_t *self, trace_t *tr, qbool
 			*tookPower = qtrue;
 		}
 		//NPC_SetAnim( self, SETANIM_TORSO, BOTH_MINDTRICK2, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_RESTART|SETANIM_FLAG_HOLD );
+		// 74145: still do mindtrick on clients though.
+		return qfalse;
 	}
 	//self->client->ps.saberMove = self->client->ps.saberBounceMove = LS_READY;//don't finish whatever saber anim you may have been in
 	self->client->ps.saberBlocked = BLOCKED_NONE;
@@ -3088,11 +3093,11 @@ extern void WP_DeactivateSaber( gentity_t *self, qboolean clearLength );
 void ForceTelepathy(gentity_t *self)
 {
 	trace_t tr;
-	vec3_t tto, thispush_org, a;
+	/*vec3_t tto, thispush_org, a;
 	vec3_t mins, maxs, fwdangles, forward, right, center;
 	int i;
 	float visionArc = 0;
-	float radius = MAX_TRICK_DISTANCE;
+	float radius = MAX_TRICK_DISTANCE;*/
 	qboolean	tookPower = qfalse;
 
 	if ( self->health <= 0 )
@@ -3143,6 +3148,45 @@ void ForceTelepathy(gentity_t *self)
 		return;
 	}
 
+#if 1 // 74145: global mind trick
+	if (self->client->ps.weapon != WP_SABER && self->client->ps.weapon != WP_MELEE)
+	{ // Only allowed with melee and holstered saber.
+		return;
+	}
+
+	int i = 0;
+	while (i < MAX_CLIENTS)
+	{ // Check that we are not too close to people
+		if (self->s.number != i)
+		{
+			gentity_t *ent = &g_entities[i];
+			if (ent && ent->client && ent->inuse && ent->health > 0)
+			{
+				if (DistanceSquared(self->client->ps.origin, ent->client->ps.origin) < 50000) // 65536
+				{ // too close to someone, can't hide
+					return;
+				}
+			}
+		}
+		++i;
+	}
+
+	self->client->ps.forceAllowDeactivateTime = level.time + 1500;
+
+	if ( !tookPower )
+	{
+		WP_ForcePowerStart( self, FP_TELEPATHY, 0 );
+	}
+
+	G_Sound( self, CHAN_AUTO, G_SoundIndex("sound/weapons/force/distract.wav") );
+	self->client->ps.fd.forceMindtrickTargetIndex4 = 1;
+	self->client->ps.fd.forceMindtrickTargetIndex3 = 1;
+	self->client->ps.fd.forceMindtrickTargetIndex2 = 1;
+	self->client->ps.fd.forceMindtrickTargetIndex = 1;
+
+	self->client->ps.forceHandExtend = HANDEXTEND_FORCEPUSH;
+	self->client->ps.forceHandExtendTime = level.time + 1000;
+#else
 	if (self->client->ps.fd.forcePowerLevel[FP_TELEPATHY] == FORCE_LEVEL_2)
 	{
 		visionArc = 180;
@@ -3260,7 +3304,7 @@ void ForceTelepathy(gentity_t *self)
 			self->client->ps.forceHandExtendTime = level.time + 1000;
 		}
 	}
-
+#endif
 }
 
 void GEntity_UseFunc( gentity_t *self, gentity_t *other, gentity_t *activator )
@@ -4932,6 +4976,7 @@ qboolean G_IsMindTricked(forcedata_t *fd, int client)
 	return qfalse;
 }
 
+#if 0
 static void RemoveTrickedEnt(forcedata_t *fd, int client)
 {
 	if (!fd)
@@ -4956,6 +5001,7 @@ static void RemoveTrickedEnt(forcedata_t *fd, int client)
 		fd->forceMindtrickTargetIndex &= ~(1 << client);
 	}
 }
+#endif
 
 extern int g_LastFrameTime;
 extern int g_TimeSinceLastFrame;
@@ -4966,10 +5012,21 @@ static void WP_UpdateMindtrickEnts(gentity_t *self)
 
 	while (i < MAX_CLIENTS)
 	{
-		if (G_IsMindTricked(&self->client->ps.fd, i))
+		//if (G_IsMindTricked(&self->client->ps.fd, i))
+		if (self->s.number != i)
 		{
 			gentity_t *ent = &g_entities[i];
+#if 1 // 74145: global mind trick
+			if (ent && ent->client && ent->inuse && ent->health > 0)
+			{
+				if (DistanceSquared(self->client->ps.origin, ent->client->ps.origin) < 50000) // 65536
+				{ // got too close to someone, can't keep hidden
+					WP_ForcePowerStop(self, FP_TELEPATHY);
+					return;
+				}
+			}
 
+#else
 			if ( !ent || !ent->client || !ent->inuse || ent->health < 1 ||
 				(ent->client->ps.fd.forcePowersActive & (1 << FP_SEE)) )
 			{
@@ -4987,11 +5044,29 @@ static void WP_UpdateMindtrickEnts(gentity_t *self)
 			{
 				RemoveTrickedEnt(&self->client->ps.fd, i);
 			}
+#endif
 		}
 
 		i++;
 	}
+#if 1 // 74145: global mind trick
+	if ((level.time - self->client->dangerTime) < g_TimeSinceLastFrame*4)
+	{ // stop mindtrick if we attack
+		WP_ForcePowerStop(self, FP_TELEPATHY);
+	}
+	// 74145: TODO: taking heavy damage should disable MT?
 
+	if (self->client->ps.weapon != WP_SABER && self->client->ps.weapon != WP_MELEE)
+	{ // Only allowed with melee and holstered saber.
+		WP_ForcePowerStop(self, FP_TELEPATHY);
+	}
+
+	if (self->client->ps.weapon == WP_SABER && self->client->ps.saberEntityNum && !self->client->ps.saberHolstered)
+	{
+		WP_ForcePowerStop(self, FP_TELEPATHY);
+	}
+
+#else
 	if (!self->client->ps.fd.forceMindtrickTargetIndex &&
 		!self->client->ps.fd.forceMindtrickTargetIndex2 &&
 		!self->client->ps.fd.forceMindtrickTargetIndex3 &&
@@ -4999,7 +5074,9 @@ static void WP_UpdateMindtrickEnts(gentity_t *self)
 	{ //everyone who we had tricked is no longer tricked, so stop the power
 		WP_ForcePowerStop(self, FP_TELEPATHY);
 	}
-	else if (self->client->ps.powerups[PW_REDFLAG] ||
+	else
+#endif
+	if (self->client->ps.powerups[PW_REDFLAG] ||
 		self->client->ps.powerups[PW_BLUEFLAG])
 	{
 		WP_ForcePowerStop(self, FP_TELEPATHY);

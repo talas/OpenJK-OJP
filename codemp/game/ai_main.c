@@ -324,7 +324,24 @@ int BotMindTricked(int botClient, int enemyClient)
 	{
 		return 0;
 	}
+#if 1 // 74145: global mind trick
+	forcedata_t *bot_fd;
+	if (!g_entities[botClient].client)
+	{
+			return 0;
+	}
+	bot_fd = &g_entities[botClient].client->ps.fd;
+	if (bot_fd && bot_fd->forcePowersActive & (1 << FP_SEE))
+	{
+		return 0;
+	}
 
+	if (fd->forceMindtrickTargetIndex == 1 && fd->forceMindtrickTargetIndex2 == 1 &&
+	    fd->forceMindtrickTargetIndex3 == 1 && fd->forceMindtrickTargetIndex4 == 1)
+	{
+		return 1;
+	}
+#else
 	if (botClient > 47)
 	{
 		if (fd->forceMindtrickTargetIndex4 & (1 << (botClient-48)))
@@ -353,7 +370,7 @@ int BotMindTricked(int botClient, int enemyClient)
 			return 1;
 		}
 	}
-
+#endif
 	return 0;
 }
 

@@ -10644,14 +10644,19 @@ JustDoIt:
 
 int CG_IsMindTricked(int trickIndex1, int trickIndex2, int trickIndex3, int trickIndex4, int client)
 {
-	int checkIn;
-	int sub = 0;
+	//int checkIn;
+	//int sub = 0;
 
 	if (cg_entities[client].currentState.forcePowersActive & (1 << FP_SEE))
 	{
 		return 0;
 	}
-
+#if 1 // 74145: global mind trick
+	if (trickIndex1 == 1 && trickIndex2 == 1 && trickIndex3 == 1 && trickIndex4 == 1)
+	{
+		return 1;
+	}
+#else
 	if (client > 47)
 	{
 		checkIn = trickIndex4;
@@ -10676,7 +10681,7 @@ int CG_IsMindTricked(int trickIndex1, int trickIndex2, int trickIndex3, int tric
 	{
 		return 1;
 	}
-
+#endif
 	return 0;
 }
 
@@ -13309,6 +13314,14 @@ void CG_VisualWeaponsUpdate( centity_t *cent, clientInfo_t *ci )
 		{//no holstered weapon rendering
 			return;
 		}
+		if(CG_IsMindTricked(cent->currentState.trickedentindex,
+			cent->currentState.trickedentindex2,
+			cent->currentState.trickedentindex3,
+			cent->currentState.trickedentindex4,
+			cg.predictedPlayerState.clientNum))
+		{//we are mind tricking people, don't render weapons on us.
+			return;
+		}
 
 		weapInv = cg.snap->ps.stats[STAT_WEAPONS];
 	}
@@ -15504,6 +15517,9 @@ SkipTrueView:
 		}
 	}
 
+#if 0 // Not needed for global mind trick
+	// 74145: I guess this is up to personal taste though.
+	// 74145: TODO: maybe it's better to add some effect to ourself, like semi transparency..
 	//If you've tricked this client.
 	if (CG_IsMindTricked(cg.snap->ps.fd.forceMindtrickTargetIndex,
 		cg.snap->ps.fd.forceMindtrickTargetIndex2,
@@ -15541,6 +15557,7 @@ SkipTrueView:
 			trap->FX_PlayEntityEffectID(cgs.effects.mForceConfustionOld, efOrg, axis, -1, -1, -1, -1);
 		}
 	}
+#endif
 
 	//[TrueView]
 		if (cgs.gametype == GT_HOLOCRON && cent->currentState.time2 && 
