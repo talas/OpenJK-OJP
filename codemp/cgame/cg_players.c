@@ -10793,75 +10793,104 @@ void CG_DrawPlayerSphere(centity_t *cent, vec3_t origin, float scale, int shader
 	trap->R_AddRefEntityToScene( &ent );
 }
 
-void CG_AddLightningBeam(vec3_t start, vec3_t end)
+void CG_AddLightningBlock(vec3_t start, centity_t *saber)
 {
-	vec3_t	dir, chaos,
-			c1, c2,
-			v1, v2;
-	float	len,
-			s1, s2, s3;
+	vec3_t end;
+	VectorMA(start, 50, saber->currentState.apos.trBase, end);
+	addElectricityArgStruct_t p;
+	VectorCopy(start, p.start);
+	VectorCopy(end, p.end);
+	p.size1 = 2.5f;
+	p.size2 = 4.0f;
+	p.sizeParm = 0.0f;
+	p.alpha1 = 1.0f;
+	p.alpha2 = 0.5f;
+	p.alphaParm = 0.0f;
+	p.sRGB[0] = 90;
+	p.sRGB[1] = 10;
+	p.sRGB[2] = 155;
+	VectorCopy(p.sRGB, p.eRGB);
+	p.rgbParm = 0.0f;
+	p.chaos = 5.0f;
+	p.killTime = 40;
+	p.shader = trap->R_RegisterShader( "gfx/misc/blueline" );
+	p.flags = (0x00000001 | 0x00000100 | 0x02000000 | 0x04000000 | 0x01000000);
+	trap->FX_AddElectricity(&p);
+}
 
-	addbezierArgStruct_t b;
+void CG_AddLightningBeam(vec3_t start, vec3_t end, int entityNum, qboolean level3)
+{
+	addElectricityArgStruct_t p;
+	qboolean absorbed = qfalse;
+	vec3_t enter_pos;
+	VectorCopy(start, p.start);
 
-	VectorCopy(start, b.start);
-	VectorCopy(end, b.end);
+	if (entityNum)
+	{ // hit an ent
+		vec3_t hit_pos;
+		centity_t *hitcent = &cg_entities[entityNum-1];
+		VectorCopy(hitcent->currentState.pos.trBase, hit_pos);
+		if (entityNum-1 >= MAX_CLIENTS &&
+		    !hitcent->m_pVehicle && hitcent->currentState.eType != ET_NPC)
+		{
+			// 74145: TODO: verify that this really is a saber..
+			CG_AddLightningBlock(hit_pos, hitcent);
+			VectorMA(hit_pos, Q_flrand(0.0f, 1.0f)*30+5, hitcent->currentState.apos.trBase, hit_pos);
+			VectorCopy(hit_pos, enter_pos);
+			absorbed = qtrue;
+		}
+		// else 74145: TODO: find center of this nice thing?
+		VectorCopy(hit_pos, p.end);
+	}
+	else
+	{ // trace to end and find if we hit a wall
+		trace_t trace;
+		trap->CM_Trace( &trace, start, end, NULL, NULL, 0, MASK_SOLID, 0 );
+		VectorCopy(trace.endpos, p.end);
+		if (trace.fraction >= 1.0f)
+		{ // didn't hit anything
+			absorbed = qtrue; // so we don't make sparks
+		}
+	}
+	if (!absorbed)
+	{
+		vec3_t hit_dir;
+		p.end[0] += Q_flrand(0,1) * 64 - 32;
+		p.end[1] += Q_flrand(0,1) * 64 - 32;
+		p.end[2] += Q_flrand(0,1) * 64 - 32;
+		VectorCopy(p.end, enter_pos); // for sparks
+		// Push forward to enter into the model/wall
+		VectorSubtract(p.end, start, hit_dir);
+		VectorNormalize(hit_dir);
+		VectorMA(p.end, 128, hit_dir, p.end);
+	}
 
-	VectorSubtract( b.end, b.start, dir );
-	len = VectorNormalize( dir );
-
-	// Get the base control points, we'll work from there
-	VectorMA( b.start, 0.3333f * len, dir, c1 );
-	VectorMA( b.start, 0.6666f * len, dir, c2 );
-
-	// get some chaos values that really aren't very chaotic :)
-	s1 = sin( cg.time * 0.005f ) * 2 + Q_flrand(-1.0f, 1.0f) * 0.2f;
-	s2 = sin( cg.time * 0.001f );
-	s3 = sin( cg.time * 0.011f );
-
-	VectorSet( chaos, len * 0.01f * s1,
-						len * 0.02f * s2,
-						len * 0.04f * (s1 + s2 + s3));
-
-	VectorAdd( c1, chaos, c1 );
-	VectorScale( chaos, 4.0f, v1 );
-
-	VectorSet( chaos, -len * 0.02f * s3,
-						len * 0.01f * (s1 * s2),
-						-len * 0.02f * (s1 + s2 * s3));
-
-	VectorAdd( c2, chaos, c2 );
-	VectorScale( chaos, 2.0f, v2 );
-
-	VectorSet( chaos, 1.0f, 1.0f, 1.0f );
-
-	VectorCopy(c1, b.control1);
-	VectorCopy(vec3_origin, b.control1Vel);
-	VectorCopy(c2, b.control2);
-	VectorCopy(vec3_origin, b.control2Vel);
-
-	b.size1 = 6.0f;
-	b.size2 = 6.0f;
-	b.sizeParm = 0.0f;
-	b.alpha1 = 0.0f;
-	b.alpha2 = 0.2f;
-	b.alphaParm = 0.5f;
-
-	/*
-	VectorCopy(WHITE, b.sRGB);
-	VectorCopy(WHITE, b.eRGB);
-	*/
-
-	b.sRGB[0] = 255;
-	b.sRGB[1] = 255;
-	b.sRGB[2] = 255;
-	VectorCopy(b.sRGB, b.eRGB);
-
-	b.rgbParm = 0.0f;
-	b.killTime = 50;
-	b.shader = trap->R_RegisterShader( "gfx/misc/electric2" );
-	b.flags = 0x00000001; //FX_ALPHA_LINEAR
-
-	trap->FX_AddBezier(&b);
+	p.size1 = 1.5f;
+	p.size2 = 4.0f;
+	p.sizeParm = -4.0f;
+	p.alpha1 = 1.0f;
+	p.alpha2 = 0.5f;
+	p.alphaParm = 0.0f;
+	p.sRGB[0] = 90;
+	p.sRGB[1] = 10;
+	p.sRGB[2] = 155;
+	VectorCopy(p.sRGB, p.eRGB);
+	p.rgbParm = 0.0f;
+	p.chaos = 1.6f;
+	if (level3)
+	{
+		p.chaos = 3.0f;
+	}
+	p.killTime = (Q_flrand(0.0f, 1.0f) * 150 + 100);
+	p.shader = trap->R_RegisterShader( "gfx/misc/blueline" );
+	p.flags = (0x00000001 | 0x00000800 | 0x02000000 | 0x04000000 | 0x01000000);
+	trap->FX_AddElectricity(&p);
+	if (!absorbed && Q_irand(0, 1))
+	{ // some sparks
+		vec3_t sd;
+		sd[2] = 1;
+		trap->FX_PlayEffectID( cgs.effects.mSparks, enter_pos, sd, -1, -1, qfalse);
+	}
 }
 
 void CG_AddRandomLightning(vec3_t start, vec3_t end)
@@ -10904,7 +10933,7 @@ void CG_AddRandomLightning(vec3_t start, vec3_t end)
 		inOrg[2] -= Q_irand(0, 40);
 	}
 
-	CG_AddLightningBeam(inOrg, outOrg);
+	CG_AddLightningBeam(inOrg, outOrg, 0, qfalse);
 }
 
 extern char *forceHolocronModels[];
@@ -15232,6 +15261,7 @@ SkipTrueView:
 		matrix3_t axis;
 		vec3_t tAng, fAng, fxDir;
 		vec3_t efOrg;
+		vec3_t efDest;
 
 		VectorSet( tAng, cent->turAngles[PITCH], cent->turAngles[YAW], cent->turAngles[ROLL] );
 
@@ -15239,16 +15269,28 @@ SkipTrueView:
 
 		AngleVectors( fAng, fxDir, NULL, NULL );
 
-		//trap->G2API_GetBoltMatrix(cent->ghoul2, 0, ci->bolt_lhand, &boltMatrix, tAng, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale);
-		if (!gotLHandMatrix)
-		{
-			trap->G2API_GetBoltMatrix(cent->ghoul2, 0, ci->bolt_lhand, &lHandMatrix, cent->turAngles, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale);
-			gotLHandMatrix = qtrue;
+		if ( cent->currentState.torsoAnim == BOTH_FORCE_2HANDEDLIGHTNING_HOLD
+		     && Q_irand( 0, 1 ) )
+		{//alternate back and forth between left and right
+			mdxaBone_t 	rHandMatrix;
+			trap->G2API_GetBoltMatrix(cent->ghoul2, 0, ci->bolt_rhand, &rHandMatrix, cent->turAngles, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale);
+			efOrg[0] = rHandMatrix.matrix[0][3];
+			efOrg[1] = rHandMatrix.matrix[1][3];
+			efOrg[2] = rHandMatrix.matrix[2][3];
 		}
+		else
+		{
+			//trap->G2API_GetBoltMatrix(cent->ghoul2, 0, ci->bolt_lhand, &boltMatrix, tAng, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale);
+			if (!gotLHandMatrix)
+			{
+				trap->G2API_GetBoltMatrix(cent->ghoul2, 0, ci->bolt_lhand, &lHandMatrix, cent->turAngles, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale);
+				gotLHandMatrix = qtrue;
+			}
 
-		efOrg[0] = lHandMatrix.matrix[0][3];
-		efOrg[1] = lHandMatrix.matrix[1][3];
-		efOrg[2] = lHandMatrix.matrix[2][3];
+			efOrg[0] = lHandMatrix.matrix[0][3];
+			efOrg[1] = lHandMatrix.matrix[1][3];
+			efOrg[2] = lHandMatrix.matrix[2][3];
+		}
 
 		AnglesToAxis( fAng, axis );
 
@@ -15256,13 +15298,34 @@ SkipTrueView:
 		{//arc
 			//trap->FX_PlayEffectID( cgs.effects.forceLightningWide, efOrg, fxDir );
 			//trap->FX_PlayEntityEffectID(cgs.effects.forceLightningWide, efOrg, axis, cent->boltInfo, cent->currentState.number, -1, -1);
-			trap->FX_PlayEntityEffectID(cgs.effects.forceLightningWide, efOrg, axis, -1, -1, -1, -1);
+			//trap->FX_PlayEntityEffectID(cgs.effects.forceLightningWide, efOrg, axis, -1, -1, -1, -1);
+			if(!Q_irand(0, 4)) {
+				VectorMA( efOrg, 300, fxDir, efDest);
+				CG_AddLightningBeam(efOrg, efDest, cent->currentState.trickedentindex, qtrue);
+
+				if(cent->currentState.trickedentindex2)
+				{ // hit another ent
+					CG_AddLightningBeam(efOrg, efDest, cent->currentState.trickedentindex2, qtrue);
+				}
+
+				if(cent->currentState.trickedentindex3)
+				{ // hit one more ent
+					CG_AddLightningBeam(efOrg, efDest, cent->currentState.trickedentindex3, qtrue);
+				}
+
+				if(cent->currentState.trickedentindex4)
+				{ // hit 4 in one!
+					CG_AddLightningBeam(efOrg, efDest, cent->currentState.trickedentindex4, qtrue);
+				}
+			}
 		}
-		else
+		else if(!Q_irand(0, 4))
 		{//line
 			//trap->FX_PlayEffectID( cgs.effects.forceLightning, efOrg, fxDir );
 			//trap->FX_PlayEntityEffectID(cgs.effects.forceLightning, efOrg, axis, cent->boltInfo, cent->currentState.number, -1, -1);
-			trap->FX_PlayEntityEffectID(cgs.effects.forceLightning, efOrg, axis, -1, -1, -1, -1);
+			//trap->FX_PlayEntityEffectID(cgs.effects.forceLightning, efOrg, axis, -1, -1, -1, -1);
+			VectorMA( efOrg, 300*3, fxDir, efDest);
+			CG_AddLightningBeam(efOrg, efDest, cent->currentState.trickedentindex, qfalse);
 		}
 
 		/*

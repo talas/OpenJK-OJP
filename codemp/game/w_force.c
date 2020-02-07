@@ -1206,7 +1206,8 @@ void WP_ForcePowerStart( gentity_t *self, forcePowers_t forcePower, int override
 			duration = overrideAmt;
 		overrideAmt = 0;
 		self->client->ps.fd.forcePowersActive |= ( 1 << forcePower );
-		self->client->ps.activeForcePass = self->client->ps.fd.forcePowerLevel[FP_LIGHTNING];
+		// 74145: let it charge a bit first
+		//self->client->ps.activeForcePass = self->client->ps.fd.forcePowerLevel[FP_LIGHTNING];
 		break;
 	case FP_RAGE:
 		hearable = qtrue;
@@ -1937,7 +1938,8 @@ void ForceLightning( gentity_t *self )
 	self->client->ps.forceHandExtend = HANDEXTEND_FORCE_HOLD;
 	self->client->ps.forceHandExtendTime = level.time + 20000;
 
-	G_Sound( self, CHAN_BODY, G_SoundIndex("sound/weapons/force/lightning") );
+	// 74145: let it charge a bit first
+	//G_Sound( self, CHAN_BODY, G_SoundIndex("sound/weapons/force/lightning") );
 	//[ForceSys]
 	WP_ForcePowerStart( self, FP_LIGHTNING, 0 );
 	//[ForceSys]
@@ -2135,11 +2137,12 @@ qboolean OJP_BlockLightning(gentity_t *attacker, gentity_t *defender, vec3_t imp
 //[ForceSys]
 extern void G_Knockdown( gentity_t *self, gentity_t *attacker, const vec3_t pushDir, float strength, qboolean breakSaberLock );
 //[/ForceSys]
-void ForceLightningDamage( gentity_t *self, gentity_t *traceEnt, vec3_t dir, vec3_t impactPoint )
+int ForceLightningDamage( gentity_t *self, gentity_t *traceEnt, vec3_t dir, vec3_t impactPoint )
 {
 	//[ForceSys]
 	//the target saber blocked the lightning
 	qboolean saberBlocked = qfalse;
+	qboolean shockHit = qfalse;
 	//[/ForceSys]
 
 	self->client->dangerTime = level.time;
@@ -2164,7 +2167,8 @@ void ForceLightningDamage( gentity_t *self, gentity_t *traceEnt, vec3_t dir, vec
 				{
 					traceEnt->client->ps.fd.forcePower = traceEnt->client->ps.fd.forcePowerMax;
 				}
-				return;
+				self->client->ps.fd.forceMindtrickTargetIndex = traceEnt->s.number+1;
+				return 0;
 			}
 			if (ForcePowerUsableOn(self, traceEnt, FP_LIGHTNING))
 			{
@@ -2215,24 +2219,62 @@ void ForceLightningDamage( gentity_t *self, gentity_t *traceEnt, vec3_t dir, vec
 				if (dmg && !saberBlocked)
 				//[/ForceSys]
 				{
-					//rww - Shields can now absorb lightning too.
-					G_Damage( traceEnt, self, self, dir, impactPoint, dmg, 0, MOD_FORCE_DARK );
-					
 					//[ForceSys]
-					//lightning also blasts the target back.
-					G_Throw(traceEnt, dir, 100);
-					if(!WalkCheck(traceEnt) 
-					|| (WalkCheck(traceEnt) && traceEnt->client->ps.MISHAP_VARIABLE <= MISHAPLEVEL_HEAVY) 
-					|| BG_IsUsingHeavyWeap(&traceEnt->client->ps)
-					|| PM_SaberInBrokenParry(traceEnt->client->ps.saberMove)
-					|| traceEnt->client->ps.stats[STAT_DODGE] < DODGE_CRITICALLEVEL)
+					if (traceEnt->client &&
+					    (BG_IsUsingHeavyWeap(&traceEnt->client->ps)
+					     || (traceEnt->client->ps.fd.forcePowersActive & (1 << FP_PROTECT))
+					     || (traceEnt->client->ps.fd.forcePowersActive & (1 << FP_DRAIN))
+					     || (traceEnt->client->ps.fd.forcePowersActive & (1 << FP_RAGE))
+					     || PM_SaberInBrokenParry(traceEnt->client->ps.saberMove)
+					     || traceEnt->client->ps.stats[STAT_DODGE] < DODGE_CRITICALLEVEL) )
 					{
+						dmg *= 3;
+						traceEnt->client->ps.weaponTime += 400;
 						G_Knockdown(traceEnt, self, dir, 300, qtrue);
+						shockHit = qtrue;
+					}
+					{
+						// 74145: lightningee toss experiment..
+						if (traceEnt->client &&
+						    self->client->ps.fd.forcePowerLevel[FP_LIGHTNING] >= FORCE_LEVEL_2 )
+						{
+							vec3_t fwd, dest, toss_dir;
+							int toss_vel = 20;
+							AngleVectors(self->client->ps.viewangles, fwd, NULL, NULL);
+							VectorMA(self->client->ps.origin, 256, fwd, dest);
+							VectorSubtract(dest, traceEnt->client->ps.origin, toss_dir);
+							VectorNormalize(toss_dir);
+							VectorMA(toss_dir, 0.5, dir, toss_dir);
+							VectorNormalize(toss_dir);
+							if (self->client->ps.weapon == WP_MELEE &&
+							    self->client->ps.fd.forcePowerLevel[FP_LIGHTNING] > FORCE_LEVEL_2)
+								toss_vel = 30;
+							if (shockHit)
+								toss_vel *= 2;
+							G_Throw(traceEnt, toss_dir, toss_vel);
+						}
+						else
+						{
+							G_Throw(traceEnt, dir, 100);
+						}
 					}
 					//[/ForceSys]
+
+					//rww - Shields can now absorb lightning too.
+					G_Damage( traceEnt, self, self, dir, impactPoint, dmg, 0, MOD_FORCE_DARK );
 				}
 				if ( traceEnt->client )
 				{
+					if (saberBlocked)
+					{
+						if ( !Q_irand( 0, 2 ) )
+						{
+							G_Sound( traceEnt, CHAN_BODY, G_SoundIndex( va("sound/weapons/saber/saberblock%i", Q_irand(1, 4) )) );
+						}
+
+						self->client->ps.fd.forceMindtrickTargetIndex = traceEnt->client->ps.saberEntityNum+1;
+						return 0;
+					}
 					if ( !Q_irand( 0, 2 ) )
 					{
 						G_Sound( traceEnt, CHAN_BODY, G_SoundIndex( va("sound/weapons/force/lightninghit%i", Q_irand(1, 3) )) );
@@ -2245,37 +2287,65 @@ void ForceLightningDamage( gentity_t *self, gentity_t *traceEnt, vec3_t dir, vec
 					{ //only update every 400ms to reduce bandwidth usage (as it is passing a 32-bit time value)
 						traceEnt->client->ps.electrifyTime = level.time + 800;
 					}
+					if ( traceEnt->client->ps.fd.forcePowersActive & (1 << FP_TELEPATHY) )
+					{//found a sneak!
+						WP_ForcePowerStop(traceEnt, FP_TELEPATHY);
+					}
+
 					if ( traceEnt->client->ps.powerups[PW_CLOAKED] )
 					{//disable cloak temporarily
 						Jedi_Decloak( traceEnt );
 						traceEnt->client->cloakToggleTime = level.time + Q_irand( 3000, 10000 );
 					}
 				}
+				self->client->ps.fd.forceMindtrickTargetIndex = traceEnt->s.number+1;
 			}
 		}
 	}
+	return 1;
 }
 
-void ForceShootLightning( gentity_t *self )
+int ForceShootLightning( gentity_t *self )
 {
 	trace_t	tr;
 	vec3_t	end, forward;
 	gentity_t	*traceEnt;
+	qboolean hit_something = qfalse;
+	int blocked = 1;
+	int hitEntNum = -1;
 
 	if ( self->health <= 0 )
 	{
-		return;
+		return 0;
 	}
 	AngleVectors( self->client->ps.viewangles, forward, NULL, NULL );
 	VectorNormalize( forward );
+	if (!self->client->ps.activeForcePass)
+	{
+		self->client->ps.fd.forceMindtrickTargetIndex = 0;
+		self->client->ps.fd.forceMindtrickTargetIndex2 = 0;
+		self->client->ps.fd.forceMindtrickTargetIndex3 = 0;
+		self->client->ps.fd.forceMindtrickTargetIndex4 = 0;
+		self->client->ps.activeForcePass = self->client->ps.fd.forcePowerLevel[FP_LIGHTNING];
+		G_Sound( self, CHAN_BODY, G_SoundIndex("sound/weapons/force/lightning") );
+	}
 
-	if ( self->client->ps.fd.forcePowerLevel[FP_LIGHTNING] > FORCE_LEVEL_2 )
+	//if ( self->client->ps.fd.forcePowerLevel[FP_LIGHTNING] > FORCE_LEVEL_2 )
 	{//arc
 		vec3_t	center, mins, maxs, dir, ent_org, size, v;
 		float	radius = FORCE_LIGHTNING_RADIUS, dot, dist;
 		gentity_t	*entityList[MAX_GENTITIES];
 		int			iEntityList[MAX_GENTITIES];
 		int		e, numListedEntities, i;
+		float minDist = radius*4;
+		float coneThreshold = 0.6; // 0.5
+
+		if ( self->client->ps.fd.forcePowerLevel[FP_LIGHTNING] < FORCE_LEVEL_3 )
+		{ // shoot further, but only hits 1
+			radius *= 3;
+			coneThreshold = 0.9;
+		}
+
 
 		VectorCopy( self->client->ps.origin, center );
 		for ( i = 0 ; i < 3 ; i++ )
@@ -2311,6 +2381,9 @@ void ForceShootLightning( gentity_t *self )
 				continue;
 			if ( !g_friendlyFire.integer && OnSameTeam(self, traceEnt))
 				continue;
+			if ( traceEnt->client && traceEnt->client->ps.fd.forcePowersActive & (1 << FP_TELEPATHY) )
+				continue; // no lightning radar, toss your saber instead.
+
 			//this is all to see if we need to start a saber attack, if it's in flight, this doesn't matter
 			// find the distance from the edge of the bounding box
 			for ( i = 0 ; i < 3 ; i++ )
@@ -2334,7 +2407,7 @@ void ForceShootLightning( gentity_t *self )
 			//must be within the forward cone
 			VectorSubtract( ent_org, center, dir );
 			VectorNormalize( dir );
-			if ( (dot = DotProduct( dir, forward )) < 0.5 )
+			if ( (dot = DotProduct( dir, forward )) < coneThreshold )
 				continue;
 
 			//must be close enough
@@ -2357,23 +2430,55 @@ void ForceShootLightning( gentity_t *self )
 				continue;
 			}
 
+			if ( self->client->ps.fd.forcePowerLevel[FP_LIGHTNING] < FORCE_LEVEL_3)
+			{ // can only hit one target
+				if (OnSameTeam(self, traceEnt))
+					dist += 128; //prefer not to hit teammates..
+				if (dist < minDist)
+				{
+					minDist = dist;
+					VectorCopy(ent_org, end);
+					hitEntNum = traceEnt->s.number;
+				}
+				continue;
+			}
+
+			if (hit_something)
+			{ // rotate entities hit (so we can hit up to 4 with effects)
+				self->client->ps.fd.forceMindtrickTargetIndex4 = self->client->ps.fd.forceMindtrickTargetIndex3;
+				self->client->ps.fd.forceMindtrickTargetIndex3 = self->client->ps.fd.forceMindtrickTargetIndex2;
+				self->client->ps.fd.forceMindtrickTargetIndex2 = self->client->ps.fd.forceMindtrickTargetIndex;
+				self->client->ps.fd.forceMindtrickTargetIndex = 0;
+			}
+
+			hit_something = qtrue;
+
+
 			// ok, we are within the radius, add us to the incoming list
-			ForceLightningDamage( self, traceEnt, dir, ent_org );
+			if (ForceLightningDamage( self, traceEnt, dir, ent_org ))
+				blocked = 0;
 		}
 	}
-	else
-	{//trace-line
-		VectorMA( self->client->ps.origin, 2048, forward, end );
-
-		trap->Trace( &tr, self->client->ps.origin, vec3_origin, vec3_origin, end, self->s.number, MASK_SHOT, qfalse, 0, 0 );
-		if ( tr.entityNum == ENTITYNUM_NONE || tr.fraction == 1.0 || tr.allsolid || tr.startsolid )
+	if ( self->client->ps.fd.forcePowerLevel[FP_LIGHTNING] < FORCE_LEVEL_3 && hitEntNum != -1)
+	{
+		traceEnt = &g_entities[hitEntNum];
+		if (traceEnt)
 		{
-			return;
+			hit_something = qtrue;
+			if (ForceLightningDamage( self, traceEnt, forward, end ))
+				blocked = 0;
 		}
-
-		traceEnt = &g_entities[tr.entityNum];
-		ForceLightningDamage( self, traceEnt, forward, tr.endpos );
 	}
+	if (!hit_something)
+	{
+		self->client->ps.fd.forceMindtrickTargetIndex = 0;
+		self->client->ps.fd.forceMindtrickTargetIndex2 = 0;
+		self->client->ps.fd.forceMindtrickTargetIndex3 = 0;
+		self->client->ps.fd.forceMindtrickTargetIndex4 = 0;
+		return 0;
+	}
+	return blocked;
+
 }
 
 void ForceDrain( gentity_t *self )
@@ -5284,8 +5389,8 @@ static void WP_ForcePowerRun( gentity_t *self, forcePowers_t forcePower, usercmd
 
 		if ( self->client->ps.fd.forcePowerLevel[FP_LIGHTNING] > FORCE_LEVEL_1 )
 		{//higher than level 1
-			if ( (cmd->buttons & BUTTON_FORCE_LIGHTNING) || ((cmd->buttons & BUTTON_FORCEPOWER) && self->client->ps.fd.forcePowerSelected == FP_LIGHTNING) )
-			{//holding it keeps it going
+			if ( (cmd->buttons & BUTTON_FORCE_LIGHTNING) || ((cmd->buttons & BUTTON_FORCEPOWER) && self->client->ps.fd.forcePowerSelected == FP_LIGHTNING) || (self->client->ps.fd.forceGripBeingGripped > level.time) )
+			{//holding it keeps it going (and can't stop while being gripped)
 				self->client->ps.fd.forcePowerDuration[FP_LIGHTNING] = level.time + 500;
 			}
 		}
@@ -5301,9 +5406,10 @@ static void WP_ForcePowerRun( gentity_t *self, forcePowers_t forcePower, usercmd
 		{
 			while ( self->client->force.lightningDebounce < level.time )
 			{
-				ForceShootLightning( self );
+				int blocked = ForceShootLightning( self );
 				//[ForceSys]
-				BG_ForcePowerDrain( &self->client->ps, forcePower, 1 ); //holding FP cost
+				if (!blocked)
+					BG_ForcePowerDrain( &self->client->ps, forcePower, 1 ); //holding FP cost
 				//[/ForceSys]
 				self->client->force.lightningDebounce += FORCE_DEBOUNCE_TIME;
 			}
@@ -6317,7 +6423,8 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 
 	i = 0;
 
-	if (!(self->client->ps.fd.forcePowersActive & (1 << FP_TELEPATHY)))
+	if (!(self->client->ps.fd.forcePowersActive & (1 << FP_TELEPATHY)) &&
+	    !(self->client->ps.fd.forcePowersActive & (1 << FP_LIGHTNING)))
 	{ //clear the mindtrick index values
 		self->client->ps.fd.forceMindtrickTargetIndex = 0;
 		self->client->ps.fd.forceMindtrickTargetIndex2 = 0;
@@ -6541,7 +6648,7 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 	if ( !(self->client->ps.fd.forcePowersActive & (1<<FP_DRAIN)) )
 		self->client->force.drainDebounce = level.time;
 	if ( !(self->client->ps.fd.forcePowersActive & (1<<FP_LIGHTNING)) )
-		self->client->force.lightningDebounce = level.time;
+		self->client->force.lightningDebounce = level.time + 600; // 74145: need to charge it first
 
 	// 74145: TODO: half regen for grey jedi?
 	//[FatigueSys]
