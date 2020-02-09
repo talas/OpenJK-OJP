@@ -4008,6 +4008,29 @@ gentity_t* TAB_WantAmmo(bot_state_t *bs, qboolean setOrder, int numOfChecks)
 	return NULL;
 }
 
+gentity_t* FindAliveMVPOnTeam(int team)
+{
+	int i = 0;
+	int bestScore = -9;
+	gentity_t *found = NULL;
+
+	for (i = 0; i < MAX_CLIENTS; i++)
+	{
+		gentity_t *ent = &g_entities[i];
+		if (ent && ent->client && ent->client->pers.connected == CON_CONNECTED &&
+		    ent->client->tempSpectate <= level.time && ent->health > 0 &&
+		    ent->client->sess.sessionTeam == team)
+		{
+			int score = ent->client->ps.persistant[PERS_SCORE];
+			if (score > bestScore)
+			{
+				bestScore = score;
+				found = ent;
+			}
+		}
+	}
+	return found;
+}
 
 void TAB_HigherBotAI(bot_state_t *bs)
 {//This function handles the higher level thinking for the TABBots
@@ -4067,6 +4090,20 @@ void TAB_HigherBotAI(bot_state_t *bs)
 			else if(level.gametype == GT_JEDIMASTER)
 			{
 				bs->currentTactic = BOTORDER_JEDIMASTER;
+			}
+			else if(level.gametype == GT_TEAM && ojp_lastmanstanding.integer > 0)
+			{ // Defend MVP on our team (treat them as team leader)
+				gentity_t *mvp = FindAliveMVPOnTeam(g_entities[bs->client].client->sess.sessionTeam);
+				if (mvp && bs->client != mvp->s.number)
+				{
+					bs->currentTactic = BOTORDER_DEFEND;
+					bs->tacticEntity = mvp;
+				}
+				else
+				{ // Whatever, just kill enemies then
+					bs->currentTactic = BOTORDER_SEARCHANDDESTROY;
+					bs->tacticEntity = NULL;
+				}
 			}
 			else
 			{
@@ -6034,7 +6071,8 @@ int OJP_PassStandardEnemyChecks(bot_state_t *bs, gentity_t *en)
 		return 0;
 	}
 
-	if(g_entities[bs->client].client->sess.sessionTeam == en->s.teamowner)
+	if (level.gametype == GT_SINGLE_PLAYER &&
+	    g_entities[bs->client].client->sess.sessionTeam == en->s.teamowner)
 		return 0;
 
 	if(en->client)

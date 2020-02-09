@@ -712,7 +712,7 @@ typedef struct score_s {
 	int				accuracy;
 	int				impressiveCount;
 	int				excellentCount;
-	int				gauntletCount;
+	int				LMSLives;
 	int				defendCount;
 	int				assistCount;
 	int				captures;

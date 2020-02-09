@@ -494,7 +494,7 @@ void AddScore( gentity_t *ent, vec3_t origin, int score )
 	//ScorePlum(ent, origin, score);
 	//
 	ent->client->ps.persistant[PERS_SCORE] += score;
-	if ( level.gametype == GT_TEAM && !g_dontPenalizeTeam )
+	if ( level.gametype == GT_TEAM && !g_dontPenalizeTeam && ojp_lastmanstanding.integer < 1)
 		level.teamScores[ ent->client->ps.persistant[PERS_TEAM] ] += score;
 	CalculateRanks();
 }
@@ -2935,7 +2935,7 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 					AddScore( attacker, self->r.currentOrigin, -1 );
 				}
 			}
-			else
+			else if (ojp_lastmanstanding.integer < 1 && level.gametype == GT_FFA)
 			{
 				AddScore( attacker, self->r.currentOrigin, -1 );
 			}
@@ -2978,7 +2978,8 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 			}
 			else
 			{
-				AddScore( attacker, self->r.currentOrigin, 1 );
+				if (ojp_lastmanstanding.integer < 1 || level.gametype != GT_FFA)
+					AddScore( attacker, self->r.currentOrigin, 1 );
 				//[SaberSys]
 				AddFatigueKillBonus( attacker, self );
 				//[SaberSys]
@@ -3044,7 +3045,7 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 				AddScore( self, self->r.currentOrigin, -1 );
 			}
 		}
-		else
+		else if (ojp_lastmanstanding.integer < 1 || level.gametype != GT_FFA)
 		{
 			AddScore( self, self->r.currentOrigin, -1 );
 		}

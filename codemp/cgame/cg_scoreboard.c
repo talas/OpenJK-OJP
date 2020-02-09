@@ -169,7 +169,19 @@ static void CG_DrawClientScore( int y, score_t *score, float *color, float fade,
 		CG_FillRect( SB_SCORELINE_X - 5, y + 2, 640 - SB_SCORELINE_X * 2 + 10, largeFormat?SB_NORMAL_HEIGHT:SB_INTER_HEIGHT, hcolor );
 	}
 
-	CG_Text_Paint (SB_NAME_X, y, 0.9f * scale, colorWhite, ci->name,0, 0, ITEM_TEXTSTYLE_OUTLINED, FONT_MEDIUM );
+	float *textColor = colorWhite;
+	if (score->LMSLives < 0)
+	{ // indicate players who are "out" with grayed out scores.
+		float	hcolor[4];
+		hcolor[0] = 0.3f;
+		hcolor[1] = 0.3f;
+		hcolor[2] = 0.3f;
+		hcolor[3] = fade;
+		textColor = hcolor;
+		CG_Text_Paint (SB_NAME_X, y, 0.9f * scale, textColor, ci->cleanname,0, 0, ITEM_TEXTSTYLE_OUTLINED, FONT_MEDIUM );
+	}
+	else
+		CG_Text_Paint (SB_NAME_X, y, 0.9f * scale, textColor, ci->name,0, 0, ITEM_TEXTSTYLE_OUTLINED, FONT_MEDIUM );
 
 	if ( score->ping != -1 )
 	{
@@ -181,19 +193,19 @@ static void CG_DrawClientScore( int y, score_t *score, float *color, float fade,
 			}
 			else
 			{
-				CG_Text_Paint (SB_SCORE_X, y, 1.0f * scale, colorWhite, va("%i", score->score),0, 0, ITEM_TEXTSTYLE_OUTLINED, FONT_SMALL );
+				CG_Text_Paint (SB_SCORE_X, y, 1.0f * scale, textColor, va("%i", score->score),0, 0, ITEM_TEXTSTYLE_OUTLINED, FONT_SMALL );
 			}
 		}
 
 		if ( cg_scoreboardBots.integer && ci->botSkill != -1 )
-			CG_Text_Paint( SB_PING_X, y, 1.0f * scale, colorWhite, "BOT", 0, 0, ITEM_TEXTSTYLE_OUTLINED, FONT_SMALL );
+			CG_Text_Paint( SB_PING_X, y, 1.0f * scale, textColor, "BOT", 0, 0, ITEM_TEXTSTYLE_OUTLINED, FONT_SMALL );
 		else
-			CG_Text_Paint (SB_PING_X, y, 1.0f * scale, colorWhite, va("%i", score->ping),0, 0, ITEM_TEXTSTYLE_OUTLINED, FONT_SMALL );	
-		CG_Text_Paint (SB_TIME_X, y, 1.0f * scale, colorWhite, va("%i", score->time),0, 0, ITEM_TEXTSTYLE_OUTLINED, FONT_SMALL );		
+			CG_Text_Paint (SB_PING_X, y, 1.0f * scale, textColor, va("%i", score->ping),0, 0, ITEM_TEXTSTYLE_OUTLINED, FONT_SMALL );
+		CG_Text_Paint (SB_TIME_X, y, 1.0f * scale, textColor, va("%i", score->time),0, 0, ITEM_TEXTSTYLE_OUTLINED, FONT_SMALL );
 		//[ExpSys]
 		if(cgs.gametype != GT_SIEGE)
 		{
-			CG_Text_Paint (SB_SKILL_X, y, 1.0f * scale, colorWhite, va("%i", score->skill),0, 0, ITEM_TEXTSTYLE_OUTLINED, FONT_SMALL );	
+			CG_Text_Paint (SB_SKILL_X, y, 1.0f * scale, textColor, va("%i", score->skill),0, 0, ITEM_TEXTSTYLE_OUTLINED, FONT_SMALL );
 		}
 		//[/ExpSys]
 
@@ -214,7 +226,7 @@ static void CG_DrawClientScore( int y, score_t *score, float *color, float fade,
 	// add the "ready" marker for intermission exiting
 	if ( cg.snap->ps.stats[ STAT_CLIENTS_READY ] & ( 1 << score->client ) )
 	{
-		CG_Text_Paint (SB_NAME_X - 64, y + 2, 0.7f * scale, colorWhite, CG_GetStringEdString("MP_INGAME", "READY"),0, 0, ITEM_TEXTSTYLE_OUTLINED, FONT_MEDIUM );
+		CG_Text_Paint (SB_NAME_X - 64, y + 2, 0.7f * scale, textColor, CG_GetStringEdString("MP_INGAME", "READY"),0, 0, ITEM_TEXTSTYLE_OUTLINED, FONT_MEDIUM );
 	}
 }
 

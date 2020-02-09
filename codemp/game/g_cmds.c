@@ -67,7 +67,7 @@ void DeathmatchScoreboardMessage( gentity_t *ent ) {
 	int			stringlength;
 	int			i, j;
 	gclient_t	*cl;
-	int			numSorted, scoreFlags, accuracy, perfect;
+	int			numSorted, scoreFlags, accuracy, perfect, lms_lives;
 
 	// send the latest information on all clients
 	string[0] = 0;
@@ -99,6 +99,13 @@ void DeathmatchScoreboardMessage( gentity_t *ent ) {
 			accuracy = 0;
 		}
 		perfect = ( cl->ps.persistant[PERS_RANK] == 0 && cl->ps.persistant[PERS_KILLED] == 0 ) ? 1 : 0;
+		lms_lives = 0;
+		if (ojp_lastmanstanding.integer)
+		{
+			gentity_t *gent = &g_entities[cl - level.clients];
+			if (gent)
+				lms_lives = ( cl->tempSpectate > level.time) ? gent->lives - 1 : gent->lives;
+		}
 
 		Com_sprintf (entry, sizeof(entry),
 			//[ExpSys]
@@ -108,7 +115,7 @@ void DeathmatchScoreboardMessage( gentity_t *ent ) {
 			scoreFlags, g_entities[level.sortedClients[i]].s.powerups, accuracy,
 			cl->ps.persistant[PERS_IMPRESSIVE_COUNT],
 			cl->ps.persistant[PERS_EXCELLENT_COUNT],
-			cl->ps.persistant[PERS_GAUNTLET_FRAG_COUNT],
+			lms_lives, //[LastManStanding]
 			cl->ps.persistant[PERS_DEFEND_COUNT],
 			cl->ps.persistant[PERS_ASSIST_COUNT],
 			perfect,

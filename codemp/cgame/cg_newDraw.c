@@ -520,9 +520,9 @@ void CG_DrawMedal(int ownerDraw, rectDef_t *rect, float scale, vec4_t color, qha
 	case CG_PERFECT:
 		value = score->perfect;
 		break;
-	case CG_GAUNTLET:
+	/*case CG_GAUNTLET:
 		value = score->gauntletCount;
-		break;
+		break;*/
 	case CG_CAPTURES:
 		value = score->captures;
 		break;

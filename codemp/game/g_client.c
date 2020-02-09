@@ -47,10 +47,12 @@ forcedata_t Client_Force[MAX_CLIENTS];
 //[LastManStanding]
 void OJP_Spectator(gentity_t *ent)
 {
+	// 74145: TODO: should we merge in my forced "follow mode" branch instead of this?
 	if (ent->client->sess.sessionTeam != TEAM_SPECTATOR)
 	{
 		ent->client->tempSpectate = Q3_INFINITE;
 		ent->health = ent->client->ps.stats[STAT_HEALTH] = 1;
+		ent->waterlevel = ent->watertype = 0;
 		ent->client->ps.weapon = WP_NONE;
 		ent->client->ps.stats[STAT_WEAPONS] = 0;
 		ent->client->ps.stats[STAT_HOLDABLE_ITEMS] = 0;
@@ -1018,6 +1020,67 @@ gentity_t *SelectSpectatorSpawnPoint( vec3_t origin, vec3_t angles ) {
 
 	return NULL;
 }
+
+/*
+===========
+SelectTSSpawnPoint
+
+Chooses a player start, for Team LMS (TS)
+============
+*/
+gentity_t *SelectTSSpawnPoint ( vec3_t avoidPoint, vec3_t origin, vec3_t angles, team_t team, qboolean isbot ) {
+	gentity_t	*spot;
+	gentity_t	*red_spot;
+	gentity_t	*blue_spot;
+	vec3_t		delta, rdelta, bdelta;
+	float		dist, rdist, bdist;
+	int		numSpots;
+
+	spot = NULL;
+	red_spot = NULL;
+	blue_spot = NULL;
+
+	// Find the two spawn points that are the furthest from eachother.
+	// then label them as team red / team blue.
+	// this allows us to split the map in two, kinda safely.
+
+	while ((spot = G_Find (spot, FOFS(classname), "info_player_deathmatch")) != NULL) {
+
+		numSpots++;
+		if (!red_spot)
+		{
+			red_spot = spot;
+			continue;
+		}
+		if (!blue_spot)
+		{
+			blue_spot = spot;
+			continue;
+		}
+		VectorSubtract( red_spot->s.origin, blue_spot->s.origin, delta );
+		dist = VectorLength( delta );
+
+		VectorSubtract( red_spot->s.origin, spot->s.origin, rdelta );
+		rdist = VectorLength( rdelta );
+
+		VectorSubtract( blue_spot->s.origin, spot->s.origin, bdelta );
+		bdist = VectorLength( bdelta );
+
+		if (rdist > dist)
+			blue_spot = spot;
+		else if (bdist > dist)
+			red_spot = spot;
+	}
+	if (!red_spot || !blue_spot || numSpots == 2)
+	{ // Maybe this is a CTF map, and we need to use CTF spawns?
+		return SelectCTFSpawnPoint( team, TEAM_BEGIN, origin, angles, isbot );
+	}
+
+	if (team == TEAM_RED)
+		return SelectRandomFurthestSpawnPoint( blue_spot->s.origin, origin, angles, team, isbot );
+	return SelectRandomFurthestSpawnPoint( red_spot->s.origin, origin, angles, team, isbot );
+}
+
 
 /*
 =======================================================================
@@ -3676,6 +3739,12 @@ void ClientSpawn(gentity_t *ent) {
 		else if (level.gametype == GT_DUEL)
 		{	// duel
 			spawnPoint = SelectDuelSpawnPoint(DUELTEAM_SINGLE, client->ps.origin, spawn_origin, spawn_angles, !!(ent->r.svFlags & SVF_BOT));
+		}
+		else if (level.gametype == GT_TEAM && ojp_lastmanstanding.integer > 0)
+		{ // 74145: try to spawn in groups (by splitting map in half)
+			spawnPoint = SelectTSSpawnPoint (
+				client->ps.origin,
+				spawn_origin, spawn_angles, client->sess.sessionTeam, !!(ent->r.svFlags & SVF_BOT) );
 		}
 		else
 		{

@@ -2570,7 +2570,8 @@ static void CG_Missile( centity_t *cent ) {
 
 						if (tagBolt == -1)
 						{
-							assert(0);
+							// 74145: FIXME this assert was firing in FFA on mp/duel1
+							//assert(0);
 							break;
 						}
 					}

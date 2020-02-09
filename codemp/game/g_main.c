@@ -1951,6 +1951,7 @@ void CheckLMS()
 		&& LMS_EnoughPlayers())
 	{//check to see if there's only one LAST MAN STANDING!
 		int		counts[TEAM_NUM_TEAMS];
+		gentity_t* winner = NULL;
 		counts[TEAM_FREE] = 0;
 		counts[TEAM_RED] = 0;
 		counts[TEAM_BLUE] = 0;
@@ -1962,6 +1963,7 @@ void CheckLMS()
 				|| ent->lives >= 1)  //or still has lives left and can respawn
 			{//this dude is alive and has lives
 				counts[ent->client->sess.sessionTeam]++;
+				winner = ent;
 			}
 		}
 
@@ -1971,22 +1973,58 @@ void CheckLMS()
 			{//only one side has players left
 				LMSReset = qtrue;
 				LMSResetTime = level.time + LMSRESETTIME;
+				if(counts[TEAM_BLUE] > 0)
+				{
+					trap->SendServerCommand(-1, va("cp \"" S_COLOR_BLUE "Blue team" S_COLOR_WHITE " was the last team standing!\n\""));
+					if (level.gametype == GT_TEAM)
+						level.teamScores[TEAM_BLUE] += 1;
+				}
+				else
+				{
+					trap->SendServerCommand(-1, va("cp \"" S_COLOR_RED "Red team" S_COLOR_WHITE " was the last team standing!\n\""));
+					if (level.gametype == GT_TEAM)
+						level.teamScores[TEAM_RED] += 1;
+				}
 			}
 		}
 		else
 		{
-			 if(counts[TEAM_FREE] <= 1)
+			if(counts[TEAM_FREE] <= 1)
 			{//one or fewer left, LMS!
 				LMSReset = qtrue;
 				LMSResetTime = level.time + LMSRESETTIME;
+				if (winner)
+				{
+					trap->SendServerCommand(-1, va("cp \"%s" S_COLOR_WHITE " was the last man standing!\n\"", winner->client->pers.netname));
+					if (level.gametype == GT_FFA)
+						AddScore(winner, winner->r.currentOrigin, 1);
+				}
 			}
 		}
 	}
 	else if(LMSReset && LMSResetTime < level.time)
-	{//reset all the players if we've finished a LMS round.
-		gentity_t* winner = NULL;
+	{//reset everything if we've finished an LMS round.
+		for ( i = MAX_CLIENTS; i < MAX_GENTITIES; i++ )
+		{ //reset all the items
+			gentity_t *ent = &g_entities[i];
+			if (ent->inuse && ent->item)
+			{
+				if (ent->think == RespawnItem && ent->nextthink > level.time)
+					ent->nextthink = level.time; // Respawn now
+				else if ( (ent->flags & FL_DROPPED_ITEM) && ent->item->giType == IT_WEAPON )
+				{ // Despawn now
+					ent->think = NULL;
+					G_FreeEntity(ent);
+				}
+			}
+			else if (ent->inuse && ent->s.eType == ET_BODY)
+			{ // Sink now
+				ent->timestamp = 0;
+				ent->nextthink = level.time;
+			}
+		}
 		for ( i = 0; i < level.numNonSpectatorClients; i ++ )
-		{
+		{//reset all the players
 			gentity_t *ent = &g_entities[level.sortedClients[i]];
 			ent->lives = (ojp_lmslives.integer >= 1) ? ojp_lmslives.integer : 1;
 			if(ent->health <= 0 || ent->client->tempSpectate > level.time)
@@ -2000,34 +2038,18 @@ void CheckLMS()
 			}
 			else
 			{
-				winner = ent;
+				if (level.gametype == GT_FFA || level.gametype == GT_TEAM)
+				{
+					G_BreakArm(ent, 0);
+					ent->client->ps.saberEntityNum = ent->client->saberStoredIndex; // get saber back
+					ClientSpawn(ent);
+					ent->client->tempSpectate = 0;
+				}
 				ent->lives--; //deduct survivor's initial life since they're already alive.
 				if(!(ent->r.svFlags & SVF_BOT))
 				{//let them know that they suck.
 					trap->SendServerCommand(ent->s.number, va("LMSWin"));
 				}
-			}
-		}
-
-		if(winner)
-		{
-			if(level.gametype < GT_TEAM)
-			{
-				trap->SendServerCommand(-1, va("cp \"%s" S_COLOR_YELLOW " was the last man standing!\n\"", winner->client->pers.netname));
-			}
-			else
-			{
-				switch(winner->client->sess.sessionTeam)
-				{
-				case TEAM_BLUE:
-					trap->SendServerCommand(-1, va("cp \"" S_COLOR_BLUE "Blue team" S_COLOR_YELLOW " was the last team standing!\n\""));
-				break;
-				case TEAM_RED:
-					trap->SendServerCommand(-1, va("cp \"" S_COLOR_RED "Red team" S_COLOR_YELLOW " was the last team standing!\n\""));
-				break;
-				default:
-				break;
-				};
 			}
 		}
 
@@ -3240,6 +3262,7 @@ void G_RunFrame( int levelTime ) {
 			clEnt = &g_entities[i];
 
 			if (clEnt->inuse && clEnt->client &&
+				(ojp_lastmanstanding.integer < 1 || clEnt->lives >= 1) &&
 				clEnt->client->tempSpectate >= level.time &&
 				clEnt->client->sess.sessionTeam != TEAM_SPECTATOR)
 			{
