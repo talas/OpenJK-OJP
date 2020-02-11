@@ -2430,7 +2430,7 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 		//[CoOp]
 		if ( gametype == GT_SINGLE_PLAYER ) {
 			int ammoIndex = weaponData[item->giTag].ammoIndex;
-			if (COM_BitCheck(&ps->stats[STAT_WEAPONS], item->giTag) && ps->ammo[ammoIndex] >= ammoData[ammoIndex].max &&
+			if (COM_BitCheck(&ps->stats[STAT_WEAPONS], item->giTag) && (ps->stats[STAT_AMMO_FULL] & ammoIndex) &&
 				item->giTag != WP_THERMAL && item->giTag != WP_TRIP_MINE && item->giTag != WP_DET_PACK)
 			{ //weaponstay stuff.. in CoOp all weapons (not just dropped ones) are restricted to already have checks
 				return qfalse;
@@ -2448,7 +2448,7 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 			int ammoIndex = weaponData[item->giTag].ammoIndex;
 			//[BugFix28]
 			//we only restrict pickups on full ammo if the player already has this weapon.
-			if (ps->ammo[ammoIndex] >= ammoData[ammoIndex].max && ps->stats[STAT_WEAPONS] & ( 1 << item->giTag ) )
+			if (ps->ammo[item->giTag] >= ammoData[ammoIndex].max && ps->stats[STAT_WEAPONS] & ( 1 << item->giTag ) )
 			//[/BugFix28]
 			{ //don't need it
 				return qfalse;
@@ -2461,7 +2461,7 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 		{ //special case for "all ammo" packs
 			return qtrue;
 		}
-		if ( ps->ammo[item->giTag] >= ammoData[item->giTag].max) {
+		if (ps->stats[STAT_AMMO_FULL] & (1 << item->giTag)) {
 			return qfalse;		// can't hold any more
 		}
 		return qtrue;

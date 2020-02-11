@@ -3442,7 +3442,7 @@ int TotalAllociatedSkillPoints(gentity_t *ent)
 }
 //[/ExpSys]
 
-extern int ClipSize(int ammo,gentity_t *pog);//[Reload]
+extern int ClipSize(int weapon,gentity_t *pog);//[Reload]
 
 extern void G_Knockdown( gentity_t *self, gentity_t *attacker, const vec3_t pushDir, float strength, qboolean breakSaberLock );
 void player_touch(gentity_t *self, gentity_t *other, trace_t *trace )
@@ -4067,7 +4067,7 @@ void ClientSpawn(gentity_t *ent) {
 			}
 			client->ps.stats[STAT_WEAPONS] &= ~(1 << WP_SABER);
 			client->ps.stats[STAT_WEAPONS] |= (1 << WP_MELEE);
-			client->ps.ammo[AMMO_POWERCELL] = ammoData[AMMO_POWERCELL].max;
+			ent->bullets[AMMO_POWERCELL] = ammoData[AMMO_POWERCELL].max;
 			client->ps.weapon = WP_BRYAR_PISTOL;
 		}
 	}
@@ -4331,11 +4331,11 @@ void ClientSpawn(gentity_t *ent) {
 						if ( client->siegeClass != -1 &&
 							(bgSiegeClasses[client->siegeClass].classflags & (1<<CFL_SINGLE_ROCKET)) )
 						{
-							client->ps.ammo[weaponData[m].ammoIndex] = 1;
+							ent->bullets[weaponData[m].ammoIndex] = 1;
 						}
 						else
 						{
-							client->ps.ammo[weaponData[m].ammoIndex] = 10;
+							ent->bullets[weaponData[m].ammoIndex] = 10;
 						}
 					}
 					else
@@ -4344,12 +4344,12 @@ void ClientSpawn(gentity_t *ent) {
 							&& client->siegeClass != -1
 							&& (bgSiegeClasses[client->siegeClass].classflags & (1<<CFL_EXTRA_AMMO)) )
 						{//double ammo
-							client->ps.ammo[weaponData[m].ammoIndex] = ammoData[weaponData[m].ammoIndex].max*2;
+							ent->bullets[weaponData[m].ammoIndex] = ammoData[weaponData[m].ammoIndex].max*2;
 							client->ps.eFlags |= EF_DOUBLE_AMMO;
 						}
 						else
 						{
-							client->ps.ammo[weaponData[m].ammoIndex] = ammoData[weaponData[m].ammoIndex].max;
+							ent->bullets[weaponData[m].ammoIndex] = ammoData[weaponData[m].ammoIndex].max;
 						}
 					}
 				}
@@ -4442,22 +4442,21 @@ void ClientSpawn(gentity_t *ent) {
 		client->ps.stats[STAT_HOLDABLE_ITEMS] = 0;
 		client->ps.stats[STAT_HOLDABLE_ITEM] = 0;
 	}
-
+	//[ExpSys][Reload]
+	client->ps.ammo[WP_BLASTER] = (client->ps.stats[STAT_WEAPONS] & (1 << WP_BLASTER)) ? ClipSize(WP_BLASTER, ent) : 0;
+	client->ps.ammo[WP_BOWCASTER] = (client->ps.stats[STAT_WEAPONS] & (1 << WP_BOWCASTER)) ? ClipSize(WP_BOWCASTER, ent) : 0;
+	client->ps.ammo[WP_DISRUPTOR] = (client->ps.stats[STAT_WEAPONS] & (1 << WP_DISRUPTOR)) ? ClipSize(WP_DISRUPTOR, ent) : 0;
+	client->ps.ammo[WP_REPEATER] = (client->ps.stats[STAT_WEAPONS] & (1 << WP_REPEATER)) ? ClipSize(WP_REPEATER, ent) : 0;
+	client->ps.ammo[WP_FLECHETTE] = (client->ps.stats[STAT_WEAPONS] & (1 << WP_FLECHETTE)) ? ClipSize(WP_FLECHETTE, ent) : 0;
+	client->ps.ammo[WP_ROCKET_LAUNCHER] = (client->ps.stats[STAT_WEAPONS] & (1 << WP_ROCKET_LAUNCHER)) ? ClipSize(WP_ROCKET_LAUNCHER, ent) : 0;
+	//[/Reload]
 // nmckenzie: DESERT_SIEGE... or well, siege generally.  This was over-writing the max value, which was NOT good for siege.
 	if ( inSiegeWithClass == qfalse )
 	{
-		//[ExpSys][Reload]
-		client->ps.ammo[AMMO_POWERCELL] = ClipSize(AMMO_POWERCELL,ent);
-		client->ps.ammo[AMMO_METAL_BOLTS] = ClipSize(AMMO_METAL_BOLTS,ent);
-		client->ps.ammo[AMMO_BLASTER] = ClipSize(AMMO_BLASTER,ent);
-
-		client->ps.ammo[AMMO_ROCKETS] = ClipSize(AMMO_ROCKETS,ent);
-		//[/Reload]
-		client->ps.ammo[AMMO_THERMAL] = ammoData[AMMO_THERMAL].max * (float) client->skillLevel[SK_THERMAL]/FORCE_LEVEL_3;
-
-		client->ps.ammo[AMMO_DETPACK] = ammoData[AMMO_DETPACK].max * (float) client->skillLevel[SK_DETPACK]/FORCE_LEVEL_2;
-		//[/ExpSys]
+		client->ps.ammo[WP_THERMAL] = ammoData[AMMO_THERMAL].max * (float) client->skillLevel[SK_THERMAL]/FORCE_LEVEL_3;
+		client->ps.ammo[WP_DET_PACK] = ammoData[AMMO_DETPACK].max * (float) client->skillLevel[SK_DETPACK]/FORCE_LEVEL_2;
 	}
+	//[/ExpSys]
 //	client->ps.ammo[AMMO_POWERCELL] = ammoData[AMMO_POWERCELL].max;
 //	client->ps.ammo[AMMO_FORCE] = ammoData[AMMO_FORCE].max;
 //	client->ps.ammo[AMMO_METAL_BOLTS] = ammoData[AMMO_METAL_BOLTS].max;
@@ -4490,12 +4489,22 @@ void ClientSpawn(gentity_t *ent) {
 	//[/VisualWeapons]
 
 	//[Reload]
-	for(i=0;i<WP_NUM_WEAPONS;i++)
-		ent->bullets[i] = ammoPool[SkillLevelForWeap(ent,i)][i].max;
+	if ( inSiegeWithClass == qfalse )
+	{
+		for(i=0;i<WP_NUM_WEAPONS;i++)
+			ent->bullets[weaponData[i].ammoIndex] = 0;
 
-	ent->reloadTime =-1;
+		for(i=0;i<WP_NUM_WEAPONS;i++)
+		{
+			int prev = ent->bullets[weaponData[i].ammoIndex];
+			int found = ammoPool[SkillLevelForWeap(ent,i)][i].max;
+			if (found > prev)
+				ent->bullets[weaponData[i].ammoIndex] = found;
+		}
+	}
+	client->ps.stats[STAT_AMMOPOOL] = ent->bullets[weaponData[client->ps.weapon].ammoIndex];
+	ent->reloadTime = -1;
 	ent->bulletsToReload = 0;
-	client->ps.stats[STAT_AMMOPOOL] = ammoPool[SkillLevelForWeap(ent,ent->client->ps.weapon)][ent->client->ps.weapon].max;
 	//[/Reload]
 
 	client->ps.isJediMaster = qfalse;

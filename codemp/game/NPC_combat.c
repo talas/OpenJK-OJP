@@ -726,7 +726,7 @@ int ChooseBestWeapon( void )
 			continue;
 		}
 
-		if ( client->ps.ammo[weaponData[weapon].ammoIndex] )
+		if ( client->ps.ammo[weapon] )
 		{
 			return weapon;
 		}
@@ -740,7 +740,7 @@ int ChooseBestWeapon( void )
 			continue;
 		}
 
-		if ( client->ps.ammo[weaponData[weapon].ammoIndex] )
+		if ( client->ps.ammo[weapon] )
 		{
 			return weapon;
 		}
@@ -767,7 +767,7 @@ void ChangeWeapon( gentity_t *ent, int newWeapon )
 	ent->NPC->shotTime = 0;
 	ent->NPC->burstCount = 0;
 	ent->NPC->attackHold = 0;
-	ent->NPC->currentAmmo = ent->client->ps.ammo[weaponData[newWeapon].ammoIndex];
+	ent->NPC->currentAmmo = ent->client->ps.ammo[newWeapon];
 
 	switch ( newWeapon )
 	{
@@ -1222,7 +1222,7 @@ void ShootThink( void )
 
 	NPCS.ucmd.buttons |= BUTTON_ATTACK;
 
-	NPCS.NPCInfo->currentAmmo = NPCS.client->ps.ammo[weaponData[NPCS.client->ps.weapon].ammoIndex];	// checkme
+	NPCS.NPCInfo->currentAmmo = NPCS.client->ps.ammo[NPCS.client->ps.weapon];	// checkme
 
 	NPC_ApplyWeaponFireDelay();
 
@@ -1342,13 +1342,13 @@ void WeaponThink( qboolean inCombat )
 //[CoOp]
 //MCG - Begin
 	//For now, no-one runs out of ammo
-	if(NPCS.NPC->client->ps.ammo[ weaponData[NPCS.client->ps.weapon].ammoIndex ] < weaponData[NPCS.client->ps.weapon].energyPerShot)
+	if(NPCS.NPC->client->ps.ammo[NPCS.client->ps.weapon] < weaponData[NPCS.client->ps.weapon].energyPerShot)
 	{
-		Add_Ammo( NPCS.NPC, NPCS.client->ps.weapon, weaponData[NPCS.client->ps.weapon].energyPerShot*10 );
+		NPCS.NPC->client->ps.ammo[NPCS.client->ps.weapon] += weaponData[NPCS.client->ps.weapon].energyPerShot*10;
 	}
-	else if(NPCS.NPC->client->ps.ammo[ weaponData[NPCS.client->ps.weapon].ammoIndex ] < weaponData[NPCS.client->ps.weapon].altEnergyPerShot)
+	else if(NPCS.NPC->client->ps.ammo[NPCS.client->ps.weapon] < weaponData[NPCS.client->ps.weapon].altEnergyPerShot)
 	{
-		Add_Ammo( NPCS.NPC, NPCS.client->ps.weapon, weaponData[NPCS.client->ps.weapon].altEnergyPerShot*5 );
+		NPCS.NPC->client->ps.ammo[NPCS.client->ps.weapon] += weaponData[NPCS.client->ps.weapon].altEnergyPerShot*5;
 	}
 //[/CoOp]
 

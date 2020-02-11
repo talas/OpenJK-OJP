@@ -2045,7 +2045,7 @@ void G_SiegeClientExData(gentity_t *msgTarg)
 
 			//append the stats
 			Com_sprintf(scratch, sizeof(scratch), "%i|%i|%i|%i", ent->s.number, ent->client->ps.stats[STAT_HEALTH],
-				ent->client->ps.stats[STAT_MAX_HEALTH], ent->client->ps.ammo[weaponData[ent->client->ps.weapon].ammoIndex]);
+				ent->client->ps.stats[STAT_MAX_HEALTH], ent->client->ps.ammo[ent->client->ps.weapon]);
 			Q_strcat(str, sizeof(str), scratch);
 			count++;
 		}

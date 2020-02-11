@@ -2693,7 +2693,7 @@ int FindWeaponforRange(bot_state_t *bs, float range)
 	//try to find the fav weapon for this attack range
 	for(i=0;i < WP_NUM_WEAPONS; i++)
 	{
-		if (bs->cur_ps.ammo[weaponData[i].ammoIndex] < weaponData[i].energyPerShot
+		if (bs->cur_ps.ammo[i] < weaponData[i].energyPerShot
 			|| !(bs->cur_ps.stats[STAT_WEAPONS] & (1 << i)))
 		{//check to see if we have this weapon or enough ammo for it.
 			continue;
@@ -3972,24 +3972,23 @@ gentity_t* TAB_WantAmmo(bot_state_t *bs, qboolean setOrder, int numOfChecks)
 	int counter;
 	int favWeapon;
 	int ammoMax;
+	int ammoIndex;
+	gentity_t *ent = &g_entities[bs->client];
+	if (!ent) return NULL;
 
 	for(counter = 0; counter < numOfChecks; counter++)
 	{//keep checking until we run out of fav weapons we want to check.
 		//check our ammo on our current favorite weapon
 		favWeapon = FavoriteWeapon(bs, bs->currentEnemy, qtrue, qfalse, ignoreWeapons);
-		ammoMax = ammoData[weaponData[favWeapon].ammoIndex].max;
+		ammoIndex = weaponData[favWeapon].ammoIndex;
+		ammoMax = ammoData[ammoIndex].max;
 
-		if(weaponData[favWeapon].ammoIndex == AMMO_ROCKETS && level.gametype == GT_SIEGE)
-		{//hack for the lower rocket amount in Siege
-			ammoMax = 10;
-		}
-
-		if(weaponData[favWeapon].ammoIndex != AMMO_NONE
-			&& (bs->cur_ps.ammo[weaponData[favWeapon].ammoIndex] 
-			< ammoMax * DESIREDAMMOLEVEL) )
+		if(ammoIndex != AMMO_NONE &&
+		   ent->bullets[ammoIndex] < ammoMax &&
+		   ent->bullets[ammoIndex] < ammoMax * DESIREDAMMOLEVEL)
 		{//we have less ammo than we'd like, check to see if there's ammo for this weapon on
 			//this map.
-			gentity_t *item = ClosestItemforAmmo(bs, weaponData[favWeapon].ammoIndex);
+			gentity_t *item = ClosestItemforAmmo(bs, ammoIndex);
 			if(item)
 			{
 				if(setOrder)
@@ -4459,7 +4458,7 @@ int FavoriteWeapon(bot_state_t *bs, gentity_t *target, qboolean haveCheck,
 		}
 
 		if (ammoCheck && 
-			bs->cur_ps.ammo[weaponData[i].ammoIndex] < weaponData[i].energyPerShot)
+			bs->cur_ps.ammo[i] < weaponData[i].energyPerShot)
 		{//check to see if we have enough ammo for this weapon.
 			continue;
 		}

@@ -2072,76 +2072,72 @@ extern qboolean inGameCinematic;
 //[ROQFILES]
 
 //[Reload]
-int ClipSize(int ammo,gentity_t *ent)
+int ClipSize(int weapon, gentity_t *ent)
 {
-	switch(ammo)
+	switch(weapon)
 	{
-	case AMMO_BLASTER:
+	case WP_BLASTER:
 		return 100; // 74145: too small! was 21. "Cannon might be 200 actually".
-	case AMMO_ROCKETS:
+	case WP_ROCKET_LAUNCHER:
 		return 1;
-	case AMMO_POWERCELL:
-		if(ent->client->skillLevel[SK_BOWCASTER] >= ent->client->skillLevel[SK_DISRUPTOR])
+	case WP_BOWCASTER:
+		switch(ent->client->skillLevel[SK_BOWCASTER])
 		{
-			switch(ent->client->skillLevel[SK_BOWCASTER])
-			{
-			case FORCE_LEVEL_3:
-				return 30;
-				break;
-			case FORCE_LEVEL_2:
-				return 20;
-				break;
-			case FORCE_LEVEL_1:
-				return 10;
-				break;
-			}
-		}
-		else
-		{
-			switch(ent->client->skillLevel[SK_DISRUPTOR])
-			{
-			case FORCE_LEVEL_3:
-				return 30;
-				break;
-			case FORCE_LEVEL_2:
-				return 20;
-				break;
-			case FORCE_LEVEL_1:
-				return 10;
-				break;
-			}
+		case FORCE_LEVEL_3:
+			return 30;
+			break;
+		case FORCE_LEVEL_2:
+			return 20;
+			break;
+		case FORCE_LEVEL_1:
+		default:
+			return 10;
+			break;
 		}
 		break;
-	case AMMO_METAL_BOLTS:
-		if(ent->client->skillLevel[SK_REPEATER] >= ent->client->skillLevel[SK_FLECHETTE])
+	case WP_DISRUPTOR:
+		switch(ent->client->skillLevel[SK_DISRUPTOR])
 		{
-			switch(ent->client->skillLevel[SK_REPEATER])
-			{
-			case FORCE_LEVEL_3:
-				return 100;
-				break;
-			case FORCE_LEVEL_2:
-				return 50;
-				break;
-			case FORCE_LEVEL_1:
-				return 20;
-				break;
-			}
+		case FORCE_LEVEL_3:
+			return 30;
+			break;
+		case FORCE_LEVEL_2:
+			return 20;
+			break;
+		case FORCE_LEVEL_1:
+		default:
+			return 10;
+			break;
 		}
-		else
+		break;
+	case WP_REPEATER:
+		switch(ent->client->skillLevel[SK_REPEATER])
 		{
-			switch(ent->client->skillLevel[SK_FLECHETTE])
-			{
-			case FORCE_LEVEL_3:
-				return 100;
-				break;
-			case FORCE_LEVEL_2:
-				return 50;
-				break;
-			case FORCE_LEVEL_1:
-				return 20;
-				break;
-			}
+		case FORCE_LEVEL_3:
+			return 100;
+			break;
+		case FORCE_LEVEL_2:
+			return 50;
+			break;
+		case FORCE_LEVEL_1:
+		default:
+			return 20;
+			break;
+		}
+		break;
+	case WP_FLECHETTE:
+		switch(ent->client->skillLevel[SK_FLECHETTE])
+		{
+		case FORCE_LEVEL_3:
+			return 100;
+			break;
+		case FORCE_LEVEL_2:
+			return 50;
+			break;
+		case FORCE_LEVEL_1:
+		default:
+			return 20;
+			break;
 		}
 		break;
 
@@ -2211,9 +2207,17 @@ void SetupReload(gentity_t *ent)
 		return;
 
 	if(ent->client->ps.weapon == WP_MELEE || ent->client->ps.weapon == WP_SABER || ent->client->ps.weapon == WP_THERMAL ||
-		ent->client->ps.weapon == WP_DET_PACK)
+		ent->client->ps.weapon == WP_DET_PACK || ent->client->ps.weapon == WP_TRIP_MINE)
 	{
 		ent->bulletsToReload =0;
+		ent->reloadTime = -1;
+		return;
+	}
+
+	ent->bulletsToReload = ClipSize(ent->client->ps.weapon, ent) - ent->client->ps.ammo[ent->client->ps.weapon];
+	if (ent->bulletsToReload < 1 || ent->client->ps.stats[STAT_AMMOPOOL] < 1)
+	{
+		ent->bulletsToReload = 0;
 		ent->reloadTime = -1;
 		return;
 	}
@@ -2224,8 +2228,6 @@ void SetupReload(gentity_t *ent)
 		ent->client->ps.torsoTimer = 3000;
 		ent->client->ps.weaponTime = ent->client->ps.torsoTimer;
 	}
-
-	ent->bulletsToReload = ClipSize(weaponData[ent->client->ps.weapon].ammoIndex,ent) - ent->client->ps.ammo[weaponData[ent->client->ps.weapon].ammoIndex];
 
 	ent->reloadTime = level.time + ReloadTime(ent);
 	ent->client->ps.zoomMode = 0;
@@ -2241,7 +2243,8 @@ void SetupReload(gentity_t *ent)
 void G_SoundOnEnt( gentity_t *ent, int channel, const char *soundPath );
 void Reload(gentity_t *ent)
 {
-	if(ent->bullets[ent->client->ps.weapon] < 1)
+	if ( ent->client->ps.stats[STAT_AMMOPOOL] < 1 || ent->bulletsToReload < 1 ||
+	     ent->client->ps.ammo[ent->client->ps.weapon] >= ClipSize(ent->client->ps.weapon, ent) )
 	{
 		ent->bulletsToReload =0;
 		ent->reloadTime = -1;
@@ -2249,106 +2252,35 @@ void Reload(gentity_t *ent)
 			ent->client->ps.eFlags &= ~EF_WALK;
 		return;
 	}
-	if(ent->bulletsToReload < 1)
-	{
-		ent->bulletsToReload =0;
-		ent->reloadTime = -1;
-		if(ent->client->ps.weapon == WP_ROCKET_LAUNCHER)
-		ent->client->ps.eFlags &= ~EF_WALK;
-		return;
-	}
-	if(ent->client->ps.ammo[weaponData[ent->client->ps.weapon].ammoIndex] >= ClipSize(weaponData[ent->client->ps.weapon].ammoIndex,ent))
-	{
-		ent->bulletsToReload =0;
-		if(ent->client->ps.weapon == WP_ROCKET_LAUNCHER)
-		ent->client->ps.eFlags &= ~EF_WALK;
-		ent->reloadTime = -1;
-		return;
-	}
 
-	if(ent->client->ps.weapon == WP_REPEATER && ent->client->skillLevel[SK_REPEATERUPGRADE] > FORCE_LEVEL_0)
+	int reloadPerTick = 1;
+	if(ent->client->ps.weapon == WP_REPEATER)
 	{
-		int i;
-		for(i=0;i<4;i++)
-		{
-		ent->bullets[ent->client->ps.weapon]--;
-		ent->client->ps.ammo[weaponData[ent->client->ps.weapon].ammoIndex]++;
-		ent->bulletsToReload--;
-		if(ent->bullets[ent->client->ps.weapon] < 1)
-		return;
-		if(ent->client->ps.ammo[weaponData[ent->client->ps.weapon].ammoIndex] >= ClipSize(weaponData[ent->client->ps.weapon].ammoIndex,ent))
-			return;
-		}
-	ent->reloadTime = level.time + ReloadTime(ent);
-	}
-	else if(ent->client->ps.weapon == WP_REPEATER)
-	{
-		int i;
-		for(i=0; i<3; i++)
-		{
-		ent->bullets[ent->client->ps.weapon]--;
-		ent->client->ps.ammo[weaponData[ent->client->ps.weapon].ammoIndex]++;
-		ent->bulletsToReload--;
-		if(ent->bullets[ent->client->ps.weapon] < 1)
-		return;
-		if(ent->client->ps.ammo[weaponData[ent->client->ps.weapon].ammoIndex] >= ClipSize(weaponData[ent->client->ps.weapon].ammoIndex,ent))
-			return;
-		}
-	ent->reloadTime = level.time + ReloadTime(ent);
+		reloadPerTick = 3;
+		if (ent->client->skillLevel[SK_REPEATERUPGRADE] > FORCE_LEVEL_0)
+			reloadPerTick = 4;
 	}
 	else if(ent->client->ps.weapon == WP_FLECHETTE)
 	{
-		if(SkillLevelForWeap(ent,WP_FLECHETTE) == FORCE_LEVEL_1)
-		{
-			int i;
-			for(i=0; i<5; i++)
-			{
-				ent->bullets[ent->client->ps.weapon]--;
-				ent->client->ps.ammo[weaponData[ent->client->ps.weapon].ammoIndex]++;
-				ent->bulletsToReload--;
-				if(ent->bullets[ent->client->ps.weapon] < 1)
-					return;
-				if(ent->client->ps.ammo[weaponData[ent->client->ps.weapon].ammoIndex] >= ClipSize(weaponData[ent->client->ps.weapon].ammoIndex,ent))
-					return;
-			}		
-		}
-		else if(SkillLevelForWeap(ent,WP_FLECHETTE) == FORCE_LEVEL_2)
-		{
-			int i;
-			for(i=0; i<10; i++)
-			{
-				ent->bullets[ent->client->ps.weapon]--;
-				ent->client->ps.ammo[weaponData[ent->client->ps.weapon].ammoIndex]++;
-				ent->bulletsToReload--;
-				if(ent->bullets[ent->client->ps.weapon] < 1)
-					return;
-				if(ent->client->ps.ammo[weaponData[ent->client->ps.weapon].ammoIndex] >= ClipSize(weaponData[ent->client->ps.weapon].ammoIndex,ent))
-					return;
-			}		
-		}
-		else if(SkillLevelForWeap(ent,WP_FLECHETTE) == FORCE_LEVEL_3)
-		{
-			int i;
-			for(i=0; i<15; i++)
-			{
-				ent->bullets[ent->client->ps.weapon]--;
-				ent->client->ps.ammo[weaponData[ent->client->ps.weapon].ammoIndex]++;
-				ent->bulletsToReload--;
-				if(ent->bullets[ent->client->ps.weapon] < 1)
-					return;
-				if(ent->client->ps.ammo[weaponData[ent->client->ps.weapon].ammoIndex] >= ClipSize(weaponData[ent->client->ps.weapon].ammoIndex,ent))
-					return;
-			}		
-		}
-		ent->reloadTime = level.time + ReloadTime(ent);
+		reloadPerTick = 5;
+		if (SkillLevelForWeap(ent,WP_FLECHETTE) == FORCE_LEVEL_2)
+			reloadPerTick = 10;
+		else if (SkillLevelForWeap(ent,WP_FLECHETTE) >= FORCE_LEVEL_3)
+			reloadPerTick = 15;
 	}
-	else
-	{
-	ent->bullets[ent->client->ps.weapon]--;
-	ent->client->ps.ammo[weaponData[ent->client->ps.weapon].ammoIndex]++;
+
+	if (ent->client->ps.ammo[ent->client->ps.weapon] < 0)
+		ent->client->ps.ammo[ent->client->ps.weapon] = 0;
+
+	reloadPerTick = Q_min(reloadPerTick, ent->client->ps.stats[STAT_AMMOPOOL]);
+	reloadPerTick = Q_min(reloadPerTick, ClipSize(ent->client->ps.weapon, ent) - ent->client->ps.ammo[ent->client->ps.weapon]);
+
+	ent->client->ps.ammo[ent->client->ps.weapon] += reloadPerTick;
+	ent->client->ps.stats[STAT_AMMOPOOL] -= reloadPerTick;
+	ent->bulletsToReload -= reloadPerTick;
 	ent->reloadTime = level.time + ReloadTime(ent);
-	ent->bulletsToReload--;
-	}
+
+	// 74145: TODO: Real Reload Sound.
 	G_SoundOnEnt(ent,CHAN_WEAPON,"sound/weapons/disruptor/zoomstart.wav");
 
 	//keep him in the "use" anim
@@ -2363,8 +2295,8 @@ void Reload(gentity_t *ent)
 		else
 			ent->client->ps.torsoTimer = 500;
 	}
-		ent->client->ps.weaponTime = ent->client->ps.torsoTimer;
-	ent->client->ps.stats[STAT_AMMOPOOL] = ent->bullets[ent->client->ps.weapon];
+	ent->client->ps.weaponTime = ent->client->ps.torsoTimer;
+	ent->bullets[weaponData[ent->client->ps.weapon].ammoIndex] = ent->client->ps.stats[STAT_AMMOPOOL];
 }
 
 void CancelReload(gentity_t *ent)
@@ -2517,6 +2449,13 @@ void ClientThink_real( gentity_t *ent ) {
 	if(ent->reloadTime <= level.time && ent->reloadTime > 0)
 	{
 		Reload(ent);
+	}
+	for (int i = 0; i < AMMO_MAX; i++)
+	{ // 74145: Update ammo storage state
+		if (ent->bullets[i] >= ammoData[i].max)
+			ent->client->ps.stats[STAT_AMMO_FULL] |= (1 << i);
+		else
+			ent->client->ps.stats[STAT_AMMO_FULL] &= ~(1 << i);
 	}
 	//[/Reload]
 

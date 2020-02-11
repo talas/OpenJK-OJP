@@ -416,11 +416,11 @@ static void CG_DrawZoomMask( void )
 
 		if ( (cg.snap->ps.eFlags & EF_DOUBLE_AMMO) )
 		{
-			max = cg.snap->ps.ammo[weaponData[WP_DISRUPTOR].ammoIndex] / ((float)ammoData[weaponData[WP_DISRUPTOR].ammoIndex].max*2.0f);
+			max = cg.snap->ps.stats[STAT_AMMOPOOL] / ((float)ammoData[weaponData[WP_DISRUPTOR].ammoIndex].max*2.0f);
 		}
 		else
 		{
-			max = cg.snap->ps.ammo[weaponData[WP_DISRUPTOR].ammoIndex] / (float)ammoData[weaponData[WP_DISRUPTOR].ammoIndex].max;
+			max = cg.snap->ps.stats[STAT_AMMOPOOL] / (float)ammoData[weaponData[WP_DISRUPTOR].ammoIndex].max;
 		}
 		if ( max > 1.0f )
 		{
@@ -1140,7 +1140,7 @@ static void CG_DrawAmmo( centity_t	*cent,menuDef_t *menuHUD)
 		return;
 	}
 
-	value = ps->ammo[weaponData[cent->currentState.weapon].ammoIndex];
+	value = ps->ammo[cent->currentState.weapon];
 	if (value < 0)	// No ammo
 	{
 		return;
@@ -1213,23 +1213,25 @@ static void CG_DrawAmmo( centity_t	*cent,menuDef_t *menuHUD)
 			{
 				inc = (float) ammoData[weaponData[cent->currentState.weapon].ammoIndex].max / MAX_HUD_TICS;
 			}
-			value =ps->ammo[weaponData[cent->currentState.weapon].ammoIndex];
+			int bullets = ps->stats[STAT_AMMOPOOL];
 
 			CG_DrawStringExt (
 				focusItem->window.rect.x,
 				focusItem->window.rect.y,
-				va("%i/%i",(int)value,cg.snap->ps.stats[STAT_AMMOPOOL]),
+				bullets > 0 ? va("%i/%i", (int)value, bullets) : va("%i", (int)value),
 				0,
 				qfalse,
 				qfalse,
 				focusItem->window.rect.w,
 				focusItem->window.rect.h,
 				8);
+			value = bullets;
 		}
 	}
 
 	trap->R_SetColor( colorTable[CT_WHITE] );
 
+	// 74145: Is this tics thing useful at all?
 	// Draw tics
 	for (i=MAX_HUD_TICS-1;i>=0;i--)
 	{
@@ -1524,7 +1526,7 @@ static void CG_DrawSimpleAmmo( const centity_t *cent )
 
 	ps = &cg.snap->ps;
 
-	currValue = ps->ammo[weaponData[cent->currentState.weapon].ammoIndex];
+	currValue = ps->ammo[cent->currentState.weapon];
 
 	// No ammo
 	if ( currValue < 0 || (weaponData[cent->currentState.weapon].energyPerShot == 0 && weaponData[cent->currentState.weapon].altEnergyPerShot == 0) )
@@ -7357,7 +7359,7 @@ static void CG_DrawTemporaryStats()
 
 	CG_DrawBigString(SCREEN_WIDTH-164, SCREEN_HEIGHT-dmgIndicSize, s, 1.0f);
 
-	sprintf(s, "Ammo: %i", cg.snap->ps.ammo[weaponData[cg.snap->ps.weapon].ammoIndex]);
+	sprintf(s, "Ammo: %i", cg.snap->ps.ammo[cg.snap->ps.weapon]);
 
 	CG_DrawBigString(SCREEN_WIDTH-164, SCREEN_HEIGHT-112, s, 1.0f);
 

@@ -2207,7 +2207,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	//
 	case EV_NOAMMO:
 		//[Reload]
-		if(es->number == cg.snap->ps.clientNum && cg.snap->ps.ammo[weaponData[cg.snap->ps.weapon].ammoIndex] != -10 &&
+		if(es->number == cg.snap->ps.clientNum && cg.snap->ps.ammo[cg.snap->ps.weapon] != -10 &&
 			cg.snap->ps.weapon != WP_SABER && cg.snap->ps.weapon != WP_DET_PACK && cg.snap->ps.weapon != WP_TRIP_MINE &&
 			cg.snap->ps.weapon != WP_THERMAL)
 			break;
@@ -2375,7 +2375,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		if ( cg.snap->ps.clientNum == cent->currentState.number &&
 			cg.snap->ps.weapon == WP_DET_PACK )
 		{
-			if (cg.snap->ps.ammo[weaponData[WP_DET_PACK].ammoIndex] == 0)
+			if (cg.snap->ps.ammo[WP_DET_PACK] == 0)
 			{
 				CG_OutOfAmmoChange(WP_DET_PACK);
 			}

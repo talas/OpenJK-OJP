@@ -3854,12 +3854,19 @@ int BotHasAssociated(bot_state_t *bs, wpobject_t *wp)
 	}
 	else if (as->item->giType == IT_AMMO)
 	{
-		if (bs->cur_ps.ammo[as->item->giTag] > 10) //hack
+		gentity_t *ent = &g_entities[bs->client];
+		if (ent)
 		{
-			return 1;
+			for (int i = WP_BLASTER; i < WP_BRYAR_OLD; i++)
+			{ // Check if any weapons need this ammo.
+				if ((bs->cur_ps.stats[STAT_WEAPONS] & (1 << i)) &&
+				    weaponData[i].ammoIndex == as->item->giTag &&
+				    ent->bullets[as->item->giTag] < ammoData[as->item->giTag].max &&
+				    ent->bullets[as->item->giTag] < 10)
+					return 0;
+			}
 		}
-
-		return 0;
+		return 1;
 	}
 
 	return 0;
@@ -5111,7 +5118,7 @@ int ShouldSecondaryFire(bot_state_t *bs)
 
 	weap = bs->cur_ps.weapon;
 
-	if (bs->cur_ps.ammo[weaponData[weap].ammoIndex] < weaponData[weap].altEnergyPerShot)
+	if (bs->cur_ps.ammo[weap] < weaponData[weap].altEnergyPerShot)
 	{
 		return 0;
 	}
@@ -5379,7 +5386,7 @@ int BotTryAnotherWeapon(bot_state_t *bs)
 
 	while (i < WP_NUM_WEAPONS)
 	{
-		if (bs->cur_ps.ammo[weaponData[i].ammoIndex] >= weaponData[i].energyPerShot &&
+		if (bs->cur_ps.ammo[i] >= weaponData[i].energyPerShot &&
 			(bs->cur_ps.stats[STAT_WEAPONS] & (1 << i)))
 		{
 			bs->virtualWeapon = i;
@@ -5412,7 +5419,7 @@ qboolean BotWeaponSelectable(bot_state_t *bs, int weapon)
 		return qfalse;
 	}
 
-	if (bs->cur_ps.ammo[weaponData[weapon].ammoIndex] >= weaponData[weapon].energyPerShot &&
+	if (bs->cur_ps.ammo[weapon] >= weaponData[weapon].energyPerShot &&
 		(bs->cur_ps.stats[STAT_WEAPONS] & (1 << weapon)))
 	{
 		return qtrue;
@@ -5432,7 +5439,7 @@ int BotSelectIdealWeapon(bot_state_t *bs)
 
 	while (i < WP_NUM_WEAPONS)
 	{
-		if (bs->cur_ps.ammo[weaponData[i].ammoIndex] >= weaponData[i].energyPerShot &&
+		if (bs->cur_ps.ammo[i] >= weaponData[i].energyPerShot &&
 			bs->botWeaponWeights[i] > bestweight &&
 			(bs->cur_ps.stats[STAT_WEAPONS] & (1 << i)))
 		{
@@ -5526,7 +5533,7 @@ int BotSelectChoiceWeapon(bot_state_t *bs, int weapon, int doselection)
 	{
 		//[TABBot]
 		//Fixing this so you can select zero ammo weapons (like the saber and melee weapons)
-		if (bs->cur_ps.ammo[weaponData[i].ammoIndex] >= weaponData[i].energyPerShot &&
+		if (bs->cur_ps.ammo[i] >= weaponData[i].energyPerShot &&
 		//[TABBot]
 			i == weapon &&
 			(bs->cur_ps.stats[STAT_WEAPONS] & (1 << i)))
@@ -6658,7 +6665,7 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 		}
 	}
 
-	if (bs->cur_ps.ammo[weaponData[bs->cur_ps.weapon].ammoIndex] < weaponData[bs->cur_ps.weapon].energyPerShot)
+	if (bs->cur_ps.ammo[bs->cur_ps.weapon] < weaponData[bs->cur_ps.weapon].energyPerShot)
 	{
 		if (BotTryAnotherWeapon(bs))
 		{

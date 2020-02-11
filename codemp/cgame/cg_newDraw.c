@@ -89,7 +89,7 @@ float CG_GetValue(int ownerDraw) {
 	case CG_PLAYER_AMMO_VALUE:
 		if ( cent->currentState.weapon )
 		{
-			return ps->ammo[weaponData[cent->currentState.weapon].ammoIndex];
+			return ps->ammo[cent->currentState.weapon];
 		}
 		break;
 	case CG_PLAYER_SCORE:

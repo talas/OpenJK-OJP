@@ -5453,7 +5453,7 @@ void emplaced_gun_update(gentity_t *self)
 		self->activator->client->ps.stats[STAT_WEAPONS] &= ~(1<<WP_EMPLACED_GUN);
 		//[CoOp]
 		//SP Turrets have ammo, remove the ammo from the player
-		self->activator->client->ps.ammo[weaponData[WP_EMPLACED_GUN].ammoIndex] = 0;
+		self->activator->client->ps.ammo[WP_EMPLACED_GUN] = 0;
 		//[/CoOp]
 
 		oldWeap = self->activator->client->ps.weapon;
@@ -5473,9 +5473,9 @@ void emplaced_gun_update(gentity_t *self)
 		self->activator->client->ps.weaponstate = WEAPON_READY;
 		//[CoOp]
 		//SP Turrets have ammo.  increase the amount of ammo the player has for this turret.
-		if(self->activator->client->ps.ammo[weaponData[WP_EMPLACED_GUN].ammoIndex] < ammoData[weaponData[WP_EMPLACED_GUN].ammoIndex].max)
+		if(self->activator->client->ps.ammo[WP_EMPLACED_GUN] < ammoData[weaponData[WP_EMPLACED_GUN].ammoIndex].max)
 		{
-			self->activator->client->ps.ammo[weaponData[WP_EMPLACED_GUN].ammoIndex]++;
+			self->activator->client->ps.ammo[WP_EMPLACED_GUN]++;
 		}
 		//[/CoOp]
 	}

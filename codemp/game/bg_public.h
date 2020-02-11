@@ -728,7 +728,10 @@ typedef enum {
 	STAT_DODGE,			//number of Dodge Points the player has.  DP is used for evading/blocking attacks before they hurt you.
 	STAT_MAX_DODGE,		//maximum number of dodge points allowed.
 	//[/DodgeSys]
-	STAT_AMMOPOOL//[Reload]
+	//[Reload]
+	STAT_AMMOPOOL,
+	STAT_AMMO_FULL
+	//[/Reload]
 } statIndex_t;
 
 

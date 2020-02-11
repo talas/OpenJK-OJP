@@ -570,15 +570,18 @@ void ammo_shutdown( gentity_t *self )
 
 qboolean Add_Ammo2(gentity_t *ent, int ammotype, int amount)
 {
-	if( ent->client->ps.ammo[ammotype] == ammoData[ammotype].max )
+	if( ent->bullets[ammotype] == ammoData[ammotype].max )
 	{//ammo maxed
 		return qfalse;
 	}
 
-	ent->client->ps.ammo[ammotype] += amount;
+	ent->bullets[ammotype] += amount;
 
-	if(ent->client->ps.ammo[ammotype] > ammoData[ammotype].max)
-		ent->client->ps.ammo[ammotype] = ammoData[ammotype].max;
+	if(ent->bullets[ammotype] > ammoData[ammotype].max)
+		ent->bullets[ammotype] = ammoData[ammotype].max;
+
+	if (weaponData[ent->client->ps.weapon].ammoIndex == ammotype)
+		ent->client->ps.stats[STAT_AMMOPOOL] = ent->bullets[ammotype];
 
 	return qtrue;
 }
@@ -592,7 +595,7 @@ void ammo_think( gentity_t *ent )
 	// Still has ammo to give
 	if (ent->count > 0 && ent->enemy )
 	{
-		dif = ammoData[AMMO_BLASTER].max  - ent->enemy->client->ps.ammo[AMMO_BLASTER];
+		dif = ammoData[AMMO_BLASTER].max  - ent->bullets[AMMO_BLASTER];
 
 		if (dif > 2 )
 		{
@@ -645,7 +648,7 @@ void ammo_use( gentity_t *self, gentity_t *other, gentity_t *activator)
 	{
 		if (other->client)
 		{
-			dif = ammoData[AMMO_BLASTER].max - other->client->ps.ammo[AMMO_BLASTER];
+			dif = ammoData[AMMO_BLASTER].max - other->bullets[AMMO_BLASTER];
 		}
 		else
 		{	// Being triggered to be used up

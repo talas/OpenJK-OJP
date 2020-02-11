@@ -1210,7 +1210,7 @@ void FastBotAI(bot_state_t *bs, float thinktime)
 		}
 	}*/
 
-	/*if (bs->cur_ps.ammo[weaponData[bs->cur_ps.weapon].ammoIndex] < weaponData[bs->cur_ps.weapon].energyPerShot)
+	/*if (bs->cur_ps.ammo[bs->cur_ps.weapon] < weaponData[bs->cur_ps.weapon].energyPerShot)
 	{
 		if (BotTryAnotherWeapon(bs))
 		{
@@ -3574,7 +3574,7 @@ void AOTC_StandardBotAI(bot_state_t *bs, float thinktime)
 		}
 	}
 
-	if (bs->cur_ps.ammo[weaponData[bs->cur_ps.weapon].ammoIndex] < weaponData[bs->cur_ps.weapon].energyPerShot)
+	if (bs->cur_ps.ammo[bs->cur_ps.weapon] < weaponData[bs->cur_ps.weapon].energyPerShot)
 	{
 		if (BotTryAnotherWeapon(bs))
 		{

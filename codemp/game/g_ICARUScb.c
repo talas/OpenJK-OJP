@@ -3890,7 +3890,7 @@ void G_SetWeapon( gentity_t *self, int wp )
 	if ( self->NPC )
 	{//Should NPCs have only 1 weapon at a time?
 		self->client->ps.stats[STAT_WEAPONS] = ( 1 << wp );
-		self->client->ps.ammo[weaponData[wp].ammoIndex] = 999;
+		self->client->ps.ammo[wp] = 999;
 
 		ChangeWeapon( self, wp );
 		self->client->ps.weapon = wp;
@@ -3900,7 +3900,7 @@ void G_SetWeapon( gentity_t *self, int wp )
 	else
 	{
 		self->client->ps.stats[STAT_WEAPONS] |= ( 1 << wp );
-		self->client->ps.ammo[weaponData[wp].ammoIndex] = ammoData[weaponData[wp].ammoIndex].max;
+		self->client->ps.ammo[wp] = ClipSize(wp, self);
 
 		G_AddEvent( self, EV_ITEM_PICKUP, (item - bg_itemlist) );
 		//force it to change

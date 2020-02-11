@@ -9198,14 +9198,14 @@ void WP_SaberPositionUpdate( gentity_t *self, usercmd_t *ucmd )
 	if (ucmd->buttons & BUTTON_THERMALTHROW)
 	{//player wants to snap throw a gernade
 		if(self->client->ps.weaponTime <= 0//not currently using a weapon
-			&& self->client->ps.stats[STAT_WEAPONS] & ( 1 << WP_THERMAL ) && self->client->ps.ammo[AMMO_THERMAL] > 0 )//have a thermal
+			&& self->client->ps.stats[STAT_WEAPONS] & ( 1 << WP_THERMAL ) && self->client->ps.ammo[WP_THERMAL] > 0 )//have a thermal
 		{//throw!
 			self->s.weapon = WP_THERMAL;  //temp switch weapons so we can toss it.
 			self->client->ps.weaponChargeTime = level.time - 450; //throw at medium power
 			FireWeapon( self, qfalse );
 			self->s.weapon = self->client->ps.weapon; //restore weapon
 			self->client->ps.weaponTime = weaponData[WP_THERMAL].fireTime;
-			self->client->ps.ammo[AMMO_THERMAL]--;
+			self->client->ps.ammo[WP_THERMAL]--;
 			G_SetAnim(self, NULL, SETANIM_TORSO, BOTH_MELEE1, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0);
 			
 		}

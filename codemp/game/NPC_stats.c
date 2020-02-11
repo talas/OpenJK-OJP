@@ -2606,7 +2606,7 @@ qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 					if ( weap > WP_NONE )
 					{
 					//	RegisterItem( FindItemForWeapon( (weapon_t)(NPC->client->ps.weapon) ) );	//precache the weapon
-						NPC->client->ps.ammo[weaponData[NPC->client->ps.weapon].ammoIndex] = 100;//FIXME: max ammo!
+						NPC->client->ps.ammo[NPC->client->ps.weapon] = 100;//FIXME: max ammo!
 					}
 				}
 				continue;

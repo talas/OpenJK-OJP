@@ -1393,17 +1393,17 @@ qboolean HasValidWeaponThatUsesAmmo( gentity_t *ent, int ammotype ) {
 			break;
 		case AMMO_THERMAL:
 			if ( (ent->client->ps.stats[STAT_WEAPONS] & ( 1 << WP_THERMAL ) ) || 
-				  ent->client->ps.ammo[AMMO_THERMAL] > 0 )
+				  ent->client->ps.ammo[WP_THERMAL] > 0 )
 				return qtrue;
 			break;
 		case AMMO_TRIPMINE:
 			if ( (ent->client->ps.stats[STAT_WEAPONS] & ( 1 << WP_TRIP_MINE ) ) || 
-				  ent->client->ps.ammo[AMMO_TRIPMINE] > 0 )
+				  ent->client->ps.ammo[WP_TRIP_MINE] > 0 )
 				return qtrue;
 			break;
 		case AMMO_DETPACK:
 			if ( (ent->client->ps.stats[STAT_WEAPONS] & ( 1 << WP_DET_PACK ) ) || 
-				  ent->client->ps.ammo[AMMO_DETPACK] > 0 )
+				  ent->client->ps.ammo[WP_DET_PACK] > 0 )
 				return qtrue;
 			break;
 		default:
@@ -1435,13 +1435,13 @@ qboolean AllAmmosFull (gentity_t *ent) {
 			max = ammoData[i].max;
 		}
 
-		if ( i == AMMO_BLASTER && ent->client->ps.ammo[AMMO_BLASTER] >= max ) maxBlaster = qtrue;
-		if ( i == AMMO_POWERCELL && ent->client->ps.ammo[AMMO_POWERCELL] >= max ) maxPowercell = qtrue;
-		if ( i == AMMO_METAL_BOLTS && ent->client->ps.ammo[AMMO_METAL_BOLTS] >= max ) maxMetalBolts = qtrue;
-		if ( i == AMMO_ROCKETS && ent->client->ps.ammo[AMMO_ROCKETS] >= max ) maxRockets = qtrue;
-		if ( i == AMMO_THERMAL && ent->client->ps.ammo[AMMO_THERMAL] >= max ) maxThermals = qtrue;
-		if ( i == AMMO_TRIPMINE && ent->client->ps.ammo[AMMO_TRIPMINE] >= max ) maxTripMines = qtrue;
-		if ( i == AMMO_DETPACK && ent->client->ps.ammo[AMMO_DETPACK] >= max ) maxDetpacks = qtrue;
+		if ( i == AMMO_BLASTER && ent->bullets[AMMO_BLASTER] >= max ) maxBlaster = qtrue;
+		if ( i == AMMO_POWERCELL && ent->bullets[AMMO_POWERCELL] >= max ) maxPowercell = qtrue;
+		if ( i == AMMO_METAL_BOLTS && ent->bullets[AMMO_METAL_BOLTS] >= max ) maxMetalBolts = qtrue;
+		if ( i == AMMO_ROCKETS && ent->bullets[AMMO_ROCKETS] >= max ) maxRockets = qtrue;
+		if ( i == AMMO_THERMAL && ent->client->ps.ammo[WP_THERMAL] >= max ) maxThermals = qtrue;
+		if ( i == AMMO_TRIPMINE && ent->client->ps.ammo[WP_TRIP_MINE] >= max ) maxTripMines = qtrue;
+		if ( i == AMMO_DETPACK && ent->client->ps.ammo[WP_DET_PACK] >= max ) maxDetpacks = qtrue;
 	}
 
 	if ( maxBlaster && maxMetalBolts && maxRockets && maxThermals && maxTripMines && maxDetpacks )

@@ -66,10 +66,10 @@ void CG_CheckAmmo( void ) {
 		case WP_TRIP_MINE:
 		case WP_DET_PACK:
 		case WP_EMPLACED_GUN:
-			total += cg.snap->ps.ammo[weaponData[i].ammoIndex] * 1000;
+			total += cg.snap->ps.ammo[i] * 1000;
 			break;
 		default:
-			total += cg.snap->ps.ammo[weaponData[i].ammoIndex] * 200;
+			total += cg.snap->ps.ammo[i] * 200;
 			break;
 		}
 		if ( total >= 5000 ) {

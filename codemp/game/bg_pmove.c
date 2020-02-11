@@ -7121,16 +7121,6 @@ void PM_BeginWeaponChange( int weapon ) {
 		pm->ps->eFlags &= ~EF_DUAL_WEAPONS;
 	}
 
-//[Reload]
-#ifdef _GAME
-	if(1)
-	{
-		gentity_t *ent = &g_entities[pm->ps->clientNum];
-		pm->ps->stats[STAT_AMMOPOOL] = ent->client->ps.stats[STAT_AMMOPOOL] = ent->bullets[pm->ps->weapon];
-	}
-#endif
-//[Reload]
-
 	// turn of any kind of zooming when weapon switching.
 	if (pm->ps->zoomMode)
 	{
@@ -7224,7 +7214,12 @@ void PM_FinishWeaponChange( void ) {
 	{
 		pm->ps->weaponTime += 250;
 	}
-
+	//[Reload]
+#ifdef _GAME
+	gentity_t *ent = &g_entities[pm->ps->clientNum];
+	pm->ps->stats[STAT_AMMOPOOL] = ent->client->ps.stats[STAT_AMMOPOOL] = ent->bullets[weaponData[pm->ps->weapon].ammoIndex];
+#endif
+	//[Reload]
 }
 
 #ifdef _GAME
@@ -7470,7 +7465,7 @@ static qboolean PM_DoChargedWeapons( qboolean vehicleRocketLock, bgEntity_t *veh
 		//------------------
 		case WP_ROCKET_LAUNCHER:
 			if ( (pm->cmd.buttons & BUTTON_ALT_ATTACK)
-				&& pm->ps->ammo[weaponData[pm->ps->weapon].ammoIndex] >= weaponData[pm->ps->weapon].altEnergyPerShot )
+				&& pm->ps->ammo[pm->ps->weapon] >= weaponData[pm->ps->weapon].altEnergyPerShot )
 			{
 				PM_RocketLock(2048,qfalse);
 				charging = qtrue;
@@ -7569,7 +7564,7 @@ static qboolean PM_DoChargedWeapons( qboolean vehicleRocketLock, bgEntity_t *veh
 					goto rest;
 				}
 			}
-			else if (pm->ps->ammo[weaponData[pm->ps->weapon].ammoIndex] < (weaponData[pm->ps->weapon].altChargeSub+weaponData[pm->ps->weapon].altEnergyPerShot))
+			else if (pm->ps->ammo[pm->ps->weapon] < (weaponData[pm->ps->weapon].altChargeSub+weaponData[pm->ps->weapon].altEnergyPerShot))
 			{
 				pm->ps->weaponstate = WEAPON_CHARGING_ALT;
 
@@ -7579,7 +7574,7 @@ static qboolean PM_DoChargedWeapons( qboolean vehicleRocketLock, bgEntity_t *veh
 			{
 				if (pm->ps->weaponChargeSubtractTime < pm->cmd.serverTime)
 				{
-					pm->ps->ammo[weaponData[pm->ps->weapon].ammoIndex] -= weaponData[pm->ps->weapon].altChargeSub;
+					pm->ps->ammo[pm->ps->weapon] -= weaponData[pm->ps->weapon].altChargeSub;
 					pm->ps->weaponChargeSubtractTime = pm->cmd.serverTime + weaponData[pm->ps->weapon].altChargeSubTime;
 				}
 			}
@@ -7607,7 +7602,7 @@ static qboolean PM_DoChargedWeapons( qboolean vehicleRocketLock, bgEntity_t *veh
 					goto rest;
 				}
 			}
-			else if (pm->ps->ammo[weaponData[pm->ps->weapon].ammoIndex] < (weaponData[pm->ps->weapon].chargeSub+weaponData[pm->ps->weapon].energyPerShot))
+			else if (pm->ps->ammo[pm->ps->weapon] < (weaponData[pm->ps->weapon].chargeSub+weaponData[pm->ps->weapon].energyPerShot))
 			{
 				pm->ps->weaponstate = WEAPON_CHARGING;
 
@@ -7617,7 +7612,7 @@ static qboolean PM_DoChargedWeapons( qboolean vehicleRocketLock, bgEntity_t *veh
 			{
 				if (pm->ps->weaponChargeSubtractTime < pm->cmd.serverTime)
 				{
-					pm->ps->ammo[weaponData[pm->ps->weapon].ammoIndex] -= weaponData[pm->ps->weapon].chargeSub;
+					pm->ps->ammo[pm->ps->weapon] -= weaponData[pm->ps->weapon].chargeSub;
 					pm->ps->weaponChargeSubtractTime = pm->cmd.serverTime + weaponData[pm->ps->weapon].chargeSubTime;
 				}
 			}
@@ -8717,20 +8712,16 @@ static void PM_Weapon( void )
 			//[DualPistols]
 			if ((pm->ps->eFlags & EF_DUAL_WEAPONS))
 			{
-				if (pm->ps->ammo[weaponData[pm->ps->weapon].ammoIndex] < (weaponData[pm->ps->weapon].energyPerShot * 2) &&
-					pm->ps->ammo[weaponData[pm->ps->weapon].ammoIndex] < (weaponData[pm->ps->weapon].altEnergyPerShot * 2) )
+				if (pm->ps->ammo[pm->ps->weapon] < (weaponData[pm->ps->weapon].energyPerShot * 2) &&
+					pm->ps->ammo[pm->ps->weapon] < (weaponData[pm->ps->weapon].altEnergyPerShot * 2) )
 				{ //the weapon is out of ammo essentially because it cannot fire primary or secondary, so do the switch
 				//regardless of if the player is attacking or not
-					//[Reload]
-					#ifdef _GAME
-					gentity_t *ent = &g_entities[pm->ps->clientNum];
-					if(ent->bullets[ent->client->ps.weapon] < 1)
-						pm->ps->ammo[weaponData[ent->client->ps.weapon].ammoIndex] = -10;
-					#endif
-					//[/Reload]
-
 					if (( pm->ps->weapon == WP_BRYAR_PISTOL )) 
 					{
+						//[Reload]
+						if (pm->ps->stats[STAT_AMMOPOOL] < 1)
+							pm->ps->ammo[pm->ps->weapon] = -10;
+						//[/Reload]
 						PM_AddEventWithParm( EV_NOAMMO, WP_NUM_WEAPONS+pm->ps->weapon );
 
 						if (pm->ps->weaponTime < 500)
@@ -8751,16 +8742,13 @@ static void PM_Weapon( void )
 			else//[/DualPistols]
 			{
 				// enough energy to fire this weapon?
-				if (pm->ps->ammo[weaponData[pm->ps->weapon].ammoIndex] < weaponData[pm->ps->weapon].energyPerShot &&
-					pm->ps->ammo[weaponData[pm->ps->weapon].ammoIndex] < weaponData[pm->ps->weapon].altEnergyPerShot)
+				if (pm->ps->ammo[pm->ps->weapon] < weaponData[pm->ps->weapon].energyPerShot &&
+					pm->ps->ammo[pm->ps->weapon] < weaponData[pm->ps->weapon].altEnergyPerShot)
 				{ //the weapon is out of ammo essentially because it cannot fire primary or secondary, so do the switch
 				  //regardless of if the player is attacking or not
 					//[Reload]
-					#ifdef _GAME
-					gentity_t *ent = &g_entities[pm->ps->clientNum];
-					if(ent->bullets[ent->client->ps.weapon] < 1)
-						pm->ps->ammo[weaponData[ent->client->ps.weapon].ammoIndex] = -10;
-					#endif
+					if (pm->ps->stats[STAT_AMMOPOOL] < 1)
+						pm->ps->ammo[pm->ps->weapon] = -10;
 					//[/Reload]
 					PM_AddEventWithParm( EV_NOAMMO, WP_NUM_WEAPONS+pm->ps->weapon );
 
@@ -8771,7 +8759,7 @@ static void PM_Weapon( void )
 					return;
 				}
 
-				if (pm->ps->weapon == WP_DET_PACK && !pm->ps->hasDetPackPlanted && pm->ps->ammo[weaponData[pm->ps->weapon].ammoIndex] < 1)
+				if (pm->ps->weapon == WP_DET_PACK && !pm->ps->hasDetPackPlanted && pm->ps->ammo[WP_DET_PACK] < 1)
 				{
 					PM_AddEventWithParm( EV_NOAMMO, WP_NUM_WEAPONS+pm->ps->weapon );
 
@@ -9246,9 +9234,9 @@ static void PM_Weapon( void )
 		(pm->ps->weapon != WP_BOWCASTER || (pm->ps->weapon == WP_BOWCASTER &&!(pm->ps->eFlags2 & EF2_BOWCASTERSCOPE)))*/ ) // 74145: huh? unlimited ammo?
 	{
 		// enough energy to fire this weapon?
-		if ((pm->ps->ammo[weaponData[pm->ps->weapon].ammoIndex] - amount) >= 0)
+		if ((pm->ps->ammo[pm->ps->weapon] - amount) >= 0)
 		{
-			pm->ps->ammo[weaponData[pm->ps->weapon].ammoIndex] -= amount;
+			pm->ps->ammo[pm->ps->weapon] -= amount;
 		}
 		else	// Not enough energy
 		{
@@ -9770,11 +9758,11 @@ void PM_AdjustAttackStates( pmove_t *pmove )
 	// get ammo usage
 	if ( pmove->cmd.buttons & BUTTON_ALT_ATTACK )
 	{
-		amount = pmove->ps->ammo[weaponData[ pmove->ps->weapon ].ammoIndex] - weaponData[pmove->ps->weapon].altEnergyPerShot;
+		amount = pmove->ps->ammo[pmove->ps->weapon] - weaponData[pmove->ps->weapon].altEnergyPerShot;
 	}
 	else
 	{
-		amount = pmove->ps->ammo[weaponData[ pmove->ps->weapon ].ammoIndex] - weaponData[pmove->ps->weapon].energyPerShot;
+		amount = pmove->ps->stats[pmove->ps->weapon] - weaponData[pmove->ps->weapon].energyPerShot;
 	}
 
 	// disruptor alt-fire should toggle the zoom mode, but only bother doing this for the player?
@@ -9879,7 +9867,7 @@ void PM_AdjustAttackStates( pmove_t *pmove )
 			//	just use whatever ammo was selected from above
 			if ( pmove->ps->zoomMode )
 			{
-				amount = pmove->ps->ammo[weaponData[ pmove->ps->weapon ].ammoIndex] -
+				amount = pmove->ps->ammo[pmove->ps->weapon] -
 							weaponData[pmove->ps->weapon].altEnergyPerShot;
 			}
 		}

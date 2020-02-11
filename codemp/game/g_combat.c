@@ -530,21 +530,13 @@ void TossClientWeapon(gentity_t *self, vec3_t direction, float speed)
 		return;
 	}
 
+	if (weapon == WP_DET_PACK && self->client->ps.ammo[WP_DET_PACK] < 1)
+	{ // keep the detonator
+		return;
+	}
+
 	// find the item type for this weapon
 	item = BG_FindItemForWeapon( weapon );
-
-	ammoSub = (self->client->ps.ammo[weaponData[weapon].ammoIndex] - bg_itemlist[BG_GetItemIndexByTag(weapon, IT_WEAPON)].quantity);
-
-	if (ammoSub < 0)
-	{
-		int ammoQuan = item->quantity;
-		ammoQuan -= (-ammoSub);
-
-		if (ammoQuan <= 0)
-		{ //no ammo
-			return;
-		}
-	}
 
 	vel[0] = direction[0]*speed;
 	vel[1] = direction[1]*speed;
@@ -556,13 +548,12 @@ void TossClientWeapon(gentity_t *self, vec3_t direction, float speed)
 	launched->s.powerups = level.time + 1500;
 
 	//[WeaponSys]
-	launched->count = self->client->ps.ammo[weaponData[weapon].ammoIndex];
+	launched->count = self->client->ps.ammo[weapon];
 
-	self->client->ps.ammo[weaponData[weapon].ammoIndex] = 0;
+	self->client->ps.ammo[weapon] = 0;
 	//[/WeaponSys]
 
-	if ((self->client->ps.ammo[weaponData[weapon].ammoIndex] < 1 && weapon != WP_DET_PACK) ||
-		(weapon != WP_THERMAL && weapon != WP_DET_PACK && weapon != WP_TRIP_MINE))
+	if (weapon != WP_DET_PACK || !self->client->ps.hasDetPackPlanted)
 	{
 		int i = 0;
 		int weap = -1;
@@ -696,12 +687,14 @@ void TossClientItems( gentity_t *self ) {
 		|| weapon == WP_MELEE )
 	{//never drop these
 	}
-	else if ( weapon > WP_SABER && weapon <= MAX_PLAYER_WEAPONS )//&& self->client->ps.ammo[ weaponData[weapon].ammoIndex ]
+	else if ( weapon > WP_SABER && weapon <= MAX_PLAYER_WEAPONS &&
+		  (self->client->ps.ammo[weapon] > 0 || self->s.eType == ET_NPC || weapon == WP_THERMAL) )
 	{
 		self->s.weapon = WP_NONE;
 
 		if ( weapon == WP_THERMAL && self->client->ps.torsoAnim == BOTH_ATTACK10 )
-		{//we were getting ready to throw the thermal, drop it! 
+		{//we were getting ready to throw the thermal, drop it!
+			// 74145: TODO: could this cause 2 grenades to be thrown?
 			self->client->ps.weaponChargeTime = level.time - FRAMETIME;//so it just kind of drops it
 			dropped = WP_DropThermal( self );
 			item = NULL;
@@ -731,9 +724,11 @@ void TossClientItems( gentity_t *self ) {
 			*/
 			//[WeaponSys]
 			//give it ammo based on how much ammo the entity had
-			dropped->count = self->client->ps.ammo[weaponData[item->giTag].ammoIndex];
+			dropped->count = self->client->ps.ammo[item->giTag];
+			if (self->s.eType == ET_NPC) // At least until they handle ammo properly
+				dropped->count = Q_min(10, dropped->count);
 
-			self->client->ps.ammo[weaponData[item->giTag].ammoIndex] = 0;
+			self->client->ps.ammo[item->giTag] = 0;
 			/*
 			{//FIXME: base this on the NPC's actual amount of ammo he's used up... 
 				switch ( weapon )

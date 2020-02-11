@@ -497,7 +497,7 @@ struct gentity_s {
 
 	//[Reload]
 	qboolean	justReloaded;	//Used to stop user from holding down reload
-	int			bullets[WP_NUM_WEAPONS];//Number of bullets each gun has left
+	int			bullets[AMMO_MAX];//Number of bullets each gun has left
 	int			reloadTime;		//Every 0.2 seconds reload a bullet
 	int			bulletsToReload;//Bullets to reload
 	int			reloadCooldown;

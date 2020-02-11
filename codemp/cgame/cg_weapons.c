@@ -1150,19 +1150,19 @@ void CG_DrawIconBackground(void)
 qboolean CG_WeaponCheck(int weap)
 {
 	//[Reload]
-	if(cg.snap->ps.ammo[weaponData[weap].ammoIndex] == -10)
+	if(cg.snap->ps.ammo[weap] == -10)
 		return qfalse;
 
-	if (weap == WP_DET_PACK && cg.predictedPlayerState.ammo[weaponData[weap].ammoIndex] < 1 &&
+	if (weap == WP_DET_PACK && cg.predictedPlayerState.ammo[weap] < 1 &&
 		!cg.predictedPlayerState.hasDetPackPlanted)
 	{
 		return qfalse;
 	}
 
-	if(weap == WP_TRIP_MINE && cg.predictedPlayerState.ammo[weaponData[weap].ammoIndex] < 1)
+	if(weap == WP_TRIP_MINE && cg.predictedPlayerState.ammo[weap] < 1)
 		return qfalse;
 
-	if(weap == WP_THERMAL && cg.predictedPlayerState.ammo[weaponData[weap].ammoIndex] < 1)
+	if(weap == WP_THERMAL && cg.predictedPlayerState.ammo[weap] < 1)
 		return qfalse;
 	//[/Reload]
 
@@ -1184,23 +1184,23 @@ static qboolean CG_WeaponSelectable( int i ) {
 	}
 
 	//[Reload]
-	if (cg.predictedPlayerState.ammo[weaponData[i].ammoIndex] == -10)
+	if (cg.predictedPlayerState.ammo[i] == -10)
 	{
 		return qfalse;
 	}
 	//[/Reload]
 
-	if (i == WP_DET_PACK && cg.predictedPlayerState.ammo[weaponData[i].ammoIndex] < 1 &&
+	if (i == WP_DET_PACK && cg.predictedPlayerState.ammo[i] < 1 &&
 		!cg.predictedPlayerState.hasDetPackPlanted)
 	{
 		return qfalse;
 	}
 
 	//[Reload]
-	if(i == WP_TRIP_MINE && cg.predictedPlayerState.ammo[weaponData[i].ammoIndex] < 1)
+	if(i == WP_TRIP_MINE && cg.predictedPlayerState.ammo[i] < 1)
 		return qfalse;
 
-	if(i == WP_THERMAL && cg.predictedPlayerState.ammo[weaponData[i].ammoIndex] < 1)
+	if(i == WP_THERMAL && cg.predictedPlayerState.ammo[i] < 1)
 		return qfalse;
 	//[/Reload]
 

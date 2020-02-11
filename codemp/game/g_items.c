@@ -2508,32 +2508,51 @@ int Pickup_Holdable( gentity_t *ent, gentity_t *other ) {
 
 //======================================================================
 
-void Add_Ammo (gentity_t *ent, int weapon, int count)
+void Add_Ammo (gentity_t *ent, int ammo_type, int count)
 {
-	int max = ammoData[weapon].max;
+	int max = ammoData[ammo_type].max;
 
 	if (ent->client->ps.eFlags & EF_DOUBLE_AMMO)
 	{ // fix: double ammo for siege
 		max *= 2;
 	}
 
-	if ( ent->client->ps.ammo[weapon] < max )
+	if (ammo_type == AMMO_THERMAL || ammo_type == AMMO_TRIPMINE || ammo_type == AMMO_DETPACK)
 	{
-		ent->client->ps.ammo[weapon] += count;
-		if ( ent->client->ps.ammo[weapon] > max )
+		int wp_num = WP_THERMAL + ammo_type - AMMO_THERMAL;
+		ent->client->ps.ammo[wp_num] += count;
+		if (ent->client->ps.ammo[wp_num] > max)
+			ent->client->ps.ammo[wp_num] = max;
+		return;
+	}
+
+	if ( ent->bullets[ammo_type] < max )
+	{
+		ent->bullets[ammo_type] += count;
+		if ( ent->bullets[ammo_type] > max )
 		{
-			ent->client->ps.ammo[weapon] = max;
+			ent->bullets[ammo_type] = max;
 		}
 	}
+
+	if (weaponData[ent->client->ps.weapon].ammoIndex == ammo_type)
+		ent->client->ps.stats[STAT_AMMOPOOL] = ent->bullets[ammo_type];
 }
 
 //[AmmoSys]
 void Add_Ammo3 (gentity_t *ent, int weapon, int count, int *stop, qboolean *gaveSome)
 { // weapon is actually ammotype
-	int old_count = ent->client->ps.ammo[weapon];
+	int single_use_type = 0;
+	int wp_num = -1;
+	if (weapon == AMMO_THERMAL || weapon == AMMO_TRIPMINE || weapon == AMMO_DETPACK)
+	{
+		single_use_type = 1;
+		wp_num = WP_THERMAL + weapon - AMMO_THERMAL;
+	}
+	int old_count = single_use_type ? ent->client->ps.ammo[wp_num] : ent->bullets[weapon];
 	int new_count;
 	Add_Ammo(ent, weapon, count);
-	new_count = ent->client->ps.ammo[weapon];
+	new_count = single_use_type ? ent->client->ps.ammo[wp_num] : ent->bullets[weapon];
 	if ( new_count > old_count ) {
 		*gaveSome = qtrue;
 		
@@ -2636,6 +2655,10 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other) {
 		}
 	}
 #endif //_DISABLED
+	if ( ent->count >= 0)
+		quantity = ent->count;
+
+	int old_ammo = other->client->ps.ammo[ent->item->giTag];
 	// add the weapon
 	other->client->ps.stats[STAT_WEAPONS] |= ( 1 << ent->item->giTag );
 
@@ -2644,12 +2667,15 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other) {
 	G_AddEvent(other, EV_WEAPINVCHANGE, other->client->ps.stats[STAT_WEAPONS]);
 	//[/VisualWeapons]
 
-	// 74145: If you lack this weapon skill, pickup minimal ammo
-	if (!SkillLevelForWeap(other, ent->item->giTag))
-		quantity = 1;
-
 	//Add_Ammo( other, ent->item->giTag, quantity );
-	Add_Ammo( other, weaponData[ent->item->giTag].ammoIndex, quantity );
+	if (old_ammo && old_ammo > quantity)
+		// 74145: already have more ammo in our gun, just add to pack
+		Add_Ammo( other, weaponData[ent->item->giTag].ammoIndex, quantity );
+	else
+	{ // 74145: new gun has more ammo than old, "swap" to new gun
+		other->client->ps.ammo[ent->item->giTag] = quantity;
+		Add_Ammo( other, weaponData[ent->item->giTag].ammoIndex, old_ammo );
+	}
 
 	G_LogWeaponPickup(other->s.number, ent->item->giTag);
 
@@ -2945,7 +2971,7 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 				weapForAmmo = WP_DET_PACK;
 			}
 
-			if (other && other->client && other->client->ps.ammo[weaponData[weapForAmmo].ammoIndex] > 0 )
+			if (other && other->client && other->client->ps.ammo[weapForAmmo] > 0 )
 			{
 				other->client->ps.stats[STAT_WEAPONS] |= (1 << weapForAmmo);
 				//[VisualWeapons]
