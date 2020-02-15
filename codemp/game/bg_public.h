@@ -723,6 +723,7 @@ typedef enum {
 	STAT_DEAD_YAW,					// look this direction when dead (FIXME: get rid of?)
 	STAT_CLIENTS_READY,				// bit mask of clients wishing to exit the intermission (FIXME: configstring?)
 	STAT_CARDS,					//[SaberLockSys] Number of cards/types in inventory 1s=Rock, 10s=Paper, 100s=Scissors.
+	STAT_CHOSEN_CARD,				//[SaberLockSys] The card you have chosen to play
 	//[DodgeSys]
 	STAT_MAX_HEALTH,				// health / armor limit, changable by handicap
 	STAT_DODGE,			//number of Dodge Points the player has.  DP is used for evading/blocking attacks before they hurt you.
@@ -1847,6 +1848,14 @@ typedef struct saberInfo_s {
 } saberInfo_t;
 #define MAX_SABERS 2
 
+//[SaberLockSys] used to indicate which saberlock card a player has chosen
+typedef enum saberlock_cards_e {
+	SABERLOCK_CARD_NONE=0,
+	SABERLOCK_CARD_ROCK,
+	SABERLOCK_CARD_PAPER,
+	SABERLOCK_CARD_SCISSORS
+} saberlock_cards_t;
+//[/SaberLockSys]
 
 bgEntity_t *PM_BGEntForNum( int num );
 qboolean BG_KnockDownable(playerState_t *ps);

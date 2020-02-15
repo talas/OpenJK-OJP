@@ -1285,28 +1285,26 @@ void PM_SaberLockBreak( playerState_t *genemy, qboolean victory, int strength )
 	// 74145: Only do superbreak when they are low on dodge
 	qboolean superBreak = victory && (genemy->stats[STAT_DODGE] <= DODGE_CRITICALLEVEL);
 	// 74145: If both played paper (push), then we get an "explosion" like in ep3.
-	qboolean pushExplosion = (pm->ps->userInt3 & (1 << FLAG_SABERLOCK_PAPER)) && (genemy->userInt3 & (1 << FLAG_SABERLOCK_PAPER));
+	qboolean pushExplosion = (pm->ps->stats[STAT_CHOSEN_CARD] == SABERLOCK_CARD_PAPER && genemy->stats[STAT_CHOSEN_CARD] == SABERLOCK_CARD_PAPER);
 
-	if ( (pm->ps->userInt3 & SABERLOCK_CARD_FLAG_MASK)
-		&& (genemy->userInt3 & SABERLOCK_CARD_FLAG_MASK))
+	if ( pm->ps->stats[STAT_CHOSEN_CARD] && genemy->stats[STAT_CHOSEN_CARD] )
 	{ // deduct cards if both played (not interrupted)
-		if (pm->ps->userInt3 & (1 << FLAG_SABERLOCK_ROCK))
+		if (pm->ps->stats[STAT_CHOSEN_CARD] == SABERLOCK_CARD_ROCK)
 			pm->ps->stats[STAT_CARDS] -= 1;
-		else if (pm->ps->userInt3 & (1 << FLAG_SABERLOCK_PAPER))
+		else if (pm->ps->stats[STAT_CHOSEN_CARD] == SABERLOCK_CARD_PAPER)
 			pm->ps->stats[STAT_CARDS] -= 10;
-		else if (pm->ps->userInt3 & (1 << FLAG_SABERLOCK_SCISSORS))
+		else if (pm->ps->stats[STAT_CHOSEN_CARD] == SABERLOCK_CARD_SCISSORS)
 			pm->ps->stats[STAT_CARDS] -= 100;
-		if (genemy->userInt3 & (1 << FLAG_SABERLOCK_ROCK))
+		if (genemy->stats[STAT_CHOSEN_CARD] == SABERLOCK_CARD_ROCK)
 			genemy->stats[STAT_CARDS] -= 1;
-		else if (genemy->userInt3 & (1 << FLAG_SABERLOCK_PAPER))
+		else if (genemy->stats[STAT_CHOSEN_CARD] == SABERLOCK_CARD_PAPER)
 			genemy->stats[STAT_CARDS] -= 10;
-		else if (genemy->userInt3 & (1 << FLAG_SABERLOCK_SCISSORS))
+		else if (genemy->stats[STAT_CHOSEN_CARD] == SABERLOCK_CARD_SCISSORS)
 			genemy->stats[STAT_CARDS] -= 100;
 	}
 
-	//remove the saber lock winner flag.
-	pm->ps->userInt3 &= ~( SABERLOCK_CARD_FLAG_MASK );
-	genemy->userInt3 &= ~( SABERLOCK_CARD_FLAG_MASK );
+	pm->ps->stats[STAT_CHOSEN_CARD] = SABERLOCK_CARD_NONE;
+	genemy->stats[STAT_CHOSEN_CARD] = SABERLOCK_CARD_NONE;
 	//[/SaberLockSys]
 
 	//a single vs. single break

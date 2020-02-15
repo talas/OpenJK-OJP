@@ -1505,14 +1505,6 @@ typedef enum {
 	//this must be used in conjunction with the FLAG_SLOWBOUNCE to work right.
 	, FLAG_OLDSLOWBOUNCE
 
-	//this flag indicates that this player has no saberlock cards (cannot win)
-	, FLAG_SABERLOCK_EMPTY
-
-	//the flag indicates which saberlock card a player has chosen
-	, FLAG_SABERLOCK_ROCK
-	, FLAG_SABERLOCK_PAPER
-	, FLAG_SABERLOCK_SCISSORS
-
 	//flag indicates that the player was parried.  
 	//They won't be able to launch into a combo from the bounce.
 	, FLAG_PARRIED
@@ -1536,11 +1528,6 @@ typedef enum {
 	, FLAG_DODGE_CRITICAL
 	//[/DodgeSys]
 } userInt3Flags_t;
-
-//[SaberLockSys]
-#define SABERLOCK_CARD_FLAG_MASK	((1 << FLAG_SABERLOCK_EMPTY) | (1 << FLAG_SABERLOCK_ROCK) | (1 << FLAG_SABERLOCK_PAPER) | (1 << FLAG_SABERLOCK_SCISSORS))
-//[/SaberLockSys]
-
 
 
 //[SaberDefines]

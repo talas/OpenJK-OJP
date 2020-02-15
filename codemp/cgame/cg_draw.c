@@ -1824,22 +1824,22 @@ void CG_DrawSaberLockCards()
 		return;
 	}
 
-	for (card_type=FLAG_SABERLOCK_ROCK; card_type<=FLAG_SABERLOCK_SCISSORS; card_type++)
+	for (card_type=SABERLOCK_CARD_ROCK; card_type<=SABERLOCK_CARD_SCISSORS; card_type++)
 	{
 		startDrawPos = 2;
-		if (card_type == FLAG_SABERLOCK_ROCK)
+		if (card_type == SABERLOCK_CARD_ROCK)
 		{
 			card_count = cg.snap->ps.stats[STAT_CARDS] % 10;
 			cardShader = trap->R_RegisterShaderNoMip( "gfx/hud/rock" );
 			posY = 0;
 		}
-		else if (card_type == FLAG_SABERLOCK_PAPER)
+		else if (card_type == SABERLOCK_CARD_PAPER)
 		{
 			card_count = cg.snap->ps.stats[STAT_CARDS] / 10 % 10;
 			cardShader = trap->R_RegisterShaderNoMip( "gfx/hud/paper" );
 			posY = ico_size+2;
 		}
-		else //if (card_type == FLAG_SABERLOCK_SCISSORS)
+		else //if (card_type == SABERLOCK_CARD_SCISSORS)
 		{
 			card_count = cg.snap->ps.stats[STAT_CARDS] / 100 % 10;
 			cardShader = trap->R_RegisterShaderNoMip( "gfx/hud/scissors" );
@@ -5506,7 +5506,7 @@ static void CG_DrawCrosshair( vec3_t worldPoint, int chEntValid ) {
 		//[SaberLockSys]
 		if ( cg.snap->ps.saberLockTime > cg.time )
 		{//while in a saberlock, show color based on if you have chosen a card or not
-			if ( cg.snap->ps.userInt3 & SABERLOCK_CARD_FLAG_MASK )
+			if ( cg.snap->ps.stats[STAT_CHOSEN_CARD] > SABERLOCK_CARD_NONE )
 			{//green when we have chosen
 				ecolor[0] = 0.0;//R
 				ecolor[1] = 1.0;//G
@@ -5824,7 +5824,7 @@ static void CG_DrawCrosshair( vec3_t worldPoint, int chEntValid ) {
 	trap->R_DrawStretchPic( chX, chY, w, h, 0, 0, 1, 1, hShader );
 
 	//[SaberLockSys]
-	if(cg.snap->ps.saberLockTime > cg.time && !(cg.snap->ps.userInt3 & SABERLOCK_CARD_FLAG_MASK))
+	if(cg.snap->ps.saberLockTime > cg.time && cg.snap->ps.stats[STAT_CHOSEN_CARD] == SABERLOCK_CARD_NONE)
 	{//indicate saberlock card options (didn't choose yet)
 		// 74145: TODO: Draw a textual hint?
 		// 74145: TODO: also indicate "break out" option? (alt-attack + back/down)

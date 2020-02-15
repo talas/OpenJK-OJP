@@ -2307,56 +2307,35 @@ void CancelReload(gentity_t *ent)
 //[/Reload]
 
 //[SaberLockSys]
-int GetSaberLockCardFlag(gentity_t *self)
-{//Get the current saber lock card for the given player.
-	if(self->client->ps.userInt3 & (1 << FLAG_SABERLOCK_EMPTY))
-	{
-		return FLAG_SABERLOCK_EMPTY;
-	}
-	else if(self->client->ps.userInt3 & (1 << FLAG_SABERLOCK_ROCK))
-	{
-		return FLAG_SABERLOCK_ROCK;
-	}
-	else if(self->client->ps.userInt3 & (1 << FLAG_SABERLOCK_PAPER))
-	{
-		return FLAG_SABERLOCK_PAPER;
-	}
-	else if(self->client->ps.userInt3 & (1 << FLAG_SABERLOCK_SCISSORS))
-	{
-		return FLAG_SABERLOCK_SCISSORS;
-	}
-	return 0;
-}
-
 int SaberLockCardForMovement(gentity_t *self)
 {//return the saberlock card for the current movement command on self.
 	if (!(self->client->pers.cmd.buttons & BUTTON_ALT_ATTACK)
 		|| (self->client->pers.cmd.buttons & BUTTON_ATTACK))
-		return 0; // Need to hold alt-attack to choose (to avoid miss-clicks)
+		return SABERLOCK_CARD_NONE; // Need to hold alt-attack to choose (to avoid miss-clicks)
 	//only pure movement counts.
 	if(self->client->pers.cmd.rightmove == 0)
 	{
 		if(self->client->pers.cmd.forwardmove > 0)
 		{
-			return FLAG_SABERLOCK_PAPER;
+			return SABERLOCK_CARD_PAPER;
 		}
 		else if(self->client->pers.cmd.forwardmove < 0)
 		{
-			return 0; // 74145: nothing or break out?
+			return SABERLOCK_CARD_NONE; // 74145: nothing or break out?
 		}
 	}
 	else if(self->client->pers.cmd.forwardmove == 0)
 	{
 		if(self->client->pers.cmd.rightmove > 0)
 		{
-			return FLAG_SABERLOCK_SCISSORS;
+			return SABERLOCK_CARD_SCISSORS;
 		}
 		else if(self->client->pers.cmd.rightmove < 0)
 		{
-			return FLAG_SABERLOCK_ROCK;
+			return SABERLOCK_CARD_ROCK;
 		}
 	}
-	return 0;
+	return SABERLOCK_CARD_NONE;
 }
 //[/SaberLockSys]
 
@@ -3769,44 +3748,43 @@ void ClientThink_real( gentity_t *ent ) {
 			ent->client->ps.saberLockHitCheckTime = level.time;//so we don't push more than once per server frame
 			
 			//[SaberLockSys]
-			if( !(ent->client->ps.userInt3 & (1 << FLAG_SABERLOCK_EMPTY))
-				&& !(ent->client->ps.userInt3 & (1 << FLAG_SABERLOCK_ROCK))
-				&& !(ent->client->ps.userInt3 & (1 << FLAG_SABERLOCK_PAPER))
-				&& !(ent->client->ps.userInt3 & (1 << FLAG_SABERLOCK_SCISSORS)))
+			if( ent->client->ps.stats[STAT_CHOSEN_CARD] == SABERLOCK_CARD_NONE )
 			{//if we didn't choose a card, check to see if we pressed a valid movement direction and alt-attack
 				int mySaberLockCard = SaberLockCardForMovement(ent);
-				int opponentSaberLockCard = GetSaberLockCardFlag(blockOpp);
+				int opponentSaberLockCard = blockOpp->client->ps.stats[STAT_CHOSEN_CARD];
+				if (opponentSaberLockCard == SABERLOCK_CARD_NONE && blockOpp->client->ps.stats[STAT_CARDS] <= 0)
+					opponentSaberLockCard = -1;
 
 				if(ent->r.svFlags & SVF_BOT)
 				{//bots just pick randomly
 					if (Q_irand(0, 5) == 0)
-						mySaberLockCard = Q_irand(FLAG_SABERLOCK_ROCK, FLAG_SABERLOCK_SCISSORS);
+						mySaberLockCard = Q_irand(SABERLOCK_CARD_ROCK, SABERLOCK_CARD_SCISSORS);
 					else
-						mySaberLockCard = 0; // 74145: take some time to "consider"
+						mySaberLockCard = SABERLOCK_CARD_NONE; // 74145: take some time to "consider"
 					ent->client->ps.saberLockHitCheckTime = level.time + 100; //check for AI pushes much slower.
 				}
 				// check what cards we have.
 				if (ent->client->ps.stats[STAT_CARDS] <= 0)
 				{
-					mySaberLockCard = FLAG_SABERLOCK_EMPTY; // Oops, no cards left!
+					mySaberLockCard = -1; // Oops, no cards left!
 					Com_Printf("ran out of cards!\n");
 				}
-				else if (mySaberLockCard == FLAG_SABERLOCK_ROCK)
+				else if (mySaberLockCard == SABERLOCK_CARD_ROCK)
 				{
 					if ((ent->client->ps.stats[STAT_CARDS] % 10) <= 0)
 						mySaberLockCard = 0;
 				}
-				else if (mySaberLockCard == FLAG_SABERLOCK_PAPER)
+				else if (mySaberLockCard == SABERLOCK_CARD_PAPER)
 				{
 					if ((ent->client->ps.stats[STAT_CARDS] / 10 % 10) <= 0)
 						mySaberLockCard = 0;
 				}
-				else if (mySaberLockCard == FLAG_SABERLOCK_SCISSORS)
+				else if (mySaberLockCard == SABERLOCK_CARD_SCISSORS)
 				{
 					if ((ent->client->ps.stats[STAT_CARDS] / 100 % 10) <= 0)
 						mySaberLockCard = 0;
 				}
-				ent->client->ps.userInt3 |= (1 << mySaberLockCard);
+				ent->client->ps.stats[STAT_CHOSEN_CARD] = mySaberLockCard;
 
 				if(mySaberLockCard && opponentSaberLockCard)
 				{ // Both have chosen, now resolve the lock!
@@ -3815,13 +3793,13 @@ void ClientThink_real( gentity_t *ent ) {
 						ent->client->ps.saberLockFrame = 0;
 						blockOpp->client->ps.saberLockFrame = 0;
 					}
-					else if (mySaberLockCard == FLAG_SABERLOCK_EMPTY
-						|| (mySaberLockCard == FLAG_SABERLOCK_ROCK
-							&& opponentSaberLockCard == FLAG_SABERLOCK_PAPER)
-						|| (mySaberLockCard == FLAG_SABERLOCK_PAPER
-							&& opponentSaberLockCard == FLAG_SABERLOCK_SCISSORS)
-						|| (mySaberLockCard == FLAG_SABERLOCK_SCISSORS
-							&& opponentSaberLockCard == FLAG_SABERLOCK_ROCK))
+					else if (mySaberLockCard == -1
+						|| (mySaberLockCard == SABERLOCK_CARD_ROCK
+							&& opponentSaberLockCard == SABERLOCK_CARD_PAPER)
+						|| (mySaberLockCard == SABERLOCK_CARD_PAPER
+							&& opponentSaberLockCard == SABERLOCK_CARD_SCISSORS)
+						|| (mySaberLockCard == SABERLOCK_CARD_SCISSORS
+							&& opponentSaberLockCard == SABERLOCK_CARD_ROCK))
 					{ // We lost!
 						blockOpp->client->ps.saberLockHits += 100;
 					}
