@@ -311,6 +311,7 @@ void G_ClassSetDontFlee( gentity_t *self )
 }
 //[/CoOp]
 extern void G_CreateG2AttachedWeaponModel( gentity_t *ent, const char *weaponModel, int boltNum, int weaponNum );
+extern void Boba_FlyStart( gentity_t *ent );
 //[NPCSandCreature]
 extern void SandCreature_ClearTimers( gentity_t *ent );
 //[/NPCSandCreature]
@@ -337,6 +338,25 @@ void NPC_SetMiscDefaultData( gentity_t *ent )
 		ent->client->ps.fd.forcePowerLevel[FP_LEVITATION] = FORCE_LEVEL_3;
 		ent->client->ps.fd.forcePower = 100;
 		ent->NPC->scriptFlags |= (SCF_ALT_FIRE|SCF_NO_GROUPS);
+	}
+	if ( ent->client->NPC_class == CLASS_ROCKETTROOPER )
+	{//set some stuff, precache
+		ent->client->ps.fd.forcePowersKnown |= ( 1 << FP_LEVITATION );
+		ent->client->ps.fd.forcePowerLevel[FP_LEVITATION] = FORCE_LEVEL_3;
+		ent->client->ps.fd.forcePower = 100;
+		ent->NPC->scriptFlags |= (SCF_NO_GROUPS|/*SCF_NAV_CAN_FLY|SCF_FLY_WITH_JET|*/SCF_NAV_CAN_JUMP);//no groups, no combat points!
+		if ( Q_stricmp( "rockettrooper2Officer", ent->NPC_type ) == 0 )
+		{//start in the air, use spotlight
+			//ent->NPC->scriptFlags |= SCF_NO_GROUPS;
+			/*ent->NPC->scriptFlags &= ~SCF_FLY_WITH_JET;*/ // 74145: FIXME: add support for this
+			Boba_FlyStart( ent ); //RT_FlyStart( ent );
+			NPC_SetMoveGoal( ent, ent->r.currentOrigin, 16, qfalse, -1, NULL );
+			VectorCopy( ent->r.currentOrigin, ent->pos1 );
+		}
+		if ( (ent->spawnflags&2) )
+		{//spotlight
+			ent->client->ps.eFlags |= EF_SPOTLIGHT;
+		}
 	}
 	//if ( !Q_stricmp( "atst_vehicle", ent->NPC_type ) )//FIXME: has to be a better, easier way to tell this, no?
 	if (ent->s.NPC_class == CLASS_VEHICLE && ent->m_pVehicle)
@@ -3505,6 +3525,34 @@ void SP_NPC_StormtrooperOfficer( gentity_t *self)
 	SP_NPC_Stormtrooper( self );
 }
 
+/*QUAKED NPC_RocketTrooper(1 0 0) (-16 -16 -24) (16 16 40) OFFICER SPOTLIGHT x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY
+200 health, flies, rockets
+
+OFFICER - starts flying, uses concussion rifle instead of rockets
+SPOTLIGHT - uses a shoulder-mounted spotlight
+
+DROPTOFLOOR - NPC can be in air, but will spawn on the closest floor surface below it
+CINEMATIC - Will spawn with no default AI (BS_CINEMATIC)
+NOTSOLID - Starts not solid
+STARTINSOLID - Don't try to fix if spawn in solid
+SHY - Spawner is shy
+*/
+void SP_NPC_RocketTrooper( gentity_t *self)
+{
+	if ( !self->NPC_type )
+	{
+		if ( (self->spawnflags & 1) )
+		{
+			self->NPC_type = "rockettrooper2Officer";
+		}
+		else
+		{
+			self->NPC_type = "rockettrooper2";
+		}
+	}
+
+	SP_NPC_spawner( self );
+}
 
 //[CoOp]
 /*QUAKED NPC_Rosh_Penin (1 0 0) (-16 -16 -24) (16 16 32) DARKSIDE NOFORCE x x DROPTOFLOOR CINEMATIC NOTSOLID STARTINSOLID SHY

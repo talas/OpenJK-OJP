@@ -14391,6 +14391,31 @@ void CG_Player( centity_t *cent ) {
 
 	CG_VehicleEffects(cent);
 
+	if (cent->currentState.eType == ET_NPC && cent->currentState.NPC_class == CLASS_ROCKETTROOPER &&
+	    !(cent->currentState.eFlags & EF_DEAD) && cent->currentState.eFlags & EF_JETPACK_ACTIVE)
+	{
+		int boltIndex1 = trap->G2API_AddBolt(cent->ghoul2, 0, "*jet1");
+		int boltIndex2 = trap->G2API_AddBolt(cent->ghoul2, 0, "*jet2");
+		for (int i = 0; i < 2; i++)
+		{
+			vec3_t boltOrg, boltAng;
+			mdxaBone_t mat;
+			int boltIndex = (i == 0) ? boltIndex1 : boltIndex2;
+			if (boltIndex == -1)
+				continue;
+			trap->G2API_GetBoltMatrix( cent->ghoul2, 0,
+						   boltIndex,
+						   &mat, cent->turAngles, cent->lerpOrigin, cg.time,
+						   cgs.gameModels,
+						   cent->modelScale );
+			BG_GiveMeVectorFromMatrix( &mat, ORIGIN, boltOrg );
+			BG_GiveMeVectorFromMatrix( &mat, NEGATIVE_X, boltAng );
+			trap->FX_PlayEffectID(trap->FX_RegisterEffect( "rockettrooper/flameNEW" ), boltOrg, boltAng, -1, -1, qfalse);
+			trap->S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin,
+						 trap->S_RegisterSound( "sound/chars/boba/jethover" ) );
+		}
+	}
+
 	if ((cent->currentState.eFlags & EF_JETPACK) && !(cent->currentState.eFlags & EF_DEAD) &&
 		cg_g2JetpackInstance)
 	{ //should have a jetpack attached
@@ -14609,6 +14634,8 @@ void CG_Player( centity_t *cent ) {
 		else
 		{
 			CG_CopyG2WeaponInstance(cent, cent->currentState.weapon, cent->ghoul2);
+			if (cent->currentState.eType == ET_NPC && cent->currentState.NPC_class == CLASS_ROCKETTROOPER)
+				trap->G2API_SetBoltInfo(cent->ghoul2, 1, 1); // rocki has rhand on bolt 1
 
 			if (cent->currentState.eType != ET_NPC)
 			{
@@ -15335,6 +15362,28 @@ SkipTrueView:
 			trap->S_StartSound(NULL, cent->currentState.number, CHAN_AUTO, trap->S_RegisterSound("sound/weapons/force/lightning.wav") );
 		}
 		*/
+	}
+
+	if ( (cent->currentState.eFlags & EF_SPOTLIGHT) && !(cent->currentState.eFlags & EF_DEAD) )
+	{//FIXME: player's view should glare/flare if look at this... maybe build into the effect?
+		// hack for the spotlight
+		vec3_t eyePoint, fwd, org;
+		VectorCopy(cent->lerpOrigin, eyePoint);
+		eyePoint[2] += 42; // wrong
+		AngleVectors( cent->lerpAngles, fwd, NULL, NULL );
+		trap->FX_PlayEffectID(trap->FX_RegisterEffect( "rockettrooper/light_cone" ), eyePoint, fwd, -1, -1, qfalse);
+		// stay a bit back from the server-side's trace impact point...this may not be enough?
+		VectorMA( eyePoint, cent->currentState.speed - 5, fwd, org );
+		float radius = cent->currentState.speed;
+		if ( radius < 128.0f )
+		{
+			radius = 128.0f;
+		}
+		else if ( radius > 1024.0f )
+		{
+			radius = 1024.0f;
+		}
+		trap->R_AddLightToScene( org, radius, 1.0f, 1.0f, 1.0f );
 	}
 
 	//[Flamethrower]

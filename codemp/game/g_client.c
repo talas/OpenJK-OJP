@@ -1757,6 +1757,7 @@ void *g2SaberInstance = NULL;
 qboolean BG_IsValidCharacterModel(const char *modelName, const char *skinName);
 qboolean BG_ValidateSkinForTeam( const char *modelName, char *skinName, int team, float *colors );
 void BG_GetVehicleModelName(char *modelName, const char *vehicleName, size_t len);
+qboolean G_StandardHumanoid( gentity_t *self );
 
 void SetupGameGhoul2Model(gentity_t *ent, char *modelname, char *skinName)
 {
@@ -2088,7 +2089,8 @@ void SetupGameGhoul2Model(gentity_t *ent, char *modelname, char *skinName)
 		}
 	}
 
-	if (ent->client->ps.weapon == WP_SABER || ent->s.number < MAX_CLIENTS)
+	if (ent->client->ps.weapon == WP_SABER || ent->s.number < MAX_CLIENTS ||
+	    (ent->NPC && ent->client->NPC_class != CLASS_VEHICLE && G_StandardHumanoid(ent)))
 	{ //a player or NPC saber user
 		trap->G2API_AddBolt(ent->ghoul2, 0, "*r_hand");
 		trap->G2API_AddBolt(ent->ghoul2, 0, "*l_hand");
@@ -2138,8 +2140,8 @@ void SetupGameGhoul2Model(gentity_t *ent, char *modelname, char *skinName)
 		//add some extra bolts for some of the NPC classes
 		if ( ent->client->NPC_class == CLASS_HOWLER )
 		{
-			ent->NPC->genericBolt1 = trap->G2API_AddBolt(&ent->ghoul2, 0, "Tongue01" );// tongue base
-			ent->NPC->genericBolt2 = trap->G2API_AddBolt(&ent->ghoul2, 0, "Tongue08" );// tongue tip
+			ent->NPC->genericBolt1 = trap->G2API_AddBolt(ent->ghoul2, 0, "Tongue01" );// tongue base
+			ent->NPC->genericBolt2 = trap->G2API_AddBolt(ent->ghoul2, 0, "Tongue08" );// tongue tip
 		}
 		//[/CoOp]
 	}

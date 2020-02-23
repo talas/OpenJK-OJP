@@ -382,6 +382,7 @@ void SP_NPC_Stormtrooper( gentity_t *self );
 void SP_NPC_StormtrooperOfficer( gentity_t *self );
 void SP_NPC_Snowtrooper( gentity_t *self);
 void SP_NPC_Tie_Pilot( gentity_t *self );
+void SP_NPC_RocketTrooper( gentity_t *self);
 void SP_NPC_Ugnaught( gentity_t *self );
 void SP_NPC_Jawa( gentity_t *self );
 void SP_NPC_Gran( gentity_t *self );
@@ -694,6 +695,7 @@ spawn_t	spawns[] = {
 	{ "npc_tavion",							SP_NPC_Tavion },
 	{ "npc_tavion_new",						SP_NPC_Tavion_New },
 	{ "npc_tie_pilot",						SP_NPC_Tie_Pilot },
+	{ "npc_rockettrooper",						SP_NPC_RocketTrooper },
 	{ "npc_trandoshan",						SP_NPC_Trandoshan },
 	{ "npc_tusken",							SP_NPC_Tusken },
 	{ "npc_ugnaught",						SP_NPC_Ugnaught },

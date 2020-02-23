@@ -831,10 +831,18 @@ void Boba_FlyStart( gentity_t *self )
 		}
 		self->client->ps.eFlags2 |= EF2_FLYING;//moveType = MT_FLYSWIM;
 		self->client->jetPackTime = level.time + Q_irand( 3000, 10000 );
+		if ( self->client->NPC_class == CLASS_ROCKETTROOPER )
+		{
+			self->client->jetPackTime = Q3_INFINITE;
+			self->client->ps.eFlags |= EF_JETPACK_ACTIVE;
+			//G_PlayBoltedEffect( G_EffectIndex( "rockettrooper/flameNEW.efx" ), self, "*jet1" );
+			//G_PlayBoltedEffect( G_EffectIndex( "rockettrooper/flameNEW.efx" ), self, "*jet2" );
+		}
 		//take-off sound
-		G_SoundOnEnt( self, CHAN_ITEM, "sound/boba/jeton.wav" );
+		G_SoundOnEnt( self, CHAN_ITEM, "sound/chars/boba/jeton.wav" );
 		//jet loop sound
-		self->s.loopSound = G_SoundIndex( "sound/boba/jethover.wav" );
+		self->s.loopSound = G_SoundIndex( "sound/chars/boba/jethover.wav" );
+
 		if ( self->NPC )
 		{
 			self->count = Q3_INFINITE; // SEEKER shot ammo count
@@ -850,6 +858,10 @@ void Boba_FlyStop( gentity_t *self )
 		self->NPC->aiFlags &= ~NPCAI_CUSTOM_GRAVITY;
 	}
 	self->client->ps.eFlags2 &= ~EF2_FLYING;
+	if ( self->client->NPC_class == CLASS_ROCKETTROOPER )
+	{
+		self->client->ps.eFlags &= ~EF_JETPACK_ACTIVE;
+	}
 	self->client->jetPackTime = 0;
 	//stop jet loop sound
 	self->s.loopSound = 0;
@@ -6976,6 +6988,122 @@ jump_unsafe:
 	//Com_Printf( "(%d) unsafe jump cleared\n", level.time );
 	NPCS.NPC->client->ps.fd.forceJumpCharge = 0;
 	NPCS.ucmd.upmove = 0;
+}
+
+extern qboolean NPC_TryJump3(const vec3_t pos, float max_xy_dist, float max_z_diff);
+void RT_CheckJump( void )
+{
+	int jumpEntNum = ENTITYNUM_NONE;
+	vec3_t	jumpPos = {0,0,0};
+
+	if ( !NPCS.NPCInfo->goalEntity )
+	{
+		if ( NPCS.NPC->enemy )
+		{
+			//FIXME: debounce this?
+			if ( TIMER_Done( NPCS.NPC, "roamTime" )
+				&& Q_irand( 0, 9 ) )
+			{//okay to try to find another spot to be
+				int cpFlags = (CP_CLEAR|CP_HAS_ROUTE);//must have a clear shot at enemy
+				float enemyDistSq = DistanceHorizontalSquared( NPCS.NPC->r.currentOrigin, NPCS.NPC->enemy->r.currentOrigin );
+				//FIXME: base these ranges on weapon
+				if ( enemyDistSq > (2048*2048) )
+				{//hmm, close in?
+					cpFlags |= CP_APPROACH_ENEMY;
+				}
+				else if ( enemyDistSq < (256*256) )
+				{//back off!
+					cpFlags |= CP_RETREAT;
+				}
+				int sendFlags = cpFlags;
+				int cp = NPC_FindCombatPointRetry( NPCS.NPC->r.currentOrigin,
+											NPCS.NPC->r.currentOrigin,
+											NPCS.NPC->r.currentOrigin,
+											&sendFlags,
+											256,
+											NPCS.NPCInfo->lastFailedCombatPoint );
+				if ( cp == -1 )
+				{//try again, no route needed since we can rocket-jump to it!
+					cpFlags &= ~CP_HAS_ROUTE;
+					cp = NPC_FindCombatPointRetry( NPCS.NPC->r.currentOrigin,
+												NPCS.NPC->r.currentOrigin,
+												NPCS.NPC->r.currentOrigin,
+												&cpFlags,
+												256,
+												NPCS.NPCInfo->lastFailedCombatPoint );
+				}
+				if ( cp != -1 )
+				{
+					NPC_SetMoveGoal( NPCS.NPC, level.combatPoints[cp].origin, 8, qtrue, cp, NULL );
+				}
+				else
+				{//FIXME: okay to do this if have good close-range weapon...
+					//FIXME: should we really try to go right for him?!
+					//NPCInfo->goalEntity = NPC->enemy;
+					jumpEntNum = NPCS.NPC->enemy->s.number;
+					VectorCopy( NPCS.NPC->enemy->r.currentOrigin, jumpPos );
+					//return;
+				}
+				TIMER_Set( NPCS.NPC, "roamTime", Q_irand( 3000, 12000 ) );
+			}
+			else
+			{//FIXME: okay to do this if have good close-range weapon...
+				//FIXME: should we really try to go right for him?!
+				//NPCInfo->goalEntity = NPC->enemy;
+				jumpEntNum = NPCS.NPC->enemy->s.number;
+				VectorCopy( NPCS.NPC->enemy->r.currentOrigin, jumpPos );
+				//return;
+			}
+		}
+		else
+		{
+			return;
+		}
+	}
+	else
+	{
+		jumpEntNum = NPCS.NPCInfo->goalEntity->s.number;
+		VectorCopy( NPCS.NPCInfo->goalEntity->r.currentOrigin, jumpPos );
+	}
+	vec3_t vec2Goal;
+	VectorSubtract( jumpPos, NPCS.NPC->r.currentOrigin, vec2Goal );
+	if ( fabs( vec2Goal[2] ) < 32 )
+	{//not a big height diff, see how far it is
+		vec2Goal[2] = 0;
+		if ( VectorLengthSquared( vec2Goal ) < (256*256) )
+		{//too close!  Don't rocket-jump to it...
+			return;
+		}
+	}
+	//If we can't get straight at him
+	if ( !Jedi_ClearPathToSpot( jumpPos, jumpEntNum ) )
+	{//hunt him down
+		if ( (NPC_ClearLOS4( NPCS.NPC->enemy )||NPCS.NPCInfo->enemyLastSeenTime>level.time-500)
+			&& InFOV3( jumpPos, NPCS.NPC->r.currentOrigin, NPCS.NPC->client->ps.viewangles, 20, 60 ) )
+		{
+			if ( NPC_TryJump3( jumpPos, 1200, -1000 ) )	// Rocket Trooper
+			{//just do the jetpack effect for a litte bit
+				return;
+			}
+		}
+
+		if ( Jedi_Hunt() && !(NPCS.NPCInfo->aiFlags&NPCAI_BLOCKED) )//FIXME: have to do this because they can ping-pong forever
+		{//can macro-navigate to him
+			return;
+		}
+		else
+		{//FIXME: try to find a waypoint that can see enemy, jump from there
+			/*
+			// 74145: Implement?
+			if ( STEER::HasBeenBlockedFor(NPC, 2000) )
+			{//try to jump to the blockedTargetPosition
+				if ( NPC_TryJump3(NPCInfo->blockedTargetPosition, 1200, -1000) )	// Rocket Trooper
+				{//just do the jetpack effect for a litte bit
+				}
+			}
+			*/
+		}
+	}
 }
 
 //[CoOp]

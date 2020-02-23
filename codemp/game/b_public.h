@@ -32,9 +32,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define NPCAI_PUSHED			0x00000010
 #define NPCAI_NO_COLL_AVOID		0x00000020
 #define NPCAI_BLOCKED			0x00000040
+#define NPCAI_SUBBOSS_CHARACTER	0x00000080	//Alora, tough reborn
 #define NPCAI_OFF_PATH			0x00000100
 #define NPCAI_IN_SQUADPOINT		0x00000200
 #define NPCAI_STRAIGHT_TO_DESTPOS	0x00000400
+#define NPCAI_HEAVY_MELEE		0x00000800	//4x melee damage, dismemberment
 #define NPCAI_NO_SLOWDOWN		0x00001000
 #define NPCAI_LOST				0x00002000	//Can't nav to his goal
 #define NPCAI_SHIELDS			0x00004000	//Has shields, borg can adapt
@@ -43,15 +45,20 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define NPCAI_ENROUTE_TO_HOMEWP 0x00020000	//Lets us know to run our lostenemyscript when we get to homeWp
 #define NPCAI_MATCHPLAYERWEAPON 0x00040000	//Match the player's weapon except when it changes during cinematics
 #define NPCAI_DIE_ON_IMPACT		0x00100000	//Next time you crashland, die!
-#define NPCAI_CUSTOM_GRAVITY	0x00200000	//Don't use g_gravity, I fly!
-//[CoOp]
-#define NPCAI_BOSS_CHARACTER	0x00400000	//Boss NPC flag for certain immunities/defenses
-#define NPCAI_ROSH				0x00800000	//Rosh has some special stuff that he alone does.
-#define NPCAI_HEAL_ROSH			0x01000000	//Constantly look for NPC with NPC_type of rosh_dark, follow him, heal him if needbe
-#define NPCAI_SUBBOSS_CHARACTER	0x02000000	//Alora, tough reborn
+#define NPCAI_WALKING			0x00200000
+#define NPCAI_STOP_AT_LOS		0x00400000	//Stop Running When We Hit LOS
+#define NPCAI_NAV_THROUGH_BREAKABLES	0x00800000	//Navigation allows connections through breakable (func_glass, func_breakable or misc_model_breakable)
+#define NPCAI_KNEEL				0x01000000  //Kneel befor Zod
+// 74145: is this supposed to be the same as fly?
+#define NPCAI_CUSTOM_GRAVITY	0x02000000	//Don't use g_gravity, I fly!
+#define NPCAI_FLY				0x02000000	//Fly, My Pretty!
+#define NPCAI_FLAMETHROW		0x04000000
 #define NPCAI_LOCKEDENEMY		0x04000000	//keep current enemy until dead
-#define NPCAI_STOP_AT_LOS		0x08000000	//Stop Running When We Hit LOS
-											//don't move away from an enemy if we see them
+#define NPCAI_ROSH				0x08000000	//I am Rosh, when I'm hurt, drop to one knee and wait for Vil or Dasariah to heal me
+#define NPCAI_HEAL_ROSH			0x10000000	//Constantly look for NPC with NPC_type of rosh_dark, follow him, heal him if needbe
+#define NPCAI_JUMP				0x20000000	//Jump Now
+#define NPCAI_BOSS_CHARACTER	0x40000000	//Boss NPC flag for certain immunities/defenses
+#define NPCAI_NO_JEDI_DELAY		0x80000000	//Reborn/Jedi don't taunt enemy before attacking											//don't move away from an enemy if we see them
 //[/CoOp]
 
 //Script flags

@@ -69,6 +69,13 @@ extern int eventClearTime;
 
 void CorpsePhysics( gentity_t *self )
 {
+	if ( self->client->NPC_class == CLASS_ROCKETTROOPER && (self->NPC->aiFlags & NPCAI_FLY) )
+	{ // 74145: make them drop down on death
+		self->client->jetPackTime = 0;
+		self->client->ps.eFlags &= ~EF_JETPACK_ACTIVE;
+		self->NPC->aiFlags &= ~NPCAI_FLY;
+		self->client->ps.velocity[2] = -g_gravity.value/4.0f;
+	}
 	// run the bot through the server like it was a real client
 	memset( &NPCS.ucmd, 0, sizeof( NPCS.ucmd ) );
 	ClientThink( self->s.number, &NPCS.ucmd );
@@ -1709,6 +1716,8 @@ NPC_RunBehavior
 extern void NPC_BSEmplaced( void );
 extern qboolean NPC_CheckSurrender( void );
 extern void Boba_FlyStop( gentity_t *self );
+extern qboolean RT_Flying( gentity_t *self );
+extern void NPC_BSRT_Default( void );
 //[CoOp]
 extern void BubbleShield_Update(void);
 extern void NPC_BSSD_Default( void );
@@ -1805,7 +1814,7 @@ void NPC_RunBehavior( int team, int bState )
 		}
 		dontSetAim = qtrue;
 	}
-	// RAFIXME - impliment 
+	*/
 	else if ( NPCS.NPC->client->NPC_class == CLASS_ROCKETTROOPER )
 	{//bounty hunter
 		//RACC - actually, isn't this a rocket trooper?!
@@ -1819,7 +1828,6 @@ void NPC_RunBehavior( int team, int bState )
 		}
 		G_CheckCharmed( NPCS.NPC );
 	}
-	*/
 	else if ( NPCS.NPC->client->NPC_class == CLASS_RANCOR )
 	{
 		NPC_BehaviorSet_Rancor( bState );
