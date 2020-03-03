@@ -534,6 +534,7 @@ typedef struct centity_s {
 	//keeps track of everyone's weapon loadout so they are be displayed
 	int				weapons;
 	//[/VisualWeapons]
+	qhandle_t			md3Model;
 } centity_t;
 
 

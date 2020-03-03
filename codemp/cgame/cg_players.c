@@ -11268,6 +11268,11 @@ void CG_G2AnimEntModelLoad(centity_t *cent)
             trap->G2API_CleanGhoul2Models(&cent->ghoul2);
 		}
 
+		if (strstr(modelName, "lower.md3"))
+		{ // Looks like an md3 model..
+			cent->md3Model = trap->R_RegisterModel(modelName);
+		}
+
 		trap->G2API_InitGhoul2Model(&cent->ghoul2, modelName, 0, skinID, 0, 0, 0);
 
 		if (cent->ghoul2)
@@ -14709,7 +14714,11 @@ void CG_Player( centity_t *cent ) {
 
 	memset (&legs, 0, sizeof(legs));
 
-	CG_SetGhoul2Info(&legs, cent);
+	if (cent->md3Model) {
+		legs.hModel = cent->md3Model;
+	}
+	else
+		CG_SetGhoul2Info(&legs, cent);
 
 	VectorCopy(cent->modelScale, legs.modelScale);
 	legs.radius = CG_RadiusForCent( cent );
