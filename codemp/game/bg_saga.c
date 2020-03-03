@@ -214,7 +214,16 @@ char *BG_GetNextValueGroup(char *inbuf, char *outbuf)
 
 	while ( inbuf[i] && inbuf[i] != '{' )
 	{//advance to start of value group
-		i++;
+		if (inbuf[i] == '/' &&
+		    inbuf[i+1] == '/')
+		{ //skip over this comment
+			while (inbuf[i] && inbuf[i] != '\n' && inbuf[i] != '\r')
+			{
+				i++;
+			}
+		}
+		else
+			i++;
 	}
 
 	if(!inbuf[i])
@@ -257,7 +266,7 @@ char *BG_GetNextValueGroup(char *inbuf, char *outbuf)
 	BG_SiegeStripTabs(outbuf);
 
 	//slide the buffer pointer to the end of this define group.
-	inbuf++;
+	i++;
 	inbuf = &inbuf[i];
 
 	return inbuf;

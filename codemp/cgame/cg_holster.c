@@ -165,7 +165,7 @@ void CG_LoadHolsterData (clientInfo_t *ci)
 	//use the default values
 
 	int				i;
-	fileHandle_t	f;
+	fileHandle_t			f = 0;
 	int				fLen = 0;
 	char			fileBuffer[MAX_HOLSTER_INFO_SIZE];
 	char			holsterTypeValue[MAX_QPATH];
@@ -175,27 +175,17 @@ void CG_LoadHolsterData (clientInfo_t *ci)
 
 	InitHolsterData(ci);
 
-	if ( !ci->skinName || !Q_stricmp( "default", ci->skinName ) )
-	{//try default holster.cfg first
-		fLen = trap->FS_Open(va("models/players/%s/holster.cfg", ci->modelName), &f, FS_READ);
-
-		if( !f )
-		{//no file, use kyle's then.
-			fLen = trap->FS_Open("models/players/kyle/holster.cfg", &f, FS_READ);
-		}
-	}
-	else
+	if (ci->skinName && !!Q_stricmp( "default", ci->skinName ))
 	{//use the holster.cfg associated with this skin
 		fLen = trap->FS_Open(va("models/players/%s/holster_%s.cfg", ci->modelName, ci->skinName), &f, FS_READ);
-		if ( !f )
-		{//fall back to default holster.cfg
-			fLen = trap->FS_Open(va("models/players/%s/holster.cfg", ci->modelName), &f, FS_READ);
-		}
-
-		if( !f )
-		{//still no dice, use kyle's then.
-			fLen = trap->FS_Open("models/players/kyle/holster.cfg", &f, FS_READ);
-		}
+	}
+	if ( !f )
+	{//fall back to default holster.cfg
+		fLen = trap->FS_Open(va("models/players/%s/holster.cfg", ci->modelName), &f, FS_READ);
+	}
+	if ( !f )
+	{//still no dice, use kyle's then.
+		fLen = trap->FS_Open("models/players/kyle/holster.cfg", &f, FS_READ);
 	}
 
 	if ( !f || !fLen )
@@ -211,9 +201,8 @@ void CG_LoadHolsterData (clientInfo_t *ci)
 	}
 
 	trap->FS_Read(fileBuffer, fLen, f);
-
+	fileBuffer[fLen] = 0;
 	trap->FS_Close( f );
-
 	s = fileBuffer;
 
 	//parse file
