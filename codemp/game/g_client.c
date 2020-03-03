@@ -1985,7 +1985,7 @@ void SetupGameGhoul2Model(gentity_t *ent, char *modelname, char *skinName)
 
 	if (!BGPAFtextLoaded)
 	{
-		if (BG_ParseAnimationFile("models/players/_humanoid/animation.cfg", bgHumanoidAnimations, qtrue) == -1)
+		if (BG_ParseAnimationFile(0, "models/players/_humanoid/animation.cfg", bgHumanoidAnimations, qtrue) == -1)
 		{
 			Com_Printf( "Failed to load humanoid animation file\n");
 			return;
@@ -2007,8 +2007,7 @@ void SetupGameGhoul2Model(gentity_t *ent, char *modelname, char *skinName)
 			if ( slash )
 			{
 				strcpy(slash, "/animation.cfg");
-
-				ent->localAnimIndex = BG_ParseAnimationFile(GLAName, NULL, qfalse);
+				ent->localAnimIndex = BG_ParseAnimationFile(0, GLAName, NULL, qfalse);
 			}
 		}
 		else
@@ -3207,9 +3206,7 @@ void G_UpdateClientAnims(gentity_t *self, float animSpeedScale)
 
 		aFlags |= BONE_ANIM_BLEND; //since client defaults to blend. Not sure if this will make much difference if any on server position, but it's here just for the sake of matching them.
 
-		//[NewGLA]
-		//G2API_SetAnimIndex(self->ghoul2, bgAllAnims[self->localAnimIndex].anims[legsAnim].glaIndex);
-		//[/NewGLA]
+		trap->G2API_SetAnimIndex(self->ghoul2, 0, bgAllAnims[self->localAnimIndex].anims[legsAnim].glaIndex);
 		trap->G2API_SetBoneAnim(self->ghoul2, 0, "model_root", firstFrame, lastFrame, aFlags, lAnimSpeedScale, level.time, -1, 150);
 		self->client->legsAnimExecute = legsAnim;
 		self->client->legsLastFlip = self->client->ps.legsFlip;
@@ -3266,6 +3263,7 @@ tryTorso:
 			lastFrame = bgAllAnims[self->localAnimIndex].anims[f].firstFrame + bgAllAnims[self->localAnimIndex].anims[f].numFrames;
 		}
 
+		trap->G2API_SetAnimIndex(self->ghoul2, 0, bgAllAnims[self->localAnimIndex].anims[f].glaIndex);
 		trap->G2API_SetBoneAnim(self->ghoul2, 0, "lower_lumbar", firstFrame, lastFrame, aFlags, lAnimSpeedScale, level.time, /*firstFrame why was it this before?*/-1, 150);
 
 		self->client->torsoAnimExecute = torsoAnim;

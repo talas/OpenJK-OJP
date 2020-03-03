@@ -535,6 +535,16 @@ static void CL_G2API_CleanGhoul2Models( void **ghoul2Ptr ) {
 	re->G2API_CleanGhoul2Models( (CGhoul2Info_v **)ghoul2Ptr );
 }
 
+static int CL_G2API_GetAnimIndex( void *ghoul2, int modelIndex ) {
+	if ( !ghoul2 ) return 0;
+	return re->G2API_GetAnimIndex( *((CGhoul2Info_v *)ghoul2), modelIndex );
+}
+
+static qboolean CL_G2API_SetAnimIndex( void *ghoul2, int modelIndex, const int index ) {
+	if ( !ghoul2 ) return qfalse;
+	return re->G2API_SetAnimIndex( *((CGhoul2Info_v *)ghoul2), modelIndex, index );
+}
+
 static qboolean CL_G2API_SetBoneAngles( void *ghoul2, int modelIndex, const char *boneName, const vec3_t angles, const int flags, const int up, const int right, const int forward, qhandle_t *modelList, int blendTime , int currentTime ) {
 	if ( !ghoul2 ) return qfalse;
 	return re->G2API_SetBoneAngles( *((CGhoul2Info_v *)ghoul2), modelIndex, boneName, angles, flags, (const Eorientations)up, (const Eorientations)right, (const Eorientations)forward, modelList, blendTime , currentTime );
@@ -1518,6 +1528,12 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 		CL_G2API_CleanGhoul2Models( (void **)VMA(1) );
 		return 0;
 
+	case CG_G2_GETANIMINDEX:
+		return CL_G2API_GetAnimIndex(VMA(1), args[2]);
+
+	case CG_G2_SETANIMINDEX:
+		return CL_G2API_SetAnimIndex(VMA(1), args[2], args[3]);
+
 	case CG_G2_PLAYANIM:
 		return CL_G2API_SetBoneAnim( VMA(1), args[2], (const char *)VMA(3), args[4], args[5], args[6], VMF(7), args[8], VMF(9), args[10] );
 
@@ -1867,6 +1883,8 @@ void CL_BindCGame( void ) {
 		cgi.G2API_CollisionDetect				= CL_G2API_CollisionDetect;
 		cgi.G2API_CollisionDetectCache			= CL_G2API_CollisionDetectCache;
 		cgi.G2API_CleanGhoul2Models				= CL_G2API_CleanGhoul2Models;
+		cgi.G2API_GetAnimIndex					= CL_G2API_GetAnimIndex;
+		cgi.G2API_SetAnimIndex					= CL_G2API_SetAnimIndex;
 		cgi.G2API_SetBoneAngles					= CL_G2API_SetBoneAngles;
 		cgi.G2API_SetBoneAnim					= CL_G2API_SetBoneAnim;
 		cgi.G2API_GetBoneAnim					= CL_G2API_GetBoneAnim;

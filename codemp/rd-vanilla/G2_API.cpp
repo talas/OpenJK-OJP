@@ -1195,6 +1195,44 @@ qboolean G2API_DoesBoneExist(CGhoul2Info_v& ghoul2, int modelIndex, const char *
 #define		GHOUL2_RAG_FORCESOLVE					0x1000		//api-override, determine if ragdoll should be forced to continue solving even if it thinks it is settled
 //rww - RAGDOLL_END
 
+int G2API_GetAnimIndex(CGhoul2Info_v &ghoul2, const int modelIndex)
+{
+	if (ghoul2.size() > modelIndex)
+	{
+		CGhoul2Info *ghlInfo = &ghoul2[modelIndex];
+		if (ghlInfo)
+		{
+			return ghlInfo->animModelIndexOffset;
+		}
+	}
+	return 0;
+}
+
+qboolean G2API_SetAnimIndex(CGhoul2Info_v &ghoul2, const int modelIndex, const int index)
+{
+	if (ghoul2.size() > modelIndex)
+	{
+		CGhoul2Info *ghlInfo = &ghoul2[modelIndex];
+
+		if (ghlInfo)
+		{
+			if (ghlInfo->animModelIndexOffset != index)
+			{
+				ghlInfo->animModelIndexOffset = index;
+				ghlInfo->currentAnimModelSize = 0;
+
+				for (size_t i=0; i < ghlInfo->mBlist.size(); i++)
+				{
+					ghlInfo->mBlist[i].flags &= ~(BONE_ANIM_TOTAL);
+					ghlInfo->mBlist[i].flags &= ~(BONE_ANGLES_TOTAL);
+				}
+			}
+			return qtrue;
+		}
+	}
+	return qfalse;
+}
+
 qboolean G2API_SetBoneAnimIndex(CGhoul2Info *ghlInfo, const int index, const int AstartFrame, const int AendFrame, const int flags, const float animSpeed, const int currentTime, const float AsetFrame, const int blendTime)
 {
 	qboolean setPtrs = qfalse;
@@ -2842,7 +2880,7 @@ qboolean G2_TestModelPointers(CGhoul2Info *ghlInfo) // returns true if the model
 					}
 				}
 				ghlInfo->currentModelSize=ghlInfo->currentModel->mdxm->ofsEnd;
-				ghlInfo->animModel = R_GetModelByHandle(ghlInfo->currentModel->mdxm->animIndex);
+				ghlInfo->animModel = R_GetModelByHandle(ghlInfo->currentModel->mdxm->animIndex + ghlInfo->animModelIndexOffset);
 				if (ghlInfo->animModel)
 				{
 					ghlInfo->aHeader =ghlInfo->animModel->mdxa;
@@ -2939,7 +2977,7 @@ qboolean G2_SetupModelPointers(CGhoul2Info *ghlInfo) // returns true if the mode
 				ghlInfo->currentModelSize=ghlInfo->currentModel->mdxm->ofsEnd;
 				G2ERROR(ghlInfo->currentModelSize,va("Zero sized Model? (glm) %s",ghlInfo->mFileName));
 
-				ghlInfo->animModel = R_GetModelByHandle(ghlInfo->currentModel->mdxm->animIndex);
+				ghlInfo->animModel = R_GetModelByHandle(ghlInfo->currentModel->mdxm->animIndex + ghlInfo->animModelIndexOffset);
 				G2ERROR(ghlInfo->animModel,va("NULL Model (gla) %s",ghlInfo->mFileName));
 				if (ghlInfo->animModel)
 				{

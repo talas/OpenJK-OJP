@@ -211,6 +211,9 @@ typedef struct refexport_s {
 	qboolean			(*G2API_RemoveSurface)					( CGhoul2Info *ghlInfo, const int index );
 	void				(*G2API_ResetRagDoll)					( CGhoul2Info_v &ghoul2 );
 	qboolean			(*G2API_SaveGhoul2Models)				( CGhoul2Info_v &ghoul2, char **buffer, int *size );
+	int				(*G2API_GetAnimIndex)					( CGhoul2Info_v &ghoul2, int modelIndex );
+	qboolean			(*G2API_SetAnimIndex)					( CGhoul2Info_v &ghoul2, int modelIndex, const int index );
+
 	void				(*G2API_SetBoltInfo)					( CGhoul2Info_v &ghoul2, int modelIndex, int boltInfo );
 	qboolean			(*G2API_SetBoneAngles)					( CGhoul2Info_v &ghoul2, const int modelIndex, const char *boneName, const vec3_t angles, const int flags, const Eorientations up, const Eorientations left, const Eorientations forward, qhandle_t *modelList, int blendTime, int currentTime  );
 	qboolean			(*G2API_SetBoneAnglesIndex)				( CGhoul2Info *ghlInfo, const int index, const vec3_t angles, const int flags, const Eorientations yaw, const Eorientations pitch, const Eorientations roll, qhandle_t *modelList, int blendTime, int currentTime );

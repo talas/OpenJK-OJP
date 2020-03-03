@@ -1012,6 +1012,7 @@ static void CG_General( centity_t *cent ) {
 			cent->currentState.legsAnim != cent->pe.legs.animationNumber ||
 			cent->currentState.torsoFlip != cent->pe.torso.lastFlip)
 		{
+			trap->G2API_SetAnimIndex(cent->ghoul2, 0, bgAllAnims[cent->localAnimIndex].anims[cent->currentState.legsAnim].glaIndex);
 			trap->G2API_SetBoneAnim(cent->ghoul2, 0, "model_root", cent->currentState.torsoAnim,
 				cent->currentState.legsAnim, (BONE_ANIM_OVERRIDE_FREEZE|BONE_ANIM_BLEND), 1.0f, cg.time, -1, 100);
 

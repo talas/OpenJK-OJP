@@ -189,6 +189,7 @@ typedef enum uiImportLegacy_e {
 	UI_G2_COLLISIONDETECT,
 	UI_G2_COLLISIONDETECTCACHE,
 	UI_G2_CLEANMODELS,
+	UI_G2_SETANIMINDEX,
 	UI_G2_ANGLEOVERRIDE,
 	UI_G2_PLAYANIM,
 	UI_G2_GETBONEANIM,
@@ -350,6 +351,7 @@ typedef struct uiImport_s {
 	void			(*G2API_CollisionDetect)				( CollisionRecord_t *collRecMap, void* ghoul2, const vec3_t angles, const vec3_t position, int frameNumber, int entNum, vec3_t rayStart, vec3_t rayEnd, vec3_t scale, int traceFlags, int useLod, float fRadius );
 	void			(*G2API_CollisionDetectCache)			( CollisionRecord_t *collRecMap, void* ghoul2, const vec3_t angles, const vec3_t position, int frameNumber, int entNum, vec3_t rayStart, vec3_t rayEnd, vec3_t scale, int traceFlags, int useLod, float fRadius );
 	void			(*G2API_CleanGhoul2Models)				( void **ghoul2Ptr );
+	qboolean		(*G2API_SetAnimIndex)					( void *ghoul2, int modelIndex, const int index );
 	qboolean		(*G2API_SetBoneAngles)					( void *ghoul2, int modelIndex, const char *boneName, const vec3_t angles, const int flags, const int up, const int right, const int forward, qhandle_t *modelList, int blendTime , int currentTime );
 	qboolean		(*G2API_SetBoneAnim)					( void *ghoul2, const int modelIndex, const char *boneName, const int startFrame, const int endFrame, const int flags, const float animSpeed, const int currentTime, const float setFrame, const int blendTime );
 	qboolean		(*G2API_GetBoneAnim)					( void *ghoul2, const char *boneName, const int currentTime, float *currentFrame, int *startFrame, int *endFrame, int *flags, float *animSpeed, int *modelList, const int modelIndex );

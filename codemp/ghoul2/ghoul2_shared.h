@@ -255,6 +255,7 @@ public:
 	boneInfo_v		mBlist;
 // save from here
 	int				mModelindex;
+	int				animModelIndexOffset;
 	qhandle_t		mCustomShader;
 	qhandle_t		mCustomSkin;
 	int				mModelBoltLink;
@@ -290,6 +291,7 @@ public:
 
 	CGhoul2Info():
 	mModelindex(-1),
+	animModelIndexOffset(0),
 	mCustomShader(0),
 	mCustomSkin(0),
 	mModelBoltLink(0),

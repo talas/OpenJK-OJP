@@ -2141,7 +2141,7 @@ int CheckAnimFrameForEventType( animevent_t *animEvents, int keyFrame, animEvent
 	return -1;
 }
 
-void ParseAnimationEvtBlock(const char *aeb_filename, animevent_t *animEvents, animation_t *animations, int *i,const char **text_p)
+void ParseAnimationEvtBlock(const int glaindex, const char *aeb_filename, animevent_t *animEvents, animation_t *animations, int *i,const char **text_p)
 {
 	const char		*token;
 	int				num, n, animNum, keyFrame, lowestVal, highestVal, curAnimEvent, lastAnimEvent = 0;
@@ -2194,6 +2194,7 @@ void ParseAnimationEvtBlock(const char *aeb_filename, animevent_t *animEvents, a
 				curAnimEvent = lastAnimEvent;
 			}
 			animEvents[curAnimEvent].eventType = AEV_AMBIENT;
+			animEvents[curAnimEvent].glaIndex = glaindex;
 
 			//Lets grab the time intervals
 			token = COM_Parse( text_p );
@@ -2383,6 +2384,7 @@ void ParseAnimationEvtBlock(const char *aeb_filename, animevent_t *animEvents, a
 		//now that we know which event index we're going to plug the data into, start doing it
 		animEvents[curAnimEvent].eventType = eventType;
 		animEvents[curAnimEvent].keyFrame = keyFrame;
+		animEvents[curAnimEvent].glaIndex = glaindex;
 
 		//now read out the proper data based on the type
 		switch ( animEvents[curAnimEvent].eventType )
@@ -2645,7 +2647,7 @@ This file's presence is not required
 bgLoadedEvents_t bgAllEvents[MAX_ANIM_FILES];
 int bgNumAnimEvents = 1;
 static int bg_animParseIncluding = 0;
-int BG_ParseAnimationEvtFile( const char *as_filename, int animFileIndex, int eventFileIndex )
+int BG_ParseAnimationEvtFile( const int glaindex, const char *as_filename, int animFileIndex, int eventFileIndex )
 {
 	const char	*text_p;
 	int			len;
@@ -2732,6 +2734,8 @@ trybaseskel:
 			torsoAnimEvents[i].ambrandom = 0;
 			legsAnimEvents[i].ambrandom = 0;
 			//[/AMBIENTEV]
+			torsoAnimEvents[i].glaIndex = 0;
+			legsAnimEvents[i].glaIndex = 0;
 		}
 	}
 
@@ -2739,7 +2743,7 @@ trybaseskel:
 	len = trap->FS_Open( sfilename, &f, FS_READ );
 	if ( len <= 0 )
 	{//no file
-		if( !triedbaseskelevents )
+		if( !triedbaseskelevents && bg_animParseIncluding <= 0 && glaindex == 0 )
 		{//ok let's try using the base animevents for this model's skeleton.
 			char	SkelName[MAX_QPATH];
 			char	*slash = NULL;
@@ -2802,23 +2806,36 @@ trybaseskel:
 				char fullIPath[MAX_QPATH];
 				strcpy(fullIPath, va("models/players/%s/", include_filename));
 				bg_animParseIncluding++;
-				BG_ParseAnimationEvtFile( fullIPath, animFileIndex, forcedIndex );
+				BG_ParseAnimationEvtFile( glaindex, fullIPath, animFileIndex, forcedIndex );
 				bg_animParseIncluding--;
 			}
 		}
 
 		if ( !Q_stricmp(token,"UPPEREVENTS") )	// A batch of upper sounds
 		{
-			ParseAnimationEvtBlock( as_filename, torsoAnimEvents, animations, &upper_i, &text_p );
+			ParseAnimationEvtBlock( glaindex, as_filename, torsoAnimEvents, animations, &upper_i, &text_p );
 		}
 
 		else if ( !Q_stricmp(token,"LOWEREVENTS") )	// A batch of lower sounds
 		{
-			ParseAnimationEvtBlock( as_filename, legsAnimEvents, animations, &lower_i, &text_p );
+			ParseAnimationEvtBlock( glaindex, as_filename, legsAnimEvents, animations, &lower_i, &text_p );
 		}
 	}
 
 	usedIndex = forcedIndex;
+
+	if (usedIndex == 0 && bg_animParseIncluding <= 0 && glaindex == 0)
+	{ // check for cinematic gla
+		char	buf[128];
+		trap->Cvar_VariableStringBuffer("mapname", buf, sizeof(buf));
+		if (strcmp(buf, "nomap") )
+		{
+			bg_animParseIncluding++;
+			BG_ParseAnimationEvtFile( 1, va("models/players/_humanoid_%s/", buf), animFileIndex, forcedIndex );
+			bg_animParseIncluding--;
+		}
+	}
+
 fin:
 	//Mark this anim set so that we know we tried to load he sounds, don't care if the load failed
 	if (bg_animParseIncluding <= 0)
@@ -2844,7 +2861,7 @@ models/players/visor/animation.cfg, etc
 
 ======================
 */
-int BG_ParseAnimationFile(const char *filename, animation_t *animset, qboolean isHumanoid)
+int BG_ParseAnimationFile(const int glaindex, const char *filename, animation_t *animset, qboolean isHumanoid)
 {
 	char		*text_p;
 	int			len;
@@ -2855,11 +2872,7 @@ int BG_ParseAnimationFile(const char *filename, animation_t *animset, qboolean i
 	int			nextIndex = bgNumAllAnims;
 	qboolean	dynAlloc = qfalse;
 	///qboolean	wasLoaded = qfalse;
-	static char BGPAFtext[60000];
-
-	//[NewGLA]
-	//int			glaindex = 0;
-	//[/NewGLA]
+	static char BGPAFtext[80000]; // 60000
 	fileHandle_t	f;
 	int				animNum;
 
@@ -2911,15 +2924,6 @@ int BG_ParseAnimationFile(const char *filename, animation_t *animset, qboolean i
 			}
 		}
 	}
-	//[newGLA]
-	//the this isn't the primary gla cfg for the player, use the second index
-	/*
-	else if(BGPAFtextLoaded)
-	{
-		glaindex = 1;
-	}
-	*/
-	//[/NewGLA]
 #ifdef _DEBUG
 	else
 	{
@@ -2928,11 +2932,7 @@ int BG_ParseAnimationFile(const char *filename, animation_t *animset, qboolean i
 #endif
 
 	// load the file
-	//[NewGLA]
-	//you're now allowed to load multiple GLAs for the humanoid set.
-	//if (1)
-	//[/NewGLA]
-	if (!BGPAFtextLoaded || !isHumanoid)
+	if (!BGPAFtextLoaded || !isHumanoid || glaindex > 0)
 	{ //rww - We are always using the same animation config now. So only load it once.
 		len = trap->FS_Open( filename, &f, FS_READ );
 		if ( (len <= 0) || (len >= sizeof( BGPAFtext ) - 1) )
@@ -2970,23 +2970,17 @@ int BG_ParseAnimationFile(const char *filename, animation_t *animset, qboolean i
 	//FIXME: have some way of playing anims backwards... negative numFrames?
 
 	//initialize anim array so that from 0 to MAX_ANIMATIONS, set default values of 0 1 0 100
-//[NewGLA]
-//don't reinit the player's animations after you add the main file
-//RAFIXME - this is a total hack
-//if(!isHumanoid || !BGPAFtextLoaded)
-{
-	for(i = 0; i < MAX_ANIMATIONS; i++)
+	if (glaindex == 0)
 	{
-		animset[i].firstFrame = 0;
-		animset[i].numFrames = 0;
-		animset[i].loopFrames = -1;
-		animset[i].frameLerp = 100;
-		//[NewGLA]
-		//animset[i].glaIndex = 0;
-		//[/NewGLA]
+		for(i = 0; i < MAX_ANIMATIONS; i++)
+		{
+			animset[i].firstFrame = 0;
+			animset[i].numFrames = 0;
+			animset[i].loopFrames = -1;
+			animset[i].frameLerp = 100;
+			animset[i].glaIndex = 0;
+		}
 	}
-}
-//[/NewGLA]
 
 	// read information for each frame
 	while(1)
@@ -3021,6 +3015,8 @@ int BG_ParseAnimationFile(const char *filename, animation_t *animset, qboolean i
 			break;
 		}
 		animset[animNum].firstFrame = atoi( token );
+
+		animset[animNum].glaIndex = glaindex;
 
 		token = COM_Parse( (const char **)(&text_p) );
 		if ( !token[0] ) //[TicketFix143] 
@@ -3071,11 +3067,6 @@ int BG_ParseAnimationFile(const char *filename, animation_t *animset, qboolean i
 #endif // _DEBUG
 */
 
-	//[NewGLA]
-	//set the glaindex
-	//animset[animNum].glaIndex = glaindex;
-	//[/NewGLA]
-
 #ifdef CONVENIENT_ANIMATION_FILE_DEBUG_THING
 	SpewDebugStuffToFile();
 #endif
@@ -3085,10 +3076,7 @@ int BG_ParseAnimationFile(const char *filename, animation_t *animset, qboolean i
 	if (isHumanoid)
 	{
 		bgAllAnims[0].anims = animset;
-		//[NewGLA]
-		//only copy name on main gla
-		//if(!BGPAFtextLoaded)
-		//[/NewGLA]
+		if (glaindex == 0)
 		{
 			strcpy(bgAllAnims[0].filename, filename);
 		}
@@ -3114,13 +3102,27 @@ int BG_ParseAnimationFile(const char *filename, animation_t *animset, qboolean i
 		}
 	}
 
+	if (usedIndex == 0 && glaindex == 0)
+	{ // check for cinematic gla
+		char	buf[128];
+		trap->Cvar_VariableStringBuffer("mapname", buf, sizeof(buf));
+		if (strcmp(buf, "nomap") )
+		{
+			int idx = BG_ParseAnimationFile(1, va("models/players/_humanoid_%s/animation.cfg", buf),
+							animset, qtrue);
+			if (idx > 0) {
+				assert(idx == usedIndex+1);
+			}
+		}
+	}
+
 	/*
 	if (!wasLoaded && BGPAFtextLoaded)
 	{ //just loaded humanoid skel - we always want the rockettrooper to be after it, in slot 1
 #ifdef _DEBUG
-		assert(BG_ParseAnimationFile("models/players/rockettrooper/animation.cfg", NULL, qfalse) == 1);
+		assert(BG_ParseAnimationFile(0, "models/players/rockettrooper/animation.cfg", NULL, qfalse) == 1);
 #else
-		BG_ParseAnimationFile("models/players/rockettrooper/animation.cfg", NULL, qfalse);
+		BG_ParseAnimationFile(0, "models/players/rockettrooper/animation.cfg", NULL, qfalse);
 #endif
 	}
 	*/

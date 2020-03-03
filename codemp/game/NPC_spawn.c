@@ -2570,7 +2570,7 @@ qboolean NPC_VehiclePrecache( gentity_t *spawner )
 				{
 					strcpy(slash, "/animation.cfg");
 
-					BG_ParseAnimationFile(GLAName, NULL, qfalse);
+					BG_ParseAnimationFile(0, GLAName, NULL, qfalse);
 				}
 			}
 			trap->G2API_CleanGhoul2Models(&tempG2);

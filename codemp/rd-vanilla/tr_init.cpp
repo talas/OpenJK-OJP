@@ -2106,6 +2106,8 @@ Q_EXPORT refexport_t* QDECL GetRefAPI( int apiVersion, refimport_t *rimp ) {
 	re.G2API_ResetRagDoll					= G2API_ResetRagDoll;
 	re.G2API_SaveGhoul2Models				= G2API_SaveGhoul2Models;
 	re.G2API_SetBoltInfo					= G2API_SetBoltInfo;
+	re.G2API_GetAnimIndex					= G2API_GetAnimIndex;
+	re.G2API_SetAnimIndex					= G2API_SetAnimIndex;
 	re.G2API_SetBoneAngles					= G2API_SetBoneAngles;
 	re.G2API_SetBoneAnglesIndex				= G2API_SetBoneAnglesIndex;
 	re.G2API_SetBoneAnglesMatrix			= G2API_SetBoneAnglesMatrix;

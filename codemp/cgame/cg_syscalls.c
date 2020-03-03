@@ -554,6 +554,12 @@ void trap_G2API_CollisionDetectCache ( CollisionRecord_t *collRecMap, void* ghou
 void trap_G2API_CleanGhoul2Models(void **ghoul2Ptr) {
 	Q_syscall(CG_G2_CLEANMODELS, ghoul2Ptr);
 }
+int trap_G2API_GetAnimIndex ( void *ghoul2, int modelIndex ) {
+	return Q_syscall(CG_G2_GETANIMINDEX, ghoul2, modelIndex);
+}
+qboolean trap_G2API_SetAnimIndex ( void *ghoul2, int modelIndex, const int index ) {
+	return Q_syscall(CG_G2_SETANIMINDEX, ghoul2, modelIndex, index);
+}
 qboolean trap_G2API_SetBoneAngles(void *ghoul2, int modelIndex, const char *boneName, const vec3_t angles, const int flags, const int up, const int right, const int forward, qhandle_t *modelList, int blendTime , int currentTime ) {
 	return (Q_syscall(CG_G2_ANGLEOVERRIDE, ghoul2, modelIndex, boneName, angles, flags, up, right, forward, modelList, blendTime, currentTime));
 }
@@ -900,6 +906,8 @@ static void TranslateSyscalls( void ) {
 	trap->G2API_CollisionDetect				= CGSyscall_G2API_CollisionDetect;
 	trap->G2API_CollisionDetectCache		= CGSyscall_G2API_CollisionDetect;
 	trap->G2API_CleanGhoul2Models			= trap_G2API_CleanGhoul2Models;
+	trap->G2API_GetAnimIndex				= trap_G2API_GetAnimIndex;
+	trap->G2API_SetAnimIndex				= trap_G2API_SetAnimIndex;
 	trap->G2API_SetBoneAngles				= trap_G2API_SetBoneAngles;
 	trap->G2API_SetBoneAnim					= trap_G2API_SetBoneAnim;
 	trap->G2API_GetBoneAnim					= trap_G2API_GetBoneAnim;

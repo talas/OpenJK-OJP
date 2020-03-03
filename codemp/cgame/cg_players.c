@@ -593,16 +593,16 @@ retryModel:
 			Com_Printf( "Model does not use supported animation config.\n");
 			return qfalse;
 		}
-		else if (BG_ParseAnimationFile("models/players/_humanoid/animation.cfg", bgHumanoidAnimations, qtrue) == -1)
+		else if (BG_ParseAnimationFile(0, "models/players/_humanoid/animation.cfg", bgHumanoidAnimations, qtrue) == -1)
 		{
 			Com_Printf( "Failed to load animation file models/players/_humanoid/animation.cfg\n" );
 			return qfalse;
 		}
 
-		BG_ParseAnimationEvtFile( "models/players/_humanoid/", 0, -1 ); //get the sounds for the humanoid anims
+		BG_ParseAnimationEvtFile( 0, "models/players/_humanoid/", 0, -1 ); //get the sounds for the humanoid anims
 //		if (cgs.gametype == GT_SIEGE)
 //		{
-//			BG_ParseAnimationEvtFile( "models/players/rockettrooper/", 1, 1 ); //parse rockettrooper too
+//			BG_ParseAnimationEvtFile( 0, "models/players/rockettrooper/", 1, 1 ); //parse rockettrooper too
 //		}
 		//For the time being, we're going to have all real players use the generic humanoid soundset and that's it.
 		//Only npc's will use model-specific soundsets.
@@ -611,10 +611,10 @@ retryModel:
 	}
 	else if (!bgAllEvents[0].eventsParsed)
 	{ //make sure the player anim sounds are loaded even if the anims already are
-		BG_ParseAnimationEvtFile( "models/players/_humanoid/", 0, -1 );
+		BG_ParseAnimationEvtFile( 0, "models/players/_humanoid/", 0, -1 );
 //		if (cgs.gametype == GT_SIEGE)
 //		{
-//			BG_ParseAnimationEvtFile( "models/players/rockettrooper/", 1, 1 );
+//			BG_ParseAnimationEvtFile( 0, "models/players/rockettrooper/", 1, 1 );
 //		}
 	}
 
@@ -659,6 +659,7 @@ retryModel:
 
 	ci->bolt_rhand = trap->G2API_AddBolt(ci->ghoul2Model, 0, "*r_hand");
 
+	trap->G2API_SetAnimIndex(ci->ghoul2Model, 0, 0);
 	if (!trap->G2API_SetBoneAnim(ci->ghoul2Model, 0, "model_root", 0, 12, BONE_ANIM_OVERRIDE_LOOP, 1.0f, cg.time, -1, -1))
 	{
 		badModel = qtrue;
@@ -848,7 +849,7 @@ int CG_G2SkelForModel(void *g2)
 	{
 		strcpy(slash, "/animation.cfg");
 
-		animIndex = BG_ParseAnimationFile(GLAName, NULL, qfalse);
+		animIndex = BG_ParseAnimationFile(0, GLAName, NULL, qfalse);
 	}
 
 	return animIndex;
@@ -881,7 +882,7 @@ int CG_G2EvIndexForModel(void *g2, int animIndex)
 		slash++;
 		*slash = 0;
 
-		evtIndex = BG_ParseAnimationEvtFile(GLAName, animIndex, bgNumAnimEvents);
+		evtIndex = BG_ParseAnimationEvtFile(0, GLAName, animIndex, bgNumAnimEvents);
 	}
 
 	return evtIndex;
@@ -1224,7 +1225,7 @@ void CG_LoadClientInfo( clientInfo_t *ci ) {
 
 		cg_entities[clientNum].localAnimIndex = CG_G2SkelForModel(cg_entities[clientNum].ghoul2);
 		//[ANIMEVENTS]
-		cg_entities[clientNum].eventAnimIndex = BG_ParseAnimationEvtFile( va("models/players/%s/", ci->modelName), cg_entities[clientNum].localAnimIndex, bgNumAnimEvents );
+		cg_entities[clientNum].eventAnimIndex = BG_ParseAnimationEvtFile( 0, va("models/players/%s/", ci->modelName), cg_entities[clientNum].localAnimIndex, bgNumAnimEvents );
 		//[/ANIMEVENTS]
 	}
 
@@ -2150,6 +2151,7 @@ void CG_NewClientInfo( int clientNum, qboolean entitiesInitialized ) {
 			}
 
 			//rww - Set the animation again because it just got reset due to the model change
+			trap->G2API_SetAnimIndex(ci->ghoul2Model, 0, anim->glaIndex);
 			trap->G2API_SetBoneAnim(ci->ghoul2Model, 0, "model_root", firstFrame, anim->firstFrame + anim->numFrames, flags, animSpeed, cg.time, setFrame, 150);
 
 			cg_entities[clientNum].currentState.legsAnim = 0;
@@ -2175,6 +2177,7 @@ void CG_NewClientInfo( int clientNum, qboolean entitiesInitialized ) {
 			}
 
 			//rww - Set the animation again because it just got reset due to the model change
+			trap->G2API_SetAnimIndex(ci->ghoul2Model, 0, anim->glaIndex);
 			trap->G2API_SetBoneAnim(ci->ghoul2Model, 0, "lower_lumbar", firstFrame, anim->firstFrame + anim->numFrames, flags, animSpeed, cg.time, setFrame, 150);
 
 			cg_entities[clientNum].currentState.torsoAnim = 0;
@@ -2201,7 +2204,7 @@ void CG_NewClientInfo( int clientNum, qboolean entitiesInitialized ) {
 		cg_entities[clientNum].localAnimIndex = CG_G2SkelForModel(cg_entities[clientNum].ghoul2);
 		//[ANIMEVENTS]
 		//This might cause slow down whenever someone with a new animevent.cfg joins the game.  Oh well.
-		cg_entities[clientNum].eventAnimIndex = BG_ParseAnimationEvtFile( va("models/players/%s/", ci->modelName), cg_entities[clientNum].localAnimIndex, bgNumAnimEvents);
+		cg_entities[clientNum].eventAnimIndex = BG_ParseAnimationEvtFile( 0, va("models/players/%s/", ci->modelName), cg_entities[clientNum].localAnimIndex, bgNumAnimEvents);
 		//[/ANIMEVENTS]
 
 		if (cg_entities[clientNum].currentState.number != cg.predictedPlayerState.clientNum &&
@@ -2781,6 +2784,12 @@ void CG_PlayerAnimEvents( int animFileIndex, int eventFileIndex, qboolean torso,
 	int		firstFrame = 0, lastFrame = 0;
 	qboolean	doEvent = qfalse, inSameAnim = qfalse, loopAnim = qfalse, match = qfalse, animBackward = qfalse;
 	animevent_t *animEvents = NULL;
+	int		glaindex = -1;
+
+	if ( cg_entities[entNum].ghoul2 )
+	{
+		glaindex = trap->G2API_GetAnimIndex(cg_entities[entNum].ghoul2, 0);
+	}
 
 	if ( torso )
 	{
@@ -2850,6 +2859,11 @@ void CG_PlayerAnimEvents( int animFileIndex, int eventFileIndex, qboolean torso,
 		if ( animEvents[i].eventType == AEV_NONE )	// No event, end of list
 		{
 			break;
+		}
+
+		if (glaindex != -1 && animEvents[i].glaIndex != glaindex)
+		{
+			continue;
 		}
 
 		match = qfalse;
@@ -3294,6 +3308,7 @@ static void CG_SetLerpFrameAnimation( centity_t *cent, clientInfo_t *ci, lerpFra
 				beginFrame = -1;
 			}
 
+			trap->G2API_SetAnimIndex(cent->ghoul2, 0, bgAllAnims[cent->localAnimIndex].anims[newAnimation].glaIndex);
 			trap->G2API_SetBoneAnim(cent->ghoul2, 0, "lower_lumbar", firstFrame, lastFrame, flags, animSpeed,cg.time, beginFrame, blendTime);
 
 			// Update the torso frame with the new animation
@@ -3331,7 +3346,7 @@ static void CG_SetLerpFrameAnimation( centity_t *cent, clientInfo_t *ci, lerpFra
 					beginFrame = oldBeginFrame;
 				}
 			}
-
+			trap->G2API_SetAnimIndex(cent->ghoul2, 0, bgAllAnims[cent->localAnimIndex].anims[newAnimation].glaIndex);
 			trap->G2API_SetBoneAnim(cent->ghoul2, 0, "model_root", firstFrame, lastFrame, flags, animSpeed, cg.time, beginFrame, blendTime);
 
 			if (ci)
@@ -3342,6 +3357,7 @@ static void CG_SetLerpFrameAnimation( centity_t *cent, clientInfo_t *ci, lerpFra
 
 		if (cent->localAnimIndex <= 1 && (cent->currentState.torsoAnim) == newAnimation && !cent->noLumbar)
 		{ //make sure we're humanoid before we access the motion bone
+			trap->G2API_SetAnimIndex(cent->ghoul2, 0, bgAllAnims[cent->localAnimIndex].anims[newAnimation].glaIndex);
 			trap->G2API_SetBoneAnim(cent->ghoul2, 0, "Motion", firstFrame, lastFrame, flags, animSpeed, cg.time, beginFrame, blendTime);
 		}
 
@@ -3575,6 +3591,7 @@ static void CG_RunLerpFrame( centity_t *cent, clientInfo_t *ci, lerpFrame_t *lf,
 		{
 			int flags = BONE_ANIM_OVERRIDE_FREEZE|BONE_ANIM_BLEND;
 			float animSpeed = 1.0f;
+			trap->G2API_SetAnimIndex(cent->ghoul2, 0, bgAllAnims[cent->localAnimIndex].anims[newAnimation].glaIndex);
 			trap->G2API_SetBoneAnim(cent->ghoul2, 0, "lower_lumbar", cent->currentState.forceFrame, cent->currentState.forceFrame+1, flags, animSpeed, cg.time, -1, 150);
 			trap->G2API_SetBoneAnim(cent->ghoul2, 0, "model_root", cent->currentState.forceFrame, cent->currentState.forceFrame+1, flags, animSpeed, cg.time, -1, 150);
 			trap->G2API_SetBoneAnim(cent->ghoul2, 0, "Motion", cent->currentState.forceFrame, cent->currentState.forceFrame+1, flags, animSpeed, cg.time, -1, 150);
@@ -4058,7 +4075,7 @@ qboolean CG_RagDoll(centity_t *cent, vec3_t forcedAngles)
 				{ //this is sort of silly but it works for now.
 					currentFrame = (curAnim->firstFrame + curAnim->numFrames-2);
 				}
-
+				trap->G2API_SetAnimIndex(cent->ghoul2, 0, curAnim->glaIndex);
 				trap->G2API_SetBoneAnim(cent->ghoul2, 0, "lower_lumbar", currentFrame, currentFrame+1, flags, animSpeed,cg.time, currentFrame, blendTime);
 				trap->G2API_SetBoneAnim(cent->ghoul2, 0, "model_root", currentFrame, currentFrame+1, flags, animSpeed, cg.time, currentFrame, blendTime);
 				trap->G2API_SetBoneAnim(cent->ghoul2, 0, "Motion", currentFrame, currentFrame+1, flags, animSpeed, cg.time, currentFrame, blendTime);
@@ -11113,7 +11130,7 @@ void CG_CacheG2AnimInfo(char *modelName)
 		{
 			strcpy(slash, "/animation.cfg" );
 
-			animIndex = BG_ParseAnimationFile(GLAName, NULL, qfalse);
+			animIndex = BG_ParseAnimationFile(0, GLAName, NULL, qfalse);
 		}
 
 		if (animIndex != -1)
@@ -11125,7 +11142,7 @@ void CG_CacheG2AnimInfo(char *modelName)
 				*slash = 0;
 			}
 
-			BG_ParseAnimationEvtFile(originalModelName, animIndex, bgNumAnimEvents);
+			BG_ParseAnimationEvtFile(0, originalModelName, animIndex, bgNumAnimEvents);
 		}
 
 		//Now free the temp instance
@@ -11397,7 +11414,7 @@ void CG_G2AnimEntModelLoad(centity_t *cent)
 				{
 					strcpy(slash, "/animation.cfg");
 
-					cent->localAnimIndex = BG_ParseAnimationFile(GLAName, NULL, qfalse);
+					cent->localAnimIndex = BG_ParseAnimationFile(0, GLAName, NULL, qfalse);
 				}
 			}
 			else
@@ -11457,7 +11474,7 @@ void CG_G2AnimEntModelLoad(centity_t *cent)
 					*slash = 0;
 				}
 
-				cent->eventAnimIndex = BG_ParseAnimationEvtFile(originalModelName, cent->localAnimIndex, bgNumAnimEvents);
+				cent->eventAnimIndex = BG_ParseAnimationEvtFile(0, originalModelName, cent->localAnimIndex, bgNumAnimEvents);
 			}
 		}
 	}
@@ -14363,7 +14380,10 @@ void CG_Player( centity_t *cent ) {
 			//This will probably cause NPCs that use this code path to use their 
 			//skeleton's animevent instead of their actual models.  Fortunately, I don't
 			//think NPCs ever go thru here anyway.
-			cent->eventAnimIndex = BG_ParseAnimationEvtFile( va("models/players/%s/", ci->modelName), cent->localAnimIndex, bgNumAnimEvents);
+			// 74145: let's find out.
+			if (cent->currentState.eType == ET_NPC && cent->currentState.NPC_class != CLASS_VEHICLE)
+				assert(0 && "NPCs lose their anim events?\n");
+			cent->eventAnimIndex = BG_ParseAnimationEvtFile( 0, va("models/players/%s/", ci->modelName), cent->localAnimIndex, bgNumAnimEvents);
 			//[/ANIMEVENTS]
 		}
 		return;
@@ -16627,6 +16647,7 @@ stillDoSaber:
 			return;
 		}
 
+		trap->G2API_SetAnimIndex(cent->ghoul2, 0, 0);
 		trap->G2API_SetBoneAnim(legs.ghoul2, 0, "model_root", cent->miscTime, cent->miscTime, BONE_ANIM_OVERRIDE_FREEZE, 1.0f, cg.time, cent->miscTime, -1);
 
 		if (!cent->noLumbar)
@@ -16798,6 +16819,8 @@ stillDoSaber:
 
 			//Set the animation to the current frame and freeze on end
 			//trap->G2API_SetBoneAnim(cent->frame_hold.ghoul2, 0, "model_root", cent->frame_hold.frame, cent->frame_hold.frame, BONE_ANIM_OVERRIDE_FREEZE, 1.0f, cg.time, cent->frame_hold.frame, -1);
+			int glaindex = trap->G2API_GetAnimIndex(cent->ghoul2, 0);
+			trap->G2API_SetAnimIndex(cent->frame_hold, 0, glaindex);
 			trap->G2API_SetBoneAnim(cent->frame_hold, 0, "model_root", legs.frame, legs.frame, 0, 1.0f, cg.time, legs.frame, -1);
 		}
 		else
@@ -17285,7 +17308,9 @@ void CG_ResetPlayerEntity( centity_t *cent )
 			//This will probably cause NPCs that use this code path to use their 
 			//skeleton's animevent instead of their actual models.  Fortunately, I don't
 			//think NPCs ever go thru here anyway.
-			cent->eventAnimIndex = BG_ParseAnimationEvtFile( va("models/players/%s/", ci->modelName), cent->localAnimIndex, bgNumAnimEvents );
+			if (cent->currentState.eType == ET_NPC && cent->currentState.NPC_class != CLASS_VEHICLE)
+				assert(0 && "NPCs lose their anim events2?\n");
+			cent->eventAnimIndex = BG_ParseAnimationEvtFile( 0, va("models/players/%s/", ci->modelName), cent->localAnimIndex, bgNumAnimEvents );
 			//[/ANIMEVENTS]
 
 			//CG_CopyG2WeaponInstance(cent->currentState.weapon, ci->ghoul2Model);

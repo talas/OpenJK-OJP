@@ -175,7 +175,7 @@ char *showPowersName[] =
 
 int UI_ParseAnimationFile(const char *filename, animation_t *animset, qboolean isHumanoid)
 {
-	return BG_ParseAnimationFile(filename, animset, isHumanoid);
+	return BG_ParseAnimationFile(0, filename, animset, isHumanoid);
 }
 
 int MenuFontToHandle(int iMenuFont)

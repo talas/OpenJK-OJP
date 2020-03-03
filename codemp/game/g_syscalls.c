@@ -873,6 +873,12 @@ int trap_G2API_AddBolt(void *ghoul2, int modelIndex, const char *boneName) {
 void trap_G2API_SetBoltInfo(void *ghoul2, int modelIndex, int boltInfo) {
 	Q_syscall(G_G2_SETBOLTINFO, ghoul2, modelIndex, boltInfo);
 }
+int trap_G2API_GetAnimIndex(void *ghoul2, int modelIndex) {
+	return Q_syscall(G_G2_GETANIMINDEX, ghoul2, modelIndex);
+}
+qboolean trap_G2API_SetAnimIndex(void *ghoul2, int modelIndex, int const index) {
+	return Q_syscall(G_G2_SETANIMINDEX, ghoul2, modelIndex, index);
+}
 qboolean trap_G2API_SetBoneAngles(void *ghoul2, int modelIndex, const char *boneName, const vec3_t angles, const int flags, const int up, const int right, const int forward, qhandle_t *modelList, int blendTime , int currentTime ) {
 	return (Q_syscall(G_G2_ANGLEOVERRIDE, ghoul2, modelIndex, boneName, angles, flags, up, right, forward, modelList, blendTime, currentTime));
 }
@@ -1319,6 +1325,8 @@ static void TranslateSyscalls( void ) {
 	trap->G2API_Ghoul2Size					= trap_G2API_Ghoul2Size;
 	trap->G2API_AddBolt						= trap_G2API_AddBolt;
 	trap->G2API_SetBoltInfo					= trap_G2API_SetBoltInfo;
+	trap->G2API_GetAnimIndex				= trap_G2API_GetAnimIndex;
+	trap->G2API_SetAnimIndex				= trap_G2API_SetAnimIndex;
 	trap->G2API_SetBoneAngles				= trap_G2API_SetBoneAngles;
 	trap->G2API_SetBoneAnim					= trap_G2API_SetBoneAnim;
 	trap->G2API_GetBoneAnim					= trap_G2API_GetBoneAnim;

@@ -1523,6 +1523,16 @@ static void SV_G2API_CleanGhoul2Models( void **ghoul2Ptr ) {
 	re->G2API_CleanGhoul2Models( (CGhoul2Info_v **)ghoul2Ptr );
 }
 
+static int SV_G2API_GetAnimIndex( void *ghoul2, int modelIndex ) {
+	if ( !ghoul2 ) return 0;
+	return re->G2API_GetAnimIndex( *((CGhoul2Info_v *)ghoul2), modelIndex );
+}
+
+static qboolean SV_G2API_SetAnimIndex( void *ghoul2, int modelIndex, const int index ) {
+	if ( !ghoul2 ) return qfalse;
+	return re->G2API_SetAnimIndex( *((CGhoul2Info_v *)ghoul2), modelIndex, index );
+}
+
 static qboolean SV_G2API_SetBoneAngles( void *ghoul2, int modelIndex, const char *boneName, const vec3_t angles, const int flags, const int up, const int right, const int forward, qhandle_t *modelList, int blendTime , int currentTime ) {
 	if ( !ghoul2 ) return qfalse;
 	return re->G2API_SetBoneAngles( *((CGhoul2Info_v *)ghoul2), modelIndex, boneName, angles, flags, (const Eorientations)up, (const Eorientations)right, (const Eorientations)forward, modelList, blendTime , currentTime );
@@ -2628,6 +2638,12 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
 	case G_G2_ADDBOLT:
 		return SV_G2API_AddBolt(VMA(1), args[2], (const char *)VMA(3));
 
+	case G_G2_GETANIMINDEX:
+		return SV_G2API_GetAnimIndex(VMA(1), args[2]);
+
+	case G_G2_SETANIMINDEX:
+		return SV_G2API_SetAnimIndex(VMA(1), args[2], args[3]);
+
 	case G_G2_SETBOLTINFO:
 		SV_G2API_SetBoltInfo(VMA(1), args[2], args[3]);
 		return 0;
@@ -3084,6 +3100,8 @@ void SV_BindGame( void ) {
 		gi.G2API_AddBolt						= SV_G2API_AddBolt;
 		gi.G2API_SetBoltInfo					= SV_G2API_SetBoltInfo;
 		gi.G2API_SetBoneAngles					= SV_G2API_SetBoneAngles;
+		gi.G2API_GetAnimIndex					= SV_G2API_GetAnimIndex;
+		gi.G2API_SetAnimIndex					= SV_G2API_SetAnimIndex;
 		gi.G2API_SetBoneAnim					= SV_G2API_SetBoneAnim;
 		gi.G2API_GetBoneAnim					= SV_G2API_GetBoneAnim;
 		gi.G2API_GetGLAName						= SV_G2API_GetGLAName;

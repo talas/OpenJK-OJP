@@ -707,6 +707,8 @@ typedef enum gameImportLegacy_e {
 	G_G2_SETSKIN,
 	G_G2_SIZE,
 	G_G2_ADDBOLT,
+	G_G2_GETANIMINDEX,
+	G_G2_SETANIMINDEX,
 	G_G2_SETBOLTINFO,
 	G_G2_ANGLEOVERRIDE,
 	G_G2_PLAYANIM,
@@ -1095,6 +1097,8 @@ typedef struct gameImport_s {
 	int			(*G2API_AddBolt)						( void *ghoul2, int modelIndex, const char *boneName );
 	void		(*G2API_SetBoltInfo)					( void *ghoul2, int modelIndex, int boltInfo );
 	qboolean	(*G2API_SetBoneAngles)					( void *ghoul2, int modelIndex, const char *boneName, const vec3_t angles, const int flags, const int up, const int right, const int forward, qhandle_t *modelList, int blendTime , int currentTime );
+	int		(*G2API_GetAnimIndex)					( void *ghoul2, int modelIndex );
+	qboolean	(*G2API_SetAnimIndex)					( void *ghoul2, int modelIndex, const int index );
 	qboolean	(*G2API_SetBoneAnim)					( void *ghoul2, const int modelIndex, const char *boneName, const int startFrame, const int endFrame, const int flags, const float animSpeed, const int currentTime, const float setFrame, const int blendTime );
 	qboolean	(*G2API_GetBoneAnim)					( void *ghoul2, const char *boneName, const int currentTime, float *currentFrame, int *startFrame, int *endFrame, int *flags, float *animSpeed, int *modelList, const int modelIndex );
 	void		(*G2API_GetGLAName)						( void *ghoul2, int modelIndex, char *fillBuf );

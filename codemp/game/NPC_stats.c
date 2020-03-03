@@ -444,7 +444,7 @@ void SpewDebugStuffToFile(animation_t *anims)
 
 qboolean G_ParseAnimFileSet( const char *filename, const char *animCFG, int *animFileIndex )
 {
-	*animFileIndex = BG_ParseAnimationFile(filename, NULL, qfalse);
+	*animFileIndex = BG_ParseAnimationFile(0, filename, NULL, qfalse);
 	//if it's humanoid we should have it cached and return it, if it is not it will be loaded (unless it's also cached already)
 
 	if (*animFileIndex == -1)

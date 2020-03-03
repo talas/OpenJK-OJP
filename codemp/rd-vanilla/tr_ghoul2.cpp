@@ -869,6 +869,7 @@ static int R_GComputeFogNum( trRefEntity_t *ent ) {
 	if ( tr.refdef.rdflags & RDF_NOWORLDMODEL ) {
 		return 0;
 	}
+	// 74145: hey SP renderer is different here?
 
 	for ( i = 1 ; i < tr.world->numfogs ; i++ ) {
 		fog = &tr.world->fogs[i];
@@ -4264,6 +4265,20 @@ qboolean R_LoadMDXM( model_t *mod, void *buffer, const char *mod_name, qboolean 
 
 	// first up, go load in the animation file we need that has the skeletal animation info for this model
 	mdxm->animIndex = RE_RegisterModel(va ("%s.gla",mdxm->animName));
+	if (!strcmp(mdxm->animName,"models/players/_humanoid/_humanoid"))
+	{	//if we're loading the humanoid, look for a cinematic gla for this map
+		const char*mapname_ = ri.Cvar_VariableString( "mapname" );
+		if (strcmp(mapname_,"nomap") )
+		{
+			if (strrchr(mapname_,'/') )	//maps in subfolders use the root name, ( presuming only one level deep!)
+			{
+				mapname_ = strrchr(mapname_,'/')+1;
+			}
+			qhandle_t y = RE_RegisterModel(va ("models/players/_humanoid_%s/_humanoid_%s.gla",mapname_,mapname_));
+			if (y)
+				Com_Printf("loading cinematic gla %i: %s\n", y, mapname_);
+		}
+	}
 
 	if (!mdxm->animIndex)
 	{

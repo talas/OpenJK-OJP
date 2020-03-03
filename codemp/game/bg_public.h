@@ -415,6 +415,7 @@ typedef struct animation_s {
 	short				frameLerp;			// msec between frames
 	//initialLerp is abs(frameLerp)
 	signed char			loopFrames;			// 0 to numFrames
+	unsigned char	glaIndex;
 } animation_t;
 #pragma pack(pop)
 
@@ -503,6 +504,7 @@ typedef struct animevent_s
 	int				ambtime;
 	//Ambient Random Factor
 	int				ambrandom;
+	int				glaIndex;
 } animevent_t;
 
 typedef struct bgLoadedAnim_s {
@@ -1942,9 +1944,9 @@ qboolean	BG_PlayerTouchesItem( playerState_t *ps, entityState_t *item, int atTim
 
 void	BG_InitAnimsets(void);
 void	BG_ClearAnimsets(void);
-int		BG_ParseAnimationFile(const char *filename, animation_t *animSet, qboolean isHumanoid);
+int		BG_ParseAnimationFile(const int glaindex, const char *filename, animation_t *animSet, qboolean isHumanoid);
 #ifndef _GAME
-int		BG_ParseAnimationEvtFile( const char *as_filename, int animFileIndex, int eventFileIndex );
+int		BG_ParseAnimationEvtFile( const int glaindex, const char *as_filename, int animFileIndex, int eventFileIndex );
 #endif
 
 qboolean BG_HasAnimation(int animIndex, int animation);

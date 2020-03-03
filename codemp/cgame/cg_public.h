@@ -387,6 +387,8 @@ typedef enum cgameImportLegacy_e {
 	CG_G2_COLLISIONDETECT,
 	CG_G2_COLLISIONDETECTCACHE,
 	CG_G2_CLEANMODELS,
+	CG_G2_GETANIMINDEX,
+	CG_G2_SETANIMINDEX,
 	CG_G2_ANGLEOVERRIDE,
 	CG_G2_PLAYANIM,
 	CG_G2_GETBONEANIM,
@@ -671,6 +673,8 @@ typedef struct cgameImport_s {
 	void			(*G2API_CollisionDetect)				( CollisionRecord_t *collRecMap, void* ghoul2, const vec3_t angles, const vec3_t position, int frameNumber, int entNum, vec3_t rayStart, vec3_t rayEnd, vec3_t scale, int traceFlags, int useLod, float fRadius );
 	void			(*G2API_CollisionDetectCache)			( CollisionRecord_t *collRecMap, void* ghoul2, const vec3_t angles, const vec3_t position,int frameNumber, int entNum, vec3_t rayStart, vec3_t rayEnd, vec3_t scale, int traceFlags, int useLod, float fRadius );
 	void			(*G2API_CleanGhoul2Models)				( void **ghoul2Ptr );
+	int			(*G2API_GetAnimIndex)					( void *ghoul2, int modelIndex );
+	qboolean		(*G2API_SetAnimIndex)					( void *ghoul2, int modelIndex, const int index );
 	qboolean		(*G2API_SetBoneAngles)					( void *ghoul2, int modelIndex, const char *boneName, const vec3_t angles, const int flags, const int up, const int right, const int forward, qhandle_t *modelList, int blendTime , int currentTime );
 	qboolean		(*G2API_SetBoneAnim)					( void *ghoul2, const int modelIndex, const char *boneName, const int startFrame, const int endFrame, const int flags, const float animSpeed, const int currentTime, const float setFrame, const int blendTime );
 	qboolean		(*G2API_GetBoneAnim)					( void *ghoul2, const char *boneName, const int currentTime, float *currentFrame, int *startFrame, int *endFrame, int *flags, float *animSpeed, int *modelList, const int modelIndex );

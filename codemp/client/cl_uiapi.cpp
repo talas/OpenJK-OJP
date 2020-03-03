@@ -589,6 +589,14 @@ static void CL_G2API_SetBoltInfo( void *ghoul2, int modelIndex, int boltInfo ) {
 	re->G2API_SetBoltInfo( *((CGhoul2Info_v *)ghoul2), modelIndex, boltInfo );
 }
 
+static qboolean CL_G2API_SetAnimIndex( void *ghoul2, int modelIndex, const int index ) {
+	if ( !ghoul2 ) {
+		return qfalse;
+	}
+
+	return re->G2API_SetAnimIndex( *((CGhoul2Info_v *)ghoul2), modelIndex, index );
+}
+
 static qboolean CL_G2API_SetRootSurface( void *ghoul2, const int modelIndex, const char *surfaceName ) {
 	if ( !ghoul2 ) {
 		return qfalse;
@@ -1222,6 +1230,9 @@ intptr_t CL_UISystemCalls( intptr_t *args ) {
 		CL_G2API_SetBoltInfo(VMA(1), args[2], args[3]);
 		return 0;
 
+	case UI_G2_SETANIMINDEX:
+		return CL_G2API_SetAnimIndex(VMA(1), args[2], args[3]);
+
 	case UI_G2_SETROOTSURFACE:
 		return CL_G2API_SetRootSurface(VMA(1), args[2], (const char *)VMA(3));
 
@@ -1412,6 +1423,7 @@ void CL_BindUI( void ) {
 		uii.G2API_RemoveGhoul2Model				= CL_G2API_RemoveGhoul2Model;
 		uii.G2API_AddBolt						= CL_G2API_AddBolt;
 		uii.G2API_SetBoltInfo					= CL_G2API_SetBoltInfo;
+		uii.G2API_SetAnimIndex					= CL_G2API_SetAnimIndex;
 		uii.G2API_SetRootSurface				= CL_G2API_SetRootSurface;
 		uii.G2API_SetSurfaceOnOff				= CL_G2API_SetSurfaceOnOff;
 		uii.G2API_SetNewOrigin					= CL_G2API_SetNewOrigin;
