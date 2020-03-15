@@ -8868,6 +8868,7 @@ static void PM_Weapon( void )
 		pm->ps->weaponstate == WEAPON_READY && pm->ps->weaponTime <= 0 &&
 		(pm->ps->weapon >= WP_BRYAR_PISTOL || pm->ps->weapon == WP_STUN_BATON) &&
 		pm->ps->torsoTimer <= 0 &&
+		pm->ps->torsoTimer != -1 && //[CoOp] fix for chewie in t1_sour intro
 		pm->ps->torsoAnim != PM_GetWeaponReadyAnim() && //[DualPistols]
 		pm->ps->torsoAnim != TORSO_WEAPONIDLE3 &&
 		pm->ps->weapon != WP_EMPLACED_GUN)

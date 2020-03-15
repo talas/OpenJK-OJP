@@ -42,6 +42,7 @@ set(MPCGameGameFiles
 	"${MPDir}/game/bg_slidemove.c"
 	"${MPDir}/game/bg_vehicleLoad.c"
 	"${MPDir}/game/bg_weapons.c"
+	"${MPDir}/game/g_roff.c"
 	"${MPDir}/game/FighterNPC.c"
 	"${MPDir}/game/SpeederNPC.c"
 	"${MPDir}/game/WalkerNPC.c"

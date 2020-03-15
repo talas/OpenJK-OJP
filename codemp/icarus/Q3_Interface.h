@@ -102,6 +102,7 @@ typedef enum //# setType_e
 
 	SET_SCROLLTEXT,	//## %s="" # key of text string to print
 	SET_LCARSTEXT,	//## %s="" # key of text string to print in LCARS frame
+	SET_CENTERTEXT,	//## %s=""  # key of text string to print in center of screen.
 
 	//# #sep vectors
 	SET_ORIGIN,//## %v="0.0 0.0 0.0" # Set origin explicitly or with TAG
@@ -308,10 +309,12 @@ typedef enum //# setType_e
 	MOVE,		//camera move
 	PAN,		//camera pan
 	FADE,		//camera fade
+	PATH,		//camera path
 	ZOOM,		//camera zoom
 	DISABLE,	//camera disable
 	SHAKE,		//camera shake
 	FOLLOW,		//camera follow
+	TRACK,		//camera track
 	//[/CoOp]
 
 	//# #eol
@@ -325,11 +328,13 @@ void ICam_Move( vec3_t dest, float duration );
 void ParseTags( int entID, const char *data );
 void ICam_Pan( vec3_t dest, vec3_t panDirection, float duration );
 void ICam_Fade( vec4_t source, vec4_t dest, float duration );
+void ICam_Path( const char *name );
 void ICam_Zoom( float FOV, float duration );
 void ICam_Disable( void );
 void ICam_Shake( float intensity, int duration );
 void RemoveComma(char *comma);
 void ICam_Follow( const char *cameraGroup, float speed, float initLerp );
+void ICam_Track( const char *trackName, float speed, float initLerp );
 void Q3_SetBroadcast( int entID, qboolean broadcast );
 void Q3_SetRenderCullRadius(int entID, float float_data);
 void Q3_SetForcePower( int entID, int forcePower, qboolean powerOn );

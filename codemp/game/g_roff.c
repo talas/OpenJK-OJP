@@ -20,19 +20,24 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 //[ROFF]
+#ifdef _GAME
 #include "g_local.h"
-#include "g_roff.h"
 #include "g_ICARUScb.h"
+#endif
+#ifdef _CGAME
+#include "../cgame/cg_local.h"
+#endif
+#include "g_roff.h"
 // The list of precached ROFFs
 roff_list_t	roffs[MAX_ROFFS];
 int			num_roffs = 0;
 
 qboolean g_bCollidableRoffs = qfalse;
 
+#ifdef _GAME
 extern void	Q3_TaskIDComplete( gentity_t *ent, taskID_t taskType );
 
-/*
-static void G_RoffNotetrackCallback( gentity_t *cent, const char *notetrack)
+static void G_RoffNotetrackCallback( gentity_t *ent, const char *notetrack)
 {
 	int i = 0, r = 0, r2 = 0, objectID = 0, anglesGathered = 0, posoffsetGathered = 0;
 	char type[256];
@@ -44,7 +49,7 @@ static void G_RoffNotetrackCallback( gentity_t *cent, const char *notetrack)
 	int addlArgs = 0;
 	vec3_t parsedAngles, parsedOffset, useAngles, useOrigin, forward, right, up;
 
-	if (!cent || !notetrack)
+	if (!ent || !notetrack)
 	{
 		return;
 	}
@@ -208,17 +213,17 @@ defaultoffsetposition:
 				}
 				else
 				{ //failed to parse angles from the extra argument provided..
-					VectorCopy(cent->s.apos.trBase, useAngles);
+					VectorCopy(ent->s.apos.trBase, useAngles);
 				}
 			}
 			else
 			{ //if no constant angles, play in direction entity is facing
-				VectorCopy(cent->s.apos.trBase, useAngles);
+				VectorCopy(ent->s.apos.trBase, useAngles);
 			}
 
 			AngleVectors(useAngles, forward, right, up);
 
-			VectorCopy(cent->s.pos.trBase, useOrigin);
+			VectorCopy(ent->s.pos.trBase, useOrigin);
 
 			//forward
 			useOrigin[0] += forward[0]*parsedOffset[0];
@@ -241,7 +246,7 @@ defaultoffsetposition:
 	else if (strcmp(type, "sound") == 0)
 	{
 		objectID = G_SoundIndex(argument);
-		cgi_S_StartSound(cent->s.pos.trBase, cent->s.number, CHAN_BODY, objectID);
+		G_Sound(ent, CHAN_BODY, objectID);
 	}
 	//else if ...
 	else
@@ -262,7 +267,7 @@ functionend:
 	Com_Printf("Type-specific notetrack error: %s\n", errMsg);
 	return;
 }
-*/
+#endif
 
 static qboolean G_ValidRoff( roff_hdr2_t *header )
 {
@@ -303,7 +308,12 @@ static qboolean G_InitRoff( char *file, unsigned char *data )
 	}
 	
 	//set filename
+#ifdef _GAME
 	roffs[num_roffs].fileName = G_NewString( file );
+#elif defined(_CGAME)
+	roffs[num_roffs].fileName = BG_Alloc( strlen(file)+1 );
+	strcpy( roffs[num_roffs].fileName, file );
+#endif
 
 	if ( header->mVersion == ROFF_VERSION )
 	{
@@ -383,14 +393,6 @@ static qboolean G_InitRoff( char *file, unsigned char *data )
 
 			if ( hdr->mNumNotes )
 			{
-				Com_Printf(S_COLOR_RED"NoteTracks for ROFFs not implimented.  Ask Razor Ace if you need it.\n");
-				/*
-				int		size;
-				char	*ptr, *start;
-
-				ptr = start = (char *)&roff_data[i];
-				size = 0;
-
 				int		size;
 				char	*ptr, *start;
 
@@ -403,18 +405,14 @@ static qboolean G_InitRoff( char *file, unsigned char *data )
 					ptr += strlen(ptr) + 1;
 				}
 
-				// ? Get rid of dynamic memory ?
-				//roffs[num_roffs].mNoteTrackIndexes = new char *[hdr->mNumNotes];
-				//ptr = roffs[num_roffs].mNoteTrackIndexes[0] = new char[size];
 				memcpy(roffs[num_roffs].mNoteTrackIndexes[0], start, size);
+				ptr = start;
 
 				for( i = 1; i < hdr->mNumNotes; i++ )
 				{
 					ptr += strlen(ptr) + 1;
-					memcpy(roffs[num_roffs].mNoteTrackIndexes[i], start, size);
-					//roffs[num_roffs].mNoteTrackIndexes[i] = ptr;
+					memcpy(roffs[num_roffs].mNoteTrackIndexes[i], ptr, strlen(ptr) + 1);
 				}
-				*/
 			}
 			return qtrue;
 		}
@@ -522,7 +520,7 @@ void G_FreeRoffs(void)
 //
 // Handles applying the roff data to the specified ent
 //-------------------------------------------------------
-
+#ifdef _GAME
 void G_Roff( gentity_t *ent )
 {//updates roff scripting for this entity.
 	int roff_id;
@@ -558,8 +556,7 @@ void G_Roff( gentity_t *ent )
 		VectorCopy( data->rotate_delta, ang );
 		if (data->mStartNote != -1 || data->mNumNotes)
 		{
-			//RAFIXME - impliment this.
-			//G_RoffNotetrackCallback(ent, roffs[roff_id - 1].mNoteTrackIndexes[data->mStartNote]);
+			G_RoffNotetrackCallback(ent, roffs[roff_id - 1].mNoteTrackIndexes[data->mStartNote]);
 		}
 	}
 	else
@@ -666,6 +663,7 @@ void G_Roff( gentity_t *ent )
 
 	ent->next_roff_time = level.time + roff->mFrameTime;
 }
+#endif
 
 /* RAFIXME - impliment save game stuff?
 //-------------------------------------------------------

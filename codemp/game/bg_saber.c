@@ -3710,6 +3710,7 @@ int PM_DoFake(int curmove)
 //[/SaberSys]
 
 
+extern qboolean in_camera; //[CoOp]
 //[SaberSys]
 extern void PM_DoPunch(void);
 void BG_AddFatigue( playerState_t * ps, int Fatigue);
@@ -4091,6 +4092,8 @@ void PM_WeaponLightsaber(void)
 	// Now we react to a block action by the player's lightsaber.
 	if ( pm->ps->saberBlocked )
 	{
+		if (in_camera) // 74145: No (non-scripted) blocks in cinematics (you can play anims directly to fake this).
+			return;
 		if ( pm->ps->saberBlocked >= BLOCKED_UPPER_RIGHT
 			&& pm->ps->saberBlocked < BLOCKED_UPPER_RIGHT_PROJ)
 		{//hold the parry for a bit

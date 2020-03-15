@@ -2992,6 +2992,20 @@ void ICARUS_SoundCheck(gentity_t *ent)
 		trap->ICARUS_TaskIDComplete((sharedEntity_t *)ent, TID_CHAN_VOICE);
 	}
 }
+// Checks if animation wait should be finished
+extern void Q3_TaskIDClear( int *taskID );
+void ICARUS_AnimCheck(gentity_t *ent)
+{
+	if ( ent->client && ent->client->ps.legsTimer == 0 && ent->client->ps.torsoTimer == 0 &&
+	     trap->ICARUS_TaskIDPending( (sharedEntity_t *)ent, TID_ANIM_BOTH ) )
+	{
+		if ( trap->ICARUS_TaskIDPending( (sharedEntity_t *)ent, TID_ANIM_UPPER) )
+			Q3_TaskIDClear( &ent->taskID[TID_ANIM_UPPER] );
+		if ( trap->ICARUS_TaskIDPending( (sharedEntity_t *)ent, TID_ANIM_LOWER) )
+			Q3_TaskIDClear( &ent->taskID[TID_ANIM_LOWER] );
+		trap->ICARUS_TaskIDComplete( (sharedEntity_t *)ent, TID_ANIM_BOTH );
+	}
+}
 //[/CoOp]
 
 /*
@@ -3030,6 +3044,7 @@ runicarus:
 		//[CoOp]
 		//total hack to let ICARUS know that dowaits on sound files have ended
 		ICARUS_SoundCheck(ent);
+		ICARUS_AnimCheck(ent);
 		//[/CoOp]
 		trap->ICARUS_MaintainTaskManager(ent->s.number);
 		RestoreNPCGlobals();
@@ -3725,6 +3740,7 @@ void G_RunFrame( int levelTime ) {
 			//[CoOp]
 			//total hack to let ICARUS know that dowaits on sound files have ended
 			ICARUS_SoundCheck(ent);
+			ICARUS_AnimCheck(ent);
 			//[/CoOp]
 			trap->ICARUS_MaintainTaskManager(ent->s.number);
 

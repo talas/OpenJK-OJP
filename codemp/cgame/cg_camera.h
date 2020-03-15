@@ -71,6 +71,7 @@ typedef struct camera_s
 	float	FOV_time;
 	float	FOV_vel;
 	float	FOV_acc;
+	float	fov_x;
 
 	//Pan information
 	float	pan_time;
@@ -149,6 +150,7 @@ void CGCam_Disable( void );
 void CGCam_SetPosition( vec3_t org );
 void CGCam_SetAngles( vec3_t ang );
 void CGCam_SetFOV( float FOV );
+float CGCam_GetFov( void );
 
 void CGCam_Zoom( float FOV, float duration );
 //void CGCam_Pan( vec3_t	dest, float duration );
@@ -161,6 +163,7 @@ void CGCam_UpdateFade( void );
 void CGCam_Update( void );
 void CGCam_RenderScene( void );
 void CGCam_DrawWideScreen( void );
+void CGCam_DoFade( int width, int height );
 
 //void CGCam_Shake( float intensity, int duration );
 void CGCam_UpdateShake( vec3_t origin, vec3_t angles );

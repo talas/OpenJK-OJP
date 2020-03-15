@@ -720,8 +720,8 @@ int	CTaskManager::Go( void )
 	//Check for run away scripts
 	if ( m_count++ > RUNAWAY_LIMIT )
 	{
-		assert(0);
 		(m_owner->GetInterface())->I_DPrintf( WL_ERROR, "Runaway loop detected!\n" );
+		assert(0);
 		return TASK_FAILED;
 	}
 

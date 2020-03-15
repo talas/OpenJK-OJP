@@ -40,7 +40,6 @@ camera_t	client_camera={0};
 void CGCam_FollowDisable( void );
 void CGCam_TrackDisable( void );
 void CGCam_DistanceDisable( void );
-extern int CG_CalcFOVFromX( float fov_x );
 //extern void WP_SaberCatch( gentity_t *self, gentity_t *saber, qboolean switchToSaber );
 
 /*
@@ -381,7 +380,9 @@ void CGCam_SetFade( vec4_t dest )
 	client_camera.info_state &= ~CAMERA_FADING;
 	client_camera.fade_duration = 0;
 	VectorCopy( dest, client_camera.fade_source );
+	client_camera.fade_source[3] = dest[3];
 	VectorCopy( dest, client_camera.fade_color );
+	client_camera.fade_color[3] = dest[3];
 }
 
 /*
@@ -399,7 +400,9 @@ void CGCam_Fade( vec4_t source, vec4_t dest, float duration )
 	}
 
 	VectorCopy( source, client_camera.fade_source );
+	client_camera.fade_source[3] = source[3];
 	VectorCopy( dest, client_camera.fade_dest );
+	client_camera.fade_dest[3] = dest[3];
 
 	client_camera.fade_duration = duration;
 	client_camera.fade_time = cg.time;
@@ -1158,13 +1161,17 @@ void CGCam_UpdateFade( void )
 		if ( client_camera.fade_time + client_camera.fade_duration < cg.time )
 		{
 			VectorCopy( client_camera.fade_dest, client_camera.fade_color );
+			client_camera.fade_color[3] = client_camera.fade_dest[3];
 			client_camera.info_state &= ~CAMERA_FADING;
 		}
 		else
 		{
 			for (i = 0; i < 4; i++ )
 			{
-				client_camera.fade_color[i] = client_camera.fade_source[i] + (( ( client_camera.fade_dest[i] - client_camera.fade_source[i] ) ) / client_camera.fade_duration ) * ( cg.time - client_camera.fade_time );
+				client_camera.fade_color[i] = client_camera.fade_source[i] +
+					( ( client_camera.fade_dest[i] - client_camera.fade_source[i] )
+					  / client_camera.fade_duration )
+					* ( cg.time - client_camera.fade_time );
 			}
 		}
 	}
@@ -1257,7 +1264,7 @@ void CGCam_Update( void )
 			}
 			client_camera.FOV = actualFOV_X;
 		}
-		CG_CalcFOVFromX( actualFOV_X );
+		client_camera.fov_x = actualFOV_X;
 	}
 	else if ( client_camera.info_state & CAMERA_ZOOMING )
 	{
@@ -1272,11 +1279,11 @@ void CGCam_Update( void )
 		{
 			actualFOV_X = client_camera.FOV + (( ( client_camera.FOV2 - client_camera.FOV ) ) / client_camera.FOV_duration ) * ( cg.time - client_camera.FOV_time );
 		}
-		CG_CalcFOVFromX( actualFOV_X );
+		client_camera.fov_x = actualFOV_X;
 	}
 	else
 	{
-		CG_CalcFOVFromX( client_camera.FOV );
+		client_camera.fov_x = client_camera.FOV;
 	}
 
 	//Check for roffing angles
@@ -1399,7 +1406,7 @@ void CGCam_Update( void )
 	CGCam_UpdateFade();
 
 	//Update shaking if there's any
-	//CGCam_UpdateSmooth( cg.refdef.vieworg, cg.refdefViewAngles );
+	//CGCam_UpdateSmooth( cg.refdef.vieworg, cg.refdef.viewangles );
 	CGCam_UpdateShake( cg.refdef.vieworg, cg.refdef.viewangles );
 	AnglesToAxis( cg.refdef.viewangles, cg.refdef.viewaxis );
 }
@@ -1600,6 +1607,10 @@ void CGCam_NotetrackProcessFov(const char *addlArg)
 		}
 */
 		CGCam_Zoom(newFov, 0);
+	}
+	else
+	{
+		Com_Printf("camera roff 'fov' notetrack missing arguments\n");
 	}
 }
 
@@ -1918,6 +1929,10 @@ static void CG_RoffNotetrackCallback(const char *notetrack)
 		}
 		Com_Printf("camera roff 'fovaccel' notetrack missing 'begin fov' argument\n", addlArg);
 	}
+	else
+	{
+		Com_Printf("camera roff unknown notetrack type '%s'\n", type);
+	}
 }
 
 /*
@@ -1929,8 +1944,9 @@ a rof file
 -------------------------
 */
 
+#include "../game/g_roff.h"
 void CGCam_StartRoff( char *roff )
-{/* RAFIXME - need to get this stuff figured out.
+{
 	CGCam_FollowDisable();
 	CGCam_TrackDisable();
 
@@ -1951,7 +1967,7 @@ void CGCam_StartRoff( char *roff )
 	strncpy(client_camera.sRoff,roff,sizeof(client_camera.sRoff));
 	client_camera.roff_frame = 0;
 	client_camera.next_roff_time = cg.time;	// I can work right away
-*/}
+}
 
 /*
 -------------------------
@@ -1961,14 +1977,12 @@ Stops camera rof
 -------------------------
 */
 
-/* Not used at the moment
 static void CGCam_StopRoff( void )
 {
 	// Clear the roff flag
 	client_camera.info_state &= ~CAMERA_ROFFING;
 	client_camera.info_state &= ~CAMERA_MOVING;
 }
-*/
 
 /*
 ------------------------------------------------------
@@ -1983,7 +1997,7 @@ so often...or maybe I'm just on crack.
 */
 
 static void CGCam_Roff( void )
-{/* RAFIXME - need to get this stuff figured out.
+{
  while ( client_camera.next_roff_time <= cg.time )
  {
 	// Make sure that the roff is cached
@@ -2024,6 +2038,8 @@ static void CGCam_Roff( void )
 	ang[ROLL]	=- ang[ROLL];
 	// might need to to yaw as well.  need a test...
 
+#ifdef _DEBUG
+#if 0
 	if ( cg_developer.integer )
 	{
 		Com_Printf( S_COLOR_GREEN"CamROFF: frame: %d o:<%.2f %.2f %.2f> a:<%.2f %.2f %.2f>\n", 
@@ -2031,6 +2047,8 @@ static void CGCam_Roff( void )
 					org[0], org[1], org[2],
 					ang[0], ang[1], ang[2] );
 	}
+#endif
+#endif
 
 	if ( client_camera.roff_frame )
 	{
@@ -2065,7 +2083,6 @@ static void CGCam_Roff( void )
 	// Check back in frameTime to get the next roff entry
 	client_camera.next_roff_time += roff->mFrameTime;
  }
- */
 }
 
 void CMD_CGCam_Disable( void )
@@ -2085,6 +2102,7 @@ void CG_CameraParse( void )
 	float float_data, float2_data;
 	vec4_t color, color2;
 	int CGroup[16];
+	char char_data[1000];
 
 	o = CG_ConfigString( CS_CAMERA );
 	if(strncmp("enable", o, 6) == 0)
@@ -2109,6 +2127,11 @@ void CG_CameraParse( void )
 		&float_data);
 		CGCam_Fade(color, color2, float_data);
 	}
+	else if(strncmp("path", o, 4) == 0)
+	{
+		sscanf(o, "%*s %i %s", &int_data, &char_data[0] );
+		CGCam_StartRoff(char_data);
+	}
 	else if(strncmp("zoom", o, 4) == 0)
 	{
 		sscanf(o, "%*s %f %f", &float_data, &float2_data);
@@ -2131,20 +2154,28 @@ void CG_CameraParse( void )
 		&CGroup[14], &CGroup[15], &float_data, &float2_data);
 		CGCam_Follow(CGroup, float_data, float2_data);
 	}
+	else if(strncmp("track", o, 5) == 0)
+	{
+		sscanf(o, "%*s %i %f %f", &int_data, &float_data, &float2_data);
+		CGCam_Track(int_data, float_data, float2_data);
+	}
+
 	else
 	{
 		Com_Printf("Bad CS_CAMERA configstring in CG_CameraParse().\n");
 	}
 }
 
-
-//actually do camera fade
-void CGCam_DoFade(void)
+float CGCam_GetFov(void)
 {
-	if(client_camera.fade_color[0] != 0 || client_camera.fade_color[1] != 0
-		|| client_camera.fade_color[2] != 0 || client_camera.fade_color[3] != 0)
-	{
-		CG_DrawRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH*SCREEN_HEIGHT, client_camera.fade_color);
+	return client_camera.fov_x;
+}
+//actually do camera fade
+void CGCam_DoFade(int width, int height)
+{
+	if (client_camera.fade_color[3] != 0)
+	{ // [CoOp] Cinematic screen fading
+		CG_FillRect(0, 0, width, height, client_camera.fade_color);
 	}
 }
 //[/CoOp]

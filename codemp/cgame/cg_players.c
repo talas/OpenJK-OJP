@@ -2726,7 +2726,13 @@ void CG_PlayerAnimEventDo( centity_t *cent, animevent_t *animEvent )
 		break;
 	//Would have to keep track of this on server to for these, it's not worth it.
 	case AEV_FIRE:
+		if (cent && cent->currentState.weapon != WP_SABER)
+		{ // 74145: Just trigger muzzle flash for now, seems to only be used for t1_sour.
+			cent->muzzleFlashTime = cg.time;
+		}
+		break;
 	case AEV_MOVE:
+		// 74145: Seems to not be used in JKA SP.
 		break;
 		/*
 	case AEV_FIRE:

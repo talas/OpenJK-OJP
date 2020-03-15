@@ -1164,6 +1164,8 @@ Fixed fov at intermissions, otherwise account for fov variable and zooms.
 #define	WAVE_AMPLITUDE	1
 #define	WAVE_FREQUENCY	0.4
 float zoomFov; //this has to be global client-side
+extern qboolean	in_camera; //[CoOp]
+extern float CGCam_GetFov( void );
 
 static int CG_CalcFov( void ) {
 	float	x;
@@ -1209,6 +1211,8 @@ static int CG_CalcFov( void ) {
 	if ( cg.predictedPlayerState.pm_type == PM_INTERMISSION ) {
 		// if in intermission, use a fixed value
 		fov_x = 80;//90;
+	} else if (in_camera) {
+		fov_x = CGCam_GetFov();
 	} else {
 		// user selectable
 		if ( cgs.dmflags & DF_FIXED_FOV ) {
@@ -1563,7 +1567,6 @@ void CG_EmplacedView(vec3_t angles);
 //[CoOp]
 extern void CGCam_UpdateSmooth( vec3_t origin, vec3_t angles );
 extern void CGCam_UpdateShake( vec3_t origin, vec3_t angles );
-extern qboolean	in_camera;
 extern void CGCam_RenderScene( void );
 void CGCam_UpdateFade( void );
 //[/CoOp]
@@ -2519,6 +2522,7 @@ extern qboolean cgQueueLoad;
 extern void CG_ActualLoadDeferredPlayers( void );
 
 static int cg_siegeClassIndex = -2;
+extern void CGCam_Smooth( float intensity, int duration );
 //[ROQFILES]
 extern qboolean InCinematic;
 extern int CinematicNum;
@@ -2577,6 +2581,14 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 	}
 
 	trap->FX_AdjustTime( cg.time );
+
+	static qboolean wasForceSpeed = qfalse;
+	qboolean isForceSpeed = cg.snap && cg.snap->ps.fd.forcePowersActive & ( 1 << FP_SPEED );
+	if (isForceSpeed && !wasForceSpeed)
+	{
+		CGCam_Smooth(0.75f, 5000);
+	}
+	wasForceSpeed = isForceSpeed;
 
 	CG_RunLightStyles();
 

@@ -144,8 +144,10 @@ PAIN_FUNC *NPC_PainFunc( gentity_t *ent )
 		switch( ent->client->NPC_class )
 		{
 		// troopers get special pain
+		case CLASS_SABOTEUR:
 		case CLASS_STORMTROOPER:
 		case CLASS_SWAMPTROOPER:
+		//case CLASS_NOGHRI: // 74145: TODO: this
 			func = NPC_ST_Pain;
 			break;
 

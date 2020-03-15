@@ -238,6 +238,7 @@ stringID_table_t setTable[] =
 	ENUM2STRING(SET_FACEEYESOPENED),
 	ENUM2STRING(SET_SCROLLTEXT),
 	ENUM2STRING(SET_LCARSTEXT),
+	ENUM2STRING(SET_CENTERTEXT),
 	ENUM2STRING(SET_SCROLLTEXTCOLOR),
 	ENUM2STRING(SET_CAPTIONTEXTCOLOR),
 	ENUM2STRING(SET_CENTERTEXTCOLOR),
@@ -361,10 +362,12 @@ stringID_table_t setTable[] =
 	ENUM2STRING(MOVE),
 	ENUM2STRING(PAN),
 	ENUM2STRING(FADE),
+	ENUM2STRING(PATH),
 	ENUM2STRING(ZOOM),
 	ENUM2STRING(DISABLE),
 	ENUM2STRING(SHAKE),
 	ENUM2STRING(FOLLOW),
+	ENUM2STRING(TRACK),
 	//[/CoOp]
 
 //FIXME: add BOTH_ attributes here too
@@ -2776,6 +2779,7 @@ Sets the upper animation of an entity
 static qboolean Q3_SetAnimUpper( int entID, const char *anim_name )
 {
 	int			animID = 0;
+	gentity_t	*ent  = &g_entities[entID];
 
 	animID = GetIDForString( animTable, anim_name );
 
@@ -2785,12 +2789,10 @@ static qboolean Q3_SetAnimUpper( int entID, const char *anim_name )
 		return qfalse;
 	}
 
-	/*
-	if ( !PM_HasAnimation( SV_GentityNum(entID), animID ) )
+	if ( !BG_HasAnimation( ent->localAnimIndex, animID ) )
 	{
 		return qfalse;
 	}
-	*/
 
 	SetUpperAnim( entID, animID );
 	return qtrue;
@@ -2806,6 +2808,7 @@ Sets the lower animation of an entity
 static qboolean Q3_SetAnimLower( int entID, const char *anim_name )
 {
 	int			animID = 0;
+	gentity_t	*ent  = &g_entities[entID];
 
 	//FIXME: Setting duck anim does not actually duck!
 
@@ -2817,12 +2820,10 @@ static qboolean Q3_SetAnimLower( int entID, const char *anim_name )
 		return qfalse;
 	}
 
-	/*
-	if ( !PM_HasAnimation( SV_GentityNum(entID), animID ) )
+	if ( !BG_HasAnimation( ent->localAnimIndex, animID ) )
 	{
 		return qfalse;
 	}
-	*/
 
 	SetLowerAnim( entID, animID );
 	return qtrue;
@@ -5744,6 +5745,29 @@ Q3_SetMoreLight
 */
 static void Q3_SetMoreLight( int entID, qboolean add )
 {
+	gentity_t	*ent  = &g_entities[entID];
+
+	if ( !ent )
+	{
+		G_DebugPrint( WL_WARNING, "Q3_SetMoreLight: invalid entID %d\n", entID);
+		return;
+	}
+
+	if ( !ent->NPC )
+	{
+		G_DebugPrint( WL_ERROR, "Q3_SetMoreLight: '%s' is not an NPC!\n", ent->targetname );
+		return;
+	}
+
+	if ( add )
+	{
+		ent->NPC->scriptFlags |= SCF_MORELIGHT;
+	}
+	else
+	{
+		ent->NPC->scriptFlags &= ~SCF_MORELIGHT;
+	}
+	// 74145: TODO: RF_MORELIGHT does not exist anymore, (RF_MINLIGHT is hijacked for spinning weapon ents)
 	G_DebugPrint( WL_WARNING, "Q3_SetMoreLight: NOT SUPPORTED IN MP\n");
 	return;
 }
@@ -7400,6 +7424,15 @@ qboolean Q3_Set( int taskID, int entID, const char *type_name, const char *data 
 		Q3_SetCinematicSkipScript((char *) data);
 		break;
 
+	/* 74145: TODO: this
+	case SET_RAILCENTERTRACKLOCKED :
+		Rail_LockCenterOfTrack((char *) data);
+		break;
+
+	case SET_RAILCENTERTRACKUNLOCKED :
+		Rail_UnLockCenterOfTrack((char *) data);
+		break;
+	*/
 
 	case SET_DELAYSCRIPTTIME:
 		int_data = atoi((char *) data);
@@ -7698,6 +7731,16 @@ qboolean Q3_Set( int taskID, int entID, const char *type_name, const char *data 
 		Q3_LCARSText( (char *)data );
 		break;
 
+	case SET_CENTERTEXT:
+		if ((data[0] == '@') || data[0] == '!')
+		{
+			if( data[0] == '!')
+				trap->SendServerCommand( -1, va("cp \"%s\"", (data+1)) );
+			else
+				trap->SendServerCommand( -1, va("cp \"%s\"", data) );
+		}
+		break;
+
 	case SET_CAPTIONTEXTCOLOR:
 		Q3_SetCaptionTextColor ( (char *)data );
 		break;
@@ -7850,6 +7893,18 @@ qboolean Q3_Set( int taskID, int entID, const char *type_name, const char *data 
 		}
 		break;
 	//[/CoOp]
+	/* 74145: TODO: this
+	case SET_BOBA_JET_PACK:
+		if(!Q_stricmp("true", ((char *)data)))
+		{
+			Q3_SetBobaJetPack( entID, qtrue);
+		}
+		else if(!Q_stricmp("false", ((char *)data)))
+		{
+			Q3_SetBobaJetPack( entID, qfalse);
+		}
+		break;
+	*/
 
 	case SET_INACTIVE:
 		if(!Q_stricmp("true", ((char *)data)))
@@ -8126,6 +8181,14 @@ qboolean Q3_Set( int taskID, int entID, const char *type_name, const char *data 
 		}
 		ICam_Fade(color, color2, float_data);
 		break;
+	case PATH:
+		if ( sscanf(data, "%s", &char_data[0] ) != 1 ) {
+			G_DebugPrint( WL_WARNING, "Q3_Set: failed sscanf on PATH (%s)\n", type_name );
+		}
+		RemoveComma(char_data);
+		ICam_Path(char_data);
+		break;
+
 	case ZOOM:
 		//65.000, 5500
 		if ( sscanf(data, "%f %*s %f", &float_data, &float2_data ) != 2 ) {
@@ -8152,6 +8215,15 @@ qboolean Q3_Set( int taskID, int entID, const char *type_name, const char *data 
 		RemoveComma(char_data);
 		ICam_Follow(char_data, float_data, float2_data);
 		break;
+	case TRACK:
+		if ( sscanf(data, "%s %f %*s %f", &char_data[0], &float_data, &float2_data ) != 3 ) {
+			G_DebugPrint( WL_WARNING, "Q3_Set: failed sscanf on TRACK (%s)\n", type_name );
+		}
+		RemoveComma(char_data);
+		G_DebugPrint( WL_WARNING, "Q3_Set: camera TRACK not yet supported!" );
+		ICam_Track(char_data, float_data, float2_data);
+		break;
+
 	//[/CoOp]
 	
 	default:
@@ -8159,6 +8231,8 @@ qboolean Q3_Set( int taskID, int entID, const char *type_name, const char *data 
 		//[CoOp]
 		//Fixing the declared varible stuff.
 		SetVar( type_name, data );
+		// 74145: TODO: the below thingy? ugh..!
+		//PrisonerObjCheck(type_name,data);
 		//[/CoOp]
 		break;
 	}
@@ -8242,6 +8316,11 @@ void ICam_Fade( vec4_t source, vec4_t dest, float duration )
 		source[1], source[2], source[3], dest[0], dest[1], dest[2], dest[3], duration) );
 }
 
+void ICam_Path( const char *name )
+{
+	const int dummy = 7;
+	trap->SetConfigstring( CS_CAMERA, va("path %i %s", dummy, name));
+}
 
 void ICam_Follow( const char *cameraGroup, float speed, float initLerp )
 {
@@ -8286,6 +8365,22 @@ void ICam_Follow( const char *cameraGroup, float speed, float initLerp )
 	GCam_Follow(CGroup, speed, initLerp);
 }
 
+void ICam_Track( const char *trackName, float speed, float initLerp )
+{
+	gentity_t	*trackEnt = NULL;
+	int trackNum = -1;
+	if (Q_stricmp("none", (char *)trackName) == 0)
+		trackNum = -1;
+	else
+	{
+		trackEnt = G_Find(NULL, FOFS(targetname), (char *)trackName);
+		if ( trackEnt )
+			trackNum = trackEnt->s.number;
+		else
+			Com_Printf(S_COLOR_RED"ERROR: %s camera track target not found\n", trackName);
+	}
+	trap->SetConfigstring( CS_CAMERA, va("track %i %f %f", trackNum, speed, initLerp));
+}
 
 //input is assumed to be placed at the very beginning of the $tag(
 void ProcessTag( int entID, char *startpoint )
@@ -8388,11 +8483,6 @@ void UpdatePlayerScriptTarget(void)
 	int i;
 	int clientNum = -1;
 	gentity_t *test;
-
-	if(level.gametype != GT_SINGLE_PLAYER)
-	{//only used for CoOp
-		return;
-	}
 
 	//find the clientNum for the top ranker
 	for( i = 0; i < MAX_CLIENTS; i++ )
@@ -8662,7 +8752,14 @@ SetVar
 void SetVar( const char *type_name, const char *data ) {
 	DeclaredVariable_t *var = GetDeclaredVariableFromName( type_name );
 	if ( var != NULL ) {
-		Q_strncpyz(var->Data, data, sizeof(var->Data));
+		float val;
+		if ( (val = Q3_GameSideCheckStringCounterIncrement( data )) )
+		{
+			val += atof( var->Data );
+			Com_sprintf( var->Data, sizeof(var->Data), "%i", (int)val );
+		}
+		else
+			Q_strncpyz(var->Data, data, sizeof(var->Data));
 		return;
 	} else {
 		if ( numDeclaredVariables >= MAX_DECLAREDVARIABLES ) {

@@ -46,8 +46,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 typedef struct roff_hdr_s
 {
 	char	mHeader[4];		// should be "ROFF" (Rotation, Origin File Format)
-	long	mVersion;	
-	float	mCount;			// There isn't any reason for this to be anything other than an int, sigh...
+	int32_t	mVersion;
+	int32_t	mCount;
 		//						
 		//		Move - Rotate data follows....vec3_t delta_origin, vec3_t delta_rotation
 		//
@@ -67,10 +67,10 @@ typedef struct roff_hdr2_s
 //-------------------------------
 {
 	char	mHeader[4];				// should match roff_string defined above
-	long	mVersion;				// version num, supported version defined above
-	int		mCount;					// I think this is a float because of a limitation of the roff exporter
-	int		mFrameRate;				// Frame rate the roff should be played at
-	int		mNumNotes;				// number of notes (null terminated strings) after the roff data
+	int32_t	mVersion;				// version num, supported version defined above
+	int32_t		mCount;					// I think this is a float because of a limitation of the roff exporter
+	int32_t		mFrameRate;				// Frame rate the roff should be played at
+	int32_t		mNumNotes;				// number of notes (null terminated strings) after the roff data
 
 } roff_hdr2_t;
 
@@ -80,7 +80,7 @@ typedef struct move_rotate2_s
 {
 	vec3_t	origin_delta;
 	vec3_t	rotate_delta;
-	int		mStartNote, mNumNotes;		// note track info
+	int32_t		mStartNote, mNumNotes;		// note track info
 
 } move_rotate2_t;
 
@@ -89,14 +89,14 @@ typedef struct move_rotate2_s
 //-------------------------
 typedef struct roff_list_s
 {
-	int				type;			// roff type number, 1-old, 2-new
+	int32_t				type;			// roff type number, 1-old, 2-new
 	char			*fileName;		// roff filename
-	int				frames;			// number of roff entries
+	int32_t				frames;			// number of roff entries
 	move_rotate2_t	data[MAXNUMDATA];	// delta move and rotate vector list
-	int				NumData;			//number of data positions we are currently using.
-	int				mFrameTime;		// frame rate
-	int				mLerp;			// Lerp rate (FPS)
-	int				mNumNoteTracks;
+	int32_t				NumData;			//number of data positions we are currently using.
+	int32_t				mFrameTime;		// frame rate
+	int32_t				mLerp;			// Lerp rate (FPS)
+	int32_t				mNumNoteTracks;
 	char			mNoteTrackIndexes[MAXNOTETRACKS][NOTETRACKSSIZE];
 
 } roff_list_t;
@@ -110,9 +110,11 @@ extern int num_roffs;
 // Function prototypes
 //-------------------------
 int		G_LoadRoff( const char *fileName );
+#ifdef _GAME
 void	G_Roff( gentity_t *ent );
 void	G_SaveCachedRoffs();
 void	G_LoadCachedRoffs();
+#endif
 
 #endif
 //[/ROFF]

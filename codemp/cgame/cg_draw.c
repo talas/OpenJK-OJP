@@ -8166,18 +8166,11 @@ static QINLINE void CG_ChatBox_DrawStrings(void)
 	}
 }
 
-//[CoOp]
-void CGCam_DoFade(void);
-//[/CoOp]
+void CGCam_DoFade(int width, int height);
 static void CG_Draw2DScreenTints( void )
 {
 	float			rageTime, rageRecTime, absorbTime, protectTime, ysalTime;
 	vec4_t			hcolor;
-
-	//[CoOp]
-	//cutscene camera fade code
-	CGCam_DoFade();
-	//[/CoOp]
 
 	if (cgs.clientinfo[cg.snap->ps.clientNum].team != TEAM_SPECTATOR)
 	{
@@ -8590,8 +8583,10 @@ static void CG_Draw2DScreenTints( void )
 
 		CG_FillRect( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, hcolor );
 	}
+	CGCam_DoFade(SCREEN_WIDTH, SCREEN_HEIGHT);
 }
 
+void CGCam_DrawWideScreen(void);
 static void CG_Draw2D( void ) {
 	float			inTime = cg.invenSelectTime+WEAPON_SELECT_TIME;
 	float			wpTime = cg.weaponSelectTime+WEAPON_SELECT_TIME;
@@ -8640,6 +8635,8 @@ static void CG_Draw2D( void ) {
 	}
 
 	CG_Draw2DScreenTints();
+
+	CGCam_DrawWideScreen();
 
 	if (cg.snap->ps.rocketLockIndex != ENTITYNUM_NONE && (cg.time - cg.snap->ps.rocketLockTime) > 0)
 	{

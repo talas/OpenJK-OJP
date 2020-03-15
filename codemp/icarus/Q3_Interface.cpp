@@ -635,7 +635,10 @@ Q3_CameraFade
 */
 static void Q3_CameraFade( float sr, float sg, float sb, float sa, float dr, float dg, float db, float da, float duration )
 {
-	Q3_DebugPrint( WL_WARNING, "Q3_CameraFade: NOT SUPPORTED IN MP\n");
+	Q3_Set( -1, 0, "FADE", va("< %f %f %f >, %f, < %f %f %f >, %f, %i",
+				  sr, sg, sb, sa,
+				  dr, dg, db, da,
+				  (int) duration) );
 }
 
 /*
@@ -645,7 +648,7 @@ Q3_CameraPath
 */
 static void Q3_CameraPath( const char *name )
 {
-	Q3_DebugPrint( WL_WARNING, "Q3_CameraPath: NOT SUPPORTED IN MP\n");
+	Q3_Set( -1, 0, "PATH", name );
 }
 
 /*
@@ -704,11 +707,6 @@ void Q3_DebugPrint( int level, const char *format, ... )
 	}
 }
 
-void CGCam_Anything( void )
-{
-	Q3_DebugPrint( WL_WARNING, "Camera functions NOT SUPPORTED IN MP\n");
-}
-
 //These are useless for MP. Just taking it for now since I don't want to remove all calls to this in ICARUS.
 int AppendToSaveGame(unsigned long chid, const void *data, int length)
 {
@@ -723,52 +721,60 @@ int ReadFromSaveGame(unsigned long chid, void *pvAddress, int iLength /* , void 
 
 void CGCam_Enable( void )
 {
-	CGCam_Anything();
+	Q3_Set( -1, 0, "ENABLE", "1" );
 }
 
 void CGCam_Disable( void )
 {
-	CGCam_Anything();
+	Q3_Set( -1, 0, "DISABLE", "1" );
 }
 
 void CGCam_Zoom( float FOV, float duration )
 {
-	CGCam_Anything();
+	Q3_Set( -1, 0, "ZOOM", va("%f, %i", FOV, (int)duration) );
 }
 
 void CGCam_Pan( vec3_t dest, vec3_t panDirection, float duration )
 {
-	CGCam_Anything();
+	Q3_Set( -1, 0, "PAN", va("< %f %f %f >, < %f %f %f >, %i",
+				 dest[0], dest[1], dest[2],
+				 panDirection[0], panDirection[1], panDirection[2],
+				 (int)duration)
+		);
 }
 
 void CGCam_Move( vec3_t dest, float duration )
 {
-	CGCam_Anything();
+	Q3_Set( -1, 0, "MOVE", va("< %f %f %f >, %i",
+				  dest[0], dest[1], dest[2],
+				  (int)duration)
+		);
 }
 
 void CGCam_Shake( float intensity, int duration )
 {
-	CGCam_Anything();
+	Q3_Set( -1, 0, "SHAKE", va("%f, %i", intensity, duration) );
 }
 
 void CGCam_Follow( const char *cameraGroup, float speed, float initLerp )
 {
-	CGCam_Anything();
+	Q3_Set( -1, 0, "FOLLOW", va("%s, %f, %f", cameraGroup, speed, initLerp) );
 }
 
 void CGCam_Track( const char *trackName, float speed, float initLerp )
-{
-	CGCam_Anything();
+{// 74145: not used in JKA SP it seems.
+	Q3_DebugPrint( WL_WARNING, "CGCam_Track: NOT SUPPORTED IN MP\n");
+	//Q3_Set( -1, 0, "TRACK", va("%s, %f, %f", trackName, speed, initLerp) );
 }
 
 void CGCam_Distance( float distance, float initLerp )
-{
-	CGCam_Anything();
+{// 74145: not used in JKA SP it seems.
+	Q3_DebugPrint( WL_WARNING, "CGCam_Distance: NOT SUPPORTED IN MP\n");
 }
 
 void CGCam_Roll( float	dest, float duration )
-{
-	CGCam_Anything();
+{// 74145: not used in JKA SP it seems.
+	Q3_DebugPrint( WL_WARNING, "CGCam_Roll: NOT SUPPORTED IN MP\n");
 }
 
 int ICARUS_LinkEntity( int entID, CSequencer *sequencer, CTaskManager *taskManager );
