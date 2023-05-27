@@ -37,7 +37,7 @@ extern int uiForceUsed;
 extern int uiForceAvailable;
 extern qboolean gTouchedForce;
 //[ExpSys]
-qboolean uiForcePowersDisabled[NUM_TOTAL_SKILLS];
+extern qboolean uiForcePowersDisabled[NUM_TOTAL_SKILLS];
 extern int uiForcePowersRank[NUM_TOTAL_SKILLS];
 extern int uiForcePowerDarkLight[NUM_TOTAL_SKILLS];
 //[/ExpSys]

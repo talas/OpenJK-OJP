@@ -515,7 +515,7 @@ typedef struct uiRank_s {
 	int		uiForcePowersRank;
 } uiRank_t;
 
-uiRank_t uiRank[NUM_TOTAL_SKILLS];
+extern uiRank_t uiRank[NUM_TOTAL_SKILLS];
 qboolean IsForceRank(int rank);
 //[/NewUI]
 
