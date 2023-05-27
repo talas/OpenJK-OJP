@@ -62,24 +62,28 @@ DeathmatchScoreboardMessage
 ==================
 */
 void DeathmatchScoreboardMessage( gentity_t *ent ) {
-	char		entry[1024];
-	char		string[1400];
-	int			stringlength;
+	char		entry[256];
+	char		string[MAX_STRING_CHARS-1];
+	int			stringlength, prefix;
 	int			i, j;
 	gclient_t	*cl;
 	int			numSorted, scoreFlags, accuracy, perfect, lms_lives;
 
 	// send the latest information on all clients
-	string[0] = 0;
+	string[0] = '\0';
 	stringlength = 0;
 	scoreFlags = 0;
 
 	numSorted = level.numConnectedClients;
 
+	// This is dumb that we are capping to 20 clients but support 32 in server
 	if (numSorted > MAX_CLIENT_SCORE_SEND)
 	{
 		numSorted = MAX_CLIENT_SCORE_SEND;
 	}
+
+	// estimate prefix length to avoid oversize of final string
+	prefix = Com_sprintf( entry, sizeof(entry), "scores %i %i %i", level.teamScores[TEAM_RED], level.teamScores[TEAM_BLUE], level.numConnectedClients );
 
 	for (i=0 ; i < numSorted ; i++) {
 		int		ping;
@@ -107,7 +111,7 @@ void DeathmatchScoreboardMessage( gentity_t *ent ) {
 				lms_lives = ( cl->tempSpectate > level.time) ? gent->lives - 1 : gent->lives;
 		}
 
-		Com_sprintf (entry, sizeof(entry),
+		j = Com_sprintf (entry, sizeof(entry),
 			//[ExpSys]
 			" %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i ", level.sortedClients[i],
 			//[/ExpSys]
@@ -123,17 +127,15 @@ void DeathmatchScoreboardMessage( gentity_t *ent ) {
 			cl->ps.persistant[PERS_CAPTURES],
 			(int) cl->sess.skillPoints);
 			//[/ExpSys]
-		j = strlen(entry);
-		if (stringlength + j > 1022)
+
+		if (stringlength + j + prefix > sizeof(string))
 			break;
-		strcpy (string + stringlength, entry);
+
+		strcpy( string + stringlength, entry );
 		stringlength += j;
 	}
 
-	//still want to know the total # of clients
-	i = level.numConnectedClients;
-
-	trap->SendServerCommand( ent-g_entities, va("scores %i %i %i%s", i,
+	trap->SendServerCommand( ent-g_entities, va("scores %i %i %i%s", level.numConnectedClients,
 		level.teamScores[TEAM_RED], level.teamScores[TEAM_BLUE],
 		string ) );
 }

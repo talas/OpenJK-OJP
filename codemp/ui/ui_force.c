@@ -45,6 +45,7 @@ int uiForceAvailable=0;
 extern const char *UI_TeamName(int team);
 
 qboolean gTouchedForce = qfalse;
+qboolean uiForcePowersDisabled[NUM_TOTAL_SKILLS];
 
 void Menu_ShowItemByName(menuDef_t *menu, const char *p, qboolean bShow);
 

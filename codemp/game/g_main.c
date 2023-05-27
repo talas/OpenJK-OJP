@@ -29,6 +29,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "g_nav.h"
 #include "bg_saga.h"
 #include "b_local.h"
+#include "qcommon/q_version.h"
 //[dynamicMusic]
 //need DMS header to call the update function
 #include "g_dynmusic.h"
